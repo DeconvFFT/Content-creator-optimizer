@@ -57,6 +57,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Check uv.lock is current
+        run: uv lock --check
+
       - name: Sync Python dependencies
         run: uv sync --locked --extra dev --group dev
 
@@ -160,6 +163,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Check uv.lock is current
+        run: uv lock --check
 
       - name: Sync Python dependencies
         run: uv sync --locked --extra dev --group dev

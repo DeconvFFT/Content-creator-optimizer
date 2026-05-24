@@ -38,6 +38,33 @@ def test_ci_uses_uv_lock_for_python_dependency_sync() -> None:
         ), f"{job_name} must install from the committed uv.lock"
 
 
+def test_ci_checks_uv_lock_is_current_before_python_tests() -> None:
+    workflow = yaml.safe_load((ROOT / ".github/workflows/ci.yml").read_text())
+    jobs = workflow["jobs"]
+
+    python_jobs = {
+        name: job
+        for name, job in jobs.items()
+        if any(
+            step.get("run", "").startswith("uv sync")
+            for step in job.get("steps", [])
+            if isinstance(step, dict)
+        )
+    }
+
+    assert {"backend", "live-postgres"} <= set(python_jobs)
+    for job_name, job in python_jobs.items():
+        lock_check_steps = [
+            step["run"]
+            for step in job["steps"]
+            if isinstance(step, dict)
+            and step.get("name", "") == "Check uv.lock is current"
+        ]
+        assert lock_check_steps == ["uv lock --check"], (
+            f"{job_name} must fail CI when pyproject.toml and uv.lock drift"
+        )
+
+
 def test_gitignore_excludes_local_scratch_course_checkouts() -> None:
     gitignore_lines = {
         line.strip()
@@ -412,17 +439,22 @@ def test_current_handoff_notes_avoid_exact_latest_ci_run_ids() -> None:
         ROOT / "agent_progress_vault/02-remaining-work/prioritized-backlog.md",
         ROOT / "agent_progress_vault/03-agent-activity/background-agents-registry.md",
         ROOT / "agent_progress_vault/04-cross-vault-links/vault-sync-notes.md",
+        ROOT / "social_media_optimiser/01-work-tracking/Current Sprint.md",
         ROOT / "social_media_optimiser/wiki/ops/active-codex-context.md",
         ROOT / "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md",
     ]
-    stale_latest_claim = re.compile(r"latest branch-head[^\n`]*run `\d{8,}`")
+    stale_latest_claim_patterns = [
+        re.compile(r"latest branch-head[^\n`]*run `\d{8,}`"),
+        re.compile(r"branch-head CI run \d{8,} passed for [0-9a-f]{7,40}"),
+    ]
 
     for path in handoff_paths:
         for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-            assert not stale_latest_claim.search(line), (
-                f"{path.relative_to(ROOT)}:{line_number} must not bake an exact "
-                "CI run id into a durable latest-branch-head claim"
-            )
+            for stale_latest_claim in stale_latest_claim_patterns:
+                assert not stale_latest_claim.search(line), (
+                    f"{path.relative_to(ROOT)}:{line_number} must not bake an exact "
+                    "CI run id into a durable latest-branch-head claim"
+                )
 
 
 def test_manual_pr_handoff_notes_do_not_pin_exact_current_head_evidence() -> None:

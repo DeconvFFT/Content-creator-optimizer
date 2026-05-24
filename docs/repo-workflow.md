@@ -29,6 +29,7 @@ Put new Python tests under `tests/`. Frontend tests live under `frontend/next-ap
 Expected local checks before opening a PR:
 
 ```bash
+uv lock --check
 uv run ruff check src/ tests/
 bash scripts/ci-python-stable-tests.sh
 cd frontend/next-app && npm run build
@@ -37,7 +38,7 @@ cd frontend/next-app && npm run typecheck
 cd frontend/next-app && npm run test:race
 ```
 
-`scripts/ci-python-stable-tests.sh` is the required Python CI slice for the current OpenRouter/LiveKit proof branch. It includes the repo workflow guard that checks GitHub Actions Python dependency sync uses `uv sync --locked`, so CI must install from the committed `uv.lock`. The full `uv run pytest -q` suite is still useful as a broader migration audit and is expected to pass locally in the current workspace. Local provider-proof output fixture tests are opt-in with `RUN_PROVIDER_PROOF_ARTIFACT_FIXTURE_TESTS=1`; they read ignored files under `social_media_optimiser/output/provider-proof/` and must not become required CI checks.
+`scripts/ci-python-stable-tests.sh` is the required Python CI slice for the current OpenRouter/LiveKit proof branch. It includes the repo workflow guard that checks GitHub Actions Python dependency sync uses `uv sync --locked`, and CI now runs `uv lock --check` before Python dependency sync, so `pyproject.toml` and the committed `uv.lock` cannot drift silently. The full `uv run pytest -q` suite is still useful as a broader migration audit and is expected to pass locally in the current workspace. Local provider-proof output fixture tests are opt-in with `RUN_PROVIDER_PROOF_ARTIFACT_FIXTURE_TESTS=1`; they read ignored files under `social_media_optimiser/output/provider-proof/` and must not become required CI checks.
 
 When touching Rust services, also run:
 
