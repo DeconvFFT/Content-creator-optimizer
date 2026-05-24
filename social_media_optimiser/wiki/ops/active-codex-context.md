@@ -1342,3 +1342,11 @@ At the end of a meaningful slice:
 - Handoff: current setup examples now use `OPENROUTER_REALTIME_AUDIO_INPUT_MODEL`, `OPENROUTER_REALTIME_REASONING_MODEL`, and generic `REALTIME_*` names for the active OpenRouter/LiveKit/Kokoro path. `Settings` still maps older `GEMMA4_REALTIME_*` aliases into the same runtime fields for local compatibility, but current env docs should not use the old Gemma4 names as active defaults.
 - UI implication: missing LiveKit transport grants now tell the operator to configure `OPENROUTER_LIVEKIT_URL`.
 - Boundary: do not restart or kill Cursor/LiveKit/backend/MLX processes as part of this cleanup. External publication remains blocked by the four LinkedIn/publication operator inputs.
+
+## Fresh PR/Proof Continuation Check - 2026-05-24
+
+- Source: `provider-proof-completion-status`, `provider-proof-operator-input-readiness`, GitHub Actions API, GitHub PR REST lookup, public branch metadata, `provider-proof-pr-create`, `cloud.md`, and `agent_progress_vault/06-live-voice/openrouter-livekit-current-unblock-guide.md`.
+- Pre-refresh branch evidence: `feature/livekit-voice-proof-capture` was observed at `755d4ff09b5c6bd01ccd454b4942419e698521dc`; GitHub Actions CI run `26376107041` was completed/success. Regenerate exact PR evidence again after this documentation commit and at manual PR creation time.
+- PR state: REST lookup still returns no open PR for `DeconvFFT:feature/livekit-voice-proof-capture`; `provider-proof-pr-create` returned `manual_required` / `github_token_unavailable` with no secret values printed; public branch metadata reports `main.protected=false`, while the protection endpoint requires authenticated repo-admin access.
+- Proof state: `provider-backed-live-voice-proof` remains accepted. `external-publication-proof` remains latest failed and strict operator readiness still blocks on `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
+- Boundary: this is a fresh coordination snapshot only. It does not mutate GitHub repo settings, create a PR, restart shared processes, supply LinkedIn publication evidence, or mark the objective complete.

@@ -1397,3 +1397,9 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 - Done: `Settings` now prefers `OPENROUTER_REALTIME_AUDIO_INPUT_MODEL`, `OPENROUTER_REALTIME_REASONING_MODEL`, and generic `REALTIME_*` values when both current and legacy aliases are present. Existing legacy aliases still hydrate the same runtime fields so older local `.env` files do not break.
 - Done: the frontend LiveKit missing-URL guidance now points to `OPENROUTER_LIVEKIT_URL` instead of `GEMMA4_REALTIME_LIVEKIT_URL`.
 - Boundary: this is setup and handoff cleanup for the accepted OpenRouter/LiveKit/Kokoro live-voice path. It does not restart Cursor, LiveKit, or backend processes, and it does not clear the remaining LinkedIn `external-publication-proof` gate.
+
+## 2026-05-24 Fresh PR/Proof Continuation Check
+
+- Done: refreshed the authoritative gate state after the OpenRouter alias cleanup push. `provider-proof-completion-status` still accepts `provider-backed-live-voice-proof`; `external-publication-proof` remains latest failed. Strict operator readiness exits `2` and blocks only on `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
+- Done: refreshed PR integration evidence before this documentation update for observed branch head `755d4ff09b5c6bd01ccd454b4942419e698521dc`. GitHub Actions CI run `26376107041` was green, REST PR lookup showed no open PR, public branch metadata reported `main.protected=false`, and `provider-proof-pr-create` returned `manual_required` / `github_token_unavailable` in this environment. Regenerate exact SHA/CI evidence after any follow-up commit.
+- Boundary: this is coordination evidence only. It does not create a PR, mutate GitHub repository settings, enable auto-merge, provide LinkedIn publication inputs, or complete the objective.

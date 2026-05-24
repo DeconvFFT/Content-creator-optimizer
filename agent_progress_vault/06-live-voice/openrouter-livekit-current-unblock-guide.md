@@ -36,7 +36,8 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 - PR handoff output now redacts operator-input and provider-proof output paths outside the checkout to portable placeholders such as `<filled-ignored-operator-input-file>` and `<provider-proof-output-dir>`, so CI runner temp paths and local absolute paths do not enter PR descriptions.
 - Manual PR compare: <https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1>
 - Automated PR creation through the GitHub connector remains blocked by integration permission `403 Resource not accessible by integration`; `provider-proof-pr-create` can create the PR only when a local `GITHUB_TOKEN` or `GH_TOKEN` is available, otherwise use the generated `provider-proof-pr-handoff` body in a manual PR until repository app permissions are upgraded.
-- Latest token-aware helper attempt with head `3d18b63582a0d176368d66ac01f8bf32806973b1` and CI run `26373893633` returned `manual_required` / `github_token_unavailable`; local environment has no `GITHUB_TOKEN` or `GH_TOKEN`, so the next non-secret path is manual PR creation or repository Actions permission upgrade.
+- Latest token-aware helper attempt with head `755d4ff09b5c6bd01ccd454b4942419e698521dc` and CI run `26376107041` returned `manual_required` / `github_token_unavailable`; local environment has no `GITHUB_TOKEN` or `GH_TOKEN`, so the next non-secret path is manual PR creation or repository Actions permission upgrade.
+- Latest REST checks found no open PR for `DeconvFFT:feature/livekit-voice-proof-capture`. Public branch metadata reports `main.protected=false`; the branch-protection endpoint requires authenticated repo-admin access.
 - Auto-merge cannot be enabled by this session until a PR exists and repository settings permit the integration to mutate it.
 
 ## Do Next
