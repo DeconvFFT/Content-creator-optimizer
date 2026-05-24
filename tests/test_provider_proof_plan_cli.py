@@ -9241,8 +9241,12 @@ def test_provider_proof_record_validation_rejects_missing_fields_and_secrets(
         "approved_artifact_snapshot_id": "approved",
         "destination_channel": "linkedin",
         "durable_platform_id_or_url": "https://platform.example/post/123",
-        "policy_acknowledgement_artifact_id": "policy",
-        "rollback_or_postcondition_artifact_id": "rollback",
+        "policy_acknowledgement_artifact_id": (
+            "linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000"
+        ),
+        "rollback_or_postcondition_artifact_id": (
+            "linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000"
+        ),
         "post_capture_validation_results": {},
         "secret_redaction_check": "passed",
         "debug": "hf_secret_proof_plan_test_must_not_echo",
@@ -9872,6 +9876,50 @@ def test_provider_proof_record_validation_rejects_accepted_publication_local_or_
         external_slug_record,
     )
     assert external_slug_payload["status"] == "valid_accepted_record"
+
+
+def test_provider_proof_record_validation_rejects_accepted_publication_local_evidence_artifacts(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("")
+    base_record = _accepted_provider_proof_record(
+        env_example,
+        "external-publication-proof",
+    )
+    local_artifact_records = [
+        {
+            **base_record,
+            "policy_acknowledgement_artifact_id": "policy",
+        },
+        {
+            **base_record,
+            "rollback_or_postcondition_artifact_id": "rollback",
+        },
+        {
+            **base_record,
+            "policy_acknowledgement_artifact_id": "draft-policy-note",
+        },
+        {
+            **base_record,
+            "rollback_or_postcondition_artifact_id": "./local-rollback.md",
+        },
+    ]
+
+    for record in local_artifact_records:
+        payload = _provider_proof_record_validation_payload(
+            Namespace(
+                env_example_path=env_example,
+                checked_at="2026-05-20",
+                run_id="123e4567-e89b-12d3-a456-426614174000",
+                proof="external-publication-proof",
+            ),
+            record,
+        )
+
+        assert payload["status"] == "invalid_record"
+        assert payload["state_change_allowed"] is False
+        assert "publication_artifact_local_substitute" in payload["issue_codes"]
 
 
 def test_provider_proof_record_validation_rejects_accepted_publication_cross_channel_destination(
@@ -13282,8 +13330,8 @@ def test_provider_proof_completion_status_prefers_validation_timestamp_over_file
                 "- approved_artifact_snapshot_id: approved",
                 "- destination_channel: linkedin",
                 "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                 "- secret_redaction_check: passed",
                 "",
@@ -13430,8 +13478,8 @@ def test_provider_proof_completion_status_rejects_secret_shaped_audit_note_value
                 "- approved_artifact_snapshot_id: approved",
                 "- destination_channel: linkedin",
                 "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                 "- secret_redaction_check: passed",
                 "",
@@ -13533,8 +13581,8 @@ def test_provider_proof_completion_status_rejects_invalid_publication_audit_note
                 "- approved_artifact_snapshot_id: approved",
                 "- destination_channel: linkedin",
                 "- durable_platform_id_or_url: https://instagram.com/p/abc123",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "",
             ]
         ),
@@ -13632,8 +13680,8 @@ def test_provider_proof_completion_status_rejects_publication_audit_note_destina
                 "- approved_artifact_snapshot_id: approved",
                 "- destination_channel: x_thread",
                 "- durable_platform_id_or_url: https://x.com/example/status/123",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                 "- secret_redaction_check: passed",
                 "",
@@ -13641,6 +13689,82 @@ def test_provider_proof_completion_status_rejects_publication_audit_note_destina
         ),
         encoding="utf-8",
     )
+
+    payload = provider_cli._provider_proof_completion_status_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            audit_target=[audit_target],
+        )
+    )
+
+    assert payload["status"] == "blocked_by_invalid_accepted_audit_note"
+    assert payload["all_required_proofs_accepted"] is False
+    assert payload["accepted_proofs"] == ["provider-backed-live-voice-proof"]
+    assert payload["invalid_accepted_audit_note_proofs"] == [
+        "external-publication-proof"
+    ]
+    assert payload["proofs"]["external-publication-proof"]["status"] == (
+        "latest_record_has_invalid_fields"
+    )
+    assert payload["proofs"]["external-publication-proof"][
+        "invalid_source_targets"
+    ] == [str(audit_target)]
+
+
+def test_provider_proof_completion_status_rejects_publication_audit_note_local_evidence_artifacts(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("")
+    audit_target = tmp_path / "objective-audit.md"
+    _record_provider_proof_record_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            proof="provider-backed-live-voice-proof",
+            audit_target=[audit_target],
+        ),
+        _accepted_provider_proof_record(env_example, "provider-backed-live-voice-proof"),
+    )
+    with audit_target.open("a", encoding="utf-8") as audit_file:
+        audit_file.write(
+            "\n".join(
+                [
+                    "",
+                    "## Provider Proof Record - external-publication-proof - 123e4567-e89b-12d3-a456-426614174000",
+                    "",
+                    "- checked_at: 2026-05-20",
+                    "- validation_timestamp: 2026-05-20T12:30:00Z",
+                    "- proof_outcome: accepted",
+                    "- validation_status: valid_accepted_record",
+                    "- state_change_allowed: true",
+                    "- proof_artifact_type: external_publication_proof_record",
+                    "- preflight_validation_report_artifact_id: preflight-validation",
+                    "- preflight_validation_report_status: valid_preflight_artifacts",
+                    "- preflight_validation_report_matched_fields: all_required_fields_matched",
+                    "- preflight_validation_report_validated_product_run_id: 123e4567-e89b-12d3-a456-426614174000",
+                    "- preflight_validation_report_validated_publish_channels: linkedin",
+                    "- workspace_validation_report_artifact_id: workspace-validation",
+                    "- workspace_validation_report_status: valid_workspace",
+                    "- workspace_validation_report_matched_fields: all_required_fields_matched",
+                    "- product_run_preflight_artifact_id: product-run-preflight",
+                    "- publish_readiness_preflight_artifact_id: publish-preflight",
+                    "- publish_readiness_artifact_id: publish-ready",
+                    "- distribution_package_artifact_id: distribution",
+                    "- approved_artifact_snapshot_id: approved",
+                    "- destination_channel: linkedin",
+                    "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
+                    "- policy_acknowledgement_artifact_id: policy",
+                    "- rollback_or_postcondition_artifact_id: rollback",
+                    "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
+                    "- secret_redaction_check: passed",
+                    "",
+                ]
+            )
+        )
 
     payload = provider_cli._provider_proof_completion_status_payload(
         Namespace(
@@ -13720,8 +13844,8 @@ def test_provider_proof_completion_status_rejects_publication_audit_note_noncano
                     "- approved_artifact_snapshot_id: approved",
                     "- destination_channel: linkedin",
                     "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
-                    "- policy_acknowledgement_artifact_id: policy",
-                    "- rollback_or_postcondition_artifact_id: rollback",
+                    "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                    "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                     "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                     "- secret_redaction_check: passed",
                     "",
@@ -13796,8 +13920,8 @@ def test_provider_proof_completion_status_rejects_publication_audit_note_alias_p
                     "- approved_artifact_snapshot_id: approved",
                     "- destination_channel: x_thread",
                     "- durable_platform_id_or_url: https://x.com/example/status/123",
-                    "- policy_acknowledgement_artifact_id: policy",
-                    "- rollback_or_postcondition_artifact_id: rollback",
+                    "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                    "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                     "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                     "- secret_redaction_check: passed",
                     "",
@@ -13869,8 +13993,8 @@ def test_provider_proof_completion_status_rejects_non_linkedin_publication_audit
                     "- approved_artifact_snapshot_id: approved",
                     "- destination_channel: instagram",
                     "- durable_platform_id_or_url: https://instagram.com/p/abc123",
-                    "- policy_acknowledgement_artifact_id: policy",
-                    "- rollback_or_postcondition_artifact_id: rollback",
+                    "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                    "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                     "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                     "- secret_redaction_check: passed",
                     "",
@@ -13964,8 +14088,8 @@ def test_provider_proof_completion_status_rejects_live_voice_audit_note_missing_
                 "- approved_artifact_snapshot_id: approved",
                 "- destination_channel: linkedin",
                 "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                 "- secret_redaction_check: passed",
                 "",
@@ -14062,8 +14186,8 @@ def test_provider_proof_completion_status_rejects_live_voice_audit_note_noncanon
                 "- approved_artifact_snapshot_id: approved",
                 "- destination_channel: linkedin",
                 "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                 "- secret_redaction_check: passed",
                 "",
@@ -14158,8 +14282,8 @@ def test_provider_proof_completion_status_rejects_duplicate_contradictory_audit_
                 "- approved_artifact_snapshot_id: approved",
                 "- destination_channel: linkedin",
                 "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                 "- secret_redaction_check: passed",
                 "",
@@ -14256,8 +14380,8 @@ def test_provider_proof_completion_status_scans_duplicate_audit_fields_for_secre
                 "- destination_channel: linkedin",
                 "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
                 f"- durable_platform_id_or_url: {duplicate_secret_value}",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "",
             ]
         ),
@@ -14438,8 +14562,8 @@ def test_provider_proof_completion_status_requires_validation_summary_and_redact
                 "- approved_artifact_snapshot_id: approved",
                 "- destination_channel: linkedin",
                 "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "",
             ]
         ),
@@ -14522,8 +14646,8 @@ def test_provider_proof_completion_status_requires_preflight_report_summary(
                 "- approved_artifact_snapshot_id: approved",
                 "- destination_channel: linkedin",
                 "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                 "- secret_redaction_check: passed",
                 "",
@@ -14615,8 +14739,8 @@ def test_provider_proof_completion_status_rejects_unparseable_accepted_audit_tim
                 "- approved_artifact_snapshot_id: approved",
                 "- destination_channel: linkedin",
                 "- durable_platform_id_or_url: https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000",
-                "- policy_acknowledgement_artifact_id: policy",
-                "- rollback_or_postcondition_artifact_id: rollback",
+                "- policy_acknowledgement_artifact_id: linkedin-policy-acknowledgement-artifact-123e4567-e89b-12d3-a456-426614174000",
+                "- rollback_or_postcondition_artifact_id: linkedin-rollback-postcondition-artifact-123e4567-e89b-12d3-a456-426614174000",
                 "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
                 "- secret_redaction_check: passed",
                 "",

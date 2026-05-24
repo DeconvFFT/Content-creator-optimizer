@@ -20,6 +20,7 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 
 - `provider-backed-live-voice-proof`: accepted for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
 - `external-publication-proof`: still blocked by LinkedIn token file, policy acknowledgement artifact, durable LinkedIn URL/platform id, and rollback or postcondition evidence
+- External publication validation now rejects local/draft/bare-placeholder policy acknowledgement and rollback/postcondition artifact references in both accepted proof records and compact audit notes; use durable non-local artifact IDs only.
 - Completion status: not complete until external publication proof validates, records, and passes closure review
 - PR state: feature branch is pushed and CI is green, but PR creation may need the manual `provider-proof-pr-handoff` body until GitHub integration permissions are upgraded
 

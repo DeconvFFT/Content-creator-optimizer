@@ -1267,3 +1267,11 @@ This failed record is preserved as historical audit evidence from the prior nati
 - architecture implication: the frontend validation README now treats OpenRouter DeepSeek V4 Flash + LiveKit + Kokoro as the current voice-proof provenance path. The matching repo workflow regression prevents the old Gemma current-route phrases from returning to the browser single-flight proof docs.
 - verification: the focused regression failed first on the stale README wording, then passed after the README update.
 - boundary: this is documentation and guardrail alignment only. It does not supply LinkedIn publication credentials, durable publication artifacts, closure review, or GitHub-side PR permissions.
+
+## External Publication Evidence Artifact Guard - 2026-05-24
+
+- source: `src/all_about_llms/cli.py`, `tests/test_provider_proof_plan_cli.py`, `social_media_optimiser/wiki/ops/active-codex-context.md`, `provider-proof-completion-status`, and `provider-proof-operator-input-readiness`
+- architecture implication: the external publication proof contract now fail-closes on local, draft, or bare placeholder publication evidence artifacts even when an operator bypasses the operator-input readiness path and attempts to record or hand-edit an accepted proof directly. Accepted proof records and compact audit notes reject local/draft/bare `policy_acknowledgement_artifact_id` and `rollback_or_postcondition_artifact_id` values through `publication_artifact_local_substitute`.
+- verification: the record-validation and completion-status regressions first failed by accepting bare/local evidence as `valid_accepted_record` / `required_proofs_accepted`; after the fix, the focused regressions passed, the provider-proof CLI module passed with `203 passed, 30 skipped`, and Ruff passed on the touched Python files.
+- proof implication: this improves external-publication proof integrity but does not move the gate to accepted. Current completion status still accepts only `provider-backed-live-voice-proof`; latest failed proof remains `external-publication-proof`.
+- boundary: LinkedIn credential-file evidence, policy acknowledgement artifact, durable LinkedIn destination URL/platform id, rollback/postcondition artifact, closure review, and GitHub-side PR permissions remain unfinished.

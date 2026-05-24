@@ -1243,3 +1243,11 @@ At the end of a meaningful slice:
 - Handoff: the Next app validation README now describes browser single-flight voice proof as OpenRouter DeepSeek V4 Flash + LiveKit + Kokoro provenance and OpenRouter/LiveKit/Kokoro preflight readiness. A repo workflow regression rejects the stale current-route phrases `Gemma 4 E4B/Kokoro provenance` and `LiveKit/Gemma/Kokoro preflight readiness`.
 - Verification: the focused regression failed first on the stale README wording, then passed after the README update.
 - Boundary: this is documentation and guardrail alignment only. It does not supply the LinkedIn publication proof inputs or create a GitHub PR; connector PR creation still returns GitHub permission `403`.
+
+## External Publication Evidence Artifact Guard - 2026-05-24
+
+- Source: `src/all_about_llms/cli.py`, `tests/test_provider_proof_plan_cli.py`, `provider-proof-completion-status`, and `provider-proof-operator-input-readiness`.
+- Guardrail: accepted `external-publication-proof` record validation and completion-status audit-note parsing now reject local, draft, or bare placeholder evidence references in `policy_acknowledgement_artifact_id` and `rollback_or_postcondition_artifact_id` with `publication_artifact_local_substitute`. This prevents hand-built proof records or hand-edited Obsidian audit notes from bypassing the stricter operator-input artifact checks.
+- Verification: the two new regressions failed first with `valid_accepted_record` / `required_proofs_accepted`; after the fix the targeted regressions passed, the provider-proof CLI module passed with `203 passed, 30 skipped`, and Ruff passed on the touched Python files.
+- Current gate state: `provider-backed-live-voice-proof` remains accepted. `external-publication-proof` remains blocked by `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
+- Boundary: this is fail-closed proof validation only. It does not create LinkedIn credentials, policy acknowledgement, durable publication destination, rollback/postcondition evidence, closure review, or GitHub PR permissions.

@@ -2669,6 +2669,24 @@ PROVIDER_PROOF_OPERATOR_INPUT_ARTIFACT_FIELDS = {
     "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
     "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
 }
+PROVIDER_PROOF_PUBLICATION_EVIDENCE_ARTIFACT_FIELDS = (
+    "policy_acknowledgement_artifact_id",
+    "rollback_or_postcondition_artifact_id",
+)
+PROVIDER_PROOF_PUBLICATION_BARE_ARTIFACT_PLACEHOLDERS = {
+    "artifact",
+    "evidence",
+    "policy",
+    "policy-acknowledgement",
+    "policy-acknowledgement-artifact",
+    "proof",
+    "rollback",
+    "rollback-artifact",
+    "rollback-or-postcondition",
+    "rollback-or-postcondition-artifact",
+    "postcondition",
+    "postcondition-artifact",
+}
 PROVIDER_PROOF_OPERATOR_INPUT_FIELD_CONTRACTS = {
     "OPENROUTER_API_KEY_FILE": (
         "readable local secret file path; file content is never emitted"
@@ -3166,7 +3184,7 @@ def _provider_proof_operator_input_readiness_payload(
                     continue
             if (
                 field in PROVIDER_PROOF_OPERATOR_INPUT_ARTIFACT_FIELDS
-                and _provider_proof_publication_destination_is_local_substitute(
+                and _provider_proof_publication_artifact_is_local_substitute(
                     raw_value
                 )
             ):
@@ -4893,6 +4911,17 @@ def _provider_proof_record_validation_payload(
                         "destination_channel_mismatch",
                         "durable_platform_id_or_url",
                     )
+                publication_artifact_fields = (
+                    PROVIDER_PROOF_PUBLICATION_EVIDENCE_ARTIFACT_FIELDS
+                )
+                for artifact_field in publication_artifact_fields:
+                    if _provider_proof_publication_artifact_is_local_substitute(
+                        record.get(artifact_field)
+                    ):
+                        add_issue(
+                            "publication_artifact_local_substitute",
+                            artifact_field,
+                        )
         elif not validation_results:
             add_issue(
                 "missing_validation_results",
@@ -5967,6 +5996,15 @@ def _provider_proof_publication_destination_is_local_substitute(value: object) -
             return True
         return False
     return False
+
+
+def _provider_proof_publication_artifact_is_local_substitute(value: object) -> bool:
+    if _provider_proof_publication_destination_is_local_substitute(value):
+        return True
+    if not isinstance(value, str):
+        return True
+    normalized = re.sub(r"[^a-z0-9]+", "-", value.strip().lower()).strip("-")
+    return normalized in PROVIDER_PROOF_PUBLICATION_BARE_ARTIFACT_PLACEHOLDERS
 
 
 def _provider_proof_openrouter_livekit_url_is_placeholder(value: object) -> bool:
@@ -11033,6 +11071,11 @@ def _provider_proof_audit_note_has_invalid_accepted_fields(
             return True
         if normalized_destination_channel not in validated_channels:
             return True
+        for artifact_field in PROVIDER_PROOF_PUBLICATION_EVIDENCE_ARTIFACT_FIELDS:
+            if _provider_proof_publication_artifact_is_local_substitute(
+                fields.get(artifact_field)
+            ):
+                return True
         return not _provider_proof_publication_channel_matches_destination(
             destination_channel,
             destination,
