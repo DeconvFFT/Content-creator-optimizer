@@ -1258,3 +1258,9 @@ At the end of a meaningful slice:
 - Handoff: automated PR creation still returns GitHub permission `403 Resource not accessible by integration`; the current manual compare URL is `https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1`.
 - Current generated PR body preserves OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro as the active realtime path, `provider-backed-live-voice-proof` as accepted, and `external-publication-proof` as blocked by the four LinkedIn/publication operator inputs.
 - Merge boundary: exact branch-head SHA and CI URL must be regenerated with `provider-proof-pr-handoff --ci-url <latest-branch-head-ci-url> --head-sha <current-branch-head-sha>` when the manual PR is created. Do not rely on committed vault text for those exact values; documentation-only follow-up commits can make pinned values stale. Auto-merge cannot be enabled from this session until a PR exists and GitHub integration permissions allow PR mutation.
+
+## Manual PR Evidence Guard - 2026-05-24
+
+- Source: `provider-proof-pr-handoff`, `tests/test_repo_workflow_ci.py`, `agent_progress_vault/04-cross-vault-links/vault-sync-notes.md`, and `system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md`.
+- Handoff: the manual PR body generator now requires `--ci-url` and `--head-sha`; running it without current branch-head evidence exits with argparse error code `2` and prints no PR body. The CI URL must be a same-repo GitHub Actions run URL, and the head SHA must be a 40-character hex commit id. All committed runnable handoff commands now include `--run-id`, `--ci-url`, and `--head-sha`.
+- Boundary: this tightens merge evidence only. It does not create a GitHub PR, enable auto-merge, or satisfy the external LinkedIn publication proof.

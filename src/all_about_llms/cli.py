@@ -546,6 +546,47 @@ def _project_relative_path(value: str | Path) -> Path:
     return PROJECT_ROOT / path
 
 
+def _github_actions_run_url(value: str) -> str:
+    parsed = urlparse(value)
+    if (
+        parsed.scheme != "https"
+        or parsed.netloc != "github.com"
+        or parsed.params
+        or parsed.query
+        or parsed.fragment
+        or not re.fullmatch(
+            r"/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]+/?",
+            parsed.path,
+        )
+    ):
+        raise argparse.ArgumentTypeError(
+            "must be a GitHub Actions run URL like "
+            "https://github.com/OWNER/REPO/actions/runs/123456789"
+        )
+    return value
+
+
+def _git_commit_sha(value: str) -> str:
+    if not re.fullmatch(r"[0-9a-fA-F]{40}", value):
+        raise argparse.ArgumentTypeError("must be a 40-character hex commit SHA")
+    return value.lower()
+
+
+def _github_actions_run_repo(value: str) -> str:
+    path_parts = urlparse(value).path.strip("/").split("/")
+    return "/".join(path_parts[:2])
+
+
+def _validate_provider_proof_pr_handoff_evidence(
+    args: argparse.Namespace,
+) -> None:
+    ci_repo = _github_actions_run_repo(args.ci_url)
+    if ci_repo.lower() != args.repo.lower():
+        raise argparse.ArgumentTypeError(
+            f"--ci-url repository {ci_repo} must match --repo {args.repo}"
+        )
+
+
 def _env_example_items(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
@@ -11810,8 +11851,8 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
     compare_url = (
         f"https://github.com/{args.repo}/compare/{args.base}...{args.branch}?expand=1"
     )
-    ci_url = args.ci_url or "Check the latest branch-head CI run before merge."
-    head_sha = args.head_sha or "Check latest branch head before merge."
+    ci_url = args.ci_url
+    head_sha = args.head_sha
     completion_status_command = (
         "uv run all-about-llms-admin provider-proof-completion-status "
         f"--run-id {args.run_id}"
@@ -12854,8 +12895,21 @@ def main() -> None:
         "--branch",
         default="feature/livekit-voice-proof-capture",
     )
-    proof_pr_handoff_parser.add_argument("--ci-url")
-    proof_pr_handoff_parser.add_argument("--head-sha")
+    proof_pr_handoff_parser.add_argument(
+        "--ci-url",
+        required=True,
+        type=_github_actions_run_url,
+        help=(
+            "Latest branch-head GitHub Actions URL to include in the manual PR "
+            "handoff."
+        ),
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--head-sha",
+        required=True,
+        type=_git_commit_sha,
+        help="Current feature branch head SHA to include in the manual PR handoff.",
+    )
     proof_closure_template_parser = subparsers.add_parser(
         "provider-proof-closure-review-template",
         help=(
@@ -13420,6 +13474,11 @@ def main() -> None:
         "--concurrent-iterations", type=_positive_int, default=2
     )
     args = parser.parse_args()
+    if args.command == "provider-proof-pr-handoff":
+        try:
+            _validate_provider_proof_pr_handoff_evidence(args)
+        except argparse.ArgumentTypeError as exc:
+            parser.error(str(exc))
 
     if args.command == "migrate":
         asyncio.run(_migrate())

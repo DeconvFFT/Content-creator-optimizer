@@ -272,6 +272,39 @@ def test_manual_pr_handoff_notes_include_current_ci_evidence_inputs() -> None:
         )
 
 
+def test_provider_proof_pr_handoff_commands_include_current_evidence_flags() -> None:
+    handoff_paths = [
+        ROOT / "docs/repo-workflow.md",
+        ROOT / "agent_progress_vault/04-cross-vault-links/vault-sync-notes.md",
+        ROOT / "agent_progress_vault/06-live-voice/openrouter-livekit-current-unblock-guide.md",
+        ROOT / "social_media_optimiser/wiki/ops/active-codex-context.md",
+        ROOT
+        / "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md",
+        ROOT
+        / "system_design_vault/07-agent-studio-knowledge-graph/Agent Studio Sidecar Pickup 2026-05-24.md",
+    ]
+
+    for path in handoff_paths:
+        lines = path.read_text(encoding="utf-8").splitlines()
+        command_lines = [
+            line_number
+            for line_number, line in enumerate(lines)
+            if "uv run all-about-llms-admin provider-proof-pr-handoff" in line
+        ]
+        assert command_lines, f"{path.relative_to(ROOT)} must document PR handoff"
+        for line_number in command_lines:
+            command_window = "\n".join(lines[line_number : line_number + 8])
+            assert "--run-id" in command_window, (
+                f"{path.relative_to(ROOT)} handoff command must include --run-id"
+            )
+            assert "--ci-url" in command_window, (
+                f"{path.relative_to(ROOT)} handoff command must include --ci-url"
+            )
+            assert "--head-sha" in command_window, (
+                f"{path.relative_to(ROOT)} handoff command must include --head-sha"
+            )
+
+
 def test_external_publication_operator_runbook_is_committed_no_secret_handoff() -> None:
     runbook_path = ROOT / "docs/external-publication-proof-runbook.md"
 
@@ -474,7 +507,9 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
             "--operator-input-path",
             str(operator_input_path),
             "--ci-url",
-            "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/example",
+            "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
+            "--head-sha",
+            "cd3106728909cb422a6b7687b91308119b17f7d9",
         ],
         cwd=ROOT,
         text=True,
@@ -501,7 +536,8 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
         "Dependency changes include `uv.lock`",
         "local command logs stay untracked",
         "no secret values printed",
-        "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/example",
+        "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
+        "cd3106728909cb422a6b7687b91308119b17f7d9",
     ]
 
     for term in required_terms:
@@ -516,6 +552,113 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
     ]
     for term in forbidden_terms:
         assert term not in handoff
+
+
+def test_provider_proof_pr_handoff_cli_requires_current_ci_and_head_sha() -> None:
+    result = subprocess.run(
+        [
+            "uv",
+            "run",
+            "all-about-llms-admin",
+            "provider-proof-pr-handoff",
+            "--run-id",
+            "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+        ],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert "--ci-url" in result.stderr
+    assert "--head-sha" in result.stderr
+    assert "Agent Studio PR Handoff" not in result.stdout
+
+
+def test_provider_proof_pr_handoff_cli_rejects_non_current_evidence_values() -> None:
+    valid_ci_url = (
+        "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/"
+        "123456789"
+    )
+    valid_sha = "cd3106728909cb422a6b7687b91308119b17f7d9"
+    invalid_cases = [
+        (
+            "<latest-branch-head-ci-url>",
+            valid_sha,
+            "GitHub Actions run URL",
+        ),
+        (
+            "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/example",
+            valid_sha,
+            "GitHub Actions run URL",
+        ),
+        (
+            valid_ci_url,
+            "<current-branch-head-sha>",
+            "40-character hex commit SHA",
+        ),
+        (
+            valid_ci_url,
+            "not-a-sha",
+            "40-character hex commit SHA",
+        ),
+    ]
+
+    for ci_url, head_sha, expected_error in invalid_cases:
+        result = subprocess.run(
+            [
+                "uv",
+                "run",
+                "all-about-llms-admin",
+                "provider-proof-pr-handoff",
+                "--run-id",
+                "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                "--ci-url",
+                ci_url,
+                "--head-sha",
+                head_sha,
+            ],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+
+        assert result.returncode != 0
+        assert expected_error in result.stderr
+        assert "Agent Studio PR Handoff" not in result.stdout
+
+
+def test_provider_proof_pr_handoff_cli_rejects_ci_repo_mismatch() -> None:
+    result = subprocess.run(
+        [
+            "uv",
+            "run",
+            "all-about-llms-admin",
+            "provider-proof-pr-handoff",
+            "--run-id",
+            "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+            "--repo",
+            "DeconvFFT/Content-creator-optimizer",
+            "--ci-url",
+            "https://github.com/OtherOwner/OtherRepo/actions/runs/123456789",
+            "--head-sha",
+            "cd3106728909cb422a6b7687b91308119b17f7d9",
+        ],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert "--ci-url repository" in result.stderr
+    assert "--repo DeconvFFT/Content-creator-optimizer" in result.stderr
+    assert "Agent Studio PR Handoff" not in result.stdout
 
 
 def test_provider_proof_pr_handoff_cli_uses_custom_output_dir_workspace(
@@ -533,6 +676,10 @@ def test_provider_proof_pr_handoff_cli_uses_custom_output_dir_workspace(
             "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             "--output-dir",
             str(custom_workspace),
+            "--ci-url",
+            "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
+            "--head-sha",
+            "cd3106728909cb422a6b7687b91308119b17f7d9",
         ],
         cwd=ROOT,
         text=True,
