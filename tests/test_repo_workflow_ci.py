@@ -209,7 +209,25 @@ def test_current_handoff_notes_do_not_reopen_accepted_live_voice_proof() -> None
                 )
 
 
-def test_provider_proof_pr_handoff_cli_generates_manual_pr_body() -> None:
+def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) -> None:
+    operator_input_path = tmp_path / "operator-inputs.template.env"
+    operator_input_path.write_text(
+        "\n".join(
+            [
+                "OPENROUTER_API_KEY_FILE=",
+                "OPENROUTER_LIVEKIT_URL=",
+                "LIVEKIT_API_KEY_FILE=",
+                "LIVEKIT_API_SECRET_FILE=",
+                "LINKEDIN_ACCESS_TOKEN_FILE=",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=",
+                "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
     result = subprocess.run(
         [
             "uv",
@@ -219,10 +237,7 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body() -> None:
             "--run-id",
             "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             "--operator-input-path",
-            (
-                "social_media_optimiser/output/provider-proof/"
-                "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env"
-            ),
+            str(operator_input_path),
             "--ci-url",
             "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/example",
         ],
