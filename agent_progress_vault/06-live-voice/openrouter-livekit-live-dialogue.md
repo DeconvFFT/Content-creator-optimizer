@@ -23,8 +23,8 @@ OpenRouter is **text-only**. Use the Live Voice panel **Send text turn** compose
 # OpenRouter
 OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key
 OPENROUTER_CHAT_COMPLETIONS_URL=https://openrouter.ai/api/v1/chat/completions
-GEMMA4_REALTIME_REASONING_MODEL=deepseek/deepseek-v4-flash
-GEMMA4_REALTIME_AUDIO_INPUT_MODEL=deepseek/deepseek-v4-flash
+OPENROUTER_REALTIME_REASONING_MODEL=deepseek/deepseek-v4-flash
+OPENROUTER_REALTIME_AUDIO_INPUT_MODEL=deepseek/deepseek-v4-flash
 
 # LiveKit (local dev)
 REALTIME_DEFAULT_PROVIDER=openrouter_livekit
@@ -71,9 +71,9 @@ cd frontend/next-app && npm run dev
 | `GEMMA4_MULTIMODAL_ENDPOINT_URL=http://127.0.0.1:8090/gemma-audio-stream` | unset / not used |
 | Local MLX on `:8080`, proxy on `:8090` | not required |
 | Native Gemma/Gamma audio model path | OpenRouter text chat streaming |
-| Gemma/Gamma reasoning model | `deepseek/deepseek-v4-flash` |
+| Legacy Gemma/Gamma model env aliases | leave unset; use `OPENROUTER_REALTIME_*` |
 
-You can stop/kill MLX processes on ports `8080` and `8090`.
+Only the operator should stop MLX processes on ports `8080` and `8090`, and only after confirming they are not Cursor-owned or otherwise shared.
 
 ## Readiness endpoints
 

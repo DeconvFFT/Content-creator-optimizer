@@ -57,6 +57,7 @@ class Settings(BaseSettings):
     )
 
     realtime_default_provider: str = "openrouter_livekit"
+    realtime_transport_framework: str | None = None
     openrouter_livekit_url: str | None = None
     gemma4_realtime_transport_framework: str = "livekit"
     gemma4_realtime_livekit_url: str | None = None
@@ -69,8 +70,21 @@ class Settings(BaseSettings):
         default=PROJECT_ROOT / ".secrets/livekit_api_secret"
     )
     livekit_connectivity_preflight_timeout_seconds: float = 3.0
+    realtime_livekit_token_ttl_seconds: int | None = None
     gemma4_realtime_livekit_token_ttl_seconds: int = 3600
+    realtime_ws_url: str | None = None
     gemma4_realtime_ws_url: str | None = None
+    openrouter_realtime_audio_input_model: str | None = None
+    openrouter_realtime_reasoning_model: str | None = None
+    realtime_audio_output_model: str | None = None
+    realtime_audio_format: str | None = None
+    realtime_sample_rate: int | None = None
+    realtime_context_window_turns: int | None = None
+    realtime_context_prune_after_turns: int | None = None
+    realtime_max_audio_seconds_per_turn: int | None = None
+    realtime_tts_flush_chars: int | None = None
+    realtime_default_voice: str | None = None
+    realtime_rust_vad_model: str | None = None
     gemma4_realtime_audio_input_model: str = "deepseek/deepseek-v4-flash"
     gemma4_realtime_reasoning_model: str = "deepseek/deepseek-v4-flash"
     gemma4_realtime_audio_output_model: str = "hexgrad/Kokoro-82M"
@@ -251,6 +265,7 @@ class Settings(BaseSettings):
         "gemma4_multimodal_endpoint_url",
         "openrouter_livekit_url",
         "gemma4_realtime_livekit_url",
+        "realtime_ws_url",
         "gemma4_realtime_ws_url",
         "kokoro_tts_endpoint_url",
         "open_source_realtime_ws_url",
@@ -289,6 +304,7 @@ class Settings(BaseSettings):
             "substack_api_token", self.substack_api_token_file
         )
         self._load_local_provider_config_file()
+        self._normalize_current_realtime_aliases()
         return self
 
     def publication_credential_env_values(self) -> dict[str, str | None]:
@@ -343,6 +359,112 @@ class Settings(BaseSettings):
             except LocalProviderConfigValidationError:
                 continue
             object.__setattr__(self, field_name, value)
+
+    def _normalize_current_realtime_aliases(self) -> None:
+        transport_framework = (
+            _non_blank_string(self.realtime_transport_framework)
+            or _non_blank_string(self.gemma4_realtime_transport_framework)
+            or "livekit"
+        )
+        object.__setattr__(self, "realtime_transport_framework", transport_framework)
+        object.__setattr__(
+            self, "gemma4_realtime_transport_framework", transport_framework
+        )
+        livekit_token_ttl_seconds = _first_configured_value(
+            self.realtime_livekit_token_ttl_seconds,
+            self.gemma4_realtime_livekit_token_ttl_seconds,
+            3600,
+        )
+        object.__setattr__(
+            self, "realtime_livekit_token_ttl_seconds", livekit_token_ttl_seconds
+        )
+        object.__setattr__(
+            self,
+            "gemma4_realtime_livekit_token_ttl_seconds",
+            livekit_token_ttl_seconds,
+        )
+        realtime_ws_url = (
+            _non_blank_string(self.realtime_ws_url)
+            or _non_blank_string(self.gemma4_realtime_ws_url)
+        )
+        object.__setattr__(self, "realtime_ws_url", realtime_ws_url)
+        object.__setattr__(self, "gemma4_realtime_ws_url", realtime_ws_url)
+        default_model = "deepseek/deepseek-v4-flash"
+        audio_input_model = (
+            _non_blank_string(self.openrouter_realtime_audio_input_model)
+            or _non_blank_string(self.gemma4_realtime_audio_input_model)
+            or default_model
+        )
+        reasoning_model = (
+            _non_blank_string(self.openrouter_realtime_reasoning_model)
+            or _non_blank_string(self.gemma4_realtime_reasoning_model)
+            or default_model
+        )
+        object.__setattr__(
+            self, "openrouter_realtime_audio_input_model", audio_input_model
+        )
+        object.__setattr__(
+            self, "openrouter_realtime_reasoning_model", reasoning_model
+        )
+        object.__setattr__(self, "gemma4_realtime_audio_input_model", audio_input_model)
+        object.__setattr__(self, "gemma4_realtime_reasoning_model", reasoning_model)
+        audio_output_model = (
+            _non_blank_string(self.realtime_audio_output_model)
+            or _non_blank_string(self.gemma4_realtime_audio_output_model)
+            or "hexgrad/Kokoro-82M"
+        )
+        audio_format = (
+            _non_blank_string(self.realtime_audio_format)
+            or _non_blank_string(self.gemma4_realtime_audio_format)
+            or "pcm_s16le"
+        )
+        default_voice = (
+            _non_blank_string(self.realtime_default_voice)
+            or _non_blank_string(self.gemma4_realtime_default_voice)
+            or "af_heart"
+        )
+        rust_vad_model = (
+            _non_blank_string(self.realtime_rust_vad_model)
+            or _non_blank_string(self.gemma4_realtime_rust_vad_model)
+            or "silero-vad-rust"
+        )
+        for field_name, value in {
+            "realtime_audio_output_model": audio_output_model,
+            "gemma4_realtime_audio_output_model": audio_output_model,
+            "realtime_audio_format": audio_format,
+            "gemma4_realtime_audio_format": audio_format,
+            "realtime_default_voice": default_voice,
+            "gemma4_realtime_default_voice": default_voice,
+            "realtime_rust_vad_model": rust_vad_model,
+            "gemma4_realtime_rust_vad_model": rust_vad_model,
+        }.items():
+            object.__setattr__(self, field_name, value)
+        for current_field, legacy_field, default_value in (
+            ("realtime_sample_rate", "gemma4_realtime_sample_rate", 16000),
+            (
+                "realtime_context_window_turns",
+                "gemma4_realtime_context_window_turns",
+                4,
+            ),
+            (
+                "realtime_context_prune_after_turns",
+                "gemma4_realtime_context_prune_after_turns",
+                3,
+            ),
+            (
+                "realtime_max_audio_seconds_per_turn",
+                "gemma4_realtime_max_audio_seconds_per_turn",
+                30,
+            ),
+            ("realtime_tts_flush_chars", "gemma4_realtime_tts_flush_chars", 180),
+        ):
+            value = _first_configured_value(
+                getattr(self, current_field),
+                getattr(self, legacy_field),
+                default_value,
+            )
+            object.__setattr__(self, current_field, value)
+            object.__setattr__(self, legacy_field, value)
 
     @field_validator("rust_voice_edge_vad_backend", mode="before")
     @classmethod
@@ -435,7 +557,7 @@ class Settings(BaseSettings):
 
     def configured_realtime_providers(self) -> list[str]:
         providers: list[str] = []
-        if self.realtime_livekit_url() or self.gemma4_realtime_ws_url:
+        if self.realtime_livekit_url() or self.realtime_ws_url:
             providers.append("openrouter_livekit")
         if self.open_source_realtime_ws_url:
             providers.append("open_source_realtime")
@@ -475,3 +597,18 @@ def _is_http_url(value: str | None) -> bool:
 
 def _path_value(path: Path | None) -> str | None:
     return str(path) if path is not None else None
+
+
+def _non_blank_string(value: str | None) -> str | None:
+    if value is None:
+        return None
+    stripped = str(value).strip()
+    return stripped or None
+
+
+def _first_configured_value(current, legacy, default):
+    if current is not None:
+        return current
+    if legacy is not None:
+        return legacy
+    return default

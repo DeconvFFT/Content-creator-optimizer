@@ -1390,3 +1390,10 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 - Boundary: this hardens CI/CD compatibility only. It does not create the GitHub PR, enable repository permissions, supply LinkedIn publication evidence, or mark the objective complete.
 - Follow-up: upgraded the workflow action pins to Node 24-native releases after checking official action metadata: `actions/checkout@v6`, `actions/setup-python@v6`, `actions/setup-node@v6`, `actions/github-script@v8`, and `astral-sh/setup-uv@v8.1.0`. Keep `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` as a compatibility guard until the GitHub default switch.
 - Verified: added a failing-first workflow regression for the Node 24-native pins. It failed against the old `checkout@v4` / `setup-python@v5` / `setup-node@v4` / `github-script@v7` / `setup-uv@v5` pins, then passed with the upgraded workflow pins and updated docs.
+
+## 2026-05-24 OpenRouter Realtime Env Alias Cleanup
+
+- Done: moved the active setup examples from `GEMMA4_REALTIME_*` model/runtime names to current `OPENROUTER_REALTIME_*` and `REALTIME_*` names while preserving the legacy settings as compatibility aliases.
+- Done: `Settings` now prefers `OPENROUTER_REALTIME_AUDIO_INPUT_MODEL`, `OPENROUTER_REALTIME_REASONING_MODEL`, and generic `REALTIME_*` values when both current and legacy aliases are present. Existing legacy aliases still hydrate the same runtime fields so older local `.env` files do not break.
+- Done: the frontend LiveKit missing-URL guidance now points to `OPENROUTER_LIVEKIT_URL` instead of `GEMMA4_REALTIME_LIVEKIT_URL`.
+- Boundary: this is setup and handoff cleanup for the accepted OpenRouter/LiveKit/Kokoro live-voice path. It does not restart Cursor, LiveKit, or backend processes, and it does not clear the remaining LinkedIn `external-publication-proof` gate.

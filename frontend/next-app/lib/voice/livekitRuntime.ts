@@ -118,7 +118,7 @@ export async function joinLiveKitRuntime(
     return transportBlocked("The realtime session did not return a LiveKit transport grant.");
   }
   if (!transport.url) {
-    return transportBlocked("LiveKit URL is missing. Configure GEMMA4_REALTIME_LIVEKIT_URL.");
+    return transportBlocked("LiveKit URL is missing. Configure OPENROUTER_LIVEKIT_URL.");
   }
   if (!transport.token) {
     return transportBlocked("LiveKit join token is missing. Configure LIVEKIT_API_KEY and LIVEKIT_API_SECRET.");

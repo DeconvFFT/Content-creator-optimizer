@@ -6719,6 +6719,64 @@ def test_settings_defaults_to_project_local_secret_files(monkeypatch):
     )
 
 
+def test_settings_prefers_openrouter_realtime_model_env_names(monkeypatch):
+    monkeypatch.setenv("REALTIME_TRANSPORT_FRAMEWORK", "livekit-current")
+    monkeypatch.setenv("REALTIME_LIVEKIT_TOKEN_TTL_SECONDS", "7200")
+    monkeypatch.setenv("REALTIME_AUDIO_OUTPUT_MODEL", "hexgrad/Kokoro-82M-current")
+    monkeypatch.setenv("REALTIME_AUDIO_FORMAT", "pcm_f32le")
+    monkeypatch.setenv("REALTIME_SAMPLE_RATE", "24000")
+    monkeypatch.setenv("REALTIME_CONTEXT_WINDOW_TURNS", "6")
+    monkeypatch.setenv("REALTIME_CONTEXT_PRUNE_AFTER_TURNS", "5")
+    monkeypatch.setenv("REALTIME_MAX_AUDIO_SECONDS_PER_TURN", "45")
+    monkeypatch.setenv("REALTIME_TTS_FLUSH_CHARS", "240")
+    monkeypatch.setenv("REALTIME_DEFAULT_VOICE", "af_current")
+    monkeypatch.setenv("REALTIME_RUST_VAD_MODEL", "silero-current")
+    monkeypatch.setenv("OPENROUTER_REALTIME_AUDIO_INPUT_MODEL", "deepseek/audio")
+    monkeypatch.setenv("OPENROUTER_REALTIME_REASONING_MODEL", "deepseek/reasoning")
+    monkeypatch.setenv("GEMMA4_REALTIME_TRANSPORT_FRAMEWORK", "legacy-transport")
+    monkeypatch.setenv("GEMMA4_REALTIME_LIVEKIT_TOKEN_TTL_SECONDS", "1800")
+    monkeypatch.setenv("GEMMA4_REALTIME_AUDIO_INPUT_MODEL", "legacy/audio")
+    monkeypatch.setenv("GEMMA4_REALTIME_REASONING_MODEL", "legacy/reasoning")
+    monkeypatch.setenv("GEMMA4_REALTIME_AUDIO_OUTPUT_MODEL", "legacy-output")
+    monkeypatch.setenv("GEMMA4_REALTIME_AUDIO_FORMAT", "legacy-format")
+    monkeypatch.setenv("GEMMA4_REALTIME_SAMPLE_RATE", "8000")
+    monkeypatch.setenv("GEMMA4_REALTIME_CONTEXT_WINDOW_TURNS", "2")
+    monkeypatch.setenv("GEMMA4_REALTIME_CONTEXT_PRUNE_AFTER_TURNS", "1")
+    monkeypatch.setenv("GEMMA4_REALTIME_MAX_AUDIO_SECONDS_PER_TURN", "15")
+    monkeypatch.setenv("GEMMA4_REALTIME_TTS_FLUSH_CHARS", "90")
+    monkeypatch.setenv("GEMMA4_REALTIME_DEFAULT_VOICE", "legacy_voice")
+    monkeypatch.setenv("GEMMA4_REALTIME_RUST_VAD_MODEL", "legacy-vad")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.realtime_transport_framework == "livekit-current"
+    assert settings.realtime_livekit_token_ttl_seconds == 7200
+    assert settings.openrouter_realtime_audio_input_model == "deepseek/audio"
+    assert settings.openrouter_realtime_reasoning_model == "deepseek/reasoning"
+    assert settings.realtime_audio_output_model == "hexgrad/Kokoro-82M-current"
+    assert settings.realtime_audio_format == "pcm_f32le"
+    assert settings.realtime_sample_rate == 24000
+    assert settings.realtime_context_window_turns == 6
+    assert settings.realtime_context_prune_after_turns == 5
+    assert settings.realtime_max_audio_seconds_per_turn == 45
+    assert settings.realtime_tts_flush_chars == 240
+    assert settings.realtime_default_voice == "af_current"
+    assert settings.realtime_rust_vad_model == "silero-current"
+    assert settings.gemma4_realtime_transport_framework == "livekit-current"
+    assert settings.gemma4_realtime_livekit_token_ttl_seconds == 7200
+    assert settings.gemma4_realtime_audio_input_model == "deepseek/audio"
+    assert settings.gemma4_realtime_reasoning_model == "deepseek/reasoning"
+    assert settings.gemma4_realtime_audio_output_model == "hexgrad/Kokoro-82M-current"
+    assert settings.gemma4_realtime_audio_format == "pcm_f32le"
+    assert settings.gemma4_realtime_sample_rate == 24000
+    assert settings.gemma4_realtime_context_window_turns == 6
+    assert settings.gemma4_realtime_context_prune_after_turns == 5
+    assert settings.gemma4_realtime_max_audio_seconds_per_turn == 45
+    assert settings.gemma4_realtime_tts_flush_chars == 240
+    assert settings.gemma4_realtime_default_voice == "af_current"
+    assert settings.gemma4_realtime_rust_vad_model == "silero-current"
+
+
 def test_local_secret_file_endpoint_writes_hf_token_without_echoing_value(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
