@@ -157,6 +157,55 @@ def test_next_app_readme_keeps_openrouter_livekit_as_current_voice_proof_route()
         assert term not in readme
 
 
+def test_current_architecture_surfaces_do_not_present_gemma_as_default_provider() -> None:
+    surface_paths = [
+        ROOT / "planning/foundation-system-design.html",
+        ROOT / "social_media_optimiser/00-system-design/agent-studio-hld-lld.html",
+        ROOT / "system_design_vault/agent-studio-system-design-home.html",
+        ROOT / "skills/agent-studio-conversation-harness/SKILL.md",
+        ROOT / "skills/agent-studio-guardrails-review/SKILL.md",
+    ]
+    combined = "\n".join(path.read_text(encoding="utf-8") for path in surface_paths)
+
+    required_current_terms = [
+        "OpenRouter DeepSeek V4 Flash",
+        "OpenRouter/LiveKit/Kokoro",
+        "Gemma/Gamma/Hugging Face/MLX are legacy or non-default",
+    ]
+    for term in required_current_terms:
+        assert term in combined
+
+    stale_current_provider_terms = [
+        "Gemma 4 experts own reasoning",
+        "Gemma 4 agents handle expert work",
+        "Gemma 4 specialists research, reason, critique, write",
+        "Gemma 4 Expert Layer",
+        "Gemma 4 / HF boundary",
+        "Gemma 4 is the expert-agent layer",
+        "Gemma 4 is used for specialist reasoning",
+        "Gemma/HF remains the expert layer",
+        "Hugging Face Gemma 4",
+        "Gemma Endpoint Gate",
+    ]
+    for term in stale_current_provider_terms:
+        assert term not in combined
+
+
+def test_conversation_harness_preserves_legacy_gemma_event_contract_names() -> None:
+    skill = (ROOT / "skills/agent-studio-conversation-harness/SKILL.md").read_text(
+        encoding="utf-8"
+    )
+
+    required_event_terms = [
+        "gemma_worker_completed",
+        "gemma_multimodal_review_completed",
+    ]
+    for term in required_event_terms:
+        assert term in skill
+
+    assert "existing provider-specific completion events" not in skill
+
+
 def test_pull_request_template_requires_proof_gate_handoff() -> None:
     template_path = ROOT / ".github" / "pull_request_template.md"
 

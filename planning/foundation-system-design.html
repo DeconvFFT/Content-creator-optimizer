@@ -501,7 +501,7 @@
         <span class="pill">Product app: live voice/text studio</span>
         <span class="pill">Planning artifact: this HTML workspace</span>
         <span class="pill">Durability: Postgres + pgvector</span>
-        <span class="pill">Expert layer: Gemma 4 agents</span>
+        <span class="pill">Reasoning: OpenRouter DeepSeek V4 Flash</span>
       </div>
     </div>
 
@@ -517,9 +517,9 @@
         <h3>Realtime Dialogue</h3>
         <small>Speech-to-speech turn-taking, interruption, and spoken status.</small>
       </button>
-      <button class="stage-node node-gemma" data-focus="gemma">
-        <h3>Gemma 4 Experts</h3>
-        <small>Vision, synthesis, writing, critique, and long-context reasoning.</small>
+      <button class="stage-node node-gemma" data-focus="reasoning">
+        <h3>OpenRouter Reasoning</h3>
+        <small>DeepSeek V4 Flash reasoning, specialist writing, critique, and long-context synthesis.</small>
       </button>
       <button class="stage-node node-postgres" data-focus="state">
         <h3>Durable State</h3>
@@ -553,7 +553,7 @@
       <div class="section-head">
         <div>
           <h2>Model And Tool Routing</h2>
-          <p>Realtime audio models handle the conversation surface. Gemma 4 agents handle expert work. Tools are explicit boundaries.</p>
+          <p>OpenRouter DeepSeek V4 Flash handles the current reasoning path, LiveKit handles transport, Kokoro handles speech output, and tools remain explicit boundaries.</p>
         </div>
       </div>
       <div class="route-map">
@@ -567,7 +567,7 @@
         </div>
         <div class="route-step">
           <h3>Expert Work</h3>
-          <p>Gemma 4 specialists research, reason, critique, write, review visuals, and prepare platform variants.</p>
+          <p>Specialist agents research, reason, critique, write, review visuals, and prepare platform variants through the approved OpenRouter/default route unless a task explicitly selects a legacy provider.</p>
         </div>
         <div class="route-step">
           <h3>Human Feedback</h3>
@@ -590,7 +590,7 @@
       <div class="section-head">
         <div>
           <h2>Provider Readiness Harness</h2>
-          <p>The cockpit now exposes a non-secret readiness report for Gemma 4 HF endpoints, realtime audio, web search, and the imagegen tool boundary.</p>
+          <p>The cockpit now exposes a non-secret readiness report for OpenRouter/LiveKit/Kokoro, web search, and the imagegen tool boundary.</p>
         </div>
       </div>
       <div class="route-map" id="provider-readiness-grid"></div>
@@ -600,7 +600,7 @@
       <div class="section-head">
         <div>
           <h2>Model Routing Ledger</h2>
-          <p>The harness now creates a durable per-run ledger proving Gemma is an expert layer while realtime audio, web search, and imagegen stay separate provider/tool boundaries.</p>
+          <p>The harness now creates a durable per-run ledger proving OpenRouter DeepSeek V4 Flash is the current reasoning path while LiveKit, Kokoro, web search, and imagegen stay separate provider/tool boundaries.</p>
         </div>
       </div>
       <div class="route-map" id="model-routing-ledger-grid"></div>
@@ -900,7 +900,7 @@
       <div class="section-head">
         <div>
           <h2>Autonomous Worker Loop</h2>
-          <p>A local worker can recover abandoned claimed/in-progress work, block retry-exhausted tasks for human review, poll accepted tasks, atomically claim ownership, build context, run Gemma-backed specialist work, and persist results without duplicate execution.</p>
+          <p>A local worker can recover abandoned claimed/in-progress work, block retry-exhausted tasks for human review, poll accepted tasks, atomically claim ownership, build context, run provider-backed specialist work, and persist results without duplicate execution.</p>
         </div>
       </div>
       <div class="route-map" id="worker-loop-grid"></div>
@@ -1136,9 +1136,9 @@
           "title": "Realtime Dialogue",
           "body": "The conversation host gives you a natural live interface while specialist agents keep working behind the conversation."
         },
-        "gemma": {
-          "title": "Gemma 4 Experts",
-          "body": "Gemma 4 agents perform reasoning, vision review, source-backed synthesis, writing, critique, and context engineering."
+        "reasoning": {
+          "title": "OpenRouter Reasoning",
+          "body": "OpenRouter DeepSeek V4 Flash is the current default reasoning path for live dialogue and specialist text work; Gemma/Gamma/Hugging Face/MLX are legacy or non-default unless explicitly selected with separate proof."
         },
         "state": {
           "title": "Durable State",
@@ -1158,7 +1158,7 @@
         {"name": "Backend Platform Engineer", "group": "Harness", "role": "FastAPI, Postgres/pgvector, migrations, async APIs, and backend contracts."},
         {"name": "Frontend Experience Engineer", "group": "Harness", "role": "Conversational cockpit, voice controls, event streams, and accessibility."},
         {"name": "Scalability/Reliability Engineer", "group": "Harness", "role": "SLOs, capacity, backpressure, worker scheduling, and graceful degradation."},
-        {"name": "Inference Systems Engineer", "group": "Harness", "role": "Gemma/HF endpoints, realtime boundaries, model routing, latency, cost, and smoke proof."},
+        {"name": "Inference Systems Engineer", "group": "Harness", "role": "OpenRouter/LiveKit/Kokoro boundaries, model routing, latency, cost, and smoke proof."},
         {"name": "Agent Harness Engineer", "group": "Harness", "role": "Durable orchestration and checkpointing."},
         {"name": "A2A Protocol Agent", "group": "Harness", "role": "Agent cards and handoff contracts."},
         {"name": "Context Engineering Agent", "group": "Harness", "role": "Memory, retrieval, and context policy."},
@@ -1198,30 +1198,30 @@
         {"name": "agent-studio-media-design", "group": "Media", "role": "Plan visuals, audio, reels, imagegen prompts, and planning HTML."},
         {"name": "agent-studio-system-architecture", "group": "Harness", "role": "Apply production data-system, ML-system, A2A, durability, and reliability design patterns."},
         {"name": "agent-studio-frontend-engineering", "group": "Harness", "role": "Build conversational cockpit UI and keep generated planning viewers separate from the product app."},
-        {"name": "agent-studio-inference-reliability", "group": "Harness", "role": "Review Gemma/HF, realtime audio, reranking, latency, cost, fallback, and provider smoke readiness."},
+        {"name": "agent-studio-inference-reliability", "group": "Harness", "role": "Review OpenRouter/LiveKit/Kokoro, realtime audio, reranking, latency, cost, fallback, and provider smoke readiness."},
         {"name": "agent-studio-guardrails-review", "group": "Governance", "role": "Review claims, provenance, safety, and approval gates; used in worker context."}
       ],
       "providers": [
-        {"name": "Hugging Face Gemma 4", "role": "Expert reasoning, vision, synthesis, writing, and critique through configured HF endpoints."},
-        {"name": "Realtime Audio", "role": "OpenAI Realtime, ElevenLabs signed WebSockets, and Cartesia realtime TTS descriptors."},
+        {"name": "OpenRouter DeepSeek V4 Flash", "role": "Current default dialogue and specialist text reasoning path."},
+        {"name": "LiveKit + Kokoro", "role": "Current transport and spoken-output path for provider-backed live voice."},
         {"name": "Web Search", "role": "Tavily or SerpAPI adapters for source-backed research and freshness checks."},
         {"name": "Imagegen Boundary", "role": "Raster visual work remains an explicit Codex imagegen tool boundary with artifact provenance."}
       ],
       "providerReadiness": [
         {"name": "Non-Secret Status", "role": "`/api/provider-readiness` reports configured env names and missing env names, never key values."},
-        {"name": "Gemma Endpoint Gate", "role": "HF token plus each Gemma 4 endpoint URL must be present before provider-backed expert work is marked ready."},
-        {"name": "Realtime Choice Gate", "role": "OpenAI Realtime, ElevenLabs, and Cartesia each show independent readiness and selected/default state."},
+        {"name": "OpenRouter/LiveKit/Kokoro Gate", "role": "OpenRouter credential, LiveKit URL/key/secret, and Kokoro readiness must be present before current live-dialogue proof work is marked ready."},
+        {"name": "Legacy Provider Gate", "role": "Gemma/Gamma/Hugging Face/MLX are legacy or non-default and must not block the current OpenRouter/LiveKit/Kokoro path."},
         {"name": "Tool Boundary", "role": "Imagegen is explicitly marked as a Codex tool boundary while media artifacts store prompt packs and provenance."}
       ],
       "modelRoutingLedger": [
-        {"name": "Route Contracts", "role": "`/api/runs/{run_id}/model-routing-ledger` snapshots live conversation, Gemma reasoning, multimodal review, and imagegen route contracts."},
-        {"name": "Agent Matrix", "role": "The ledger records which agents may use Gemma, which agent owns realtime audio transport, and which agent owns imagegen."},
-        {"name": "Policy Evidence", "role": "Model policy approvals/denials, Gemma completion events, realtime boundary events, and artifact model provenance become inspectable routing entries."},
-        {"name": "Boundary Checks", "role": "The ledger blocks on violations such as Gemma used as voice transport, Gemma artifacts missing Hugging Face provenance, or deterministic fallback writing presented as publishable content."},
+        {"name": "Route Contracts", "role": "`/api/runs/{run_id}/model-routing-ledger` snapshots live conversation, OpenRouter reasoning, multimodal review, and imagegen route contracts."},
+        {"name": "Agent Matrix", "role": "The ledger records which agents may use OpenRouter, which agent owns LiveKit transport, which component owns Kokoro speech output, and which agent owns imagegen."},
+        {"name": "Policy Evidence", "role": "Model policy approvals/denials, OpenRouter completion events, realtime boundary events, and artifact model provenance become inspectable routing entries."},
+        {"name": "Boundary Checks", "role": "The ledger blocks on violations such as OpenRouter treated as voice transport, LiveKit treated as reasoning, Kokoro treated as verifier, or deterministic fallback writing presented as publishable content."},
         {"name": "Autonomous Evidence", "role": "Autonomous passes now append `model_routing_ledger_built` before provider operations and foundation self-audit."}
       ],
       "providerOpsLedger": [
-        {"name": "Provider Events", "role": "`/api/runs/{run_id}/provider-ops-ledger` reads model/tool policy events, provider fallbacks, Gemma completions, and realtime events."},
+        {"name": "Provider Events", "role": "`/api/runs/{run_id}/provider-ops-ledger` reads model/tool policy events, provider fallbacks, OpenRouter completions, and realtime events."},
         {"name": "Realtime Sessions", "role": "Sanitized realtime session records contribute provider, status, voice, audio mode, and non-secret connection capability metadata."},
         {"name": "Artifact Provenance", "role": "Artifacts with model provider, model id, generation mode, and usage metadata become ledger operations for audit."},
         {"name": "Durable Audit", "role": "The Observability Agent records a `provider_operations_ledger` artifact and `provider_operations_ledger_built` event for manager review."}
@@ -1252,9 +1252,9 @@
         {"title": "Build Long-running AI agents that pause, resume, and never lose context with ADK", "publisher": "Google Developers Blog", "url": "https://developers.googleblog.com/build-long-running-ai-agents-that-pause-resume-and-never-lose-context-with-adk/", "referenceType": "long_running_agent_guide", "appliesTo": ["agent-harness-engineer", "context-engineering-agent", "observability-agent"], "decision": "Long-running work needs checkpoints, event cursors, human gates, worker profiles, and resumable context packets.", "freshness": "Refresh before changing resume gates, checkpoint records, or always-on profile semantics."},
         {"title": "LangGraph persistence", "publisher": "LangChain", "url": "https://docs.langchain.com/oss/python/langgraph/persistence", "referenceType": "orchestration_persistence_guide", "appliesTo": ["agent-harness-engineer", "principal-software-engineer"], "decision": "LangGraph-style orchestration uses Postgres checkpointing beside the application event log.", "freshness": "Refresh before upgrading LangGraph, checkpoint schemas, or time-travel/debug behavior."},
         {"title": "pgvector", "publisher": "pgvector", "url": "https://github.com/pgvector/pgvector", "referenceType": "vector_memory_reference", "appliesTo": ["context-engineering-agent", "source-ledger-agent"], "decision": "Postgres plus pgvector is the local-first durability and semantic-memory foundation; no local SQLite fallback.", "freshness": "Refresh before changing embedding dimensions, vector indexes, or memory retrieval ranking."},
-        {"title": "Gemma4 Transformers model documentation", "publisher": "Hugging Face", "url": "https://huggingface.co/docs/transformers/model_doc/gemma4", "referenceType": "model_capability_reference", "appliesTo": ["content-strategist", "eli5-short-form-writer", "substack-essay-writer", "script-doctor", "editor-in-chief", "principal-software-engineer", "visual-director", "audio-producer"], "decision": "Gemma 4 is the expert-agent layer for reasoning, synthesis, writing, critique, and multimodal work, not the voice transport.", "freshness": "Refresh before changing Gemma 4 model ids, modality assumptions, or context-window policy."},
+        {"title": "Legacy Gemma4 Transformers model documentation", "publisher": "Hugging Face", "url": "https://huggingface.co/docs/transformers/model_doc/gemma4", "referenceType": "legacy_model_capability_reference", "appliesTo": ["content-strategist", "eli5-short-form-writer", "substack-essay-writer", "script-doctor", "editor-in-chief", "principal-software-engineer", "visual-director", "audio-producer"], "decision": "Gemma/Gamma/Hugging Face/MLX are legacy or non-default; OpenRouter DeepSeek V4 Flash is the current default specialist reasoning route, while LiveKit and Kokoro own live voice transport/output.", "freshness": "Refresh before intentionally re-enabling legacy provider routes, model ids, modality assumptions, or context-window policy."},
         {"title": "OpenAI Realtime API guide", "publisher": "OpenAI", "url": "https://platform.openai.com/docs/guides/realtime/", "referenceType": "realtime_audio_reference", "appliesTo": ["realtime-conversation-host", "audio-producer"], "decision": "Realtime providers own live speech-to-speech, interruption, and spoken output while durable state remains in Postgres.", "freshness": "Refresh before changing realtime session creation, event transport, or spoken-output policy."},
-        {"title": "ElevenLabs Text to Speech documentation", "publisher": "ElevenLabs", "url": "https://elevenlabs.io/docs/capabilities/text-to-speech", "referenceType": "tts_provider_reference", "appliesTo": ["audio-producer", "realtime-conversation-host"], "decision": "High-quality narration and TTS are pluggable provider outputs separate from Gemma reasoning.", "freshness": "Refresh before changing ElevenLabs session setup, voice metadata, or TTS QA assumptions."},
+        {"title": "ElevenLabs Text to Speech documentation", "publisher": "ElevenLabs", "url": "https://elevenlabs.io/docs/capabilities/text-to-speech", "referenceType": "tts_provider_reference", "appliesTo": ["audio-producer", "realtime-conversation-host"], "decision": "High-quality narration and TTS are pluggable provider outputs separate from OpenRouter reasoning.", "freshness": "Refresh before changing ElevenLabs session setup, voice metadata, or TTS QA assumptions."},
         {"title": "Cartesia Text to Speech WebSocket API", "publisher": "Cartesia", "url": "https://docs.cartesia.ai/api-reference/tts/tts", "referenceType": "tts_websocket_reference", "appliesTo": ["audio-producer", "realtime-conversation-host"], "decision": "Low-latency TTS is a pluggable realtime audio boundary with durable provider metadata only.", "freshness": "Refresh before changing Cartesia WebSocket setup, voice ids, or latency assumptions."},
         {"title": "Claude Code subagents", "publisher": "Anthropic", "url": "https://docs.anthropic.com/en/docs/claude-code/sub-agents", "referenceType": "subagent_context_reference", "appliesTo": ["agent-harness-engineer", "context-engineering-agent", "critic-reviewer-agent"], "decision": "Specialist agents need explicit roles, tool permissions, isolated task context, and structured returned results.", "freshness": "Refresh before changing agent skill files, allowed tool policy, or specialist context boundaries."},
         {"title": "Designing Data-Intensive Applications", "publisher": "Martin Kleppmann", "url": "https://martin.kleppmann.com/2017/03/27/designing-data-intensive-applications.html", "referenceType": "data_system_design_reference", "appliesTo": ["principal-software-engineer", "backend-platform-engineer", "scalability-reliability-engineer"], "decision": "Reliability, scalability, maintainability, consistency, and fault tolerance are explicit architecture gates.", "freshness": "Refresh before changing event-log semantics, durability boundaries, or high-scale data flows."},
@@ -1293,8 +1293,8 @@
       ],
       "multimodalIntake": [
         {"name": "Dialogue-Attached Assets", "role": "Natural `/api/conversation/turns` and routed realtime turns can now carry image, screenshot, audio, voice, video, reel, document, and text references into a `multimodal_intake_ledger` artifact."},
-        {"name": "Specialist Review Artifact", "role": "Screenshots, audio, video, and documents route to the right specialists, and their `review_multimodal_intake` tasks now produce `multimodal_review` artifacts with durable asset-specific decisions, Gemma output when configured, and deterministic fallback when offline."},
-        {"name": "Provider Boundaries", "role": "Gemma 4 multimodal HF endpoints handle asset-reference review and synthesis after model-policy approval, realtime providers handle speech transport, and imagegen remains raster generation/editing only."},
+        {"name": "Specialist Review Artifact", "role": "Screenshots, audio, video, and documents route to the right specialists, and their `review_multimodal_intake` tasks now produce `multimodal_review` artifacts with durable asset-specific decisions, provider output when configured, and deterministic fallback when offline."},
+        {"name": "Provider Boundaries", "role": "OpenRouter DeepSeek V4 Flash handles current text reasoning after model-policy approval, LiveKit handles realtime transport, Kokoro handles speech output, and imagegen remains raster generation/editing only."},
         {"name": "Review Follow-up Handoffs", "role": "Completed reviews now materialize idempotent `multimodal_review_followup_v1` AgentMessage tasks for context, manager coordination, planning notes, voice context, or media-prep specialists unless human feedback is required."},
         {"name": "Autonomous Continuation Proof", "role": "Worker cycles can now consume those follow-ups into `context_packet`, `system_plan`, and `imagegen_prompt_pack` artifacts while using the targeted `multimodal_review` as asset-reference planning input."},
         {"name": "Timeline Proof", "role": "`multimodal_intake_recorded`, `multimodal_intake_review_recorded`, `gemma_multimodal_review_completed`, and `multimodal_review_followups_materialized` store modality counts, recommended agents, task ids, review artifact ids, model usage, follow-up ids, and the intake artifact id for resumable multimodal dialogue."}
@@ -1310,7 +1310,7 @@
       "workflow": [
         {"name": "Voice/Text Turn", "role": "Record the user transcript, modality, optional audio URI, and run metadata."},
         {"name": "A2A Task Plan", "role": "Emit four durable agent messages for research, claim review, content strategy, and guardrails."},
-        {"name": "Provider-Aware Work", "role": "Use web search and Gemma 4 providers when configured; record `web_research_completed`, Gemma completion, and fallback events as durable timeline proof."},
+        {"name": "Provider-Aware Work", "role": "Use web search and the approved OpenRouter provider when configured; record `web_research_completed`, OpenRouter completion, and fallback events as durable timeline proof."},
         {"name": "Grounded Records", "role": "Create source records, claim records, and source-linked post, reel, and Substack artifacts with persisted draft content."},
         {"name": "Feedback Gate", "role": "Leave the run waiting for human feedback so the next revision can be conversational."}
       ],
@@ -1376,7 +1376,7 @@
         {"name": "Human Gate", "role": "Blocked or needs-revision audits reopen the human feedback gate."}
       ],
       "publishReadiness": [
-        {"name": "Run-Level Check", "role": "Inspect current publishable artifacts, provenance completeness, Gemma 4/Hugging Face writing provenance, source quality, freshness, claims, guardrail audits, and feedback."},
+        {"name": "Run-Level Check", "role": "Inspect current publishable artifacts, provenance completeness, OpenRouter writing provenance, source quality, freshness, claims, guardrail audits, and feedback."},
         {"name": "Ready Or Blocked", "role": "Return ready, needs-review, or blocked with explicit issues and next actions."},
         {"name": "Human Gate", "role": "When not ready, create a durable feedback item and reopen the approval gate."},
         {"name": "Timeline Proof", "role": "`publish_readiness_checked` records the decision and evidence in the run event log."}
@@ -1447,7 +1447,7 @@
         {"name": "Authorize Retry", "role": "Human-reviewed work can be reset or granted a higher retry cap before returning to accepted task polling."},
         {"name": "Claim And Resume", "role": "The task owner and status are stored through an atomic claim before execution so interrupted workers can recover."},
         {"name": "Build Context", "role": "The worker builds a context packet from turns, messages, sources, claims, artifacts, audits, feedback, and memories."},
-        {"name": "Execute And Persist", "role": "Gemma-backed execution is used when configured; local deterministic output records safe fallback results."}
+        {"name": "Execute And Persist", "role": "OpenRouter-backed execution is used when configured; local deterministic output records safe fallback results."}
       ],
       "workerExecutors": [
         {"name": "Realtime Conversation Brief", "role": "Realtime Conversation Host worker records a `realtime_conversation_brief` artifact with session inventory, durable control-event inventory, voice turns, interruption state, feedback, and handoff recommendations."},
@@ -1491,10 +1491,10 @@
         {"name": "A2A Graph Preflight", "role": "The pass builds an `a2a_collaboration_graph` before worker claims and blocks bounded work when circular dependencies or retry-exhausted tasks require human repair."},
         {"name": "Open Feedback Gate", "role": "The pass counts unresolved open `FeedbackItem` gates and records `open_feedback_blocked`; autonomous worker, research, media, distribution, source, guardrail, and publish steps wait until the user resolves the gate."},
         {"name": "Research Freshness Gate", "role": "The pass builds a `research_freshness_ledger` before publish-facing work, can launch one provider-backed Web Research Agent source-refresh task when evidence is blocked, then blocks only if no acceptable source evidence exists."},
-        {"name": "Bounded Workers", "role": "A finite worker cycle processes accepted A2A tasks with configured agents, task limits, and Gemma routing."},
+        {"name": "Bounded Workers", "role": "A finite worker cycle processes accepted A2A tasks with configured agents, task limits, and approved provider routing."},
         {"name": "Multimodal Follow-up Cycle", "role": "When `multimodal_review_followup_v1` tasks are pending, the pass runs a second bounded continuation cycle and records `autonomous_multimodal_followups_continued`."},
         {"name": "Review Outputs", "role": "The pass builds current media plans, source ledger snapshots, guardrail audits, readiness decisions, a refreshed artifact index with publishing handoff state, work plans, and optional HTML notes."},
-        {"name": "Evidence Ledgers", "role": "Each pass can append `agent_skill_usage_ledger_built`, `model_routing_ledger_built`, `provider_operations_ledger_built`, `realtime_dialogue_ledger_built`, and `feedback_resolution_ledger_built` artifacts so skills, Gemma/HF routing, realtime sessions, tool policy, fallbacks, voice continuity, feedback blockers, and artifact provenance stay inspectable."},
+        {"name": "Evidence Ledgers", "role": "Each pass can append `agent_skill_usage_ledger_built`, `model_routing_ledger_built`, `provider_operations_ledger_built`, `realtime_dialogue_ledger_built`, and `feedback_resolution_ledger_built` artifacts so skills, OpenRouter/LiveKit/Kokoro routing, realtime sessions, tool policy, fallbacks, voice continuity, feedback blockers, and artifact provenance stay inspectable."},
         {"name": "Autonomous Context Packet", "role": "The pass writes an `autonomous_context_packet_v1` context artifact after operational evidence ledgers, preserving current-pass ledger status, source_evidence, the latest manifest, risks, recent events, and recommended fetches as evidence for the self-audit."},
         {"name": "Foundation Self-Audit", "role": "The pass records `foundation_audit_built` before replay so each long-running cycle captures requirement-level evidence plus remediation counts for roster, skills, models, providers, persistence, grounding, UI boundaries, feedback, worker heartbeat ledgers, and context."},
         {"name": "Post-Audit Work Plan", "role": "When work planning is enabled, the pass immediately rebuilds the Sprint/Progress `run_work_plan_v1` with `refresh_reason: foundation_audit_completed`, so same-pass remediation becomes routed `resolve_foundation_audit_finding` work without waiting for the next cycle."},
@@ -1504,7 +1504,7 @@
         {"name": "Timeline Proof", "role": "`autonomous_studio_pass_started` and `autonomous_studio_pass_completed` bracket the whole pass for resume/debug traces, including `work_plan_refresh_reason`, `sync_pulse_refresh_reason`, artifact-index publishing handoff status, the returned context packet refresh reason, and latest foundation-audit remediation summary."}
       ],
       "workerProfiles": [
-        {"name": "Durable Config", "role": "Profiles store execution mode, agent order, task limits, rounds, memory limits, Gemma usage, and polling interval in Postgres."},
+        {"name": "Durable Config", "role": "Profiles store execution mode, agent order, task limits, rounds, memory limits, provider usage, and polling interval in Postgres."},
         {"name": "Start Stop State", "role": "A profile can be paused, active, or stopped without losing its durable run configuration."},
         {"name": "Heartbeat Lease", "role": "A heartbeat first claims a durable profile lease so the scheduler and manual cockpit cannot run the same profile concurrently."},
         {"name": "Heartbeat Gate", "role": "A leased heartbeat builds a resume-plan gate, then executes either the configured worker cycle or the guarded autonomous studio pass while the profile is active."},
@@ -1547,7 +1547,7 @@
         {"status": "Locked", "title": "No SQLite", "detail": "Postgres plus pgvector is the v1 durability and memory foundation."},
         {"status": "Locked", "title": "Separate planning artifact", "detail": "This animated HTML workspace is for system design, not the product app."},
         {"status": "Locked", "title": "Realtime first", "detail": "The user interacts through natural voice or text, with specialist work running behind the conversation."},
-        {"status": "Locked", "title": "Gemma 4 expert layer", "detail": "Gemma 4 is used for specialist reasoning, vision, synthesis, writing, and critique."},
+        {"status": "Locked", "title": "OpenRouter reasoning layer", "detail": "OpenRouter DeepSeek V4 Flash is the current default specialist reasoning route; Gemma/Gamma/Hugging Face/MLX are legacy or non-default."},
         {"status": "Locked", "title": "Source-backed content", "detail": "Important claims must connect to source records or remain explicitly unsupported."}
       ]
     }
