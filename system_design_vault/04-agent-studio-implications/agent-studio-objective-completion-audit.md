@@ -372,7 +372,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - blocker_state_update_note_recorded: false
 - goal_completion_claimed: false
 - state_change_allowed: false
-- architecture implication: closure review and blocker-state mutation stay fail-closed until accepted live voice and external publication proof records replace the latest failed records.
+- architecture implication: provider-backed live voice has since replaced its failed record with an accepted record; closure review and blocker-state mutation stay fail-closed until accepted external publication proof replaces the latest failed publication record.
 
 
 ## Operator Unblocker Checklist - 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
@@ -550,7 +550,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - verification: focused browser checks first failed because both homes omitted `current-proof-status.md`; after adding packet cards, the home browser checks passed with `2 passed` and the focused foundation check passed with `1 passed`.
 - architecture implication: the system-design-vault MOC now links the generated current proof packet trio beside the project proof-readiness and proof-plan handoff, keeping architecture-vault navigation aligned with the current proof state.
 - verification: the focused foundation contract first failed because the system-design MOC omitted `current-proof-status.md`; after the link update, the focused check passed with `1 passed`.
-- boundary: this improves handoff consistency only; accepted OpenRouter LiveKit live-voice proof and LinkedIn publication proof remain external blockers.
+- boundary: this improves handoff consistency only. Provider-backed OpenRouter LiveKit live-voice proof is now accepted; LinkedIn publication proof remains the external blocker.
 
 
 ## System Design Viewer Current Proof Packet Handoff - 2026-05-21
@@ -558,7 +558,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `social_media_optimiser/output/viewers/agent-studio-system-design.json`, `social_media_optimiser/output/viewers/agent-studio-system-design-viewer.html`
 - architecture implication: the generated interactive system-design viewer now exposes the current proof packet trio from the Objective Completion Audit component, so browser-based reviewers can discover `current-proof-status.md`, `current-blocker-matrix.json`, and `operator-unblocker-checklist.md` without leaving the design surface.
 - verification: the system-design viewer browser regression and foundation projection regression first failed on the missing packet names; after the projection update, each focused check passed with `1 passed`.
-- boundary: this synchronizes review discovery only; completion still requires accepted provider-backed OpenRouter LiveKit live voice proof and accepted LinkedIn publication proof.
+- boundary: this synchronizes review discovery only. Provider-backed OpenRouter LiveKit live-voice proof is now accepted; completion still requires accepted LinkedIn publication proof plus completion and closure-review recheck.
 
 
 ## Operator Checklist Retry Refresh - 2026-05-21
@@ -567,7 +567,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - architecture implication: operator-input retry orchestration now refreshes the human checklist after the machine matrix and status packet, preventing long-running agents from routing humans through stale Markdown after inputs or proof artifacts change.
 - architecture implication: static proof-packet exports now carry the same checklist refresh command, keeping browser-only and machine-readable handoffs aligned.
 - verification: focused CLI regressions first failed on the missing checklist refresh command; after the update, both focused CLI checks passed, and static proof-packet browser parity passed with `2 passed`.
-- boundary: this is orchestration freshness only; completion still depends on accepted OpenRouter/LiveKit/Kokoro live voice and LinkedIn publication proof records.
+- boundary: this is orchestration freshness only. Provider-backed OpenRouter/LiveKit/Kokoro live voice is now accepted; completion still depends on accepted LinkedIn publication proof and closure recheck.
 
 
 ## Current Status Regeneration Order - 2026-05-21
@@ -577,7 +577,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - architecture implication: the status packet's `Next Packets` list now follows the same matrix -> status -> checklist order, so human and agent readers do not see a different priority order from the explicit `next_status_packet` / `next_operator_packet` contract.
 - verification: the focused status packet regression first failed on the old checklist-before-status order; after the update, the focused check passed and the full provider-proof CLI suite passed with `216 passed`.
 - verification: a follow-up focused status packet regression first failed on the old `Next Packets` ordering; after the update, focused status verification passed with `1 passed`, provider-proof CLI passed with `216 passed`, and foundation passed with `21 passed`.
-- boundary: this is no-secret handoff consistency only; proof completion remains blocked on real accepted live voice and publication records.
+- boundary: this is no-secret handoff consistency only. Provider-backed live voice is now accepted; proof completion remains blocked on a real accepted LinkedIn publication record plus closure recheck.
 
 
 ## Operator Checklist Closure Gate - 2026-05-21
@@ -793,7 +793,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/README.md`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md`
 - architecture implication: Markdown-first operators and A2A/review agents can now align each text packet with the matrix by reading `proof_id`, `matrix_parity_ref`, and `proof_capture_matrix_ref` directly in the packet body.
 - verification: focused coverage first failed on the absent fields; after updating the shared renderer, README packet construction, and UUID Markdown artifacts, focused tests passed with `4 passed`, full provider-proof CLI passed with `223 passed`, foundation passed with `21 passed`, compileall passed, and `git diff --check` was clean.
-- boundary: this is packet identity and parity metadata only; accepted OpenRouter/LiveKit/Kokoro live voice proof and external publication proof remain externally blocked.
+- boundary: this is packet identity and parity metadata only. OpenRouter/LiveKit/Kokoro live voice proof is now accepted; external publication proof remains externally blocked on LinkedIn evidence.
 
 
 ## Markdown Operator Proof Packet Capture Commands - 2026-05-21
@@ -864,7 +864,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json`, `social_media_optimiser/output/viewers/agent-studio-system-design.json`
 - architecture implication: the compact provider-proof-plan packet now carries `current_matrix_packet`, `current_matrix_packet_ref`, and `current_matrix_operator_packet_ref`, so architecture-level A2A/review agents can pivot from `proof_plan_operator_packet` back to the richer `current-blocker-matrix.json` packet without guessing paths.
 - verification: provider-proof CLI passed with `223 passed`, static blocker snapshot consistency passed with `6 passed`, and system-design viewer parity/browser checks passed with `2 passed`.
-- boundary: this is routing metadata only; accepted live voice and external publication proof records still require real external evidence.
+- boundary: this is routing metadata only. Provider-backed live voice is now accepted for the current OpenRouter/LiveKit/Kokoro path; external publication proof still requires real LinkedIn evidence.
 
 
 ## Static Proof Plan Operator Packet Export - 2026-05-21
@@ -872,7 +872,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html`, `social_media_optimiser/02-research/gemma-voice-boundary-map.html`, `social_media_optimiser/03-review-packets/agent-studio-publication-boundary-map.html`
 - architecture implication: browser-first A2A/review agents now receive the compact CLI proof-plan packet inside `proof_plan.operator_proof_packet`, while the separate top-level packet keeps the richer current-matrix readiness context.
 - verification: static parity first failed on missing nested packet export; after normalization, focused parity passed with `2 passed`, full snapshot consistency passed with `6 passed`, proof-packet browser coverage passed with `2 passed`, foundation passed with `21 passed`, and compileall passed for the touched test.
-- boundary: this is static export parity only; accepted live voice and publication proof records remain externally blocked.
+- boundary: this is static export parity only. Provider-backed live voice is now accepted for the current OpenRouter/LiveKit/Kokoro path; publication proof remains externally blocked on LinkedIn evidence.
 
 
 ## System Design Viewer Proof Plan Packet Route - 2026-05-21
@@ -1041,7 +1041,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `src/all_about_llms/voice_agent/adapters.py`, `src/all_about_llms/voice_agent/readiness.py`, `tests/test_api_contracts.py`, `agent_progress_vault/06-live-voice/openrouter-livekit-live-dialogue.md`
 - architecture implication: runtime readiness now distinguishes the OpenRouter text-turn live-dialogue route from legacy/optional native Gemma audio-understanding proof by using `openrouter-live-dialogue-reasoning` for OpenRouter and reserving `gemma-audio-reasoning` for native Gemma audio only. OpenRouter chat completions can satisfy the current live-dialogue reasoning check without `GEMMA4_MULTIMODAL_ENDPOINT_URL`, both checks are emitted when both routes are configured, and HF router/text-primary endpoints do not satisfy native audio proof or block the current default path.
 - verification: focused live-dialogue readiness coverage passed with `7 passed`, provider-proof boundary coverage passed with `28 passed`, broader `voice_runtime_readiness or provider_readiness` API coverage passed with `28 passed`, foundation passed with `22 passed`, and `compileall` passed; existing unknown `pytest.mark.asyncio` warnings are unchanged. Leibniz fix-back review reported no material Critical/Important findings.
-- boundary: this is runtime contract alignment for the Cursor-coordinated OpenRouter path only; accepted live-voice proof still requires refreshed product-owned runtime captures and accepted proof records.
+- boundary: this is runtime contract alignment for the Cursor-coordinated OpenRouter path only. That requirement has since been satisfied by the accepted live-voice proof for UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`; external LinkedIn publication proof remains open.
 
 ## System Design Vault Entry Link Audit - 2026-05-21
 

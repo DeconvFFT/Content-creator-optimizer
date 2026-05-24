@@ -640,7 +640,7 @@ At the end of a meaningful slice:
 - goal_completion_claimed: false
 - state_change_allowed: false
 - evidence_files: `closure-review-template.json`, `closure-review-status.json`, `blocker-state-update.json`
-- next action: capture and record accepted OpenRouter LiveKit live-voice proof plus LinkedIn policy/credential/destination/rollback evidence, then rerun completion status before closure review.
+- next action: provider-backed OpenRouter LiveKit live-voice proof is already accepted for this UUID. Capture and record the remaining LinkedIn policy/credential/destination/rollback evidence, then rerun completion status before closure review.
 
 
 ## Operator Unblocker Checklist - 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
@@ -926,7 +926,7 @@ At the end of a meaningful slice:
 - regression_coverage: the focused status regression first failed on missing top-level command arrays; after the renderer update and UUID status refresh, focused checks passed with `2 passed`.
 - system_design_viewer_update: the Objective Completion Audit projection now carries `operator_input_retry_sequence` from `current-blocker-matrix.json`, and the HTML detail renders `Report-only operator retry sequence` before the guarded retry sequence.
 - regression_coverage: the viewer parity regression first failed on the missing report-only sequence field; after the JSON/HTML update, focused parity and browser checks passed.
-- boundary: this is no-secret gate visibility only; closure remains blocked until accepted live voice and publication proof records exist.
+- boundary: this is no-secret gate visibility only. Provider-backed live voice is now accepted; closure remains blocked until accepted LinkedIn publication proof, completion recheck, and closure review exist.
 - kanban_update: `Agent Studio Kanban.md` now names the `Report-only operator-input retry chain` separately from the `Guarded operator-input retry chain` on the remaining live-voice and publication blockers.
 - regression_coverage: the foundation vault contract first failed because the Kanban linked generated proof packets but omitted the retry-chain split; after the board update, focused foundation verification passed with `1 passed`.
 - status_packet_update: `current-blocker-matrix.json` and `current-proof-status.md` now carry `gemma-audio-reasoning` as `blocked` rather than `unknown`, taking the status from `voice-runtime-readiness.preflight.json`.

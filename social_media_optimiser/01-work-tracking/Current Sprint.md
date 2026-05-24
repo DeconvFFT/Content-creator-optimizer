@@ -997,7 +997,7 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 
 - Done: `operator-unblocker-checklist.md` now renders per-proof `next_action_commands` and `guarded_next_action_commands` inside the compact operator-input readiness section.
 - Verified: the concrete checklist regression first failed because the per-proof input block omitted route command labels; after the generator and UUID checklist refresh, the focused checklist test passed with `1 passed`.
-- Boundary: this improves compact operator handoff parity only; no proof state changes are allowed until accepted live voice and publication evidence exist.
+- Boundary: this improves compact operator handoff parity only; provider-backed live voice is now accepted, and no proof state changes are allowed until accepted LinkedIn publication evidence plus closure recheck exist.
 
 ## 2026-05-21 Proof Workspace README Route Commands
 
@@ -1015,7 +1015,7 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 
 - Done: generated provider proof workspace `README.md` now includes per-proof route `issue_codes` and `field_groups` before report-only and strict-first command lists.
 - Verified: the workspace README regression first failed because the route section omitted diagnostics; after the generator update and UUID README refresh, the focused workspace README test passed with `1 passed`.
-- Boundary: this keeps the command-source handoff diagnostic without printing secrets; external live voice and publication proof remain blocked.
+- Boundary: this keeps the command-source handoff diagnostic without printing secrets; provider-backed live voice is now accepted, and external publication proof remains blocked.
 
 ## 2026-05-21 UUID README Freshness Guard
 
@@ -1039,13 +1039,13 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 
 - Done: `operator-unblocker-checklist.md` now renders readiness, credential snapshot, proof-plan, matrix, status, and checklist refresh commands from the readiness command arrays, preserving a filled operator-input file path instead of rebuilding template-path commands.
 - Verified: the focused checklist regression first failed because the compact checklist omitted the filled input path, then passed with `1 passed`; concrete UUID checklist freshness passed with the refreshed Markdown.
-- Boundary: this improves the shortest human handoff only; OpenRouter LiveKit live voice and LinkedIn publication proof records remain required.
+- Boundary: this improves the shortest human handoff only; OpenRouter LiveKit live voice is now accepted, and the remaining required proof record is LinkedIn publication.
 
 ## 2026-05-21 Current Status Top-Level Retry Commands
 
 - Done: `current-proof-status.md` now renders top-level operator-input `next_action_commands` and `guarded_next_action_commands`, not only per-proof command lists.
 - Verified: the focused status regression first failed because the top-level readiness section omitted the command arrays, then passed with `1 passed`; concrete UUID status freshness passed after refreshing the Markdown.
-- Boundary: this improves status-first operator routing only; accepted live voice and publication evidence are still required.
+- Boundary: this improves status-first operator routing only; accepted live-voice evidence now exists, and accepted LinkedIn publication evidence is still required.
 
 ## 2026-05-21 System Design Viewer Report-Only Retry Sequence
 

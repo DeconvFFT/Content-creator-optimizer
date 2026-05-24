@@ -604,14 +604,14 @@ This failed record is preserved as historical audit evidence from the prior nati
 
 - evidence: Objective Completion Audit route details now render `Proof capture commands after unblock` while preserving the raw `proof_capture_commands_after_unblock` key.
 - regression_coverage: focused viewer coverage first failed on the missing human label; after the renderer update, `tests/test_system_design_viewer_browser.py` passed with `2 passed`.
-- boundary: this is architecture-viewer readability only; accepted live voice and publication proof records remain externally blocked.
+- boundary: this is architecture-viewer readability only. Provider-backed live voice is now accepted for the current OpenRouter/LiveKit/Kokoro path; external publication proof remains blocked on LinkedIn evidence.
 
 
 ## Markdown Operator Proof Packet Metadata - 2026-05-21
 
 - evidence: `current-proof-status.md` and `operator-unblocker-checklist.md` now render per-proof `operator_proof_packet` metadata from `current-blocker-matrix.json`, including label, schema version, handoff contract, state-change guardrail, secret handling, next packet refs, `must_capture`, and `store_in`.
 - regression_coverage: focused regressions first failed with zero `operator_proof_packet` sections; after the shared renderer and UUID packet refresh, focused Markdown checks passed with `2 passed`, full provider-proof CLI passed with `221 passed`, foundation passed with `21 passed`, compileall passed, and touched-file whitespace/secret scans plus `git diff --check` were clean.
-- boundary: this is human/A2A handoff visibility only; accepted OpenRouter/LiveKit/Kokoro live-voice proof and external publication proof still require real evidence. For live voice, that accepted record must link same-run LiveKit transport, LiveKit agent participant, backend event sink, OpenRouter live-dialogue reasoning, Kokoro TTS, and Rust voice edge where applicable.
+- boundary: this is human/A2A handoff visibility only. The OpenRouter/LiveKit/Kokoro live-voice proof is now accepted with same-run LiveKit transport, agent participant, backend event sink, OpenRouter live-dialogue reasoning, Kokoro TTS, and Rust voice-edge evidence where applicable; external publication proof still requires real LinkedIn evidence.
 
 
 ## Workspace README Proof Packet Metadata - 2026-05-21
@@ -626,7 +626,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 
 - evidence: `proof-plan.json` now includes `operator_proof_packet` in each proof row, carrying packet label, schema version, handoff contract, state-change guardrail, secret handling, proof-capture commands, proof-record schema/required fields, and audit storage targets.
 - regression_coverage: proof-plan regressions first failed on missing packet rows; after the generator update and portable/current proof-plan refresh, full provider-proof CLI passed with `223 passed`, foundation passed with `21 passed`, compileall passed, and touched-file whitespace/secret scans plus `git diff --check` were clean.
-- boundary: this is plan-first A2A routing metadata only; accepted live voice and publication proof records still require real external evidence.
+- boundary: this is plan-first A2A routing metadata only. Provider-backed live voice is now accepted for the current OpenRouter/LiveKit/Kokoro path; external publication proof still requires real LinkedIn evidence.
 
 ## Proof Plan Operator Matrix Back-Reference - 2026-05-21
 
@@ -646,7 +646,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 
 - evidence: Objective Completion Audit routes in the generated system-design JSON/HTML now include `proof_plan_operator_packet`, preserving the compact provider-proof-plan packet next to the richer current-matrix operator packet.
 - regression_coverage: system-design viewer parity first failed on the missing route field and visible label; after the JSON/HTML update, viewer checks passed with `2 passed`, foundation passed with `21 passed`, and compileall passed for the touched viewer test.
-- boundary: this is architecture-viewer handoff parity only; accepted live voice and publication proof records remain externally blocked.
+- boundary: this is architecture-viewer handoff parity only. Provider-backed live voice is now accepted for the current OpenRouter/LiveKit/Kokoro path; external publication proof remains blocked on LinkedIn evidence.
 
 ## System Design Vault Entry Link Audit - 2026-05-21
 
