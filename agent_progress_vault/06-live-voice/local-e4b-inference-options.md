@@ -11,7 +11,7 @@ Your machine: **arm64** (Apple Silicon). For the historical native-Gemma audio e
 
 ## Current Default
 
-Use `[[openrouter-livekit-live-dialogue]]` and `[[status-snapshot-2026-05-23]]` for current live-dialogue work. The accepted proof gap is the same-run OpenRouter + LiveKit + Kokoro timing/proof record, not local E4B inference.
+Use `[[openrouter-livekit-live-dialogue]]` and `[[status-snapshot-2026-05-23]]` for current live-dialogue context. The OpenRouter + LiveKit + Kokoro proof is accepted; local E4B inference remains legacy/native-audio background and must not block the current route.
 
 ## What the Superseded Native-Gemma Path Expected
 

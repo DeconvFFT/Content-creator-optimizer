@@ -211,6 +211,7 @@ def _assert_voice_proof_packet(packet):
     assert "provider_smoke_ledger with execute_live_calls=true" in packet[
         "must_capture"
     ]
+    assert "livekit_voice_timing_capture JSON" in packet["must_capture"]
     assert "realtime_voice_timing_ledger JSON" in packet["must_capture"]
     assert "LiveKit room/session id and participant identity" in packet[
         "must_capture"
@@ -436,7 +437,13 @@ def test_live_voice_operator_proof_packet_is_exported_and_propagated():
                 "Proof-plan field ownership"
             )
             expect(page.locator("#blocker-detail")).to_contain_text(
-                "provider_endpoint"
+                "transport_endpoint"
+            )
+            expect(page.locator("#blocker-detail")).to_contain_text(
+                "capture-livekit-voice-timing-proof"
+            )
+            expect(page.locator("#blocker-detail")).to_contain_text(
+                "livekit_voice_timing_capture_artifact_id"
             )
             expect(page.locator("#blocker-detail")).to_contain_text(
                 "validate-provider-proof-preflight-artifacts"
@@ -471,9 +478,6 @@ def test_live_voice_operator_proof_packet_is_exported_and_propagated():
                 "provider_credential"
             )
             expect(page.locator("#blocker-detail")).to_contain_text("endpoint_url")
-            expect(page.locator("#blocker-detail")).to_contain_text(
-                "secret_file_unavailable"
-            )
             readiness_packet = _json(page, "#readiness-export")["blockers"][0][
                 "operator_proof_packet"
             ]
@@ -483,7 +487,7 @@ def test_live_voice_operator_proof_packet_is_exported_and_propagated():
                 page,
                 "social_media_optimiser/02-research/gemma-voice-boundary-map.html",
             )
-            page.get_by_role("button", name="Audio proof").click()
+            page.get_by_role("button", name="Proof gate").click()
             expect(page.locator("#route-detail")).to_contain_text("Proof packet")
             expect(page.locator("#route-detail")).to_contain_text(
                 "Proof-plan operator packet"
@@ -501,7 +505,10 @@ def test_live_voice_operator_proof_packet_is_exported_and_propagated():
                 "Proof-plan field ownership"
             )
             expect(page.locator("#route-detail")).to_contain_text(
-                "provider_endpoint"
+                "transport_endpoint"
+            )
+            expect(page.locator("#route-detail")).to_contain_text(
+                "capture-livekit-voice-timing-proof"
             )
             expect(page.locator("#route-detail")).to_contain_text("Field ownership")
             expect(page.locator("#route-detail")).to_contain_text("Field statuses")

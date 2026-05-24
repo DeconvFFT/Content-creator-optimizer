@@ -77,7 +77,7 @@ import {
   stopWorkerSchedulerProcess,
   submitRevision
 } from "@/lib/api/client";
-import { buildVoiceRunCreateInput } from "@/lib/voice/voiceRun";
+import { buildVoiceRunCreateInput, type VoiceRunProvider } from "@/lib/voice/voiceRun";
 import type {
   AgentMessage,
   ArtifactRecord,
@@ -127,7 +127,7 @@ type AgentContinuationOptions = {
 };
 
 type VoiceRunCreateOptions = {
-  provider: "gemma4_realtime" | "local_rehearsal";
+  provider: VoiceRunProvider;
 };
 
 type VoiceRunMutationSnapshot = {

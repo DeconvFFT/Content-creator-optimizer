@@ -39,19 +39,25 @@ class LocalWorkerSchedulerSupervisor:
         self._reader_tasks: set[asyncio.Task] = set()
         self._command: list[str] = self._base_command()
         self._secret_values = tuple(
-            value
-            for value in (
-                settings.database_url,
-                settings.hf_token,
-                settings.livekit_api_key,
-                settings.livekit_api_secret,
-                settings.openai_api_key,
-                settings.elevenlabs_api_key,
-                settings.cartesia_api_key,
-                settings.tavily_api_key,
-                settings.serpapi_api_key,
+            sorted(
+                (
+                    value
+                    for value in (
+                        settings.database_url,
+                        settings.hf_token,
+                        settings.livekit_api_key,
+                        settings.livekit_api_secret,
+                        settings.openai_api_key,
+                        settings.elevenlabs_api_key,
+                        settings.cartesia_api_key,
+                        settings.tavily_api_key,
+                        settings.serpapi_api_key,
+                    )
+                    if value and len(value) >= 4
+                ),
+                key=len,
+                reverse=True,
             )
-            if value and len(value) >= 4
         )
 
     async def status(self) -> WorkerSchedulerProcessStatusResult:

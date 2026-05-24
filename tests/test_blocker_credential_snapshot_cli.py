@@ -11,10 +11,8 @@ def test_blocker_credential_snapshot_cli_payload_uses_env_example_names(tmp_path
         "\n".join(
             [
                 "# placeholders",
-                "GEMMA4_MULTIMODAL_ENDPOINT_URL=",
-                "KOKORO_TTS_ENDPOINT_URL=",
-                "HF_TOKEN=",
-                "GEMMA4_REALTIME_LIVEKIT_URL=ws://127.0.0.1:7880",
+                "OPENROUTER_API_KEY=",
+                "OPENROUTER_LIVEKIT_URL=ws://127.0.0.1:7880",
                 "LIVEKIT_API_KEY=",
                 "LIVEKIT_API_SECRET=",
                 "INSTAGRAM_ACCESS_TOKEN=",
@@ -44,10 +42,8 @@ def test_blocker_credential_snapshot_cli_payload_never_echoes_secret_values(tmp_
     env_example.write_text(
         "\n".join(
             [
-                "GEMMA4_MULTIMODAL_ENDPOINT_URL=",
-                "KOKORO_TTS_ENDPOINT_URL=",
-                "HF_TOKEN=",
-                "GEMMA4_REALTIME_LIVEKIT_URL=",
+                "OPENROUTER_API_KEY=",
+                "OPENROUTER_LIVEKIT_URL=",
                 "LIVEKIT_API_KEY=",
                 "LIVEKIT_API_SECRET=",
                 "INSTAGRAM_ACCESS_TOKEN=",
@@ -58,10 +54,8 @@ def test_blocker_credential_snapshot_cli_payload_never_echoes_secret_values(tmp_
         )
     )
     env_values = {
-        "GEMMA4_MULTIMODAL_ENDPOINT_URL": "https://gemma.example/v1/audio",
-        "KOKORO_TTS_ENDPOINT_URL": "https://kokoro.example/tts",
-        "HF_TOKEN": "hf_secret_cli_test_must_not_echo",
-        "GEMMA4_REALTIME_LIVEKIT_URL": "wss://livekit.example",
+        "OPENROUTER_API_KEY": "openrouter_secret_cli_test_must_not_echo",
+        "OPENROUTER_LIVEKIT_URL": "wss://livekit.example",
         "LIVEKIT_API_KEY": "livekit_key_cli_test_must_not_echo",
         "LIVEKIT_API_SECRET": "livekit_secret_cli_test_must_not_echo",
         "INSTAGRAM_ACCESS_TOKEN": "instagram_cli_test_must_not_echo",
@@ -91,8 +85,8 @@ def test_blocker_credential_snapshot_cli_detects_secret_files_without_reading_va
 ):
     secrets_dir = tmp_path / ".secrets"
     secrets_dir.mkdir()
-    (secrets_dir / "hf_token").write_text(
-        "hf_file_secret_cli_test_must_not_echo\n",
+    (secrets_dir / "openrouter_api_key").write_text(
+        "openrouter_file_secret_cli_test_must_not_echo\n",
         encoding="utf-8",
     )
     (secrets_dir / "livekit_api_key").write_text(
@@ -107,11 +101,9 @@ def test_blocker_credential_snapshot_cli_detects_secret_files_without_reading_va
     env_example.write_text(
         "\n".join(
             [
-                "GEMMA4_MULTIMODAL_ENDPOINT_URL=",
-                "KOKORO_TTS_ENDPOINT_URL=",
-                "HF_TOKEN=",
-                "HF_TOKEN_FILE=.secrets/hf_token",
-                "GEMMA4_REALTIME_LIVEKIT_URL=",
+                "OPENROUTER_API_KEY=",
+                "OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key",
+                "OPENROUTER_LIVEKIT_URL=",
                 "LIVEKIT_API_KEY=",
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET=",
@@ -123,20 +115,18 @@ def test_blocker_credential_snapshot_cli_detects_secret_files_without_reading_va
     payload = _blocker_credential_snapshot_payload(
         Namespace(env_example_path=env_example, checked_at="2026-05-20"),
         env_values={
-            "GEMMA4_MULTIMODAL_ENDPOINT_URL": "https://gemma.example/v1/audio",
-            "KOKORO_TTS_ENDPOINT_URL": "https://kokoro.example/tts",
-            "GEMMA4_REALTIME_LIVEKIT_URL": "wss://livekit.example",
+            "OPENROUTER_LIVEKIT_URL": "wss://livekit.example",
         },
     )
     serialized = json.dumps(payload)
 
-    assert "hf_file_secret_cli_test_must_not_echo" not in serialized
+    assert "openrouter_file_secret_cli_test_must_not_echo" not in serialized
     assert "livekit_file_key_cli_test_must_not_echo" not in serialized
     assert "livekit_file_secret_cli_test_must_not_echo" not in serialized
     voice = payload["snapshots"]["provider-backed-live-voice-proof"]
     assert voice["state"] == "runtime_configuration_present_unverified"
     assert voice["configured_file_inputs"] == [
-        "HF_TOKEN_FILE",
+        "OPENROUTER_API_KEY_FILE",
         "LIVEKIT_API_KEY_FILE",
         "LIVEKIT_API_SECRET_FILE",
     ]
@@ -148,36 +138,29 @@ def test_blocker_credential_snapshot_cli_ignores_unreadable_publication_secret_f
 ):
     secrets_dir = tmp_path / ".secrets"
     secrets_dir.mkdir()
-    instagram_file = secrets_dir / "instagram_access_token"
-    instagram_file.write_text("instagram_file_secret_must_not_echo\n", encoding="utf-8")
-    os.chmod(instagram_file, 0)
+    linkedin_file = secrets_dir / "linkedin_access_token"
+    linkedin_file.write_text("linkedin_file_secret_must_not_echo\n", encoding="utf-8")
+    os.chmod(linkedin_file, 0)
     try:
         env_example = tmp_path / ".env.example"
         env_example.write_text(
             "\n".join(
                 [
-                    "INSTAGRAM_ACCESS_TOKEN=",
-                    "INSTAGRAM_ACCESS_TOKEN_FILE=.secrets/instagram_access_token",
                     "LINKEDIN_ACCESS_TOKEN=",
-                    "X_API_KEY=",
-                    "SUBSTACK_API_TOKEN=",
+                    "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
                 ]
             )
         )
 
         payload = _blocker_credential_snapshot_payload(
             Namespace(env_example_path=env_example, checked_at="2026-05-20"),
-            env_values={
-                "LINKEDIN_ACCESS_TOKEN": "linkedin_secret_must_not_echo",
-                "X_API_KEY": "x_secret_must_not_echo",
-                "SUBSTACK_API_TOKEN": "substack_secret_must_not_echo",
-            },
+            env_values={},
         )
     finally:
-        os.chmod(instagram_file, 0o600)
+        os.chmod(linkedin_file, 0o600)
 
     serialized = json.dumps(payload)
-    assert "instagram_file_secret_must_not_echo" not in serialized
+    assert "linkedin_file_secret_must_not_echo" not in serialized
     publication = payload["snapshots"]["external-publication-proof"]
     assert publication["state"] == "blocked_by_placeholder_only_configuration"
-    assert "INSTAGRAM_ACCESS_TOKEN_FILE" not in publication["configured_file_inputs"]
+    assert "LINKEDIN_ACCESS_TOKEN_FILE" not in publication["configured_file_inputs"]

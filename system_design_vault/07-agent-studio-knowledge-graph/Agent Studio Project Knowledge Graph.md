@@ -53,7 +53,7 @@ Core boundary: FastAPI is the durable orchestration/control API, not the media s
 | FastAPI backend | API, SSE/events, provider readiness, proof endpoints, artifact serving, run context | Implemented control plane |
 | Postgres + pgvector | Runs, events, checkpoints, turns, sources, claims, artifacts, feedback, memories | Canonical product state; no SQLite |
 | A2A worker network | Specialist task routing, retries, context packets, public-safe projection, feedback follow-up | Implemented with scoped caveats |
-| Realtime Conversation Host / voice participant | LiveKit session participation, OpenRouter turn calls, Kokoro streaming, durable voice events | Preflight-ready; accepted proof record pending |
+| Realtime Conversation Host / voice participant | LiveKit session participation, OpenRouter turn calls, Kokoro streaming, durable voice events | Accepted provider-backed live-voice proof recorded |
 | Retrieval Intelligence Agent | Query expansion, retrieval quality ledgers, accepted-source counts, reranker fallback proof | Partially implemented; more evaluation work remains |
 | Knowledge Graph Curator | Source/claim/artifact/topic/entity graph coverage and traversal edges | Partially implemented; full graph curation/eval remains |
 | Source Ledger + Claim Verification | Accepted/rejected evidence, supported/unsupported claims, publish gating | Implemented and product-visible |
@@ -77,12 +77,12 @@ Core boundary: FastAPI is the durable orchestration/control API, not the media s
 | Gate | Current status | What remains |
 |---|---|---|
 | Live voice operator inputs | Current 2026-05-23 status says OpenRouter key file, LiveKit URL, LiveKit key file, and LiveKit secret file are configured; no live-voice operator-input blockers | Do not reopen Hugging Face/Gamma/Gemma/MLX setup for this target |
-| Live voice preflight | `voice-runtime-readiness.preflight.json` summary says ready for OpenRouter/Kokoro LiveKit sessions; `provider-backed-live-voice-proof.preflight-validation.json` is `valid_preflight_artifacts` | Capture, validate, record, and recheck an accepted same-run provider-backed live voice proof |
-| Live provider smoke | `provider-smoke-ledger.live-openrouter.json` passes with `execute_live_calls=true`, selected session `ebd43531-86e3-4af1-ade0-15ac8d7184bf`, OpenRouter first text delta at 1111.171 ms, Kokoro first audio chunk at 4946.351 ms, and first-audio latency at 6057.54 ms | Use as runtime evidence, but do not treat it as accepted proof until full timing and proof-record capture pass |
-| Live voice accepted record | Latest record outcome is `failed`; current completion status is `blocked_by_latest_failed_proof_record` | Accepted record must link process-start, runtime-health, provider-smoke, LiveKit/session, timing-ledger, validation, and workspace-validation evidence |
-| Realtime timing ledger | `realtime-voice-timing-ledger.json` is `needs_more_evidence`; 4/8 stages are measured: LiveKit session ready, response start, first text, and first audio | Capture audio-track bridge, speech start, end-of-turn to agent-turn, and barge-in stop evidence |
+| Live voice preflight | `voice-runtime-readiness.preflight.json` summary says ready for OpenRouter/Kokoro LiveKit sessions; `provider-backed-live-voice-proof.preflight-validation.json` is `valid_preflight_artifacts` | Done for current proof run |
+| Live provider smoke | `provider-smoke-ledger.live-openrouter.json` passes with `execute_live_calls=true`, selected session `ebd43531-86e3-4af1-ade0-15ac8d7184bf`, OpenRouter first text delta at 1111.171 ms, Kokoro first audio chunk at 4946.351 ms, and first-audio latency at 6057.54 ms | Used in accepted proof record |
+| Live voice accepted record | `provider-backed-live-voice-proof.accepted-record.json` is accepted and recorded; current completion status is still `blocked_by_latest_failed_proof_record` because publication failed later | Do not reopen unless a newer live-voice failure supersedes it |
+| Realtime timing ledger | `realtime-voice-timing-ledger.json` is `ready`; 8/8 stages are measured in artifact `7e932381-4bf4-4206-a490-58d6a4ca7880` | Done for current proof run |
 | External publication inputs | Blocked on LinkedIn credential, policy/account-permission acknowledgement, durable external destination URL/platform ID, and rollback/postcondition evidence | Supply real external destination proof and accepted publication record |
-| Completion status | `completion-status.json` is `blocked_by_latest_failed_proof_record`; latest failed proofs are live voice and external publication | Rerun completion status after accepted records for both required proofs |
+| Completion status | `completion-status.json` is `blocked_by_latest_failed_proof_record`; accepted proofs include live voice and the latest failed proof is external publication | Rerun completion status after accepted external publication proof |
 | Closure review | Template/status blocked by completion status; blocker-state update blocked by closure review | Reviewer approval, closure review recording, then blocker-state update; no command currently claims objective complete |
 
 ## Dependencies And Config
@@ -122,14 +122,11 @@ Legacy/non-default dependency lane:
 - System-design HLD/LLD and release-gate canon in `system_design_vault`.
 - Runtime health and proof workspace infrastructure for provider-backed live voice and publication proof.
 - OpenRouter LiveKit readiness implementation: OpenRouter chat-completions readiness is distinct from legacy native-audio checks and does not require `GEMMA4_MULTIMODAL_ENDPOINT_URL`.
-- Current proof workspace run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` has refreshed 2026-05-23 status packets showing live-voice preflight ready and external publication still blocked.
-- Current live provider smoke for that run passes for OpenRouter `deepseek/deepseek-v4-flash` plus Kokoro `hexgrad/Kokoro-82M`, with first text/audio latency evidence recorded in `provider-smoke-ledger.live-openrouter.json`.
+- Current proof workspace run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` has accepted provider-backed live voice proof and external publication still blocked.
+- Current live provider smoke for that run passes for OpenRouter `deepseek/deepseek-v4-flash` plus Kokoro `hexgrad/Kokoro-82M`, with first text/audio latency evidence recorded in `provider-smoke-ledger.live-openrouter.json` and full timing evidence recorded in `realtime-voice-timing-ledger.json`.
 
 ## Remaining Implementation And Proof Work
 
-- Capture accepted same-run live voice proof for the OpenRouter DeepSeek + LiveKit + Kokoro path.
-- Capture the missing realtime timing stages: audio-track bridge, speech start, turn correlation, and barge-in stop.
-- Ensure the accepted live voice record includes managed voice-agent process start, runtime health, provider smoke, realtime timing ledger, LiveKit/session linkage, workspace validation, preflight validation, and no-secret checks.
 - Supply real LinkedIn/external publication inputs, run publication proof capture, and record an accepted external publication proof.
 - Recheck `provider-proof-completion-status` after accepted proof records.
 - Prepare and record closure review only after completion status reaches accepted required proofs.
@@ -149,7 +146,7 @@ Decisions:
 
 Blockers:
 
-- Latest live voice and external publication proof records are failed, so completion remains blocked even though live-voice preflight is ready.
+- Live voice is accepted, but external publication is still failed, so completion remains blocked.
 - External publication still lacks real LinkedIn credential/path, policy acknowledgement, durable destination, and rollback/postcondition evidence.
 - Closure review and blocker-state update are downstream of accepted proof records and cannot run honestly yet.
 

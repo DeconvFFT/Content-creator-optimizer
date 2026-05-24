@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import types
+from types import SimpleNamespace
 from pathlib import Path
 from uuid import uuid4
 
@@ -25,6 +26,7 @@ from all_about_llms.voice_agent.adapters import (
     CompositeVoiceAgentEventSink,
     HuggingFaceGemmaAudioReasoner,
     HuggingFaceKokoroTTSStreamer,
+    LiveKitAudioTrackPublisher,
     LiveKitDataEventSink,
     LocalKokoroTTSStreamer,
 )
@@ -49,6 +51,8 @@ from all_about_llms.voice_agent.livekit_app import (
     MAX_CANCELLED_RESPONSE_IDS,
     LiveKitVoiceAgentSessionState,
     VoiceTurnCaptureBuffer,
+    _build_livekit_job_request_acceptor,
+    build_livekit_voice_agent_server,
     _build_voice_agent_event_sink,
     _build_voice_edge_client,
     _build_kokoro_streamer,
@@ -62,6 +66,7 @@ from all_about_llms.voice_agent.livekit_app import (
     _handle_audio_track,
     _has_voice_edge_event,
     _latest_vad_is_speech,
+    _livekit_data_message_parts,
     _preflight_voice_edge_client,
     _remember_cancelled_response_id,
     _register_voice_edge_cleanup,
@@ -74,10 +79,96 @@ from all_about_llms.voice_agent.supervisor import LocalVoiceAgentSupervisor
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_livekit_agent_uses_dedicated_gemma_audio_endpoint_not_primary_fallback():
+def test_livekit_job_request_accepts_with_expected_agent_identity():
+    accepted: dict[str, object] = {}
+
+    class FakeJob:
+        metadata = json.dumps(
+            {
+                "agent_participant_identity": "openrouter-livekit-agent-run-1",
+                "run_id": "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                "realtime_session_id": "ebd43531-86e3-4af1-ade0-15ac8d7184bf",
+                "room_name": "proof-room",
+                "participant_identity": "creator-proof",
+            }
+        )
+
+    class FakeJobRequest:
+        job = FakeJob()
+
+        async def accept(self, **kwargs):
+            accepted.update(kwargs)
+
+    acceptor = _build_livekit_job_request_acceptor(
+        Settings(livekit_agent_name="openrouter-kokoro-agent")
+    )
+
+    asyncio.run(acceptor(FakeJobRequest()))
+
+    assert accepted["identity"] == "openrouter-livekit-agent-run-1"
+    assert accepted["name"] == "openrouter-kokoro-agent"
+    assert json.loads(accepted["metadata"])["agent_name"] == "openrouter-kokoro-agent"
+
+
+def test_livekit_voice_agent_server_uses_thread_executor_for_nested_entrypoint():
+    from livekit.agents import JobExecutorType
+
+    server, _cli = build_livekit_voice_agent_server(
+        Settings(
+            livekit_api_key="devkey",
+            livekit_api_secret="secret",
+            openrouter_livekit_url="ws://127.0.0.1:7880",
+        )
+    )
+
+    assert server._job_executor_type == JobExecutorType.THREAD
+
+
+def test_livekit_data_message_parts_accepts_current_sdk_data_packet_shape():
+    packet = SimpleNamespace(
+        data=b'{"type":"voice_agent_presence_probe"}',
+        participant=SimpleNamespace(identity="creator-proof"),
+        topic="agent.voice.control",
+    )
+
+    data, participant_identity, topic = _livekit_data_message_parts(
+        packet,
+        participant=None,
+        args=(),
+    )
+
+    assert data == b'{"type":"voice_agent_presence_probe"}'
+    assert participant_identity == "creator-proof"
+    assert topic == "agent.voice.control"
+
+
+def test_livekit_audio_publisher_writes_raw_pcm_bytes_into_livekit_audio_frame():
+    class FakeAudioSource:
+        def __init__(self):
+            self.frames = []
+
+        async def capture_frame(self, frame):
+            self.frames.append(bytes(frame.data.cast("B")))
+
+    publisher = LiveKitAudioTrackPublisher(
+        room=None,
+        participant=None,
+        sample_rate=16_000,
+        audio_format="pcm_s16le",
+        frame_ms=10,
+    )
+    publisher._source = FakeAudioSource()
+    payload = b"\x02\x00" * 160
+
+    asyncio.run(publisher._capture_pcm_frame(payload))
+
+    assert publisher._source.frames[0][: len(payload)] == payload
+
+
+def test_livekit_agent_builds_configured_voice_reasoner_not_gemma_endpoint_fallback():
     source = (ROOT / "src/all_about_llms/voice_agent/livekit_app.py").read_text()
 
-    assert "gemma_audio_endpoint_url(settings)" in source
+    assert "build_voice_reasoner(settings, config)" in source
     assert "or settings.gemma4_primary_endpoint_url" not in source
 
 
@@ -918,7 +1009,7 @@ async def _assert_hf_gemma_audio_reasoner_streams_sse_deltas(monkeypatch):
     assert request["headers"]["Accept"] == "text/event-stream"
     assert request["timeout"] == 12.5
     assert request["json"]["stream"] is True
-    assert request["json"]["model"] == "google/gemma-4-E4B-it"
+    assert request["json"]["model"] == "deepseek/deepseek-v4-flash"
     user_content = request["json"]["messages"][1]["content"]
     assert user_content[0]["type"] == "audio"
     assert user_content[0]["audio_base64"] == "YXVkaW8="

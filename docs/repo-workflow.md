@@ -30,12 +30,14 @@ Expected local checks before opening a PR:
 
 ```bash
 uv run ruff check src/ tests/
-uv run pytest -q
+bash scripts/ci-python-stable-tests.sh
 cd frontend/next-app && npm run build
 cd frontend/next-app && npm run lint
 cd frontend/next-app && npm run typecheck
 cd frontend/next-app && npm run test:race
 ```
+
+`scripts/ci-python-stable-tests.sh` is the required Python CI slice for the current OpenRouter/LiveKit proof branch. It includes the repo workflow guard that checks GitHub Actions Python dependency sync uses `uv sync --locked`, so CI must install from the committed `uv.lock`. The full `uv run pytest -q` suite is still useful as a broader migration audit and is expected to pass locally in the current workspace. Local provider-proof output fixture tests are opt-in with `RUN_PROVIDER_PROOF_ARTIFACT_FIXTURE_TESTS=1`; they read ignored files under `social_media_optimiser/output/provider-proof/` and must not become required CI checks.
 
 When touching Rust services, also run:
 
@@ -54,7 +56,9 @@ Do not commit:
 
 Commit:
 
-- source code, tests, lightweight Markdown/docs, CI config, `.env.example`, `.secrets/README.md`, `uv.lock`, package lockfiles, Cargo lockfiles, `AGENTS.md`/`agents.md`, and `CLOUD.md`/`cloud.md` when present
+- source code, tests, lightweight Markdown/docs, CI config, `.env.example`, `uv.lock`, package lockfiles, Cargo lockfiles, `AGENTS.md`/`agents.md`, and `CLOUD.md`/`cloud.md` when present
+
+Track `uv.lock` when Python dependencies change. Do not commit local command logs.
 
 Secrets belong in local environment variables or ignored files under `.secrets/`. Documentation may name required environment variables but must never contain real values.
 

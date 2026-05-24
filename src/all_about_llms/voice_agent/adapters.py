@@ -291,7 +291,12 @@ class LiveKitAudioTrackPublisher:
             self._num_channels,
             samples_per_channel,
         )
-        frame.data[: len(payload)] = payload
+        frame_data = frame.data
+        try:
+            frame_data = frame_data.cast("B")
+        except (AttributeError, TypeError):
+            pass
+        frame_data[: len(payload)] = payload
         await self._source.capture_frame(frame)
 
     def _frame_byte_count(self) -> int:

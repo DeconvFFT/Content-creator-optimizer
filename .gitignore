@@ -86,6 +86,8 @@ system_design_vault/output/
 cs336_assignment5_tmp/
 cs336_lectures_tmp/
 llm-course-hf/
+/repo_check_temp/
+system_design_vault/05-ingestion-runs/_tmp*.py
 
 # macOS/editor noise.
 .DS_Store

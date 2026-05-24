@@ -599,6 +599,7 @@ def _secret_file_status(
     path: object | None,
     secret_value: str | None = None,
 ) -> ProviderSecretFileStatus:
+    display_path = str(path) if path is not None else None
     if path is None:
         if secret_value:
             return ProviderSecretFileStatus(
@@ -637,7 +638,7 @@ def _secret_file_status(
             file_env_name=file_env_name,
             status="missing",
             configured=False,
-            path=None,
+            path=display_path,
             detail=f"{file_env_name} points to a missing file.",
         )
     except OSError:
@@ -658,7 +659,7 @@ def _secret_file_status(
             file_env_name=file_env_name,
             status="unreadable",
             configured=False,
-            path=None,
+            path=display_path,
             detail=f"{file_env_name} points to a file that could not be read.",
         )
     stripped = text.strip()
@@ -680,7 +681,7 @@ def _secret_file_status(
             file_env_name=file_env_name,
             status="empty",
             configured=False,
-            path=None,
+            path=display_path,
             detail=f"{file_env_name} points to an empty file.",
         )
     if secret_value and stripped != secret_value:

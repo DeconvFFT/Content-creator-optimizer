@@ -38,7 +38,6 @@ from all_about_llms.providers.interfaces import (
 )
 from all_about_llms.providers.readiness import build_provider_readiness
 from all_about_llms.voice_agent.adapters import (
-    HuggingFaceGemmaAudioReasoner,
     HuggingFaceKokoroTTSStreamer,
     LocalKokoroTTSStreamer,
 )

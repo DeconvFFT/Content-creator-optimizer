@@ -1001,8 +1001,10 @@ def test_next_voice_panel_uses_gemma_kokoro_transport_contract():
     assert "livekit/livekit-server:latest" in docker_compose
     assert '"--dev", "--bind", "0.0.0.0"' in docker_compose
     assert "docker compose --profile voice up livekit" in env_example
-    assert "LIVEKIT_API_KEY=devkey" in readme
-    assert "LIVEKIT_API_SECRET=secret" in readme
+    assert "LIVEKIT_API_KEY=<local-livekit-api-key>" in readme
+    assert "LIVEKIT_API_SECRET=<local-livekit-api-secret>" in readme
+    assert "LIVEKIT_API_KEY=devkey" not in readme
+    assert "LIVEKIT_API_SECRET=secret" not in readme
     assert "OPENROUTER_LIVEKIT_URL" in provider
     assert "is not configured for LiveKit production transport" in provider
     assert "GEMMA4_REALTIME_LIVEKIT_URL or GEMMA4_REALTIME_WS_URL is not configured" not in provider
@@ -1748,7 +1750,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "implementation target" in next_board_handoff
     assert "validation plan" in next_board_handoff
     assert "small product/proof hardening patch" in next_board_handoff
-    assert "credential-gated live proof remains blocked" in next_board_handoff
+    assert "credential-gated publication proof remains blocked" in next_board_handoff
     assert "current review-watch status" in next_board_handoff
     assert "compact proof-plan provenance verification finishes" not in next_board_handoff
     assert "system-design-vault browser index proof" in active_context
@@ -1760,7 +1762,8 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     )
     assert "current live-dialogue path is OpenRouter `deepseek/deepseek-v4-flash`" in uuid_run_log
     assert "no live-voice operator-input blockers" in uuid_run_log
-    assert "completion still needs accepted OpenRouter LiveKit proof-record capture/recheck" in uuid_run_log
+    assert "provider-backed live-voice proof is accepted" in uuid_run_log
+    assert "external publication proof remains open" in uuid_run_log
     assert "LiveKit, and Kokoro readiness" not in uuid_run_log
     assert "blocked_by_missing_accepted_proof" not in uuid_run_log
     assert "System-design Objective Completion Audit routes now render required evidence after unblock" in log
@@ -1895,7 +1898,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "Queue and run" in next_app_readme
     assert "bounded worker cycle" in next_app_readme
     assert "Always-on studio and Background runner" in next_app_readme
-    assert "accepted proof-record capture/recheck is still required" in active_context
+    assert "provider-backed live-voice proof record is now accepted" in active_context
     assert "Publication inputs remain blocked on LinkedIn credential" in active_context
     assert "focused review packet to `Leibniz`" in active_context
     assert "Current conversation-turn durable event boundary" in active_context
@@ -2095,16 +2098,16 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "provider-smoke ledger with execute_live_calls=true" in proof_readiness
     assert "realtime_voice_timing_ledger" in proof_readiness
     assert "participant presence" in proof_readiness
-    assert "INSTAGRAM_ACCESS_TOKEN" in proof_readiness
-    assert "INSTAGRAM_ACCESS_TOKEN_FILE" in proof_readiness
+    assert "INSTAGRAM_ACCESS_TOKEN" not in proof_readiness
+    assert "INSTAGRAM_ACCESS_TOKEN_FILE" not in proof_readiness
     assert "LINKEDIN_ACCESS_TOKEN" in proof_readiness
     assert "LINKEDIN_ACCESS_TOKEN_FILE" in proof_readiness
-    assert (
-        "X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY"
-        in proof_readiness
-    )
-    assert "SUBSTACK_API_TOKEN" in proof_readiness
-    assert "SUBSTACK_API_TOKEN_FILE" in proof_readiness
+    assert "X_ACCESS_TOKEN" not in proof_readiness
+    assert "X_ACCESS_TOKEN_FILE" not in proof_readiness
+    assert "X_API_KEY" not in proof_readiness
+    assert "X_API_KEY_FILE" not in proof_readiness
+    assert "SUBSTACK_API_TOKEN" not in proof_readiness
+    assert "SUBSTACK_API_TOKEN_FILE" not in proof_readiness
     assert "channel policy acknowledgement" in proof_readiness
     assert "durable platform ID or URL" in proof_readiness
     assert "rollback, delete, private, or correction path" in proof_readiness
@@ -2141,16 +2144,16 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "publish_channel_policy_review_required" in publication_boundary
     assert "not real API publish proof" in publication_boundary
     assert "credential-scope-and-account-identity" in publication_boundary
-    assert "INSTAGRAM_ACCESS_TOKEN" in publication_boundary
-    assert "INSTAGRAM_ACCESS_TOKEN_FILE" in publication_boundary
+    assert "INSTAGRAM_ACCESS_TOKEN" not in publication_boundary
+    assert "INSTAGRAM_ACCESS_TOKEN_FILE" not in publication_boundary
     assert "LINKEDIN_ACCESS_TOKEN" in publication_boundary
     assert "LINKEDIN_ACCESS_TOKEN_FILE" in publication_boundary
-    assert (
-        "X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY"
-        in publication_boundary
-    )
-    assert "SUBSTACK_API_TOKEN" in publication_boundary
-    assert "SUBSTACK_API_TOKEN_FILE" in publication_boundary
+    assert "X_ACCESS_TOKEN" not in publication_boundary
+    assert "X_ACCESS_TOKEN_FILE" not in publication_boundary
+    assert "X_API_KEY" not in publication_boundary
+    assert "X_API_KEY_FILE" not in publication_boundary
+    assert "SUBSTACK_API_TOKEN" not in publication_boundary
+    assert "SUBSTACK_API_TOKEN_FILE" not in publication_boundary
     assert "channel-policy-review" in publication_boundary
     assert "exact destination set" in publication_boundary
     assert "external-publication-proof" in publication_boundary
@@ -2212,6 +2215,31 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "coverageGranularity" in system_design_source_map_viewer
     assert "provider-backed live voice path is OpenRouter + LiveKit + Kokoro" in system_design_home
     assert "External publication proof remains blocked" in system_design_home
+
+
+def test_current_vault_knowledge_graph_does_not_reopen_accepted_live_voice_gate():
+    project_kg = (
+        ROOT / "system_design_vault/06-project-knowledge-graph/agent-studio-project-kg.md"
+    ).read_text()
+    architecture_map = (
+        ROOT / "system_design_vault/06-project-knowledge-graph/agent-studio-architecture-map.html"
+    ).read_text()
+    objective_audit = (
+        ROOT
+        / "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md"
+    ).read_text()
+    current_surfaces = "\n".join([project_kg, architecture_map, objective_audit])
+
+    assert "Provider-backed live voice | accepted" in project_kg
+    assert "accepted live proof" in project_kg
+    assert "Provider-backed live voice is accepted" in objective_audit
+    assert "needs accepted proof record" not in current_surfaces
+    assert "needs accepted record capture/recheck" not in current_surfaces
+    assert "LiveKit proof pending" not in current_surfaces
+    assert "voice blocked on provider creds" not in current_surfaces
+    assert "live voice is waiting on accepted OpenRouter LiveKit proof-record" not in (
+        objective_audit
+    )
 
 
 def test_system_design_viewer_projection_is_refreshed_from_latest_lld():

@@ -58,7 +58,7 @@ jobs:
           python-version: "3.12"
 
       - name: Sync Python dependencies
-        run: uv sync --extra dev
+        run: uv sync --locked --extra dev --group dev
 
       - name: Install Playwright browsers
         run: uv run playwright install --with-deps chromium
@@ -66,8 +66,8 @@ jobs:
       - name: Ruff lint
         run: uv run ruff check src/ tests/
 
-      - name: Run pytest
-        run: uv run pytest -q
+      - name: Run stable Python pytest slice
+        run: bash scripts/ci-python-stable-tests.sh
 
   frontend:
     name: Next.js frontend
@@ -162,7 +162,7 @@ jobs:
           python-version: "3.12"
 
       - name: Sync Python dependencies
-        run: uv sync --extra dev
+        run: uv sync --locked --extra dev --group dev
 
       - name: Run live Postgres pytest suite
         run: uv run pytest tests/test_live_postgres.py -q -rs

@@ -177,7 +177,7 @@ Current frontend state:
 - The creator app must also expose realtime timing proof without requiring raw JSON inspection. `RealtimeVoicePanel.tsx` renders `realtime_voice_timing_ledger` stages as measured/missing LiveKit, OpenRouter, Kokoro, and barge-in proof rows and shows latest-turn latency segments such as speech-to-commit, agent-to-OpenRouter, OpenRouter-to-first-audio, and barge-in-to-stopped when those durable events exist.
 - `src/all_about_llms/voice_agent/livekit_app.py` is the runnable Python LiveKit participant scaffold. It subscribes to room audio, uses the persistent Rust `voice-edge --jsonl` bridge for VAD endpointing and barge-in acknowledgements, commits bounded user turns, calls the OpenRouter/Kokoro engine, and forwards durable-safe voice events.
 - `src/all_about_llms/voice_agent/benchmark.py` provides the current local proof harness for the Rust edge. Runtime health should record this benchmark as operator evidence, including latency and FP/FN-style quality counts.
-- The backend now has the first LiveKit room timing ledger. The next backend voice slice is accepted proof-record capture/recheck for the configured OpenRouter/LiveKit/Kokoro route, plus benchmarked Silero concurrency tuning and moving Python from the JSONL/HTTP bridge to the LiveKit-side Rust media bridge.
+- The backend now has an accepted OpenRouter/LiveKit/Kokoro live-voice proof record with a ready 8/8 LiveKit room timing ledger. The next backend voice slices are benchmarked Silero concurrency tuning and moving Python from the JSONL/HTTP bridge to the LiveKit-side Rust media bridge.
 
 Required live-voice UI state machine:
 

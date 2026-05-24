@@ -2,7 +2,7 @@
 type: source-cross-check
 project: agent-studio-system-design
 status: canon_ready
-updated: 2026-05-21
+updated: 2026-05-24
 source_id: official_open.cs336_alignment_rl_systems_runtime_cross_check
 topic: "CS336 alignment RL systems and runtime governance"
 stores_raw_source_text: false
@@ -128,8 +128,87 @@ The public Assignment 5 handout and train-step adapter/test surface make one mor
 - Add `rollout_runtime_contract` fields for prompt family, rollout engine, weight-sync topology, clipping mode, and verifier latency budget so training wins can be reproduced as systems behavior rather than only optimizer settings.
 - Add `response_mask_policy`, `old_logprob_source`, and `masked_ratio_scope` so sequence-level and token-level off-policy corrections can be audited against the exact response boundary used in training.
 
+### 12. The live Assignment 5 repo proves a concrete vLLM weight-sync topology
+The public `assignment5-alignment` repo (confirmed live 2026-05-24 during the course site migration to `cs336.stanford.edu`) exposes a complete online-RL weight-sync topology through `vllm_utils.py`. This is not generic speculation — it is the actual implementation Stanford students build against:
+
+```mermaid
+flowchart LR
+    subgraph Learner
+        L[PyTorch policy]
+    end
+    subgraph Generator
+        V[vLLM server]
+    end
+    L -- "pause / update_weights / NCCL send / reset_prefix_cache / resume" --> V
+    V -- "generate_completions()" --> R[Rollout batch]
+```
+
+The `VLLMServer` dataclass manages the full lifecycle:
+- `start()`: launches vLLM with `--enable-prefix-caching`, `--weight-transfer-config '{"backend": "nccl"}'`, `--tensor-parallel-size 1`, `bfloat16`; waits for `/health` endpoint up to 600s
+- `init_weight_sync(policy_device)`: creates an `NCCLWeightTransferEngine` via vLLM's distributed module, negotiating `master_address`, `master_port`, `rank_offset=1`, `world_size=(inference_world_size + 1)`. The trainer side calls `trainer_init()`, the generator side initializes via `POST /init_weight_transfer_engine`
+- `generate_completions()`: batched `POST /v1/completions` with `temperature`, `max_tokens`, `n`, `seed`, `return_token_ids`, and optional `stop` + `include_stop_str_in_output`. Returns `VLLMCompletion` with `text`, `token_ids`, `finish_reason`
+- `sync_policy_weights()`: `POST /pause` → `POST /update_weights` with NCCL `trainer_send_weights` (packed mode) → `POST /reset_prefix_cache` → `POST /resume`
+
+**Implementation meaning:** the weight-sync topology is a provenance field, not an implementation detail. Every rollout epoch is bounded by a pause-sync-resume sequence. Generator freshness, cache-invalidation cost, and NCCL transfer bandwidth all affect how quickly the learner's update reaches the next batch of rollouts. Runs that batch multiple learner steps per sync (off-policy reuse) must preserve `old_logprob_source` and `sync_epoch` to distinguish fresh-rollout gains from stale-rollout correction artifacts.
+
+### 13. The grader provenance is now confirmed as public open-source
+The `drgrpo_grader.py` module in the live repo is attributed to `sail-sg/understand-r1-zero` (MIT license), confirming the grading cascade chain:
+1. `grade_answer_mathd()` — Dan Hendrycks style normalized string match with 395+ unit text replacements, fraction/sqrt fixing, matrix normalization
+2. `grade_answer_sympy()` — sympy structural equivalence with `signal.SIGALRM` 1s timeout, repetition-filter suffix-array guard (>20% = auto-fail), integer strictness, tuple/interval splitting, multiple-GT logical OR
+3. `is_latex_equal()` — math_verify library (slow path, inactive during training)
+
+The `question_only.prompt` template is confirmed as `{question} Please put your final answer within \boxed{{}}.` — the prompt-bound answer-extraction and stop contract is minimal.
+
+### 14. The test surface confirms four algorithm variants under one train-step contract
+The test suite (`tests/test_grpo.py`) parameterizes `grpo_train_step()` across:
+
+| Variant | baseline | advantage_normalizer | loss_normalization | normalization_constant |
+|---------|----------|---------------------|-------------------|----------------------|
+| `grpo_constant` | mean | std | constant | 32 |
+| `dr_grpo` | mean | none | constant | 32 |
+| `rft` | none | none | constant | 32 |
+| `maxrl` | mean | mean | constant | 32 |
+
+All four share the same `gradient_accumulation_steps=2`, `max_grad_norm=1.0`, `group_size=2`, and reward function returning `{"reward", "format_reward", "answer_reward"}`.
+
+**Implementation meaning:** the algorithm-family boundary is not a qualitative "GRPO vs RFT vs MaxRL" switch — it is a specific combination of baseline, advantage normalizer, and loss-normalization parameters. A release report that only states "we used GRPO" loses the parameter dimension that actually defines the training objective.
+
+### 16. Prompt family → parser → reward contract: the concrete A5 topology
+
+The live A5 repo exposes five distinct prompt templates, each defining a different output grammar and requiring a different parser/reward strategy. This is not a cosmetic detail — prompt change can silently change both parser hit rate and effective reward surface, because the output format determines which answers are extractable and thus which behavior gets optimized.
+
+| Prompt template | Output grammar | Answer extraction | Reward function | Boundary contract |
+|---|---|---|---|---|
+| `question_only.prompt` | Free text + `\boxed{answer}` | `mathd_normalize_answer` scans for `\boxed{}`; `_strip_string` normalizes whitespace, frac/sqrt/repeating-decimal mathd transformations | `grade_answer_mathd()` — string equivalence after 395+ unit replacements | `{question} Please put your final answer within \boxed{}.` — the model must produce a parseable `\boxed{}` for any reward to register |
+| `r1_zero.prompt` | `thinking ...` → `<answer> answer </answer>` | Parser looks for `<answer>` and `</answer>` tags; no `\boxed{}` fallback | Same `drgrpo_grader.py` cascade (mathd → sympy → latex_equal) but entry point is tag-based rather than box-based | Tag-separated reasoning/answer boundary. If the model omits `<answer>` tags or nests them incorrectly, reward is zero even with a correct answer |
+| `r1_zero_three_shot_gsm8k.prompt` | Same `thinking/answer` format with 3 exemplars | Same tag-based parser | Same grader cascade | The 3 exemplars teach the exact tag structure, lowering format-failure risk but biasing toward GSM8K-style short-answer patterns |
+| `alpaca_sft.prompt` | `### Response:\n{response}` | No answer extraction — SFT format | N/A (SFT loss, not RL reward) | Instruction-following format, not used for RL reward generation |
+| `zero_shot_system_prompt.prompt` | `# Query: \`\`\`{instruction}\`\`\`\n# Answer: \`\`\`` | No answer extraction — safety/instruction context | N/A (used as system prompt context or safety evaluation) | Safety-aligned role format with code-fence boundaries |
+
+**Output grammar → parser hit rate → effective reward surface.** The practical consequence is that a prompt-family swap (e.g. `question_only` → `r1_zero`) can change the parser's answer-recognition rate even when the model produces the same correct answer. If `question_only`'s `\boxed{}` format produces 90% parser coverage but `r1_zero`'s `<answer>` tag format only produces 70% coverage on the same response distribution, the apparent reward drops purely from extraction attrition. Future runs comparing these two prompt families need to separate parser-failure attrition from genuine answer-quality differences.
+
+**provenance recommendation from the live code:** The A5 `adapters.py` `run_compute_rollout_rewards` is the function stub that would connect prompt-family choice to reward dispatch. In production, treat `(prompt_family_id, prompt_template_hash, parser_version, reward_fn_id)` as an immutable contract tuple — if any element changes, the reward surface is not comparable to previous runs. Record the concrete prompt file contents (not just "r1_zero" or "question_only") in the run manifest because whitespace, exemplar choice, and delimiter escape affect parser behavior.
+
+**Implementation meaning:** Do not log "prompt: r1_zero" and call it done. Record:
+- `prompt_template_hash`: SHA256 of the actual prompt file content
+- `parser_entry`: which answer-extraction path was used (box-based vs tag-based vs regex)
+- `parser_coverage`: ratio of responses where the parser successfully extracted an answer
+- `reward_function_id`: which combination of mathd / sympy / latex_equal was applied
+- `answer_extraction_failure_rate`: fraction of responses where parser returned None (these receive zero reward, lowering the apparent group average)
+- `format_reward`: the format/shape compliance component (logged separately from answer correctness to distinguish extraction failures from wrong answers)
+
+When comparing runs across prompt families, build a `parser_alignment_table` that cross-tabulates at minimum (prompt_family, parser_hit_rate, answer_reward_mean, format_reward_mean) so the attribution of reward differences is explicit.
+
+### 15. Off-policy correction is a rollout-reuse budget with three proven modes
+The test suite validates three off-policy importance reweighting methods at `cliprange=0.1`:
+- `noclip`: importance-weighted without clipping (maximum reuse, highest variance)
+- `grpo`: token-level PPO/GRPO clipping over `(batch, seq_len)` log-probability ratios
+- `gspo`: sequence-level reweighting and clipping over response-masked tokens only
+
+The `old_log_probs` for off-policy tests are constructed as `torch.linspace(-1.5, 0.5)` — non-trivial drift that makes clipping behavior testable. The `response_mask` is required for GSPO, confirming the sequence-level contract depends on correct response-boundary isolation.
+
 ## Mental model artifact
 ![[../../02-lectures/stanford/assets/cs336-lecture16-rollout-runtime-contract.svg]]
 
 ## Practical note
-This cross-check uses official/open artifacts only and intentionally stops short of claiming current 2026 Lecture 17 source coverage. The live 2026-05-21 recheck still shows Lecture 16 as the visible official anchor and keeps Lecture 17 blocked until the official course page exposes a public material link again.
+This cross-check uses official/open artifacts only and intentionally stops short of claiming current 2026 Lecture 17 source coverage. The live 2026-05-24 recheck still shows Lecture 16 as the visible official anchor (`lecture_16.pdf` still linked on the schedule, `cs336.stanford.edu` now live, old `cs336.stanford.edu` github.io redirects resolved) and keeps Lecture 17 blocked until the official course page exposes a public material link for the May 27 slot. The Assignment 5 repo (aligned to Spring 2026 as of the `2026 version` commit history) is confirmed live and publicly forkable.

@@ -113,6 +113,36 @@ function voiceAgentPresenceEvidence(details: Record<string, unknown>): string {
   return "LiveKit agent presence: missing";
 }
 
+function isOpenRouterStreamingStep(step: ProviderSmokeStepResult): boolean {
+  return (
+    step.provider_id === "openrouter-livekit" ||
+    detailString(step.details, "reasoning_model_id") !== "" ||
+    step.title.toLowerCase().includes("openrouter")
+  );
+}
+
+function streamingTransportTitle(step: ProviderSmokeStepResult): string {
+  return isOpenRouterStreamingStep(step) ? "OpenRouter/Kokoro transport" : "Gemma/Kokoro transport";
+}
+
+function streamingTransportSummary(step: ProviderSmokeStepResult): string {
+  return isOpenRouterStreamingStep(step)
+    ? "Live smoke measured OpenRouter DeepSeek streaming into Kokoro speech output."
+    : "Live smoke measured Gemma streaming into Kokoro speech output.";
+}
+
+function streamingProviderName(step: ProviderSmokeStepResult): string {
+  return isOpenRouterStreamingStep(step) ? "OpenRouter" : "Gemma";
+}
+
+function audioProofProviderName(step: ProviderSmokeStepResult | null | undefined): string {
+  return step && !isOpenRouterStreamingStep(step) ? "Gemma" : "OpenRouter";
+}
+
+function audioProofStackName(step: ProviderSmokeStepResult | null | undefined): string {
+  return step && !isOpenRouterStreamingStep(step) ? "Gemma/Kokoro" : "OpenRouter/Kokoro";
+}
+
 export function shortSha256(sha256: string): string {
   const clean = sha256.trim();
   if (clean.length <= 12) {
@@ -151,7 +181,9 @@ export function buildVoiceAudioFixtureProof(
     return {
       status: "pending",
       title: "Captured audio proof",
-      summary: "Run runtime smoke to show whether Gemma receives a captured voice artifact or a probe fixture.",
+      summary: `Run runtime smoke to show whether ${audioProofProviderName(
+        step
+      )} receives a captured voice artifact or a probe fixture.`,
       evidence: []
     };
   }
@@ -175,7 +207,7 @@ export function buildVoiceAudioFixtureProof(
         ? "Session-bound smoke found only stale captured audio; speak again before rerunning live smoke."
         : sessionAudioMissing
           ? "Session-bound smoke is waiting for a captured user voice turn from this LiveKit room."
-          : "Gemma/Kokoro smoke did not run, so captured-audio proof is unavailable.",
+          : `${audioProofStackName(step)} smoke did not run, so captured-audio proof is unavailable.`,
       evidence: [
         ...step.blockers.slice(0, 2),
         firstNextAction(step),
@@ -192,7 +224,7 @@ export function buildVoiceAudioFixtureProof(
     return {
       status: "failed",
       title: "Runtime smoke failed",
-      summary: "Gemma/Kokoro smoke failed before a usable audio proof was completed.",
+      summary: `${audioProofStackName(step)} smoke failed before a usable audio proof was completed.`,
       evidence: [failure, source ? `Fixture: ${sourceLabel}` : ""].filter(Boolean)
     };
   }
@@ -213,8 +245,8 @@ export function buildVoiceAudioFixtureProof(
       status: "captured",
       title: "Captured audio proof",
       summary: detailString(step.details, "audio_fixture_realtime_session_id")
-        ? "Gemma smoke used persisted microphone PCM from the bound LiveKit session."
-        : "Gemma smoke used the latest persisted microphone PCM from this run.",
+        ? `${audioProofProviderName(step)} smoke used persisted microphone PCM from the bound LiveKit session.`
+        : `${audioProofProviderName(step)} smoke used the latest persisted microphone PCM from this run.`,
       evidence
     };
   }
@@ -223,7 +255,7 @@ export function buildVoiceAudioFixtureProof(
     return {
       status: "pending",
       title: "Captured audio proof",
-      summary: "Runtime smoke has not executed the Gemma/Kokoro audio step yet.",
+      summary: `Runtime smoke has not executed the ${audioProofStackName(step)} audio step yet.`,
       evidence: source ? [`Fixture: ${sourceLabel}`] : []
     };
   }
@@ -232,7 +264,7 @@ export function buildVoiceAudioFixtureProof(
     return {
       status: "pending",
       title: "Captured audio proof",
-      summary: `Gemma/Kokoro smoke status is ${step.status}; no completed audio fixture proof is available.`,
+      summary: `${audioProofStackName(step)} smoke status is ${step.status}; no completed audio fixture proof is available.`,
       evidence: source ? [`Fixture: ${sourceLabel}`] : []
     };
   }
@@ -251,8 +283,8 @@ export function buildVoiceStreamingProviderProof(
   if (!step) {
     return {
       status: "pending",
-      title: "Gemma/Kokoro transport",
-      summary: "Run runtime smoke to prove Gemma streaming and Kokoro first audio.",
+      title: "OpenRouter/Kokoro transport",
+      summary: "Run runtime smoke to prove OpenRouter DeepSeek streaming and Kokoro first audio.",
       evidence: [],
       metrics: []
     };
@@ -267,18 +299,21 @@ export function buildVoiceStreamingProviderProof(
     ].filter(Boolean);
     return {
       status: "blocked",
-      title: "Gemma/Kokoro transport blocked",
-      summary: "Streaming proof is blocked before Gemma or Kokoro can produce live evidence.",
+      title: `${streamingTransportTitle(step)} blocked`,
+      summary: `Streaming proof is blocked before ${streamingProviderName(step)} or Kokoro can produce live evidence.`,
       evidence,
       metrics: []
     };
   }
 
   if (step.status === "failed") {
-    const failure = step.error || step.evidence[0] || "Gemma/Kokoro runtime smoke failed.";
+    const failure =
+      step.error ||
+      step.evidence[0] ||
+      `${streamingProviderName(step)}/Kokoro runtime smoke failed.`;
     return {
       status: "failed",
-      title: "Gemma/Kokoro transport failed",
+      title: `${streamingTransportTitle(step)} failed`,
       summary: "Streaming proof ran but did not complete first-audio evidence.",
       evidence: [failure],
       metrics: []
@@ -288,17 +323,26 @@ export function buildVoiceStreamingProviderProof(
   if (step.status !== "passed") {
     return {
       status: "pending",
-      title: "Gemma/Kokoro transport",
-      summary: `Gemma/Kokoro smoke status is ${step.status}; no completed transport proof is available.`,
+      title: streamingTransportTitle(step),
+      summary: `${streamingProviderName(step)}/Kokoro smoke status is ${step.status}; no completed transport proof is available.`,
       evidence: step.evidence.slice(0, 2),
       metrics: []
     };
   }
 
-  const gemmaModel = detailString(step.details, "gemma_model_id");
+  const providerModel =
+    detailString(step.details, "reasoning_model_id") ||
+    detailString(step.details, "gemma_model_id");
   const kokoroModel = detailString(step.details, "kokoro_model_id");
+  const providerLabel = streamingProviderName(step);
   const metrics = [
-    { label: "Gemma TTFT", value: formatLatencyMs(detailNumber(step.details, "gemma_ttft_ms")) },
+    {
+      label: `${providerLabel} TTFT`,
+      value: formatLatencyMs(
+        detailNumber(step.details, "reasoning_ttft_ms") ??
+        detailNumber(step.details, "gemma_ttft_ms")
+      )
+    },
     {
       label: "Kokoro first audio",
       value: formatLatencyMs(detailNumber(step.details, "kokoro_first_audio_ms"))
@@ -311,14 +355,14 @@ export function buildVoiceStreamingProviderProof(
   const evidence = [
     kokoroRouteEvidence(step.details) || "Kokoro: transport not reported",
     voiceAgentPresenceEvidence(step.details),
-    gemmaModel ? `Gemma: ${gemmaModel}` : "",
+    providerModel ? `${isOpenRouterStreamingStep(step) ? "Reasoning" : "Gemma"}: ${providerModel}` : "",
     kokoroModel ? `TTS: ${kokoroModel}` : ""
   ].filter(Boolean);
 
   return {
     status: "passed",
-    title: "Gemma/Kokoro transport",
-    summary: "Live smoke measured Gemma streaming into Kokoro speech output.",
+    title: streamingTransportTitle(step),
+    summary: streamingTransportSummary(step),
     evidence,
     metrics
   };

@@ -24,7 +24,7 @@ Front door for the creator. Two modes:
 
 | Mode | Transport | Reasoning | TTS | Status |
 |------|-----------|-----------|-----|--------|
-| Live dialogue | LiveKit data-channel | OpenRouter `deepseek/deepseek-v4-flash` | Kokoro-82M | Preflight valid; needs accepted proof record |
+| Live dialogue | LiveKit data-channel | OpenRouter `deepseek/deepseek-v4-flash` | Kokoro-82M | Accepted provider-backed live voice proof |
 | Chat (text only) | HTTP API | OpenRouter text | — | Proven |
 
 Key files:
@@ -184,9 +184,9 @@ Pluggable providers for: Gemma/HF expert calls, web search, reranking, image gen
 ### Partial / In Progress
 | Workstream | Status | What's missing |
 |-----------|--------|---------------|
-| OpenRouter realtime provider | preflight valid / proof record pending | OpenRouter DeepSeek V4 Flash + LiveKit + Kokoro configured; no live-voice operator-input blocker |
+| OpenRouter realtime provider | accepted live proof | OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro configured and accepted for provider-backed live voice; no live-voice operator-input blocker |
 | Always-on autonomous profiles | proven for local | No provider-blocked profile yet tested end-to-end |
-| Provider-backed live voice | blocked on accepted proof | OpenRouter+LiveKit+Kokoro preflight is valid; needs accepted same-session proof record |
+| Provider-backed live voice | accepted | Accepted same-run OpenRouter + LiveKit + Kokoro proof record exists; future work is concurrency/load hardening, not proof unblock |
 | External publication | blocked | Missing LinkedIn credential + policy review; distribution package code exists |
 
 ### Planned / Not Yet Implemented
@@ -268,14 +268,14 @@ Pluggable providers for: Gemma/HF expert calls, web search, reranking, image gen
 ```
 Agent Studio — Overall: DESIGN COMPLETE, CODE 70%, PROOF BLOCKED
 
-  Conversation       ■■■■□  80%  (text done, voice blocked on provider creds)
+  Conversation       ■■■■□  85%  (text done, OpenRouter LiveKit voice proof accepted)
   Orchestration      ■■■■□  80%  (all workflows built, autonomous pass local-proven)
   Retrieval          ■■□□□  40%  (quality ledger + evidence done, intelligence + KG planned)
   Expert Agents      ■■■■□  80%  (roster + skills defined, orchestration wired)
   Storage            ■■■■□  80%  (Postgres + pgvector schema done)
   Product App        ■■■□□  60%  (Next.js surfaces exist, voice panel built)
   Provider Readiness ■■■■□  80%  (smoke framework done, creds pending)
-  Realtime Voice     ■■□□□  35%  (Rust edge + Python engine built, LiveKit proof pending)
+  Realtime Voice     ■■■■□  90%  (OpenRouter + LiveKit + Kokoro proof accepted; load hardening remains)
   External Publish   ■□□□□  15%  (package code exists, no live credential)
   Obsidian Memory    ■■■■□  85%  (schema, promotion, retrieval all implemented)
 ```

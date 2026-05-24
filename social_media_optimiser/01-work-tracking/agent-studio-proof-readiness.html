@@ -218,21 +218,12 @@
     const sourcePath = "social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html";
     const blockers = [
       {
-            "id": "provider-backed-live-voice-proof",
-            "title": "Provider-backed live voice proof",
             "category": "voice",
-            "status": "preflight-ready",
-            "source_notes": [
-                  "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
-                  "social_media_optimiser/02-research/Realtime Voice Architecture - Gemma Kokoro LiveKit Rust Python.md",
-                  "system_design_vault/03-patterns/system-design/production-agent-studio-canon.md"
-            ],
-            "missing_inputs": [],
             "credential_snapshot": {
                   "absent_inputs": [
                         "LIVEKIT_URL"
                   ],
-                  "checked_at": "2026-05-23",
+                  "checked_at": "2026-05-24",
                   "configured_file_inputs": [
                         "OPENROUTER_API_KEY_FILE",
                         "LIVEKIT_API_KEY_FILE",
@@ -241,8 +232,10 @@
                   "configured_inputs": [
                         "OPENROUTER_LIVEKIT_URL"
                   ],
-                  "configured_local_provider_inputs": [],
-                  "local_provider_config_loaded": false,
+                  "configured_local_provider_inputs": [
+                        "OPENROUTER_LIVEKIT_URL"
+                  ],
+                  "local_provider_config_loaded": true,
                   "note": "Runtime configuration names are present but unverified; same-session OpenRouter/Kokoro/LiveKit proof is still required.",
                   "placeholder_only_inputs": [],
                   "secret_files_loaded": true,
@@ -251,24 +244,14 @@
                   "source": "non-secret local classifier",
                   "state": "runtime_configuration_present_unverified"
             },
-            "proof_acceptance_gate": {
-                  "label": "Provider-backed live voice acceptance gate",
-                  "requires_runtime_proof": true,
-                  "credential_presence_is_not_proof": true,
-                  "same_session_required": true,
-                  "accepted_evidence": [
-                        "provider-smoke ledger with execute_live_calls=true",
-                        "realtime_voice_timing_ledger with speech start, turn commit, OpenRouter start, first text or audio, and interruption evidence",
-                        "LiveKit participant presence bound to the current run/session",
-                        "OpenRouter and Kokoro endpoint identities recorded without secret values"
-                  ],
-                  "rejected_substitutes": [
-                        ".env.example placeholders",
-                        "HF router text/chat completion",
-                        "transcript rehearsal or local-only dry run",
-                        "credential existence without live calls"
-                  ]
-            },
+            "id": "provider-backed-live-voice-proof",
+            "missing_inputs": [],
+            "next_actions": [
+                  "Refresh the credential snapshot from the configured OpenRouter and LiveKit input file.",
+                  "Capture LiveKit transport, agent participant, backend event sink, Kokoro TTS, and Rust edge evidence.",
+                  "Record a validated accepted live-voice proof record for the current UUID run.",
+                  "Keep the objective blocked until realtime timing has all required stages."
+            ],
             "operator_proof_packet": {
                   "closure_evidence_refs": [
                         "closure-review-template.json",
@@ -285,18 +268,17 @@
                         ],
                         "completion_next_action": "capture_validate_record_and_recheck",
                         "completion_next_action_commands": [
-                              "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
-                              "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
-                              "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                              "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                              "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                              "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                              "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                              "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                              "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md",
+                              "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
                         ],
                         "completion_status": "blocked_by_latest_failed_proof_record",
                         "goal_completion_claimed": false,
                         "latest_failed_proofs": [
-                              "provider-backed-live-voice-proof",
                               "external-publication-proof"
                         ],
                         "missing_accepted_proofs": [],
@@ -317,6 +299,7 @@
                   "matrix_parity_ref": "/operator_input_readiness/proofs/provider-backed-live-voice-proof",
                   "must_capture": [
                         "provider_smoke_ledger with execute_live_calls=true",
+                        "livekit_voice_timing_capture JSON",
                         "realtime_voice_timing_ledger JSON",
                         "LiveKit room/session id and participant identity",
                         "captured microphone turn with first text/audio timing",
@@ -332,7 +315,7 @@
                   },
                   "operator_input_readiness": {
                         "blocked_fields": [],
-                        "checked_at": "2026-05-23",
+                        "checked_at": "2026-05-24",
                         "configured_fields": [
                               "OPENROUTER_API_KEY_FILE",
                               "OPENROUTER_LIVEKIT_URL",
@@ -467,6 +450,7 @@
                         "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-agent-process.start.json http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
                         "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                        "uv run all-about-llms-admin capture-livekit-voice-timing-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/livekit-voice-timing-capture.json",
                         "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
@@ -492,6 +476,7 @@
                         "runtime_health_ledger_artifact_id",
                         "voice_edge_benchmark_status",
                         "provider_smoke_ledger_artifact_id",
+                        "livekit_voice_timing_capture_artifact_id",
                         "realtime_voice_timing_ledger_artifact_id",
                         "realtime_provider",
                         "execute_live_calls",
@@ -521,6 +506,7 @@
                               "runtime_health_ledger_artifact_id",
                               "voice_edge_benchmark_status",
                               "provider_smoke_ledger_artifact_id",
+                              "livekit_voice_timing_capture_artifact_id",
                               "realtime_voice_timing_ledger_artifact_id",
                               "realtime_provider",
                               "execute_live_calls",
@@ -546,6 +532,24 @@
                         "social_media_optimiser/wiki/ops/active-codex-context.md",
                         "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md"
                   ]
+            },
+            "proof_acceptance_gate": {
+                  "accepted_evidence": [
+                        "provider-smoke ledger with execute_live_calls=true",
+                        "realtime_voice_timing_ledger with speech start, turn commit, OpenRouter start, first text or audio, and interruption evidence",
+                        "LiveKit participant presence bound to the current run/session",
+                        "OpenRouter and Kokoro endpoint identities recorded without secret values"
+                  ],
+                  "credential_presence_is_not_proof": true,
+                  "label": "Provider-backed live voice acceptance gate",
+                  "rejected_substitutes": [
+                        ".env.example placeholders",
+                        "HF router text/chat completion",
+                        "transcript rehearsal or local-only dry run",
+                        "credential existence without live calls"
+                  ],
+                  "requires_runtime_proof": true,
+                  "same_session_required": true
             },
             "proof_plan": {
                   "attempt_gate": {
@@ -585,6 +589,7 @@
                         "curl -sS -X POST http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
                         "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                        "uv run all-about-llms-admin capture-livekit-voice-timing-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
                   ],
                   "completion_status_commands": [
@@ -598,7 +603,9 @@
                   "configured_inputs": [
                         "OPENROUTER_LIVEKIT_URL"
                   ],
-                  "configured_local_provider_inputs": [],
+                  "configured_local_provider_inputs": [
+                        "OPENROUTER_LIVEKIT_URL"
+                  ],
                   "credential_setup_commands": [
                         "mkdir -p .secrets && chmod 700 .secrets",
                         ": \"${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY first}\" && umask 077 && printf '%s\\n' \"$OPENROUTER_API_KEY\" > .secrets/openrouter_api_key && chmod 600 .secrets/openrouter_api_key",
@@ -615,15 +622,16 @@
                   "credential_state": "runtime_configuration_present_unverified",
                   "failure_recording_requirements": [
                         "record failing run_id and checked_at without secret values",
-                        "record the failed preflight, runtime health, provider smoke, timing, managed voice-agent start, LiveKit, or participant-evidence step",
+                        "record the failed preflight, runtime health, provider smoke, headless LiveKit capture, timing, managed voice-agent start, LiveKit, or participant-evidence step",
                         "record provider endpoint/account identifiers only after redacting tokens, API keys, and secrets",
                         "keep provider-backed-live-voice-proof blocked until a later same-session proof passes validation",
                         "open or update the follow-up task with the failed validation check"
                   ],
-                  "local_provider_config_loaded": false,
+                  "local_provider_config_loaded": true,
                   "must_capture": [
                         "runtime_health_ledger with voice-edge-local-benchmark status ready",
                         "provider_smoke_ledger with execute_live_calls=true",
+                        "livekit_voice_timing_capture JSON",
                         "realtime_voice_timing_ledger JSON",
                         "LiveKit room/session id and participant identity",
                         "captured microphone turn with first text/audio timing",
@@ -639,6 +647,7 @@
                         "label": "Provider-backed live voice proof packet",
                         "must_capture": [
                               "provider_smoke_ledger with execute_live_calls=true",
+                              "livekit_voice_timing_capture JSON",
                               "realtime_voice_timing_ledger JSON",
                               "LiveKit room/session id and participant identity",
                               "captured microphone turn with first text/audio timing",
@@ -654,7 +663,7 @@
                         },
                         "operator_input_readiness": {
                               "blocked_fields": [],
-                              "checked_at": "2026-05-23",
+                              "checked_at": "2026-05-24",
                               "configured_fields": [
                                     "OPENROUTER_API_KEY_FILE",
                                     "OPENROUTER_LIVEKIT_URL",
@@ -779,6 +788,7 @@
                               "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-agent-process.start.json http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
                               "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                               "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                              "uv run all-about-llms-admin capture-livekit-voice-timing-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/livekit-voice-timing-capture.json",
                               "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                               "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                               "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
@@ -799,6 +809,7 @@
                               "runtime_health_ledger_artifact_id",
                               "voice_edge_benchmark_status",
                               "provider_smoke_ledger_artifact_id",
+                              "livekit_voice_timing_capture_artifact_id",
                               "realtime_voice_timing_ledger_artifact_id",
                               "realtime_provider",
                               "execute_live_calls",
@@ -828,6 +839,7 @@
                                     "runtime_health_ledger_artifact_id",
                                     "voice_edge_benchmark_status",
                                     "provider_smoke_ledger_artifact_id",
+                                    "livekit_voice_timing_capture_artifact_id",
                                     "realtime_voice_timing_ledger_artifact_id",
                                     "realtime_provider",
                                     "execute_live_calls",
@@ -946,6 +958,7 @@
                               "runtime_health_ledger_artifact_id",
                               "voice_edge_benchmark_status",
                               "provider_smoke_ledger_artifact_id",
+                              "livekit_voice_timing_capture_artifact_id",
                               "realtime_voice_timing_ledger_artifact_id",
                               "realtime_provider",
                               "execute_live_calls",
@@ -965,15 +978,16 @@
                         "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-agent-process.start.json http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
                         "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                        "uv run all-about-llms-admin capture-livekit-voice-timing-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/livekit-voice-timing-capture.json",
                         "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
                         "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
                   ],
                   "proof_linkage_requirements": [
-                        "same run_id across runtime_health_ledger, provider_smoke_ledger, and realtime_voice_timing_ledger",
+                        "same run_id across runtime_health_ledger, provider_smoke_ledger, livekit_voice_timing_capture, and realtime_voice_timing_ledger",
                         "voice_agent_process_start artifact captured before live smoke",
-                        "same realtime_session_id or LiveKit room/session id across smoke, timing, and participant evidence",
+                        "same realtime_session_id or LiveKit room/session id across smoke, headless capture, timing, and participant evidence",
                         "required runtime checks appear in the preflight validation report's validated_runtime_checks",
                         "runtime configuration snapshot recorded with the same checked_at"
                   ],
@@ -998,7 +1012,7 @@
                   "status": "ready_for_runtime_attempt",
                   "success_recording_requirements": [
                         "record passing run_id, checked_at, and validation timestamp",
-                        "record voice_agent_process_start, runtime_health_ledger, provider_smoke_ledger, realtime_voice_timing_ledger, LiveKit room/session id, and participant evidence artifact ids",
+                        "record voice_agent_process_start, runtime_health_ledger, provider_smoke_ledger, livekit_voice_timing_capture, realtime_voice_timing_ledger, LiveKit room/session id, and participant evidence artifact ids",
                         "record every post_capture_validation_check as passed before changing blocker state",
                         "update provider-backed-live-voice-proof status only after same-session validation passes",
                         "close or link the follow-up task to the accepted proof record"
@@ -1040,43 +1054,26 @@
                   "Rust voice edge interruption/playback evidence",
                   "zero failed post-capture validation checks and passed secret-redaction check"
             ],
-            "next_actions": [
-                  "Refresh the credential snapshot from the configured OpenRouter and LiveKit input file.",
-                  "Capture LiveKit transport, agent participant, backend event sink, Kokoro TTS, and Rust edge evidence.",
-                  "Record a validated accepted live-voice proof record for the current UUID run.",
-                  "Keep the objective blocked until realtime timing has all required stages."
-            ]
-      },
-      {
-            "id": "external-publication-proof",
-            "title": "External publication proof",
-            "category": "publication",
-            "status": "blocked",
             "source_notes": [
                   "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
-                  "system_design_vault/01-sources/official-open/social-publishing-api-governance.md",
+                  "social_media_optimiser/02-research/Realtime Voice Architecture - Gemma Kokoro LiveKit Rust Python.md",
                   "system_design_vault/03-patterns/system-design/production-agent-studio-canon.md"
             ],
-            "missing_inputs": [
-                  "LINKEDIN_ACCESS_TOKEN or LINKEDIN_ACCESS_TOKEN_FILE",
-                  "LinkedIn policy and account-permission acknowledgement",
-                  "durable external destination URL or platform id",
-                  "rollback or postcondition evidence"
-            ],
+            "status": "preflight-ready",
+            "title": "Provider-backed live voice proof"
+      },
+      {
+            "category": "publication",
             "credential_snapshot": {
                   "absent_inputs": [],
-                  "checked_at": "2026-05-23",
+                  "checked_at": "2026-05-24",
                   "configured_file_inputs": [],
                   "configured_inputs": [],
                   "configured_local_provider_inputs": [],
                   "local_provider_config_loaded": false,
                   "note": "placeholder-only .env.example entries for the requested external publication credentials.",
                   "placeholder_only_inputs": [
-                        "INSTAGRAM_ACCESS_TOKEN",
-                        "LINKEDIN_ACCESS_TOKEN",
-                        "X_ACCESS_TOKEN",
-                        "X_API_KEY",
-                        "SUBSTACK_API_TOKEN"
+                        "LINKEDIN_ACCESS_TOKEN"
                   ],
                   "secret_files_loaded": false,
                   "secret_values_printed": false,
@@ -1084,25 +1081,19 @@
                   "source": "non-secret local classifier",
                   "state": "blocked_by_placeholder_only_configuration"
             },
-            "proof_acceptance_gate": {
-                  "label": "External publication acceptance gate",
-                  "requires_runtime_proof": true,
-                  "credential_presence_is_not_proof": true,
-                  "exact_destination_required": true,
-                  "accepted_evidence": [
-                        "human-approved artifact text, media, visibility, audience, disclosure, and schedule",
-                        "platform API response proof or approved manual completion proof",
-                        "durable platform ID or URL",
-                        "postcondition monitoring record",
-                        "rollback, delete, private, or correction path"
-                  ],
-                  "rejected_substitutes": [
-                        "non-live channel smoke",
-                        "generic policy acknowledgement",
-                        "credential existence without destination proof",
-                        "local draft preview or generated artifact only"
-                  ]
-            },
+            "id": "external-publication-proof",
+            "missing_inputs": [
+                  "LINKEDIN_ACCESS_TOKEN or LINKEDIN_ACCESS_TOKEN_FILE",
+                  "LinkedIn policy and account-permission acknowledgement",
+                  "durable external destination URL or platform id",
+                  "rollback or postcondition evidence"
+            ],
+            "next_actions": [
+                  "Supply LinkedIn token, policy/account-permission acknowledgement, durable destination, and rollback/postcondition evidence.",
+                  "Rerun publication preflight validation for the exact destination.",
+                  "Record a validated accepted external-publication proof record only after destination evidence is durable.",
+                  "Keep non-live credential smoke separate from actual publication proof."
+            ],
             "operator_proof_packet": {
                   "closure_evidence_refs": [
                         "closure-review-template.json",
@@ -1119,18 +1110,17 @@
                         ],
                         "completion_next_action": "capture_validate_record_and_recheck",
                         "completion_next_action_commands": [
-                              "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
-                              "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
-                              "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                              "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                              "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                              "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                              "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                              "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                              "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md",
+                              "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
                         ],
                         "completion_status": "blocked_by_latest_failed_proof_record",
                         "goal_completion_claimed": false,
                         "latest_failed_proofs": [
-                              "provider-backed-live-voice-proof",
                               "external-publication-proof"
                         ],
                         "missing_accepted_proofs": [],
@@ -1171,7 +1161,7 @@
                               "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
                               "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"
                         ],
-                        "checked_at": "2026-05-23",
+                        "checked_at": "2026-05-24",
                         "configured_fields": [],
                         "effective_fail_on_blocked_exit_code": 2,
                         "evidence_ref": "operator-input-readiness.json",
@@ -1284,7 +1274,7 @@
                               "credential-snapshot status runtime_configuration_present_unverified",
                               "proof-plan attempt gate ready_for_preflight_capture",
                               "valid external publication preflight validation",
-                              "destination channel linked to validated linkedin readiness",
+                              "destination channel and durable URL linked to validated linkedin readiness",
                               "durable external destination proof",
                               "policy acknowledgement artifact",
                               "rollback or postcondition artifact",
@@ -1306,7 +1296,7 @@
                         "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":true}'",
                         "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json",
-                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/distribution-package.json",
                         "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
                         "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
@@ -1378,6 +1368,25 @@
                         "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md"
                   ]
             },
+            "proof_acceptance_gate": {
+                  "accepted_evidence": [
+                        "human-approved artifact text, media, visibility, audience, disclosure, and schedule",
+                        "platform API response proof or approved manual completion proof",
+                        "durable platform ID or URL",
+                        "postcondition monitoring record",
+                        "rollback, delete, private, or correction path"
+                  ],
+                  "credential_presence_is_not_proof": true,
+                  "exact_destination_required": true,
+                  "label": "External publication acceptance gate",
+                  "rejected_substitutes": [
+                        "non-live channel smoke",
+                        "generic policy acknowledgement",
+                        "credential existence without destination proof",
+                        "local draft preview or generated artifact only"
+                  ],
+                  "requires_runtime_proof": true
+            },
             "proof_plan": {
                   "attempt_gate": {
                         "blocked_by": [
@@ -1388,10 +1397,7 @@
                         "next_action": "configure_credentials",
                         "next_action_commands": [
                               "mkdir -p .secrets && chmod 700 .secrets",
-                              ": \"${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$INSTAGRAM_ACCESS_TOKEN\" > .secrets/instagram_access_token && chmod 600 .secrets/instagram_access_token",
                               ": \"${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > .secrets/linkedin_access_token && chmod 600 .secrets/linkedin_access_token",
-                              "if [ -n \"${X_ACCESS_TOKEN:-}\" ]; then umask 077 && printf '%s\\n' \"$X_ACCESS_TOKEN\" > .secrets/x_access_token && chmod 600 .secrets/x_access_token; else : \"${X_API_KEY:?set X_ACCESS_TOKEN or X_API_KEY first}\" && umask 077 && printf '%s\\n' \"$X_API_KEY\" > .secrets/x_api_key && chmod 600 .secrets/x_api_key; fi",
-                              ": \"${SUBSTACK_API_TOKEN:?set SUBSTACK_API_TOKEN first}\" && umask 077 && printf '%s\\n' \"$SUBSTACK_API_TOKEN\" > .secrets/substack_api_token && chmod 600 .secrets/substack_api_token",
                               "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
                         ],
                         "proof_commands_allowed_after": [
@@ -1427,16 +1433,10 @@
                   "configured_local_provider_inputs": [],
                   "credential_setup_commands": [
                         "mkdir -p .secrets && chmod 700 .secrets",
-                        ": \"${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$INSTAGRAM_ACCESS_TOKEN\" > .secrets/instagram_access_token && chmod 600 .secrets/instagram_access_token",
-                        ": \"${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > .secrets/linkedin_access_token && chmod 600 .secrets/linkedin_access_token",
-                        "if [ -n \"${X_ACCESS_TOKEN:-}\" ]; then umask 077 && printf '%s\\n' \"$X_ACCESS_TOKEN\" > .secrets/x_access_token && chmod 600 .secrets/x_access_token; else : \"${X_API_KEY:?set X_ACCESS_TOKEN or X_API_KEY first}\" && umask 077 && printf '%s\\n' \"$X_API_KEY\" > .secrets/x_api_key && chmod 600 .secrets/x_api_key; fi",
-                        ": \"${SUBSTACK_API_TOKEN:?set SUBSTACK_API_TOKEN first}\" && umask 077 && printf '%s\\n' \"$SUBSTACK_API_TOKEN\" > .secrets/substack_api_token && chmod 600 .secrets/substack_api_token"
+                        ": \"${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > .secrets/linkedin_access_token && chmod 600 .secrets/linkedin_access_token"
                   ],
                   "credential_setup_requirements": [
-                        "configure INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN",
-                        "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
-                        "configure X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY",
-                        "configure SUBSTACK_API_TOKEN_FILE or SUBSTACK_API_TOKEN"
+                        "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN"
                   ],
                   "credential_state": "blocked_by_placeholder_only_configuration",
                   "failure_recording_requirements": [
@@ -1493,7 +1493,7 @@
                                     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
                                     "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"
                               ],
-                              "checked_at": "2026-05-23",
+                              "checked_at": "2026-05-24",
                               "configured_fields": [],
                               "effective_fail_on_blocked_exit_code": 2,
                               "evidence_ref": "operator-input-readiness.json",
@@ -1597,7 +1597,7 @@
                                     "credential-snapshot status runtime_configuration_present_unverified",
                                     "proof-plan attempt gate ready_for_preflight_capture",
                                     "valid external publication preflight validation",
-                                    "destination channel linked to validated linkedin readiness",
+                                    "destination channel and durable URL linked to validated linkedin readiness",
                                     "durable external destination proof",
                                     "policy acknowledgement artifact",
                                     "rollback or postcondition artifact",
@@ -1618,7 +1618,7 @@
                               "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                               "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":true}'",
                               "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json",
-                              "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/distribution-package.json",
                               "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                               "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
                               "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
@@ -1696,7 +1696,7 @@
                   ],
                   "post_capture_validation_checks": [
                         "publish-readiness, distribution package, approved artifact, and destination proof all reference command_run_id",
-                        "destination_channel appears in validated_publish_channels from the accepted preflight validation report",
+                        "accepted preflight validation report validates exactly linkedin and the durable URL is a LinkedIn destination",
                         "approved artifact snapshot has disclosure, visibility, audience, and schedule",
                         "platform API response or approved manual proof contains durable platform ID or URL",
                         "durable platform ID or URL matches rollback or postcondition monitoring record",
@@ -1784,14 +1784,14 @@
                         "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":true}'",
                         "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json",
-                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/distribution-package.json",
                         "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
                         "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
                   ],
                   "proof_linkage_requirements": [
                         "same run_id across publish-readiness, distribution package, approved artifact, and destination proof",
-                        "destination_channel appears in the preflight validation report's validated_publish_channels",
+                        "destination_channel is linkedin and the preflight validation report's validated_publish_channels is exactly linkedin",
                         "durable platform ID or URL matches the approved destination/channel",
                         "rollback or postcondition monitoring record references the same platform ID or URL"
                   ],
@@ -1850,19 +1850,20 @@
             },
             "required_evidence": [
                   "valid external publication preflight validation",
-                  "destination channel linked to validated linkedin readiness",
+                  "destination channel and durable URL linked to validated linkedin readiness",
                   "durable external destination proof",
                   "policy acknowledgement artifact",
                   "rollback or postcondition artifact",
                   "zero failed post-capture validation checks",
                   "passed secret-redaction check"
             ],
-            "next_actions": [
-                  "Supply LinkedIn token, policy/account-permission acknowledgement, durable destination, and rollback/postcondition evidence.",
-                  "Rerun publication preflight validation for the exact destination.",
-                  "Record a validated accepted external-publication proof record only after destination evidence is durable.",
-                  "Keep non-live credential smoke separate from actual publication proof."
-            ]
+            "source_notes": [
+                  "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+                  "system_design_vault/01-sources/official-open/social-publishing-api-governance.md",
+                  "system_design_vault/03-patterns/system-design/production-agent-studio-canon.md"
+            ],
+            "status": "blocked",
+            "title": "External publication proof"
       }
 ];
 

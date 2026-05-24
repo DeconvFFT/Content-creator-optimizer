@@ -343,7 +343,7 @@
                   "absent_inputs": [
                         "LIVEKIT_URL"
                   ],
-                  "checked_at": "2026-05-23",
+                  "checked_at": "2026-05-24",
                   "configured_file_inputs": [
                         "OPENROUTER_API_KEY_FILE",
                         "LIVEKIT_API_KEY_FILE",
@@ -397,18 +397,17 @@
                         ],
                         "completion_next_action": "capture_validate_record_and_recheck",
                         "completion_next_action_commands": [
-                              "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
-                              "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
-                              "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                              "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                              "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                              "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                              "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                              "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                              "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md",
+                              "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
                         ],
                         "completion_status": "blocked_by_latest_failed_proof_record",
                         "goal_completion_claimed": false,
                         "latest_failed_proofs": [
-                              "provider-backed-live-voice-proof",
                               "external-publication-proof"
                         ],
                         "missing_accepted_proofs": [],
@@ -429,6 +428,7 @@
                   "matrix_parity_ref": "/operator_input_readiness/proofs/provider-backed-live-voice-proof",
                   "must_capture": [
                         "provider_smoke_ledger with execute_live_calls=true",
+                        "livekit_voice_timing_capture JSON",
                         "realtime_voice_timing_ledger JSON",
                         "LiveKit room/session id and participant identity",
                         "captured microphone turn with first text/audio timing",
@@ -444,7 +444,7 @@
                   },
                   "operator_input_readiness": {
                         "blocked_fields": [],
-                        "checked_at": "2026-05-23",
+                        "checked_at": "2026-05-24",
                         "configured_fields": [
                               "OPENROUTER_API_KEY_FILE",
                               "OPENROUTER_LIVEKIT_URL",
@@ -579,6 +579,7 @@
                         "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-agent-process.start.json http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
                         "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                        "uv run all-about-llms-admin capture-livekit-voice-timing-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/livekit-voice-timing-capture.json",
                         "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
@@ -604,6 +605,7 @@
                         "runtime_health_ledger_artifact_id",
                         "voice_edge_benchmark_status",
                         "provider_smoke_ledger_artifact_id",
+                        "livekit_voice_timing_capture_artifact_id",
                         "realtime_voice_timing_ledger_artifact_id",
                         "realtime_provider",
                         "execute_live_calls",
@@ -633,6 +635,7 @@
                               "runtime_health_ledger_artifact_id",
                               "voice_edge_benchmark_status",
                               "provider_smoke_ledger_artifact_id",
+                              "livekit_voice_timing_capture_artifact_id",
                               "realtime_voice_timing_ledger_artifact_id",
                               "realtime_provider",
                               "execute_live_calls",
@@ -697,6 +700,7 @@
                         "curl -sS -X POST http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
                         "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                        "uv run all-about-llms-admin capture-livekit-voice-timing-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/livekit-voice-timing-capture.json",
                         "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
                   ],
                   "completion_status_commands": [
@@ -727,7 +731,7 @@
                   "credential_state": "runtime_configuration_present_unverified",
                   "failure_recording_requirements": [
                         "record failing run_id and checked_at without secret values",
-                        "record the failed preflight, runtime health, provider smoke, timing, managed voice-agent start, LiveKit, or participant-evidence step",
+                        "record the failed preflight, runtime health, provider smoke, headless LiveKit capture, timing, managed voice-agent start, LiveKit, or participant-evidence step",
                         "record provider endpoint/account identifiers only after redacting tokens, API keys, and secrets",
                         "keep provider-backed-live-voice-proof blocked until a later same-session proof passes validation",
                         "open or update the follow-up task with the failed validation check"
@@ -736,6 +740,7 @@
                   "must_capture": [
                         "runtime_health_ledger with voice-edge-local-benchmark status ready",
                         "provider_smoke_ledger with execute_live_calls=true",
+                        "livekit_voice_timing_capture JSON",
                         "realtime_voice_timing_ledger JSON",
                         "LiveKit room/session id and participant identity",
                         "captured microphone turn with first text/audio timing",
@@ -751,6 +756,7 @@
                         "label": "Provider-backed live voice proof packet",
                         "must_capture": [
                               "provider_smoke_ledger with execute_live_calls=true",
+                              "livekit_voice_timing_capture JSON",
                               "realtime_voice_timing_ledger JSON",
                               "LiveKit room/session id and participant identity",
                               "captured microphone turn with first text/audio timing",
@@ -766,7 +772,7 @@
                         },
                         "operator_input_readiness": {
                               "blocked_fields": [],
-                              "checked_at": "2026-05-23",
+                              "checked_at": "2026-05-24",
                               "configured_fields": [
                                     "OPENROUTER_API_KEY_FILE",
                                     "OPENROUTER_LIVEKIT_URL",
@@ -891,6 +897,7 @@
                               "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-agent-process.start.json http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
                               "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                               "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                              "uv run all-about-llms-admin capture-livekit-voice-timing-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/livekit-voice-timing-capture.json",
                               "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                               "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                               "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
@@ -911,6 +918,7 @@
                               "runtime_health_ledger_artifact_id",
                               "voice_edge_benchmark_status",
                               "provider_smoke_ledger_artifact_id",
+                              "livekit_voice_timing_capture_artifact_id",
                               "realtime_voice_timing_ledger_artifact_id",
                               "realtime_provider",
                               "execute_live_calls",
@@ -940,6 +948,7 @@
                                     "runtime_health_ledger_artifact_id",
                                     "voice_edge_benchmark_status",
                                     "provider_smoke_ledger_artifact_id",
+                                    "livekit_voice_timing_capture_artifact_id",
                                     "realtime_voice_timing_ledger_artifact_id",
                                     "realtime_provider",
                                     "execute_live_calls",
@@ -1058,6 +1067,7 @@
                               "runtime_health_ledger_artifact_id",
                               "voice_edge_benchmark_status",
                               "provider_smoke_ledger_artifact_id",
+                              "livekit_voice_timing_capture_artifact_id",
                               "realtime_voice_timing_ledger_artifact_id",
                               "realtime_provider",
                               "execute_live_calls",
@@ -1077,15 +1087,16 @@
                         "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-agent-process.start.json http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
                         "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                        "uv run all-about-llms-admin capture-livekit-voice-timing-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/livekit-voice-timing-capture.json",
                         "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
                         "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
                   ],
                   "proof_linkage_requirements": [
-                        "same run_id across runtime_health_ledger, provider_smoke_ledger, and realtime_voice_timing_ledger",
+                        "same run_id across runtime_health_ledger, provider_smoke_ledger, livekit_voice_timing_capture, and realtime_voice_timing_ledger",
                         "voice_agent_process_start artifact captured before live smoke",
-                        "same realtime_session_id or LiveKit room/session id across smoke, timing, and participant evidence",
+                        "same realtime_session_id or LiveKit room/session id across smoke, headless capture, timing, and participant evidence",
                         "required runtime checks appear in the preflight validation report's validated_runtime_checks",
                         "runtime configuration snapshot recorded with the same checked_at"
                   ],
@@ -1110,7 +1121,7 @@
                   "status": "ready_for_runtime_attempt",
                   "success_recording_requirements": [
                         "record passing run_id, checked_at, and validation timestamp",
-                        "record voice_agent_process_start, runtime_health_ledger, provider_smoke_ledger, realtime_voice_timing_ledger, LiveKit room/session id, and participant evidence artifact ids",
+                        "record voice_agent_process_start, runtime_health_ledger, provider_smoke_ledger, livekit_voice_timing_capture, realtime_voice_timing_ledger, LiveKit room/session id, and participant evidence artifact ids",
                         "record every post_capture_validation_check as passed before changing blocker state",
                         "update provider-backed-live-voice-proof status only after same-session validation passes",
                         "close or link the follow-up task to the accepted proof record"
@@ -1143,7 +1154,7 @@
                         "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
                   ]
             },
-            "boundary": "OpenRouter LiveKit live voice has configured inputs and passed provider smoke; accepted proof still requires same-run LiveKit, Kokoro, Rust edge, backend event-sink, and complete timing evidence.",
+            "boundary": "OpenRouter LiveKit live voice has accepted same-run LiveKit, Kokoro, Rust edge, backend event-sink, provider-smoke, and complete timing evidence; external publication remains blocked.",
             "source_notes": [
                   "social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html",
                   "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md"

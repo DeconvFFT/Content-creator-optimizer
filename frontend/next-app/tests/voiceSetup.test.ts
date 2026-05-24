@@ -181,6 +181,51 @@ test("voice setup checklist identifies the first live voice blocker", () => {
   assert.equal(blocker?.nextAction, "Set HF_TOKEN");
 });
 
+test("voice setup checklist labels OpenRouter agent setup without Gemma copy", () => {
+  const steps = buildVoiceSetupChecklist({
+    runId: "run-1",
+    provider: "openrouter_livekit",
+    readiness: readiness("ready"),
+    voiceProcess: null,
+    liveKitProcess: liveKitProcess(),
+    liveSession: null,
+    liveRoomConnected: true,
+    voicePresence: null,
+    isRehearsalSession: false
+  });
+
+  const agentStep = steps.find((step) => step.label.includes("agent"));
+  const presenceStep = steps.find((step) => step.label === "Agent presence");
+
+  assert.equal(agentStep?.label, "OpenRouter/Kokoro agent");
+  assert.equal(agentStep?.detail, "Local OpenRouter/Kokoro agent status has not been checked.");
+  assert.equal(agentStep?.nextAction, "Start OpenRouter/Kokoro agent");
+  assert.equal(voiceSetupActionForStep(agentStep ?? null), "start_agent");
+  assert.equal(
+    presenceStep?.detail,
+    "OpenRouter/Kokoro participant has not been observed."
+  );
+});
+
+test("voice setup checklist uses OpenRouter runtime fallback copy when readiness is missing", () => {
+  const steps = buildVoiceSetupChecklist({
+    runId: "run-1",
+    provider: "openrouter_livekit",
+    readiness: null,
+    voiceProcess: voiceProcess(),
+    liveKitProcess: liveKitProcess(),
+    liveSession: null,
+    liveRoomConnected: false,
+    voicePresence: null,
+    isRehearsalSession: false
+  });
+
+  const runtimeStep = steps.find((step) => step.label === "Runtime readiness");
+
+  assert.match(runtimeStep?.detail ?? "", /OpenRouter/);
+  assert.doesNotMatch(runtimeStep?.detail ?? "", /Gemma\/HF/);
+});
+
 test("voice setup checklist surfaces concrete runtime check blockers", () => {
   const steps = buildVoiceSetupChecklist({
     runId: "run-1",

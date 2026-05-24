@@ -3,6 +3,7 @@ import os
 import shlex
 import stat
 import subprocess
+import sys
 from argparse import Namespace
 from pathlib import Path
 from uuid import uuid4
@@ -433,35 +434,39 @@ def _operator_packet_markdown_block(markdown: str, proof_id: str) -> str:
     return markdown[block_start:block_end]
 
 
+def _operator_packet_blocks(markdown: str) -> dict[str, str]:
+    return {
+        proof_id: _operator_packet_markdown_block(markdown, proof_id)
+        for proof_id in [
+            "provider-backed-live-voice-proof",
+            "external-publication-proof",
+        ]
+        if f"\n- proof_id: `{proof_id}`" in markdown
+    }
+
+
 def _assert_operator_packet_capture_commands(markdown: str) -> None:
-    voice_block = _operator_packet_markdown_block(
-        markdown,
-        "provider-backed-live-voice-proof",
-    )
-    publication_block = _operator_packet_markdown_block(
-        markdown,
-        "external-publication-proof",
-    )
-    assert "- proof_capture_commands_after_unblock:" in voice_block
-    assert "build-provider-smoke-ledger" in voice_block
-    assert (
-        "record-provider-proof-record --proof provider-backed-live-voice-proof"
-        in voice_block
-    )
-    assert "- proof_capture_commands_after_unblock:" in publication_block
-    assert "build-distribution-package" in publication_block
-    assert (
-        "record-provider-proof-record --proof external-publication-proof"
-        in publication_block
-    )
+    blocks = _operator_packet_blocks(markdown)
+    voice_block = blocks.get("provider-backed-live-voice-proof")
+    if voice_block is not None:
+        assert "- proof_capture_commands_after_unblock:" in voice_block
+        assert "build-provider-smoke-ledger" in voice_block
+        assert (
+            "record-provider-proof-record --proof provider-backed-live-voice-proof"
+            in voice_block
+        )
+    publication_block = blocks.get("external-publication-proof")
+    if publication_block is not None:
+        assert "- proof_capture_commands_after_unblock:" in publication_block
+        assert "build-distribution-package" in publication_block
+        assert (
+            "record-provider-proof-record --proof external-publication-proof"
+            in publication_block
+        )
 
 
 def _assert_operator_packet_closeout_refs(markdown: str) -> None:
-    for proof_id in [
-        "provider-backed-live-voice-proof",
-        "external-publication-proof",
-    ]:
-        block = _operator_packet_markdown_block(markdown, proof_id)
+    for block in _operator_packet_blocks(markdown).values():
         assert "- completion_evidence_ref: `completion-status.json`" in block
         assert "- closure_evidence_refs:" in block
         assert "  - `closure-review-template.json`" in block
@@ -470,48 +475,50 @@ def _assert_operator_packet_closeout_refs(markdown: str) -> None:
 
 
 def _assert_operator_packet_current_gate(markdown: str) -> None:
-    for proof_id in [
-        "provider-backed-live-voice-proof",
-        "external-publication-proof",
-    ]:
-        block = _operator_packet_markdown_block(markdown, proof_id)
+    for block in _operator_packet_blocks(markdown).values():
         assert "- current_gate:" in block
+        current_gate_block = block.split("- current_gate:", 1)[1].split(
+            "\n- proof_capture_commands_after_unblock:",
+            1,
+        )[0]
         assert (
             "  - completion_status: "
             "`blocked_by_latest_failed_proof_record`"
-        ) in block
+        ) in current_gate_block
         assert (
             "  - closure_review_template_status: "
             "`blocked_by_completion_status`"
-        ) in block
+        ) in current_gate_block
         assert (
             "  - blocker_state_update_status: "
             "`blocked_by_closure_review_status`"
-        ) in block
-        assert "  - state_change_allowed: `False`" in block
+        ) in current_gate_block
+        assert "  - state_change_allowed: `False`" in current_gate_block
         assert (
             "  - completion_next_action: "
             "`capture_validate_record_and_recheck`"
-        ) in block
-        assert "  - completion_next_action_commands:" in block
+        ) in current_gate_block
+        assert "  - completion_next_action_commands:" in current_gate_block
         assert (
             "provider-proof-record-template --proof "
             "provider-backed-live-voice-proof"
-        ) in block
+        ) not in current_gate_block
         assert (
             "provider-proof-record-template --proof external-publication-proof"
-        ) in block
-        assert block.count("provider-proof-completion-status --run-id") == 1
-        assert "  - goal_completion_claimed: `False`" in block
-        assert "  - completion_issue_codes: `['latest_proof_record_failed']`" in block
+        ) in current_gate_block
+        assert (
+            current_gate_block.count("provider-proof-completion-status --run-id")
+            == 1
+        )
+        assert "  - goal_completion_claimed: `False`" in current_gate_block
+        assert (
+            "  - completion_issue_codes: `['latest_proof_record_failed']`"
+            in current_gate_block
+        )
 
 
 def _assert_operator_packet_current_state_packets(markdown: str) -> None:
-    for proof_id in [
-        "provider-backed-live-voice-proof",
-        "external-publication-proof",
-    ]:
-        block = _operator_packet_markdown_block(markdown, proof_id)
+    for block in _operator_packet_blocks(markdown).values():
         assert "- current_state_packets:" in block
         assert "  - current_blocker_matrix: `current-blocker-matrix.json`" in block
         assert "  - current_proof_status: `current-proof-status.md`" in block
@@ -526,128 +533,114 @@ def _assert_operator_packet_current_state_packets(markdown: str) -> None:
 
 
 def _assert_operator_packet_record_schema(markdown: str) -> None:
-    voice_block = _operator_packet_markdown_block(
-        markdown,
-        "provider-backed-live-voice-proof",
-    )
-    publication_block = _operator_packet_markdown_block(
-        markdown,
-        "external-publication-proof",
-    )
-    assert "- proof_record_schema:" in voice_block
-    assert "  - artifact_type: `provider_backed_live_voice_proof_record`" in voice_block
-    assert "  - state_field: `provider-backed-live-voice-proof`" in voice_block
-    assert "- proof_record_required_fields:" in voice_block
-    assert "  - `voice_agent_process_start_artifact_id`" in voice_block
-    assert "- proof_record_schema:" in publication_block
-    assert "  - artifact_type: `external_publication_proof_record`" in publication_block
-    assert "  - state_field: `external-publication-proof`" in publication_block
-    assert "- proof_record_required_fields:" in publication_block
-    assert "  - `durable_platform_id_or_url`" in publication_block
+    blocks = _operator_packet_blocks(markdown)
+    voice_block = blocks.get("provider-backed-live-voice-proof")
+    if voice_block is not None:
+        assert "- proof_record_schema:" in voice_block
+        assert (
+            "  - artifact_type: `provider_backed_live_voice_proof_record`"
+            in voice_block
+        )
+        assert "  - state_field: `provider-backed-live-voice-proof`" in voice_block
+        assert "- proof_record_required_fields:" in voice_block
+        assert "  - `voice_agent_process_start_artifact_id`" in voice_block
+    publication_block = blocks.get("external-publication-proof")
+    if publication_block is not None:
+        assert "- proof_record_schema:" in publication_block
+        assert (
+            "  - artifact_type: `external_publication_proof_record`"
+            in publication_block
+        )
+        assert "  - state_field: `external-publication-proof`" in publication_block
+        assert "- proof_record_required_fields:" in publication_block
+        assert "  - `durable_platform_id_or_url`" in publication_block
 
 
 def _assert_operator_packet_input_readiness(markdown: str) -> None:
-    voice_block = _operator_packet_markdown_block(
-        markdown,
-        "provider-backed-live-voice-proof",
-    )
-    publication_block = _operator_packet_markdown_block(
-        markdown,
-        "external-publication-proof",
-    )
-    assert "\n- operator_input_readiness:" in voice_block
-    assert "  - state: `ready_for_credential_snapshot_refresh`" in voice_block
-    assert "  - next_action: `refresh_credential_snapshot`" in voice_block
-    assert "  - blocked_fields:\n    - `none`" in voice_block
-    assert "OPENROUTER_API_KEY_FILE" in voice_block
-    assert "OPENROUTER_LIVEKIT_URL" in voice_block
-    assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" not in voice_block
-    assert "HF_TOKEN_FILE" not in voice_block
-    assert "\n- operator_input_readiness:" in publication_block
-    assert "  - state: `blocked_by_operator_inputs`" in publication_block
-    assert (
-        "  - next_action: "
-        "`supply_linkedin_token_policy_destination_and_rollback_evidence`"
-    ) in publication_block
-    assert "LINKEDIN_ACCESS_TOKEN_FILE" in publication_block
-    assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL" in publication_block
+    blocks = _operator_packet_blocks(markdown)
+    voice_block = blocks.get("provider-backed-live-voice-proof")
+    if voice_block is not None:
+        assert "\n- operator_input_readiness:" in voice_block
+        assert "  - state: `ready_for_credential_snapshot_refresh`" in voice_block
+        assert "  - next_action: `refresh_credential_snapshot`" in voice_block
+        assert "  - blocked_fields:\n    - `none`" in voice_block
+        assert "OPENROUTER_API_KEY_FILE" in voice_block
+        assert "OPENROUTER_LIVEKIT_URL" in voice_block
+        assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" not in voice_block
+        assert "HF_TOKEN_FILE" not in voice_block
+    publication_block = blocks.get("external-publication-proof")
+    if publication_block is not None:
+        assert "\n- operator_input_readiness:" in publication_block
+        assert "  - state: `blocked_by_operator_inputs`" in publication_block
+        assert (
+            "  - next_action: "
+            "`supply_linkedin_token_policy_destination_and_rollback_evidence`"
+        ) in publication_block
+        assert "LINKEDIN_ACCESS_TOKEN_FILE" in publication_block
+        assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL" in publication_block
 
 
 def _assert_operator_packet_field_statuses(markdown: str) -> None:
-    voice_block = _operator_packet_markdown_block(
-        markdown,
-        "provider-backed-live-voice-proof",
-    )
-    publication_block = _operator_packet_markdown_block(
-        markdown,
-        "external-publication-proof",
-    )
-    assert "  - field_statuses:" in voice_block
-    assert "    - OPENROUTER_API_KEY_FILE:" in voice_block
-    assert (
-        (
-            "      - state: `secret_file_unavailable`" in voice_block
-            and (
-                "      - next_action: "
-                "`write_readable_secret_file_and_reference_path`"
+    blocks = _operator_packet_blocks(markdown)
+    voice_block = blocks.get("provider-backed-live-voice-proof")
+    if voice_block is not None:
+        assert "  - field_statuses:" in voice_block
+        assert "    - OPENROUTER_API_KEY_FILE:" in voice_block
+        assert (
+            (
+                "      - state: `secret_file_unavailable`" in voice_block
+                and (
+                    "      - next_action: "
+                    "`write_readable_secret_file_and_reference_path`"
+                )
+                in voice_block
             )
-            in voice_block
+            or (
+                "      - state: `configured`" in voice_block
+                and "      - issue_code: `none`" in voice_block
+                and "      - next_action: `refresh_credential_snapshot`" in voice_block
+            )
         )
-        or (
-            "      - state: `configured`" in voice_block
-            and "      - issue_code: `none`" in voice_block
-            and "      - next_action: `refresh_credential_snapshot`" in voice_block
+        assert "      - value_source: `secret_file_path`" in voice_block
+        assert "    - OPENROUTER_LIVEKIT_URL:" in voice_block
+        assert (
+            "      - state: `placeholder`" in voice_block
+            or "      - state: `configured`" in voice_block
         )
-    )
-    assert "      - value_source: `secret_file_path`" in voice_block
-    assert "    - OPENROUTER_LIVEKIT_URL:" in voice_block
-    assert (
-        "      - state: `placeholder`" in voice_block
-        or "      - state: `configured`" in voice_block
-    )
-    assert "      - value_source: `endpoint_url`" in voice_block
-    assert "  - field_statuses:" in publication_block
-    assert "    - PUBLICATION_DURABLE_PLATFORM_ID_OR_URL:" in publication_block
-    assert "      - value_source: `external_destination`" in publication_block
-    assert (
-        "      - contract: "
-        "`durable LinkedIn URL or platform id; local substitutes rejected`"
-    ) in publication_block
+        assert "      - value_source: `endpoint_url`" in voice_block
+    publication_block = blocks.get("external-publication-proof")
+    if publication_block is not None:
+        assert "  - field_statuses:" in publication_block
+        assert "    - PUBLICATION_DURABLE_PLATFORM_ID_OR_URL:" in publication_block
+        assert "      - value_source: `external_destination`" in publication_block
+        assert (
+            "      - contract: "
+            "`durable LinkedIn URL or platform id; local substitutes rejected`"
+        ) in publication_block
 
 
 def _assert_operator_packet_field_ownership(markdown: str) -> None:
-    voice_block = _operator_packet_markdown_block(
-        markdown,
-        "provider-backed-live-voice-proof",
-    )
-    publication_block = _operator_packet_markdown_block(
-        markdown,
-        "external-publication-proof",
-    )
-    assert "{'proof_id':" not in voice_block
-    assert "{'proof_id':" not in publication_block
-    assert "  - field_ownership:" in voice_block
-    assert "    - OPENROUTER_API_KEY_FILE:" in voice_block
-    assert "      - proof_id: `provider-backed-live-voice-proof`" in voice_block
-    assert "      - proof_input_role: `provider_credential`" in voice_block
-    assert "    - OPENROUTER_LIVEKIT_URL:" in voice_block
-    assert "      - proof_input_role: `transport_endpoint`" in voice_block
-    assert "  - field_ownership:" in publication_block
-    assert "    - PUBLICATION_DURABLE_PLATFORM_ID_OR_URL:" in publication_block
-    assert "      - proof_id: `external-publication-proof`" in publication_block
-    assert "      - proof_input_role: `publication_destination`" in publication_block
+    blocks = _operator_packet_blocks(markdown)
+    voice_block = blocks.get("provider-backed-live-voice-proof")
+    if voice_block is not None:
+        assert "{'proof_id':" not in voice_block
+        assert "  - field_ownership:" in voice_block
+        assert "    - OPENROUTER_API_KEY_FILE:" in voice_block
+        assert "      - proof_id: `provider-backed-live-voice-proof`" in voice_block
+        assert "      - proof_input_role: `provider_credential`" in voice_block
+        assert "    - OPENROUTER_LIVEKIT_URL:" in voice_block
+        assert "      - proof_input_role: `transport_endpoint`" in voice_block
+    publication_block = blocks.get("external-publication-proof")
+    if publication_block is not None:
+        assert "{'proof_id':" not in publication_block
+        assert "  - field_ownership:" in publication_block
+        assert "    - PUBLICATION_DURABLE_PLATFORM_ID_OR_URL:" in publication_block
+        assert "      - proof_id: `external-publication-proof`" in publication_block
+        assert "      - proof_input_role: `publication_destination`" in publication_block
 
 
 def _assert_operator_packet_readiness_command_lists(markdown: str) -> None:
-    voice_block = _operator_packet_markdown_block(
-        markdown,
-        "provider-backed-live-voice-proof",
-    )
-    publication_block = _operator_packet_markdown_block(
-        markdown,
-        "external-publication-proof",
-    )
-    for block in [voice_block, publication_block]:
+    for block in _operator_packet_blocks(markdown).values():
         assert "  - next_action_commands:\n" in block
         assert "  - guarded_next_action_commands:\n" in block
         assert "  - next_action_commands: `[" not in block
@@ -663,32 +656,29 @@ def _assert_operator_packet_readiness_command_lists(markdown: str) -> None:
 
 
 def _assert_operator_packet_input_contracts(markdown: str) -> None:
-    voice_block = _operator_packet_markdown_block(
-        markdown,
-        "provider-backed-live-voice-proof",
-    )
-    publication_block = _operator_packet_markdown_block(
-        markdown,
-        "external-publication-proof",
-    )
-    assert "\n- operator_input_field_contracts:" in voice_block
-    assert (
-        "  - OPENROUTER_API_KEY_FILE: "
-        "`readable local secret file path; file content is never emitted`"
-    ) in voice_block
-    assert (
-        "  - OPENROUTER_LIVEKIT_URL: "
-        "`ws or wss LiveKit URL for OpenRouter-backed realtime dialogue`"
-    ) in voice_block
-    assert "\n- operator_input_field_contracts:" in publication_block
-    assert (
-        "  - LINKEDIN_ACCESS_TOKEN_FILE: "
-        "`readable local secret file path; file content is never emitted`"
-    ) in publication_block
-    assert (
-        "  - PUBLICATION_DURABLE_PLATFORM_ID_OR_URL: "
-        "`durable LinkedIn URL or platform id; local substitutes rejected`"
-    ) in publication_block
+    blocks = _operator_packet_blocks(markdown)
+    voice_block = blocks.get("provider-backed-live-voice-proof")
+    if voice_block is not None:
+        assert "\n- operator_input_field_contracts:" in voice_block
+        assert (
+            "  - OPENROUTER_API_KEY_FILE: "
+            "`readable local secret file path; file content is never emitted`"
+        ) in voice_block
+        assert (
+            "  - OPENROUTER_LIVEKIT_URL: "
+            "`ws or wss LiveKit URL for OpenRouter-backed realtime dialogue`"
+        ) in voice_block
+    publication_block = blocks.get("external-publication-proof")
+    if publication_block is not None:
+        assert "\n- operator_input_field_contracts:" in publication_block
+        assert (
+            "  - LINKEDIN_ACCESS_TOKEN_FILE: "
+            "`readable local secret file path; file content is never emitted`"
+        ) in publication_block
+        assert (
+            "  - PUBLICATION_DURABLE_PLATFORM_ID_OR_URL: "
+            "`durable LinkedIn URL or platform id; local substitutes rejected`"
+        ) in publication_block
     assert (
         "  - LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID: "
         "`durable non-local policy acknowledgement artifact id`"
@@ -748,10 +738,7 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
         "configure LIVEKIT_API_SECRET_FILE or LIVEKIT_API_SECRET",
     ]
     expected_publication_credential_setup = [
-        "configure INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN",
         "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
-        "configure X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY",
-        "configure SUBSTACK_API_TOKEN_FILE or SUBSTACK_API_TOKEN",
     ]
     expected_operator_sequence = [
         "configure credential_setup_requirements without printing secret values",
@@ -929,32 +916,10 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
     expected_publication_credential_setup_commands = [
         "mkdir -p .secrets && chmod 700 .secrets",
         (
-            ': "${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}" && '
-            "umask 077 && printf '%s\\n' \"$INSTAGRAM_ACCESS_TOKEN\" > "
-            ".secrets/instagram_access_token && "
-            "chmod 600 .secrets/instagram_access_token"
-        ),
-        (
             ': "${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}" && '
             "umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > "
             ".secrets/linkedin_access_token && "
             "chmod 600 .secrets/linkedin_access_token"
-        ),
-        (
-            'if [ -n "${X_ACCESS_TOKEN:-}" ]; then '
-            "umask 077 && printf '%s\\n' \"$X_ACCESS_TOKEN\" > "
-            ".secrets/x_access_token && "
-            "chmod 600 .secrets/x_access_token; "
-            "else "
-            ': "${X_API_KEY:?set X_ACCESS_TOKEN or X_API_KEY first}" && '
-            "umask 077 && printf '%s\\n' \"$X_API_KEY\" > .secrets/x_api_key && "
-            "chmod 600 .secrets/x_api_key; "
-            "fi"
-        ),
-        (
-            ': "${SUBSTACK_API_TOKEN:?set SUBSTACK_API_TOKEN first}" && '
-            "umask 077 && printf '%s\\n' \"$SUBSTACK_API_TOKEN\" > "
-            ".secrets/substack_api_token && chmod 600 .secrets/substack_api_token"
         ),
     ]
     recheck_command = (
@@ -1139,6 +1104,14 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
         in command
         for command in voice_after_unblock_commands
     )
+    livekit_capture_command = (
+        "uv run all-about-llms-admin capture-livekit-voice-timing-proof "
+        "--run-id 123e4567-e89b-12d3-a456-426614174000 "
+        "> social_media_optimiser/output/provider-proof/"
+        "123e4567-e89b-12d3-a456-426614174000/"
+        "livekit-voice-timing-capture.json"
+    )
+    assert livekit_capture_command in voice_after_unblock_commands
     assert all(
         "--realtime-provider gemma4_realtime" not in command
         for command in voice_after_unblock_commands
@@ -1174,6 +1147,15 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
         for index, command in enumerate(voice_after_unblock_commands)
         if "build-provider-smoke-ledger" in command
     )
+    assert next(
+        index
+        for index, command in enumerate(voice_after_unblock_commands)
+        if "build-provider-smoke-ledger" in command
+    ) < voice_after_unblock_commands.index(livekit_capture_command) < next(
+        index
+        for index, command in enumerate(voice_after_unblock_commands)
+        if "build-realtime-voice-timing-ledger" in command
+    )
     assert voice_after_unblock_commands.index(
         "uv run all-about-llms-admin "
         "provider-proof-record-template --proof provider-backed-live-voice-proof "
@@ -1192,12 +1174,12 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
     assert voice["proof_linkage_requirements"] == [
         (
             "same run_id across runtime_health_ledger, provider_smoke_ledger, "
-            "and realtime_voice_timing_ledger"
+            "livekit_voice_timing_capture, and realtime_voice_timing_ledger"
         ),
         "voice_agent_process_start artifact captured before live smoke",
         (
             "same realtime_session_id or LiveKit room/session id across "
-            "smoke, timing, and participant evidence"
+            "smoke, headless capture, timing, and participant evidence"
         ),
         (
             "required runtime checks appear in the preflight validation "
@@ -1228,7 +1210,7 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
         "record failing run_id and checked_at without secret values",
         (
             "record the failed preflight, runtime health, provider smoke, "
-            "timing, managed voice-agent start, LiveKit, or "
+            "headless LiveKit capture, timing, managed voice-agent start, LiveKit, or "
             "participant-evidence step"
         ),
         (
@@ -1245,8 +1227,9 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
         "record passing run_id, checked_at, and validation timestamp",
         (
             "record voice_agent_process_start, runtime_health_ledger, "
-            "provider_smoke_ledger, realtime_voice_timing_ledger, LiveKit "
-            "room/session id, and participant evidence artifact ids"
+            "provider_smoke_ledger, livekit_voice_timing_capture, "
+            "realtime_voice_timing_ledger, LiveKit room/session id, and "
+            "participant evidence artifact ids"
         ),
         (
             "record every post_capture_validation_check as passed before "
@@ -1276,6 +1259,7 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
             "runtime_health_ledger_artifact_id",
             "voice_edge_benchmark_status",
             "provider_smoke_ledger_artifact_id",
+            "livekit_voice_timing_capture_artifact_id",
             "realtime_voice_timing_ledger_artifact_id",
             "realtime_provider",
             "execute_live_calls",
@@ -1460,17 +1444,21 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
     assert '"acknowledge_publish_channel_policy":false' not in (
         publication_capture_after_unblock
     )
-    assert (
+    distribution_package_capture = (
         "uv run all-about-llms-admin build-distribution-package "
-        "--run-id 123e4567-e89b-12d3-a456-426614174000"
-    ) in publication["proof_capture_commands_after_unblock"]
+        "--run-id 123e4567-e89b-12d3-a456-426614174000 "
+        "> social_media_optimiser/output/provider-proof/"
+        "123e4567-e89b-12d3-a456-426614174000/distribution-package.json"
+    )
+    assert distribution_package_capture in publication[
+        "proof_capture_commands_after_unblock"
+    ]
     assert publication["proof_capture_commands_after_unblock"].index(
         "uv run all-about-llms-admin "
         "provider-proof-record-template --proof external-publication-proof "
         "--run-id 123e4567-e89b-12d3-a456-426614174000"
     ) > publication["proof_capture_commands_after_unblock"].index(
-        "uv run all-about-llms-admin build-distribution-package "
-        "--run-id 123e4567-e89b-12d3-a456-426614174000"
+        distribution_package_capture
     )
     assert publication["rejected_substitutes"] == [
         "non-live channel smoke",
@@ -1484,8 +1472,8 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
             "approved artifact, and destination proof"
         ),
         (
-            "destination_channel appears in the preflight validation report's "
-            "validated_publish_channels"
+            "destination_channel is linkedin and the preflight validation "
+            "report's validated_publish_channels is exactly linkedin"
         ),
         "durable platform ID or URL matches the approved destination/channel",
         (
@@ -1499,8 +1487,8 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
             "destination proof all reference command_run_id"
         ),
         (
-            "destination_channel appears in validated_publish_channels from "
-            "the accepted preflight validation report"
+            "accepted preflight validation report validates exactly linkedin "
+            "and the durable URL is a LinkedIn destination"
         ),
         (
             "approved artifact snapshot has disclosure, visibility, audience, "
@@ -1623,37 +1611,11 @@ def test_provider_proof_plan_exposes_no_secret_credential_setup_commands_when_bl
             "provider-backed-live-voice-proof"
         ]
     )
-    expected_publication_setup_commands = [
-        "mkdir -p .secrets && chmod 700 .secrets",
-        (
-            ': "${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}" && '
-            "umask 077 && printf '%s\\n' \"$INSTAGRAM_ACCESS_TOKEN\" > "
-            ".secrets/instagram_access_token && "
-            "chmod 600 .secrets/instagram_access_token"
-        ),
-        (
-            ': "${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}" && '
-            "umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > "
-            ".secrets/linkedin_access_token && "
-            "chmod 600 .secrets/linkedin_access_token"
-        ),
-        (
-            'if [ -n "${X_ACCESS_TOKEN:-}" ]; then '
-            "umask 077 && printf '%s\\n' \"$X_ACCESS_TOKEN\" > "
-            ".secrets/x_access_token && "
-            "chmod 600 .secrets/x_access_token; "
-            "else "
-            ': "${X_API_KEY:?set X_ACCESS_TOKEN or X_API_KEY first}" && '
-            "umask 077 && printf '%s\\n' \"$X_API_KEY\" > .secrets/x_api_key && "
-            "chmod 600 .secrets/x_api_key; "
-            "fi"
-        ),
-        (
-            ': "${SUBSTACK_API_TOKEN:?set SUBSTACK_API_TOKEN first}" && '
-            "umask 077 && printf '%s\\n' \"$SUBSTACK_API_TOKEN\" > "
-            ".secrets/substack_api_token && chmod 600 .secrets/substack_api_token"
-        ),
-    ]
+    expected_publication_setup_commands = (
+        provider_cli.PROVIDER_PROOF_CREDENTIAL_SETUP_COMMANDS[
+            "external-publication-proof"
+        ]
+    )
     recheck_command = (
         "uv run all-about-llms-admin provider-proof-plan --run-id 123e4567-e89b-12d3-a456-426614174000"
     )
@@ -1691,9 +1653,14 @@ def test_provider_proof_plan_exposes_no_secret_credential_setup_commands_when_bl
         *expected_publication_setup_commands,
         recheck_command,
     ]
-    assert any(
-        "X_API_KEY" in command and ".secrets/x_api_key" in command
-        for command in publication["credential_setup_commands"]
+    assert all(
+        legacy_key not in " ".join(publication["credential_setup_commands"])
+        for legacy_key in (
+            "INSTAGRAM_ACCESS_TOKEN",
+            "X_ACCESS_TOKEN",
+            "X_API_KEY",
+            "SUBSTACK_API_TOKEN",
+        )
     )
     assert "hf_secret" not in serialized
     assert "livekit_secret" not in serialized
@@ -2026,10 +1993,7 @@ def test_provider_proof_plan_setup_commands_recheck_as_ready_without_echoing_val
     assert rechecked_payload["proofs"]["external-publication-proof"][
         "configured_file_inputs"
     ] == [
-        "INSTAGRAM_ACCESS_TOKEN_FILE",
         "LINKEDIN_ACCESS_TOKEN_FILE",
-        "X_API_KEY_FILE",
-        "SUBSTACK_API_TOKEN_FILE",
     ]
     output = result.stdout + result.stderr + serialized
     for key, value in setup_values.items():
@@ -2923,7 +2887,6 @@ def test_provider_proof_plan_exposes_missing_configuration_blocker_reason(tmp_pa
     env_example.write_text(
         "\n".join(
             [
-                "LINKEDIN_ACCESS_TOKEN=",
                 "X_ACCESS_TOKEN=",
                 "SUBSTACK_API_TOKEN=",
             ]
@@ -2952,7 +2915,7 @@ def test_provider_proof_plan_exposes_missing_configuration_blocker_reason(tmp_pa
     assert publication["blocking_reasons"] == ["blocked_by_missing_configuration"]
     assert payload["credential_snapshot"]["snapshots"][
         "external-publication-proof"
-    ]["absent_inputs"] == ["INSTAGRAM_ACCESS_TOKEN"]
+    ]["absent_inputs"] == ["LINKEDIN_ACCESS_TOKEN"]
 
 
 def test_provider_proof_plan_does_not_emit_secret_shaped_run_id(tmp_path):
@@ -2994,8 +2957,9 @@ def test_provider_proof_record_validation_accepts_matching_voice_record(tmp_path
         "runtime_health_ledger_artifact_id": "artifact-runtime-health",
         "voice_edge_benchmark_status": "ready",
         "provider_smoke_ledger_artifact_id": "artifact-smoke",
+        "livekit_voice_timing_capture_artifact_id": "artifact-livekit-capture",
         "realtime_voice_timing_ledger_artifact_id": "artifact-timing",
-            "realtime_provider": "openrouter_livekit",
+        "realtime_provider": "openrouter_livekit",
         "execute_live_calls": True,
         "realtime_session_id_or_livekit_room": "room-123",
         "participant_identity": "agent-voice",
@@ -3226,6 +3190,7 @@ def test_provider_proof_record_template_builds_non_accepted_voice_draft(tmp_path
     assert record["workspace_validation_report_artifact_id"] == "<artifact-id>"
     assert record["voice_agent_process_start_artifact_id"] == "<artifact-id>"
     assert record["provider_smoke_ledger_artifact_id"] == "<artifact-id>"
+    assert record["livekit_voice_timing_capture_artifact_id"] == "<artifact-id>"
     assert record["secret_redaction_check"] == "<passed-after-no-secret-scan>"
     assert set(record["post_capture_validation_results"]) == set(
         payload["post_capture_validation_checks"]
@@ -3698,15 +3663,20 @@ def test_provider_proof_workspace_writes_templates_and_readme(tmp_path):
     assert "configure HF_TOKEN_FILE or HF_TOKEN" not in readme
     assert "configure LIVEKIT_API_KEY_FILE or LIVEKIT_API_KEY" in readme
     assert (
-        "configure INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN" in readme
+        "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN" in readme
     )
-    assert "configure SUBSTACK_API_TOKEN_FILE or SUBSTACK_API_TOKEN" in readme
+    assert (
+        "configure INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN"
+        not in readme
+    )
+    assert "configure SUBSTACK_API_TOKEN_FILE or SUBSTACK_API_TOKEN" not in readme
     assert "credential setup commands:" in readme
     assert ': "${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY first}"' in readme
     assert ': "${LIVEKIT_API_SECRET:?set LIVEKIT_API_SECRET first}"' in readme
-    assert ': "${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}"' in readme
-    assert "X_API_KEY" in readme
-    assert ".secrets/x_api_key" in readme
+    assert ': "${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}"' in readme
+    assert ': "${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}"' not in readme
+    assert "X_API_KEY" not in readme
+    assert ".secrets/x_api_key" not in readme
     assert "proof commands allowed after:" in readme
     assert "validate-provider-proof-record" in readme
     assert "record-provider-proof-record" in readme
@@ -3872,7 +3842,7 @@ def test_concrete_uuid_provider_proof_workspace_readme_is_current():
     proof_plan = provider_cli._provider_proof_plan_payload(
         Namespace(
             env_example_path=ROOT / ".env.example",
-            checked_at="2026-05-23",
+            checked_at="2026-05-24",
             run_id=run_id,
             output_dir=ROOT / relative_output_dir,
             operator_input_path=ROOT / relative_output_dir / "operator-inputs.template.env",
@@ -4072,7 +4042,7 @@ def test_concrete_uuid_provider_proof_workspace_validation_is_current():
     payload = provider_cli._provider_proof_workspace_validation_payload(
         Namespace(
             env_example_path=ROOT / ".env.example",
-            checked_at="2026-05-23",
+            checked_at="2026-05-24",
             run_id=run_id,
             output_dir=output_dir,
         ),
@@ -4185,7 +4155,7 @@ def test_concrete_current_uuid_blocker_credential_snapshot_report_is_current():
     fresh_payload = provider_cli._blocker_credential_snapshot_payload(
         Namespace(
             env_example_path=ROOT / ".env.example",
-            checked_at="2026-05-23",
+            checked_at="2026-05-24",
             operator_input_path=output_dir / "operator-inputs.template.env",
         ),
         env_values={},
@@ -4227,6 +4197,9 @@ def test_concrete_current_uuid_operator_input_template_is_present():
     assert "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=<artifact-id>" in template
     assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=<external-url-or-id>" in template
     assert "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=<artifact-id>" in template
+    assert "# Provider-backed live voice proof blockers." not in template
+    assert "# Provider-backed live voice proof default inputs." in template
+    assert "# External publication proof blockers." in template
     assert template.count("# contract: ") == 8
     assert template.count("# value_source: ") == 8
     assert template.count("# template_state: ") == 8
@@ -4287,7 +4260,7 @@ def test_concrete_current_uuid_operator_input_readiness_is_current():
     fresh_payload = provider_cli._provider_proof_operator_input_readiness_payload(
         Namespace(
             env_example_path=ROOT / ".env.example",
-            checked_at="2026-05-23",
+            checked_at="2026-05-24",
             run_id="190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             input_path=output_dir / "operator-inputs.template.env",
         )
@@ -4483,6 +4456,7 @@ def test_provider_proof_operator_input_readiness_blocks_placeholder_template(
         provider_cli._provider_proof_operator_inputs_template(),
         encoding="utf-8",
     )
+    template = input_path.read_text(encoding="utf-8")
 
     payload = provider_cli._provider_proof_operator_input_readiness_payload(
         Namespace(
@@ -4545,6 +4519,9 @@ def test_provider_proof_operator_input_readiness_blocks_placeholder_template(
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID"
     ]["value_source"] == "artifact_id"
     assert "OPENROUTER_API_KEY_FILE" in serialized
+    assert "# Provider-backed live voice proof blockers." not in template
+    assert "# Provider-backed live voice proof default inputs." in template
+    assert "# External publication proof blockers." in template
     assert "<https-url>" not in serialized
     assert ".secrets/hf_token" not in serialized
     assert str(ROOT) not in serialized
@@ -5519,7 +5496,7 @@ def test_concrete_uuid_provider_proof_plan_report_is_current():
     fresh_payload = provider_cli._provider_proof_plan_payload(
         Namespace(
             env_example_path=ROOT / ".env.example",
-            checked_at="2026-05-23",
+            checked_at="2026-05-24",
             run_id=run_id,
             output_dir=output_dir,
             operator_input_path=output_dir / "operator-inputs.template.env",
@@ -5812,7 +5789,7 @@ def test_concrete_current_blocker_matrix_report_is_current():
     fresh_payload = provider_cli._provider_proof_current_blocker_matrix_payload(
         Namespace(
             env_example_path=ROOT / ".env.example",
-            checked_at="2026-05-23",
+            checked_at="2026-05-24",
             run_id="190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             output_dir=output_dir,
             audit_target=None,
@@ -5828,7 +5805,7 @@ def test_concrete_current_blocker_matrix_report_is_current():
     assert report["completion"]["status"] == "blocked_by_latest_failed_proof_record"
     assert report["completion"]["next_action"] == "capture_validate_record_and_recheck"
     completion_recovery_commands = report["completion"]["next_action_commands"]
-    assert any(
+    assert not any(
         "provider-proof-record-template --proof provider-backed-live-voice-proof"
         in command
         for command in completion_recovery_commands
@@ -5845,7 +5822,12 @@ def test_concrete_current_blocker_matrix_report_is_current():
     assert report["closure"]["goal_completion_claimed"] is False
     voice = report["proofs"]["provider-backed-live-voice-proof"]
     publication = report["proofs"]["external-publication-proof"]
-    assert voice["accepted_record_available"] is False
+    assert report["completion"]["latest_failed_proofs"] == [
+        "external-publication-proof"
+    ]
+    assert voice["current_state"] == "accepted_proof_record_available"
+    assert voice["latest_record_outcome"] == "accepted"
+    assert voice["accepted_record_available"] is True
     assert publication["accepted_record_available"] is False
     command_output_dir = Path(
         "social_media_optimiser/output/provider-proof/"
@@ -6162,7 +6144,7 @@ def test_concrete_current_blocker_matrix_report_is_current():
         "credential-snapshot status runtime_configuration_present_unverified",
         "proof-plan attempt gate ready_for_preflight_capture",
         "valid external publication preflight validation",
-        "destination channel linked to validated linkedin readiness",
+        "destination channel and durable URL linked to validated linkedin readiness",
         "durable external destination proof",
         "policy acknowledgement artifact",
         "rollback or postcondition artifact",
@@ -6322,27 +6304,7 @@ def test_concrete_current_blocker_matrix_report_is_current():
         ),
     }
     assert report["next_status_packet"] == "current-proof-status.md"
-    assert voice["remaining_blockers"] == [
-        {
-            "blocker_id": "realtime-voice-timing-ledger-evidence",
-            "status": "needs_more_evidence",
-            "type": "live_voice_runtime_evidence",
-            "missing_inputs": [
-                "No voice_agent_media_bridge_ready event was found. The timing ledger needs proof that the backend participant subscribed to the creator audio track and connected it to the Rust VAD path.",
-                "No voice_user_speech_started event has been persisted.",
-                "No correlated voice_user_turn_committed and OpenRouter/Kokoro turn-start event pair was found (legacy persisted event type: gemma_kokoro_voice_turn_started).",
-                "No interrupt/cancellation acknowledgement and voice-turn-cancelled event pair was found.",
-            ],
-            "required_evidence_after_unblock": [
-                "realtime_voice_timing_ledger status ready",
-                "measured LiveKit media bridge stage",
-                "measured user speech start stage",
-                "measured OpenRouter turn-start and generation-start stages",
-                "measured first OpenRouter text delta and first Kokoro audio output",
-                "measured barge-in cancellation or explicit stop-output acknowledgement",
-            ],
-        }
-    ]
+    assert voice["remaining_blockers"] == []
     assert voice_packet["operator_input_readiness"]["blocked_fields"] == []
     assert voice_packet["operator_input_readiness"]["configured_fields"] == [
         "OPENROUTER_API_KEY_FILE",
@@ -6372,7 +6334,7 @@ def test_concrete_current_proof_status_report_is_current():
     fresh_report = provider_cli._provider_proof_current_status_markdown(
         Namespace(
             env_example_path=ROOT / ".env.example",
-            checked_at="2026-05-23",
+            checked_at="2026-05-24",
             run_id="190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             output_dir=output_dir,
             audit_target=None,
@@ -6416,13 +6378,10 @@ def test_concrete_current_proof_status_report_is_current():
     assert next_matrix_pos < next_status_pos < next_checklist_pos
     assert (
         "`provider-backed-live-voice-proof`: "
-        "`provider_backed_live_voice_preflight_ready_record_capture_needed`"
+        "`accepted_proof_record_available`"
     ) in report
-    assert "realtime-voice-timing-ledger-evidence" in report
-    assert (
-        "No correlated voice_user_turn_committed and OpenRouter/Kokoro turn-start"
-        in report
-    )
+    assert "- remaining blockers: `none`" in report
+    assert "realtime-voice-timing-ledger-evidence" not in report
     assert "`realtime-voice-timing-ledger.json`" in report
     assert "`external-publication-proof`: `local_publication_fixture_ready_external_destination_blocked`" in report
     assert "HF_TOKEN or HF_TOKEN_FILE" not in report
@@ -6446,7 +6405,7 @@ def test_concrete_current_proof_status_report_is_current():
     assert "- completion next_action_commands:" in current_gate_block
     assert (
         "provider-proof-record-template --proof provider-backed-live-voice-proof"
-        in current_gate_block
+        not in current_gate_block
     )
     assert (
         "provider-proof-record-template --proof external-publication-proof"
@@ -6643,7 +6602,7 @@ def test_concrete_current_proof_status_report_is_current():
     assert "LIVEKIT_API_SECRET_FILE" in report
     assert "HF_TOKEN_FILE" not in report
     assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" not in report
-    assert "- blocker: `realtime-voice-timing-ledger-evidence` (`needs_more_evidence`)" in report
+    assert "- blocker: `realtime-voice-timing-ledger-evidence`" not in report
     assert "- blocker: `gemma-audio-reasoning`" not in report
     assert "LINKEDIN_ACCESS_TOKEN_FILE" in report
     assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL" in report
@@ -7403,7 +7362,7 @@ def test_concrete_operator_unblocker_checklist_is_current():
     fresh_report = provider_cli._provider_proof_operator_unblocker_checklist_markdown(
         Namespace(
             env_example_path=ROOT / ".env.example",
-            checked_at="2026-05-23",
+            checked_at="2026-05-24",
             run_id="190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             output_dir=output_dir,
         ),
@@ -7443,7 +7402,7 @@ def test_concrete_operator_unblocker_checklist_is_current():
     assert "- completion next_action_commands:" in current_gate_block
     assert (
         "provider-proof-record-template --proof provider-backed-live-voice-proof"
-        in current_gate_block
+        not in current_gate_block
     )
     assert (
         "provider-proof-record-template --proof external-publication-proof"
@@ -7455,12 +7414,14 @@ def test_concrete_operator_unblocker_checklist_is_current():
     )
     assert "`provider-backed-live-voice-proof`" in report
     assert "`external-publication-proof`" in report
-    assert "validate-provider-proof-record --proof provider-backed-live-voice-proof" in report
-    assert "record-provider-proof-record --proof provider-backed-live-voice-proof" in report
+    assert "Accepted proof record is available." in report
+    assert "No proof-level operator inputs remain for this proof." in report
+    assert "validate-provider-proof-record --proof provider-backed-live-voice-proof" not in report
+    assert "record-provider-proof-record --proof provider-backed-live-voice-proof" not in report
     assert "validate-provider-proof-record --proof external-publication-proof" in report
     assert "record-provider-proof-record --proof external-publication-proof" in report
-    assert report.count("proof_capture_commands_after_unblock:") == 4
-    assert report.count("operator_proof_packet:") == 2
+    assert report.count("proof_capture_commands_after_unblock:") == 2
+    assert report.count("operator_proof_packet:") == 1
     _assert_operator_packet_capture_commands(report)
     _assert_operator_packet_closeout_refs(report)
     _assert_operator_packet_record_schema(report)
@@ -7471,39 +7432,28 @@ def test_concrete_operator_unblocker_checklist_is_current():
     _assert_operator_packet_input_contracts(report)
     _assert_operator_packet_current_gate(report)
     _assert_operator_packet_current_state_packets(report)
-    assert "- proof_id: `provider-backed-live-voice-proof`" in report
     assert "- proof_id: `external-publication-proof`" in report
-    assert report.count("- matrix_parity_ref:") == 2
-    assert (
-        "- matrix_parity_ref: "
-        "`/operator_input_readiness/proofs/provider-backed-live-voice-proof`"
-    ) in report
+    assert report.count("- matrix_parity_ref:") == 1
     assert (
         "- matrix_parity_ref: "
         "`/operator_input_readiness/proofs/external-publication-proof`"
     ) in report
-    assert report.count("- proof_capture_matrix_ref:") == 2
-    assert (
-        "- proof_capture_matrix_ref: "
-        "`/proofs/provider-backed-live-voice-proof/proof_capture_commands_after_unblock`"
-    ) in report
+    assert report.count("- proof_capture_matrix_ref:") == 1
     assert (
         "- proof_capture_matrix_ref: "
         "`/proofs/external-publication-proof/proof_capture_commands_after_unblock`"
     ) in report
-    assert "- label: `Provider-backed live voice proof packet`" in report
     assert "- label: `External publication proof packet`" in report
     assert "- packet_schema_version: `operator-proof-packet.v1`" in report
     assert "- handoff_contract: `value-free-operator-proof-handoff`" in report
     assert "- state_change_allowed: `False`" in report
     assert "- secret_handling: `Do not print tokens, API keys, or secrets; record endpoint and account identifiers only.`" in report
-    assert report.count("- source_artifacts:") == 2
+    assert report.count("- source_artifacts:") == 1
     assert "  - operator_input_readiness: `operator-input-readiness.json`" in report
     assert "  - current_blocker_matrix: `current-blocker-matrix.json`" in report
     assert "  - operator_input_template: `operator-inputs.template.env`" in report
     assert "  - proof_plan: `proof-plan.json`" in report
     assert "- must_capture:" in report
-    assert "`LiveKit room/session id and participant identity`" in report
     assert "`durable platform ID or URL`" in report
     assert "- store_in:" in report
     assert "`system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md`" in report
@@ -7524,23 +7474,17 @@ def test_concrete_operator_unblocker_checklist_is_current():
     ) in report
     assert (
         "- proof_plan_operator_packet_ref: "
-        "`/proofs/provider-backed-live-voice-proof/operator_proof_packet`"
-    ) in report
-    assert (
-        "- proof_plan_operator_packet_ref: "
         "`/proofs/external-publication-proof/operator_proof_packet`"
     ) in report
-    assert report.count("proof_record_schema:") == 4
-    assert "- artifact_type: `provider_backed_live_voice_proof_record`" in report
-    assert "- state_field: `provider-backed-live-voice-proof`" in report
+    assert report.count("proof_record_schema:") == 2
     assert "- artifact_type: `external_publication_proof_record`" in report
     assert "- state_field: `external-publication-proof`" in report
-    assert report.count("- allowed_outcomes:") == 4
-    assert report.count("proof_record_required_fields:") == 4
-    assert "`voice_agent_process_start_artifact_id`" in report
+    assert report.count("- allowed_outcomes:") == 2
+    assert report.count("proof_record_required_fields:") == 2
+    assert "`voice_agent_process_start_artifact_id`" not in report
     assert "`durable_platform_id_or_url`" in report
-    assert "validate-provider-proof-preflight-artifacts --proof provider-backed-live-voice-proof" in report
-    assert "record-provider-proof-record --proof provider-backed-live-voice-proof" in report
+    assert "validate-provider-proof-preflight-artifacts --proof provider-backed-live-voice-proof" not in report
+    assert "record-provider-proof-record --proof provider-backed-live-voice-proof" not in report
     assert "validate-provider-proof-preflight-artifacts --proof external-publication-proof" in report
     assert "record-provider-proof-record --proof external-publication-proof" in report
     publication_section = report.split("## External Publication", 1)[1].split(
@@ -7553,16 +7497,16 @@ def test_concrete_operator_unblocker_checklist_is_current():
     )[1].split("After those inputs are available", 1)[0]
     assert '"acknowledge_publish_channel_policy":true' in publication_capture_block
     assert '"acknowledge_publish_channel_policy":false' not in publication_capture_block
-    assert "Current live voice blocker status: `needs_more_evidence`" in report
     assert "Current publication blocker status: `blocked`" in report
-    assert "Current live voice blocker status: `unknown`" not in report
+    assert "Current live voice blocker status:" not in report
     assert "Current publication blocker status: `unknown`" not in report
     live_voice_section = report.split("## Provider-Backed Live Voice", 1)[1].split(
         "## External Publication",
         1,
     )[0]
-    assert "Operator must still supply:" in live_voice_section
-    assert "No voice_agent_media_bridge_ready event was found" in live_voice_section
+    assert "Accepted proof status:" in live_voice_section
+    assert "Operator must still supply:" not in live_voice_section
+    assert "No voice_agent_media_bridge_ready event was found" not in live_voice_section
     assert "OPENROUTER_API_KEY or OPENROUTER_API_KEY_FILE" not in live_voice_section
     assert "LIVEKIT_API_SECRET or LIVEKIT_API_SECRET_FILE" not in live_voice_section
     assert "validate-provider-proof-closure-review" in report
@@ -7698,7 +7642,10 @@ def test_concrete_operator_unblocker_checklist_is_current():
     assert "same-run OpenRouter DeepSeek live dialogue reasoning evidence" in report
     assert "realtime voice timing ledger evidence" in report
     assert "external-publication-proof required evidence after unblock:" in report
-    assert "destination channel linked to validated linkedin readiness" in report
+    assert (
+        "destination channel and durable URL linked to validated linkedin readiness"
+        in report
+    )
     assert "rollback or postcondition artifact" in report
     assert "provider-backed-live-voice-proof issue codes:" not in report
     assert "provider-backed-live-voice-proof placeholder fields:" not in report
@@ -9951,26 +9898,34 @@ def test_provider_proof_record_validation_rejects_accepted_publication_cross_cha
         assert payload["state_change_allowed"] is False
         assert "destination_channel_mismatch" in payload["issue_codes"]
 
-    valid_instagram = dict(base_record)
-    valid_instagram["destination_channel"] = "instagram"
-    valid_instagram["durable_platform_id_or_url"] = "https://instagram.com/p/abc123"
-    valid_instagram_payload = _provider_proof_record_validation_payload(
+    linkedin_record_with_extra_preflight_channels = dict(base_record)
+    linkedin_record_with_extra_preflight_channels["destination_channel"] = "linkedin"
+    linkedin_record_with_extra_preflight_channels["durable_platform_id_or_url"] = (
+        "https://linkedin.com/posts/123e4567-e89b-12d3-a456-426614174000"
+    )
+    linkedin_extra_preflight_payload = _provider_proof_record_validation_payload(
         Namespace(
             env_example_path=env_example,
             checked_at="2026-05-20",
             run_id="123e4567-e89b-12d3-a456-426614174000",
             proof="external-publication-proof",
         ),
-        valid_instagram,
+        linkedin_record_with_extra_preflight_channels,
     )
-    assert valid_instagram_payload["status"] == "valid_accepted_record"
+    assert linkedin_extra_preflight_payload["status"] == "invalid_record"
+    assert linkedin_extra_preflight_payload["state_change_allowed"] is False
+    assert (
+        "preflight_validation_report_publish_channels_not_linkedin_only"
+        in linkedin_extra_preflight_payload["issue_codes"]
+    )
 
-    valid_aliases = [
+    non_linkedin_records = [
+        ("instagram", "https://instagram.com/p/abc123"),
         ("instagram_post", "https://instagram.com/p/abc123"),
         ("instagram_reel", "https://instagram.com/reel/abc123"),
         ("x_thread", "https://x.com/example/status/123"),
     ]
-    for channel, destination in valid_aliases:
+    for channel, destination in non_linkedin_records:
         record = dict(base_record)
         record["destination_channel"] = channel
         record["durable_platform_id_or_url"] = destination
@@ -9983,7 +9938,9 @@ def test_provider_proof_record_validation_rejects_accepted_publication_cross_cha
             ),
             record,
         )
-        assert payload["status"] == "valid_accepted_record"
+        assert payload["status"] == "invalid_record"
+        assert payload["state_change_allowed"] is False
+        assert "destination_channel_not_linkedin" in payload["issue_codes"]
 
 
 def test_provider_proof_record_validation_accepts_failed_record_without_all_passes(
@@ -10005,6 +9962,7 @@ def test_provider_proof_record_validation_accepts_failed_record_without_all_pass
         "runtime_health_ledger_artifact_id": "artifact-runtime-health",
         "voice_edge_benchmark_status": "failed",
         "provider_smoke_ledger_artifact_id": "artifact-smoke",
+        "livekit_voice_timing_capture_artifact_id": "artifact-livekit-capture",
         "realtime_voice_timing_ledger_artifact_id": "artifact-timing",
         "realtime_provider": "openrouter_livekit",
         "execute_live_calls": True,
@@ -10078,6 +10036,7 @@ def test_provider_proof_record_validation_redacts_secret_shaped_keys(tmp_path):
         "runtime_health_ledger_artifact_id": "artifact-runtime-health",
         "voice_edge_benchmark_status": "failed",
         "provider_smoke_ledger_artifact_id": "artifact-smoke",
+        "livekit_voice_timing_capture_artifact_id": "artifact-livekit-capture",
         "realtime_voice_timing_ledger_artifact_id": "artifact-timing",
         "realtime_provider": "openrouter_livekit",
         "execute_live_calls": True,
@@ -10266,6 +10225,7 @@ def test_provider_proof_record_validation_rejects_placeholder_run_id_record(
         "validation_timestamp": "2026-05-20T12:00:00Z",
         "proof_outcome": "accepted",
         "provider_smoke_ledger_artifact_id": "artifact-smoke",
+        "livekit_voice_timing_capture_artifact_id": "artifact-livekit-capture",
         "realtime_voice_timing_ledger_artifact_id": "artifact-timing",
         "realtime_provider": "openrouter_livekit",
         "execute_live_calls": True,
@@ -10327,6 +10287,7 @@ def test_record_provider_proof_record_appends_redacted_valid_failed_record_to_ta
         "runtime_health_ledger_artifact_id": "artifact-runtime-health",
         "voice_edge_benchmark_status": "failed",
         "provider_smoke_ledger_artifact_id": "artifact-smoke",
+        "livekit_voice_timing_capture_artifact_id": "artifact-livekit-capture",
         "realtime_voice_timing_ledger_artifact_id": "artifact-timing",
         "realtime_provider": "openrouter_livekit",
         "execute_live_calls": True,
@@ -10520,6 +10481,7 @@ def test_record_provider_proof_record_refuses_unsafe_run_id_substitution(
         "validation_timestamp": "2026-05-20T12:00:00Z",
         "proof_outcome": "failed",
         "provider_smoke_ledger_artifact_id": "artifact-smoke",
+        "livekit_voice_timing_capture_artifact_id": "artifact-livekit-capture",
         "realtime_voice_timing_ledger_artifact_id": "artifact-timing",
         "realtime_provider": "openrouter_livekit",
         "execute_live_calls": True,
@@ -10641,6 +10603,30 @@ def test_provider_proof_completion_status_blocks_until_all_accepted_records_exis
     assert payload["proofs"]["external-publication-proof"]["status"] == (
         "latest_record_failed"
     )
+    publication_commands = payload["proofs"]["external-publication-proof"][
+        "next_action_commands"
+    ]
+    assert all(
+        "--proof provider-backed-live-voice-proof" not in command
+        for command in publication_commands
+    )
+    assert any(
+        "/publish-readiness" in command and "publish-readiness.preflight.json" in command
+        for command in publication_commands
+    )
+    per_proof_distribution_command_index = next(
+        index
+        for index, command in enumerate(publication_commands)
+        if "build-distribution-package" in command
+        and "distribution-package.json" in command
+    )
+    per_proof_template_index = next(
+        index
+        for index, command in enumerate(publication_commands)
+        if "provider-proof-record-template --proof external-publication-proof"
+        in command
+    )
+    assert per_proof_distribution_command_index < per_proof_template_index
     top_level_commands = payload["next_action_commands"]
     assert all(
         "--proof provider-backed-live-voice-proof" not in command
@@ -10650,11 +10636,389 @@ def test_provider_proof_completion_status_blocks_until_all_accepted_records_exis
         "provider-proof-record-template --proof external-publication-proof" in command
         for command in top_level_commands
     )
+    assert any(
+        "/publish-readiness" in command and "publish-readiness.preflight.json" in command
+        for command in top_level_commands
+    )
+    distribution_command_index = next(
+        index
+        for index, command in enumerate(top_level_commands)
+        if "build-distribution-package" in command
+        and "distribution-package.json" in command
+    )
+    publication_template_index = next(
+        index
+        for index, command in enumerate(top_level_commands)
+        if "provider-proof-record-template --proof external-publication-proof"
+        in command
+    )
+    assert distribution_command_index < publication_template_index
     assert top_level_commands[-1] == (
         "uv run all-about-llms-admin provider-proof-completion-status "
         "--run-id 123e4567-e89b-12d3-a456-426614174000"
     )
     assert "hf_secret" not in serialized
+
+
+def test_provider_proof_completion_status_gates_failed_publication_on_operator_inputs(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("")
+    output_dir = tmp_path / "provider-proof" / PROVIDER_PROOF_TEST_RUN_UUID
+    output_dir.mkdir(parents=True)
+    secrets_dir = tmp_path / "secrets"
+    secrets_dir.mkdir()
+    for filename in [
+        "openrouter_api_key",
+        "livekit_api_key",
+        "livekit_api_secret",
+    ]:
+        (secrets_dir / filename).write_text("test-secret-value", encoding="utf-8")
+    input_path = output_dir / "operator-inputs.template.env"
+    input_path.write_text(
+        "\n".join(
+            [
+                f"OPENROUTER_API_KEY_FILE={secrets_dir / 'openrouter_api_key'}",
+                "OPENROUTER_LIVEKIT_URL=wss://livekit.example.test",
+                f"LIVEKIT_API_KEY_FILE={secrets_dir / 'livekit_api_key'}",
+                f"LIVEKIT_API_SECRET_FILE={secrets_dir / 'livekit_api_secret'}",
+                f"LINKEDIN_ACCESS_TOKEN_FILE={secrets_dir / 'missing_linkedin'}",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=<artifact-id>",
+                "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=<external-url-or-id>",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=<artifact-id>",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    readiness = provider_cli._provider_proof_operator_input_readiness_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            input_path=input_path,
+        )
+    )
+    assert readiness["proofs"]["external-publication-proof"]["state"] == (
+        "blocked_by_operator_inputs"
+    )
+    (output_dir / "operator-input-readiness.json").write_text(
+        json.dumps(readiness),
+        encoding="utf-8",
+    )
+    audit_target = tmp_path / "objective-audit.md"
+    accepted_voice = _accepted_provider_proof_record(
+        env_example,
+        "provider-backed-live-voice-proof",
+    )
+    failed_publication = dict(
+        _accepted_provider_proof_record(env_example, "external-publication-proof")
+    )
+    failed_publication["proof_outcome"] = "failed"
+    failed_publication["post_capture_validation_results"] = {
+        next(iter(failed_publication["post_capture_validation_results"])): "failed"
+    }
+
+    _record_provider_proof_record_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            proof="provider-backed-live-voice-proof",
+            audit_target=[audit_target],
+        ),
+        accepted_voice,
+    )
+    _record_provider_proof_record_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            proof="external-publication-proof",
+            audit_target=[audit_target],
+        ),
+        failed_publication,
+    )
+
+    payload = provider_cli._provider_proof_completion_status_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            audit_target=[audit_target],
+            output_dir=output_dir,
+        )
+    )
+
+    publication_commands = payload["proofs"]["external-publication-proof"][
+        "next_action_commands"
+    ]
+    assert "provider-proof-operator-input-readiness" in publication_commands[0]
+    assert "--fail-on-blocked" in publication_commands[0]
+    assert any("blocker-credential-snapshot" in command for command in publication_commands)
+    assert all("/publish-readiness" not in command for command in publication_commands)
+    top_level_commands = payload["next_action_commands"]
+    assert "provider-proof-operator-input-readiness" in top_level_commands[0]
+    assert "--fail-on-blocked" in top_level_commands[0]
+    assert all("/publish-readiness" not in command for command in top_level_commands)
+
+
+def test_provider_proof_completion_status_cli_accepts_custom_output_dir(
+    tmp_path,
+    monkeypatch,
+    capsys,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("")
+    output_dir = tmp_path / "custom-provider-proof" / PROVIDER_PROOF_TEST_RUN_UUID
+    output_dir.mkdir(parents=True)
+    input_path = output_dir / "operator-inputs.template.env"
+    input_path.write_text(
+        "\n".join(
+            [
+                "OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key",
+                "OPENROUTER_LIVEKIT_URL=wss://livekit.example.test",
+                "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
+                "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
+                "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/missing_linkedin",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=<artifact-id>",
+                "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=<external-url-or-id>",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=<artifact-id>",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    readiness = provider_cli._provider_proof_operator_input_readiness_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            input_path=input_path,
+        )
+    )
+    (output_dir / "operator-input-readiness.json").write_text(
+        json.dumps(readiness),
+        encoding="utf-8",
+    )
+    audit_target = tmp_path / "objective-audit.md"
+    accepted_voice = _accepted_provider_proof_record(
+        env_example,
+        "provider-backed-live-voice-proof",
+    )
+    failed_publication = dict(
+        _accepted_provider_proof_record(env_example, "external-publication-proof")
+    )
+    failed_publication["proof_outcome"] = "failed"
+    failed_publication["post_capture_validation_results"] = {
+        next(iter(failed_publication["post_capture_validation_results"])): "failed"
+    }
+    _record_provider_proof_record_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            proof="provider-backed-live-voice-proof",
+            audit_target=[audit_target],
+        ),
+        accepted_voice,
+    )
+    _record_provider_proof_record_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            proof="external-publication-proof",
+            audit_target=[audit_target],
+        ),
+        failed_publication,
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "all-about-llms-admin",
+            "provider-proof-completion-status",
+            "--env-example-path",
+            str(env_example),
+            "--checked-at",
+            "2026-05-20",
+            "--run-id",
+            PROVIDER_PROOF_TEST_RUN_UUID,
+            "--output-dir",
+            str(output_dir),
+            "--audit-target",
+            str(audit_target),
+        ],
+    )
+
+    provider_cli.main()
+    payload = json.loads(capsys.readouterr().out)
+
+    assert payload["next_action_commands"][0].startswith(
+        "uv run all-about-llms-admin provider-proof-operator-input-readiness "
+    )
+    assert "--fail-on-blocked" in payload["next_action_commands"][0]
+    assert str(input_path) in payload["next_action_commands"][0]
+    assert "--output-dir" in payload["next_action_commands"][-1]
+    assert str(output_dir) in payload["next_action_commands"][-1]
+    assert all(
+        "/publish-readiness" not in command
+        for command in payload["next_action_commands"]
+    )
+
+    publication_commands = payload["proofs"]["external-publication-proof"][
+        "next_action_commands"
+    ]
+    assert "--output-dir" in publication_commands[-1]
+    assert str(output_dir) in publication_commands[-1]
+
+
+def test_current_packets_do_not_reopen_accepted_live_voice_completion_commands(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("")
+    output_dir = tmp_path / "provider-proof" / "123e4567-e89b-12d3-a456-426614174000"
+    output_dir.mkdir(parents=True)
+    audit_target = tmp_path / "objective-audit.md"
+    accepted_voice = _accepted_provider_proof_record(
+        env_example,
+        "provider-backed-live-voice-proof",
+    )
+    failed_publication = dict(
+        _accepted_provider_proof_record(env_example, "external-publication-proof")
+    )
+    failed_publication["proof_outcome"] = "failed"
+    failed_publication["post_capture_validation_results"] = {
+        next(iter(failed_publication["post_capture_validation_results"])): "failed"
+    }
+
+    _record_provider_proof_record_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            proof="provider-backed-live-voice-proof",
+            audit_target=[audit_target],
+        ),
+        accepted_voice,
+    )
+    _record_provider_proof_record_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            proof="external-publication-proof",
+            audit_target=[audit_target],
+        ),
+        failed_publication,
+    )
+    completion_payload = provider_cli._provider_proof_completion_status_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            audit_target=[audit_target],
+        )
+    )
+    (output_dir / "completion-status.json").write_text(
+        json.dumps(completion_payload),
+        encoding="utf-8",
+    )
+
+    current_args = Namespace(
+        env_example_path=env_example,
+        checked_at="2026-05-20",
+        run_id="123e4567-e89b-12d3-a456-426614174000",
+        output_dir=output_dir,
+        audit_target=None,
+        proof_audit_target=None,
+        closure_review_audit_target=None,
+        blocker_update_audit_target=None,
+    )
+    matrix = provider_cli._provider_proof_current_blocker_matrix_payload(
+        current_args,
+        env_values={},
+    )
+    current_status = provider_cli._provider_proof_current_status_markdown(
+        current_args,
+        env_values={},
+    )
+    operator_checklist = (
+        provider_cli._provider_proof_operator_unblocker_checklist_markdown(
+            Namespace(
+                env_example_path=env_example,
+                checked_at="2026-05-20",
+                run_id="123e4567-e89b-12d3-a456-426614174000",
+                output_dir=output_dir,
+            ),
+            env_values={},
+        )
+    )
+
+    assert matrix["completion"]["latest_failed_proofs"] == [
+        "external-publication-proof"
+    ]
+    completion_commands = matrix["completion"]["next_action_commands"]
+    assert all(
+        "--proof provider-backed-live-voice-proof" not in command
+        for command in completion_commands
+    )
+    assert any(
+        "--proof external-publication-proof" in command
+        for command in completion_commands
+    )
+    distribution_command_index = next(
+        index
+        for index, command in enumerate(completion_commands)
+        if "build-distribution-package" in command
+        and "distribution-package.json" in command
+    )
+    publication_template_index = next(
+        index
+        for index, command in enumerate(completion_commands)
+        if "provider-proof-record-template --proof external-publication-proof"
+        in command
+    )
+    assert distribution_command_index < publication_template_index
+    assert completion_commands[-1] == (
+        "uv run all-about-llms-admin provider-proof-completion-status "
+        "--run-id 123e4567-e89b-12d3-a456-426614174000 "
+        f"--output-dir {output_dir}"
+    )
+    voice = matrix["proofs"]["provider-backed-live-voice-proof"]
+    publication = matrix["proofs"]["external-publication-proof"]
+    assert voice["current_state"] == "accepted_proof_record_available"
+    assert voice["latest_record_outcome"] == "accepted"
+    assert voice["remaining_blockers"] == []
+    assert publication["latest_record_outcome"] == "failed"
+
+    for report in [current_status, operator_checklist]:
+        current_gate_block = report.split("## Current Gate", 1)[1].split(
+            "## Current State Packet Contract"
+            if "## Current State Packet Contract" in report
+            else "## Operator Input Template",
+            1,
+        )[0]
+        completion_command_block = current_gate_block.split(
+            "- completion next_action_commands:",
+            1,
+        )[1].split("- Required accepted proof state:", 1)[0]
+        assert "--proof external-publication-proof" in completion_command_block
+        assert "build-distribution-package" in completion_command_block
+        assert "distribution-package.json" in completion_command_block
+        assert completion_command_block.index(
+            "build-distribution-package"
+        ) < completion_command_block.index(
+            "provider-proof-record-template --proof external-publication-proof"
+        )
+        assert (
+            "--proof provider-backed-live-voice-proof"
+            not in completion_command_block
+        )
 
 
 def test_provider_proof_completion_status_exposes_next_commands_for_missing_proofs(
@@ -10958,6 +11322,63 @@ def test_provider_proof_completion_status_accepts_all_required_records(tmp_path)
             "confirm blocker-state notes are updated only after reviewer approval",
         ],
     }
+
+
+def test_provider_proof_record_audit_note_normalizes_workspace_root_paths():
+    run_id = "123e4567-e89b-12d3-a456-426614174000"
+    workspace_report = (
+        ROOT
+        / "social_media_optimiser/output/provider-proof"
+        / run_id
+        / "workspace-validation.json"
+    )
+    preflight_report = (
+        ROOT
+        / "social_media_optimiser/output/provider-proof"
+        / run_id
+        / "provider-backed-live-voice-proof.preflight-validation.json"
+    )
+    validation = {
+        "run_id": run_id,
+        "checked_at": "2026-05-20",
+        "proof": "provider-backed-live-voice-proof",
+        "status": "valid_accepted_record",
+        "state_change_allowed": True,
+        "proof_artifact_schema": {
+            "artifact_type": "provider_backed_live_voice_proof_record",
+            "required_fields": [
+                "workspace_validation_report_artifact_id",
+                "preflight_validation_report_artifact_id",
+            ],
+        },
+        "issues": [],
+        "preflight_validation_report": {"status": "valid_preflight_artifacts"},
+        "workspace_validation_report": {"status": "valid_workspace"},
+    }
+    record = {
+        "run_id": run_id,
+        "checked_at": "2026-05-20",
+        "validation_timestamp": "2026-05-20T12:00:00Z",
+        "proof_outcome": "accepted",
+        "workspace_validation_report_artifact_id": str(workspace_report),
+        "preflight_validation_report_artifact_id": str(preflight_report),
+        "post_capture_validation_results": {},
+        "secret_redaction_check": "passed",
+    }
+
+    audit_note = provider_cli._provider_proof_record_audit_note(validation, record)
+
+    assert str(ROOT) not in audit_note
+    assert (
+        "- workspace_validation_report_artifact_id: "
+        "<workspace-root>/social_media_optimiser/output/provider-proof/"
+        f"{run_id}/workspace-validation.json"
+    ) in audit_note
+    assert (
+        "- preflight_validation_report_artifact_id: "
+        "<workspace-root>/social_media_optimiser/output/provider-proof/"
+        f"{run_id}/provider-backed-live-voice-proof.preflight-validation.json"
+    ) in audit_note
 
 
 def test_provider_proof_completion_status_preserves_audit_target_overrides_in_closure_review_command(
@@ -13002,6 +13423,7 @@ def test_provider_proof_completion_status_rejects_invalid_publication_audit_note
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: true",
@@ -13100,6 +13522,7 @@ def test_provider_proof_completion_status_rejects_publication_audit_note_destina
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: true",
@@ -13326,6 +13749,79 @@ def test_provider_proof_completion_status_rejects_publication_audit_note_alias_p
     )
 
 
+def test_provider_proof_completion_status_rejects_non_linkedin_publication_audit_note(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("")
+    audit_target = tmp_path / "objective-audit.md"
+    _record_provider_proof_record_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            proof="provider-backed-live-voice-proof",
+            audit_target=[audit_target],
+        ),
+        _accepted_provider_proof_record(env_example, "provider-backed-live-voice-proof"),
+    )
+    with audit_target.open("a", encoding="utf-8") as audit_file:
+        audit_file.write(
+            "\n".join(
+                [
+                    "",
+                    "## Provider Proof Record - external-publication-proof - 123e4567-e89b-12d3-a456-426614174000",
+                    "",
+                    "- checked_at: 2026-05-20",
+                    "- validation_timestamp: 2026-05-20T12:30:00Z",
+                    "- proof_outcome: accepted",
+                    "- validation_status: valid_accepted_record",
+                    "- state_change_allowed: true",
+                    "- proof_artifact_type: external_publication_proof_record",
+                    "- preflight_validation_report_artifact_id: preflight-validation",
+                    "- preflight_validation_report_status: valid_preflight_artifacts",
+                    "- preflight_validation_report_matched_fields: all_required_fields_matched",
+                    "- preflight_validation_report_validated_product_run_id: 123e4567-e89b-12d3-a456-426614174000",
+                    "- preflight_validation_report_validated_publish_channels: instagram",
+                    "- workspace_validation_report_artifact_id: workspace-validation",
+                    "- workspace_validation_report_status: valid_workspace",
+                    "- workspace_validation_report_matched_fields: all_required_fields_matched",
+                    "- product_run_preflight_artifact_id: product-run-preflight",
+                    "- publish_readiness_preflight_artifact_id: publish-preflight",
+                    "- publish_readiness_artifact_id: publish-ready",
+                    "- distribution_package_artifact_id: distribution",
+                    "- approved_artifact_snapshot_id: approved",
+                    "- destination_channel: instagram",
+                    "- durable_platform_id_or_url: https://instagram.com/p/abc123",
+                    "- policy_acknowledgement_artifact_id: policy",
+                    "- rollback_or_postcondition_artifact_id: rollback",
+                    "- post_capture_validation_results: 6 recorded / 6 passed / 0 failed",
+                    "- secret_redaction_check: passed",
+                    "",
+                ]
+            )
+        )
+
+    payload = provider_cli._provider_proof_completion_status_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            audit_target=[audit_target],
+        )
+    )
+
+    assert payload["status"] == "blocked_by_invalid_accepted_audit_note"
+    assert payload["all_required_proofs_accepted"] is False
+    assert payload["accepted_proofs"] == ["provider-backed-live-voice-proof"]
+    assert payload["invalid_accepted_audit_note_proofs"] == [
+        "external-publication-proof"
+    ]
+    assert payload["proofs"]["external-publication-proof"]["status"] == (
+        "latest_record_has_invalid_fields"
+    )
+
+
 def test_provider_proof_completion_status_rejects_live_voice_audit_note_missing_runtime_check_from_preflight(
     tmp_path,
 ):
@@ -13358,6 +13854,7 @@ def test_provider_proof_completion_status_rejects_live_voice_audit_note_missing_
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: true",
@@ -13456,6 +13953,7 @@ def test_provider_proof_completion_status_rejects_live_voice_audit_note_noncanon
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: true",
@@ -13551,6 +14049,7 @@ def test_provider_proof_completion_status_rejects_duplicate_contradictory_audit_
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: true",
@@ -13646,6 +14145,7 @@ def test_provider_proof_completion_status_scans_duplicate_audit_fields_for_secre
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: true",
@@ -13739,6 +14239,7 @@ def test_provider_proof_completion_status_rejects_missing_required_accepted_audi
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: true",
@@ -13829,6 +14330,7 @@ def test_provider_proof_completion_status_requires_validation_summary_and_redact
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: true",
@@ -13910,6 +14412,7 @@ def test_provider_proof_completion_status_requires_preflight_report_summary(
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: true",
@@ -14002,6 +14505,7 @@ def test_provider_proof_completion_status_rejects_unparseable_accepted_audit_tim
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: true",
@@ -14115,6 +14619,7 @@ def test_provider_proof_completion_status_unparseable_invalid_note_not_masked_by
                 "- runtime_health_ledger_artifact_id: artifact-runtime-health",
                 "- voice_edge_benchmark_status: ready",
                 "- provider_smoke_ledger_artifact_id: artifact-smoke",
+                    "- livekit_voice_timing_capture_artifact_id: artifact-livekit-capture",
                 "- realtime_voice_timing_ledger_artifact_id: artifact-timing",
                 "- realtime_provider: openrouter_livekit",
                 "- execute_live_calls: false",

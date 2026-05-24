@@ -2,7 +2,7 @@
 type: moc
 project: agent-studio-system-design
 status: active
-updated: 2026-05-23
+updated: 2026-05-24
 ---
 
 # Agent Studio System Design MOC
@@ -52,13 +52,17 @@ Design a local-first, realtime, long-running multi-agent content studio with:
 - [[02-lectures/stanford/assets/cs336-assignment5-stale-rollout-reuse-contract.svg]]
 - [[02-lectures/stanford/assets/cs336-assignment5-clip-fraction-provenance.svg]]
 - [[02-lectures/stanford/assets/cs336-assignment5-prompt-parser-stop-bundle.svg]]
+- [[02-lectures/stanford/assets/cs336-assignment5-grading-cascade-contract.svg]]
 - [[02-lectures/stanford/assets/cs336-lecture16-stage-composition.svg]]
 - [[02-lectures/stanford/assets/cs336-assignment5-rollout-boundary-contract.svg]]
+- [[02-lectures/stanford/assets/cs336-assignment5-weight-sync-topology.svg]]
 - [[02-lectures/stanford/assets/cs336-assignment5-learner-generator-weight-sync.svg]]
 - [[02-lectures/stanford/assets/cs336-dual-policy-mask-lineage.svg]]
 - [[02-lectures/stanford/assets/cs336-assignment5-verifier-provenance.svg]]
 - [[02-lectures/stanford/assets/cs336-assignment5-microbatch-equivalence-contract.svg]]
 - [[02-lectures/stanford/assets/cs336-three-policy-prompt-group-contract.svg]]
+- [[02-lectures/stanford/assets/cs336-lecture17-delta-mode-flow.svg]]
+- [[02-lectures/stanford/assets/cs336-prompt-parser-reward-topology.svg]]
 - [[01-sources/official-open/official-docs-whitepapers-expansion]]
 - [[01-sources/official-open/openai-evals-and-agent-evals]]
 - [[01-sources/official-open/annotation-human-feedback-data-ops]]

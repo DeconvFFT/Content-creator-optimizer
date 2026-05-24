@@ -66,6 +66,7 @@ class HeadlessLiveKitCaptureInput(BaseModel):
     room_name: str
     participant_identity: str
     agent_identity: str
+    agent_name: str
     voice: str | None = None
     transcript: str | None = None
     timeout_seconds: float
@@ -234,20 +235,40 @@ class LiveKitHeadlessVoiceTimingClient:
         transcript_turn_sent = False
 
         @room.on("data_received")
-        def on_data_received(data: bytes, participant, *_args):
+        def on_data_received(data_or_packet, participant=None, *_args):
+            data, participant_identity, topic = _livekit_data_packet_parts(
+                data_or_packet,
+                participant=participant,
+                args=_args,
+            )
             event = _parse_agent_data_event(
                 data,
-                participant_identity=_participant_identity(participant),
-                topic=_livekit_data_topic(_args),
+                participant_identity=participant_identity,
+                topic=topic,
             )
             if event is not None:
                 queue.put_nowait(event)
 
+        def on_agent_text_stream(reader, participant_identity: str):
+            asyncio.create_task(
+                _queue_agent_text_stream_event(
+                    reader,
+                    participant_identity=participant_identity,
+                    queue=queue,
+                )
+            )
+
+        room.register_text_stream_handler(AGENT_EVENT_TOPIC, on_agent_text_stream)
         await room.connect(capture_input.livekit_url, capture_input.livekit_token)
         try:
-            await _publish_control_payload(
+            await _wait_for_agent_presence(
                 room,
-                _presence_probe_payload(capture_input),
+                capture_input,
+                queue,
+                timeout_seconds=min(
+                    8.0,
+                    max(0.5, capture_input.timeout_seconds * 0.25),
+                ),
             )
             if capture_input.transcript:
                 transcript_turn_sent = True
@@ -255,7 +276,7 @@ class LiveKitHeadlessVoiceTimingClient:
                     room,
                     _transcript_turn_payload(capture_input),
                 )
-            if capture_input.audio_probe_duration_ms:
+            if capture_input.audio_probe_duration_ms and not capture_input.transcript:
                 audio_probe_published = True
                 await _publish_audio_probe(room, capture_input)
 
@@ -274,9 +295,11 @@ class LiveKitHeadlessVoiceTimingClient:
                 if (
                     capture_input.interrupt_on_first_output
                     and not interrupt_sent
-                    and event.event_type
-                    in {"assistant_audio_chunk_published", "assistant_text_delta"}
+                    and event.event_type == "assistant_audio_chunk_published"
                 ):
+                    if capture_input.audio_probe_duration_ms and not audio_probe_published:
+                        audio_probe_published = True
+                        await _publish_audio_probe(room, capture_input)
                     interrupt_sent = True
                     await _publish_control_payload(
                         room,
@@ -288,6 +311,7 @@ class LiveKitHeadlessVoiceTimingClient:
                 if event.event_type == "gemma_kokoro_voice_turn_cancelled":
                     break
         finally:
+            room.unregister_text_stream_handler(AGENT_EVENT_TOPIC)
             await room.disconnect()
 
         return HeadlessLiveKitCaptureResult(
@@ -338,6 +362,18 @@ def _build_capture_input(
             "voice": request.voice or session.voice or "",
             "proof_capture": "headless_livekit_voice_timing",
         },
+        agent_name=settings.livekit_agent_name,
+        agent_dispatch_metadata={
+            "provider": session.provider,
+            "run_id": str(run_id),
+            "realtime_session_id": str(session.realtime_session_id),
+            "room_name": session.room_name,
+            "participant_identity": session.participant_identity,
+            "agent_identity": session.agent_participant_identity,
+            "agent_participant_identity": session.agent_participant_identity,
+            "voice": request.voice or session.voice or "",
+            "proof_capture": "headless_livekit_voice_timing",
+        },
     )
     control_binding_token = build_livekit_control_binding_token(
         settings.livekit_api_secret,
@@ -356,6 +392,7 @@ def _build_capture_input(
         room_name=session.room_name,
         participant_identity=session.participant_identity,
         agent_identity=session.agent_participant_identity,
+        agent_name=settings.livekit_agent_name,
         voice=request.voice or session.voice,
         transcript=request.transcript,
         timeout_seconds=request.timeout_seconds,
@@ -448,6 +485,44 @@ async def _publish_control_payload(room: object, payload: dict[str, object]) -> 
         reliable=True,
         topic=AGENT_CONTROL_TOPIC,
     )
+
+
+async def _wait_for_agent_presence(
+    room: object,
+    capture_input: HeadlessLiveKitCaptureInput,
+    queue: asyncio.Queue[HeadlessLiveKitAgentEvent],
+    *,
+    timeout_seconds: float,
+    interval_seconds: float = 0.5,
+) -> None:
+    deadline = time.monotonic() + max(0.0, timeout_seconds)
+    while time.monotonic() < deadline:
+        if not queue.empty():
+            return
+        await _publish_control_payload(room, _presence_probe_payload(capture_input))
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        await asyncio.sleep(max(0.01, min(interval_seconds, remaining)))
+    if queue.empty():
+        await _publish_control_payload(room, _presence_probe_payload(capture_input))
+
+
+async def _queue_agent_text_stream_event(
+    reader: object,
+    *,
+    participant_identity: str | None,
+    queue: asyncio.Queue[HeadlessLiveKitAgentEvent],
+) -> None:
+    text = await reader.read_all()
+    info = getattr(reader, "info", None)
+    event = _parse_agent_data_event(
+        text.encode("utf-8"),
+        participant_identity=participant_identity,
+        topic=getattr(info, "topic", None) or AGENT_EVENT_TOPIC,
+    )
+    if event is not None:
+        queue.put_nowait(event)
 
 
 def _presence_probe_payload(capture_input: HeadlessLiveKitCaptureInput) -> dict[str, object]:
@@ -558,7 +633,12 @@ async def _capture_pcm_frame(
 
     samples_per_channel = max(1, int(sample_rate * frame_ms / 1000))
     frame = rtc.AudioFrame.create(sample_rate, 1, samples_per_channel)
-    frame.data[: len(payload)] = payload
+    frame_data = frame.data
+    try:
+        frame_data = frame_data.cast("B")
+    except (AttributeError, TypeError):
+        pass
+    frame_data[: len(payload)] = payload
     await source.capture_frame(frame)
 
 
@@ -592,6 +672,29 @@ def _livekit_data_topic(args: tuple[object, ...]) -> str | None:
         if isinstance(topic, str):
             return topic
     return None
+
+
+def _livekit_data_packet_parts(
+    data_or_packet: object,
+    *,
+    participant: object | None,
+    args: tuple[object, ...],
+) -> tuple[bytes, str | None, str | None]:
+    raw_data = getattr(data_or_packet, "data", data_or_packet)
+    if isinstance(raw_data, bytes):
+        data = raw_data
+    else:
+        data = bytes(raw_data)
+    packet_participant = participant or getattr(data_or_packet, "participant", None)
+    participant_identity = _participant_identity(packet_participant)
+    if participant_identity is None:
+        participant_identity = _optional_str(
+            getattr(data_or_packet, "participant_identity", None)
+        )
+    topic = _optional_str(getattr(data_or_packet, "topic", None))
+    if topic is None:
+        topic = _livekit_data_topic(args)
+    return data, participant_identity, topic
 
 
 def _optional_str(value: object) -> str | None:

@@ -9317,9 +9317,6 @@ def test_realtime_dialogue_ledger_tracks_turns_interruptions_and_followups():
 def test_provider_operations_ledger_summarizes_model_tool_realtime_and_fallbacks():
     store = FakeStore()
 
-    async def override_store():
-        return store
-
     asyncio.run(
         store.record_realtime_session(
             RealtimeSessionRecord(
@@ -9523,14 +9520,19 @@ def test_provider_smoke_blocks_missing_live_config_and_records_local_proof(
     def override_settings():
         return Settings(
             _env_file=None,
+            local_provider_config_file=None,
             hf_token=None,
             hf_token_file=None,
             gemma4_primary_endpoint_url=None,
             gemma4_multimodal_endpoint_url=None,
+            openrouter_api_key=None,
+            openrouter_api_key_file=None,
             openrouter_livekit_url=None,
             gemma4_realtime_livekit_url=None,
             livekit_api_key=None,
+            livekit_api_key_file=None,
             livekit_api_secret=None,
+            livekit_api_secret_file=None,
             tavily_api_key=None,
             tavily_api_key_file=None,
             kokoro_tts_endpoint_url=None,
@@ -9575,8 +9577,8 @@ def test_provider_smoke_blocks_missing_live_config_and_records_local_proof(
         assert streaming_details["kokoro_transport"] == "missing"
         assert streaming_details["kokoro_endpoint_configured"] is False
         assert streaming_details["kokoro_local_package_available"] is False
-        assert streaming_details["gemma_streaming_enabled"] is True
-        assert streaming_details["hf_token_configured"] is False
+        assert streaming_details["reasoning_streaming_enabled"] is True
+        assert streaming_details["openrouter_api_key_configured"] is False
         assert steps["selected-web-search-smoke"]["status"] == "blocked"
         assert "TAVILY_API_KEY" in " ".join(
             steps["selected-web-search-smoke"]["blockers"]
@@ -9617,13 +9619,19 @@ def test_provider_smoke_routes_missing_config_to_inference_specialist_once(
     def override_settings():
         return Settings(
             _env_file=None,
+            local_provider_config_file=None,
             hf_token=secret_value,
             hf_token_file=hf_secret_file,
             gemma4_primary_endpoint_url=None,
             gemma4_multimodal_endpoint_url=None,
+            openrouter_api_key=None,
+            openrouter_api_key_file=None,
+            openrouter_livekit_url=None,
             gemma4_realtime_livekit_url=None,
             livekit_api_key=None,
+            livekit_api_key_file=None,
             livekit_api_secret=None,
+            livekit_api_secret_file=None,
             tavily_api_key=None,
             tavily_api_key_file=tavily_secret_file,
             kokoro_tts_endpoint_url=None,
@@ -9901,7 +9909,7 @@ def test_provider_smoke_followup_replay_converges_after_artifact_write_failure(
         app.dependency_overrides.clear()
 
 
-def test_provider_smoke_voice_streaming_requires_multimodal_endpoint_not_primary(
+def test_provider_smoke_voice_streaming_uses_openrouter_without_gemma_audio_endpoint(
     monkeypatch,
 ):
     store = FakeStore()
@@ -9917,12 +9925,15 @@ def test_provider_smoke_voice_streaming_requires_multimodal_endpoint_not_primary
     def override_settings():
         return Settings(
             _env_file=None,
-            hf_token="secret-hf-token",
+            local_provider_config_file=None,
+            hf_token=None,
             hf_token_file=None,
             gemma4_primary_endpoint_url="https://hf.test/gemma-primary",
             gemma4_multimodal_endpoint_url=None,
+            openrouter_api_key="secret-openrouter-key",
+            openrouter_livekit_url="ws://127.0.0.1:7880",
             kokoro_tts_endpoint_url="https://hf.test/kokoro",
-            realtime_default_provider="gemma4_realtime",
+            realtime_default_provider="openrouter_livekit",
         )
 
     app.dependency_overrides[get_store] = override_store
@@ -9938,7 +9949,7 @@ def test_provider_smoke_voice_streaming_requires_multimodal_endpoint_not_primary
                 "include_web_search": False,
                 "include_reranker": False,
                 "include_imagegen_boundary": False,
-                "realtime_provider": "gemma4_realtime",
+                "realtime_provider": "openrouter_livekit",
             },
         )
 
@@ -9946,28 +9957,21 @@ def test_provider_smoke_voice_streaming_requires_multimodal_endpoint_not_primary
         payload = response.json()
         steps = {step["step_id"]: step for step in payload["steps"]}
         streaming_step = steps["gemma-kokoro-voice-streaming-smoke"]
-        assert streaming_step["status"] == "blocked"
+        assert streaming_step["status"] == "not_run"
         streaming_blockers = " ".join(streaming_step["blockers"])
-        assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" in streaming_blockers
-        assert "GEMMA4_PRIMARY_ENDPOINT_URL" in streaming_blockers
+        assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" not in streaming_blockers
+        assert "GEMMA4_PRIMARY_ENDPOINT_URL" not in streaming_blockers
         assert "HF_TOKEN" not in streaming_blockers
         assert "KOKORO_TTS_ENDPOINT_URL or the local Kokoro package" not in (
             streaming_blockers
         )
-        assert streaming_step["details"]["hf_token_configured"] is True
-        assert streaming_step["details"]["gemma_primary_endpoint_configured"] is True
-        assert streaming_step["details"]["gemma_audio_endpoint_configured"] is False
-        assert (
-            streaming_step["details"]["gemma_primary_endpoint_usable_for_audio"]
-            is False
-        )
-        assert streaming_step["details"]["kokoro_endpoint_configured"] is True
-        assert "secret-hf-token" not in str(payload)
+        assert streaming_step["smoke_proof_status"] == "ready_not_executed"
+        assert "secret-openrouter-key" not in str(payload)
     finally:
         app.dependency_overrides.clear()
 
 
-def test_provider_smoke_voice_streaming_blocks_malformed_multimodal_endpoint(
+def test_provider_smoke_voice_streaming_ignores_malformed_gemma_endpoint_for_openrouter(
     monkeypatch,
 ):
     store = FakeStore()
@@ -9983,11 +9987,14 @@ def test_provider_smoke_voice_streaming_blocks_malformed_multimodal_endpoint(
     def override_settings():
         return Settings(
             _env_file=None,
-            hf_token="secret-hf-token",
+            local_provider_config_file=None,
+            hf_token=None,
             hf_token_file=None,
             gemma4_multimodal_endpoint_url="not-a-url",
+            openrouter_api_key="secret-openrouter-key",
+            openrouter_livekit_url="ws://127.0.0.1:7880",
             kokoro_tts_endpoint_url="https://hf.test/kokoro",
-            realtime_default_provider="gemma4_realtime",
+            realtime_default_provider="openrouter_livekit",
         )
 
     app.dependency_overrides[get_store] = override_store
@@ -10003,7 +10010,7 @@ def test_provider_smoke_voice_streaming_blocks_malformed_multimodal_endpoint(
                 "include_web_search": False,
                 "include_reranker": False,
                 "include_imagegen_boundary": False,
-                "realtime_provider": "gemma4_realtime",
+                "realtime_provider": "openrouter_livekit",
             },
         )
 
@@ -10011,19 +10018,16 @@ def test_provider_smoke_voice_streaming_blocks_malformed_multimodal_endpoint(
         payload = response.json()
         steps = {step["step_id"]: step for step in payload["steps"]}
         streaming_step = steps["gemma-kokoro-voice-streaming-smoke"]
-        assert streaming_step["status"] == "blocked"
+        assert streaming_step["status"] == "not_run"
         streaming_blockers = " ".join(streaming_step["blockers"])
-        assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" in streaming_blockers
-        assert "valid HTTP(S)" in streaming_blockers
+        assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" not in streaming_blockers
+        assert "valid HTTP(S)" not in streaming_blockers
         assert "HF_TOKEN" not in streaming_blockers
         assert "KOKORO_TTS_ENDPOINT_URL or the local Kokoro package" not in (
             streaming_blockers
         )
-        assert streaming_step["details"]["gemma_multimodal_endpoint_configured"] is True
-        assert streaming_step["details"]["gemma_audio_endpoint_configured"] is False
-        assert streaming_step["details"]["gemma_audio_endpoint_error"] == "invalid_url"
-        assert streaming_step["details"]["kokoro_endpoint_configured"] is True
-        assert "secret-hf-token" not in str(payload)
+        assert streaming_step["smoke_proof_status"] == "ready_not_executed"
+        assert "secret-openrouter-key" not in str(payload)
     finally:
         app.dependency_overrides.clear()
 
@@ -14287,7 +14291,15 @@ def test_autonomous_pass_continues_pending_multimodal_followups(tmp_path):
         return store
 
     async def override_settings():
-        return Settings(artifacts_root=tmp_path)
+        return Settings(
+            artifacts_root=tmp_path,
+            local_provider_config_file=None,
+            hf_token_file=None,
+            openrouter_api_key_file=None,
+            livekit_api_key_file=None,
+            livekit_api_secret_file=None,
+            tavily_api_key_file=None,
+        )
 
     app.dependency_overrides[get_store] = override_store
     app.dependency_overrides[get_settings] = override_settings
@@ -17001,7 +17013,14 @@ def test_interactive_note_endpoint_generates_html_artifact(tmp_path):
         return store
 
     async def override_settings():
-        return Settings(artifacts_root=tmp_path)
+        return Settings(
+            artifacts_root=tmp_path,
+            hf_token_file=None,
+            openrouter_api_key_file=None,
+            livekit_api_key_file=None,
+            livekit_api_secret_file=None,
+            tavily_api_key_file=None,
+        )
 
     app.dependency_overrides[get_store] = override_store
     app.dependency_overrides[get_settings] = override_settings
@@ -17124,7 +17143,15 @@ def test_interactive_note_redacts_sensitive_embedded_state(tmp_path):
         return store
 
     async def override_settings():
-        return Settings(artifacts_root=tmp_path)
+        return Settings(
+            artifacts_root=tmp_path,
+            local_provider_config_file=None,
+            hf_token_file=None,
+            openrouter_api_key_file=None,
+            livekit_api_key_file=None,
+            livekit_api_secret_file=None,
+            tavily_api_key_file=None,
+        )
 
     app.dependency_overrides[get_store] = override_store
     app.dependency_overrides[get_settings] = override_settings
@@ -17658,7 +17685,23 @@ def test_growth_package_does_not_reuse_stale_same_source_package(tmp_path):
         return store
 
     async def override_settings():
-        return Settings(artifacts_root=tmp_path)
+        return Settings(
+            _env_file=None,
+            artifacts_root=tmp_path,
+            local_provider_config_file=None,
+            hf_token=None,
+            hf_token_file=None,
+            openrouter_api_key=None,
+            openrouter_api_key_file=None,
+            openrouter_livekit_url=None,
+            livekit_api_key=None,
+            livekit_api_key_file=None,
+            livekit_api_secret=None,
+            livekit_api_secret_file=None,
+            tavily_api_key=None,
+            tavily_api_key_file=None,
+            kokoro_tts_endpoint_url=None,
+        )
 
     app.dependency_overrides[get_store] = override_store
     app.dependency_overrides[get_settings] = override_settings
@@ -17836,7 +17879,23 @@ def test_autonomous_studio_pass_runs_bounded_multi_agent_review_loop(tmp_path):
         return store
 
     async def override_settings():
-        return Settings(artifacts_root=tmp_path)
+        return Settings(
+            _env_file=None,
+            artifacts_root=tmp_path,
+            local_provider_config_file=None,
+            hf_token=None,
+            hf_token_file=None,
+            openrouter_api_key=None,
+            openrouter_api_key_file=None,
+            openrouter_livekit_url=None,
+            livekit_api_key=None,
+            livekit_api_key_file=None,
+            livekit_api_secret=None,
+            livekit_api_secret_file=None,
+            tavily_api_key=None,
+            tavily_api_key_file=None,
+            kokoro_tts_endpoint_url=None,
+        )
 
     app.dependency_overrides[get_store] = override_store
     app.dependency_overrides[get_settings] = override_settings

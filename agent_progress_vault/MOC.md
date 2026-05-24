@@ -2,7 +2,7 @@
 type: moc
 project: agent-progress
 status: active
-updated: 2026-05-23
+updated: 2026-05-24
 boundary: agent-owned-progress-tracking
 ---
 
@@ -35,13 +35,14 @@ Current live voice default: OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + 
 | [[06-live-voice/unblock-guide-gemma4-e4b]] | Superseded Gemma 4 E4B unblock notes, not the current default |
 | [[06-live-voice/operator-inputs-checklist]] | Historical credential checklist; current OpenRouter/LiveKit live-voice inputs are configured |
 
-## Current gate (2026-05-23)
+## Current gate (2026-05-24)
 
 Objective **not complete**. Proof run UUID: `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`.
 
 - Platform ~75–90% implemented locally by area
-- **0% accepted** on the two completion proofs (live voice, external publication)
-- Production verdict: **NO-GO** (4/10); local demo: **CONDITIONAL GO** (7/10)
+- Provider-backed live voice proof is **accepted** on the current OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro path
+- External publication proof remains blocked on LinkedIn token file, policy acknowledgement artifact, durable destination URL/platform id, and rollback/postcondition evidence
+- Production verdict: **NO-GO** until external publication proof and closure review pass; local demo: **CONDITIONAL GO** (7/10)
 
 See [[../social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit]] and [[01-implementation-matrix/feature-implementation-status]].
 

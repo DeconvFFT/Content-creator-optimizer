@@ -1,6 +1,6 @@
 ---
 type: status-snapshot
-updated: 2026-05-23
+updated: 2026-05-24
 ---
 
 # Status Snapshot — Local Voice Stack
@@ -48,7 +48,7 @@ The earlier Cursor setup failure was `WritableIterable is closed` in a subagent 
 
 Codex verified Docker LiveKit/Postgres and FastAPI health without disturbing Cursor processes, then started the app-supervised OpenRouter/Kokoro voice-agent process (`pid=29685`) through the backend supervisor. `runtime-health-ledger.json` is now `ready` with 10/10 checks ready, and the refreshed `provider-smoke-ledger.live-openrouter.json` passes with ledger artifact `94857bb9-c5eb-4174-8bc5-6687bd8befbe`, selected realtime session `ebd43531-86e3-4af1-ade0-15ac8d7184bf`, OpenRouter first text delta `1111.171 ms`, Kokoro first audio chunk `4946.351 ms`, and first-audio latency `6057.54 ms`.
 
-This does not close the proof gate. `realtime-voice-timing-ledger.json` remains `needs_more_evidence`, but it now measures 4/8 stages: `livekit_session_ready`, `gemma_response_start`, `first_text_delta`, and `first_audio_out`. The missing product-owned evidence is now audio-track bridge, speech start, end-of-turn/agent-turn correlation, and barge-in stop. Publication remains blocked on LinkedIn credential/destination proof.
+Superseded on 2026-05-24: this was the intermediate state before the accepted live-voice capture below. Publication remains blocked on LinkedIn credential/destination proof.
 
 ## Proof workspace refresh (verified 2026-05-23 17:06 CDT)
 
@@ -56,14 +56,35 @@ This does not close the proof gate. `realtime-voice-timing-ledger.json` remains 
 |----------|--------|------|
 | `voice-runtime-readiness.preflight.json` | ready | OpenRouter live dialogue, LiveKit, Kokoro, Rust edge, and participant construction are ready |
 | `provider-backed-live-voice-proof.preflight-validation.json` | valid | OpenRouter DeepSeek live dialogue, LiveKit, Kokoro, Rust edge, and participant checks validate for the current path |
-| `current-blocker-matrix.json` | blocked by failed proof records | Live voice has no remaining operator-input blocker; accepted proof-record capture is still needed |
+| `current-blocker-matrix.json` | live voice accepted; publication still blocked | Live voice has no remaining operator-input blocker; external publication is still blocked by LinkedIn credential/evidence |
 | `external-publication-proof.preflight-validation.json` | invalid | LinkedIn credential and policy/destination/rollback evidence remain missing |
 
-Accepted product proof still requires same-run OpenRouter DeepSeek dialogue evidence, LiveKit/session evidence, provider-smoke and timing ledgers, zero failed post-capture validation checks, and passed secret-redaction checks.
+Superseded on 2026-05-24: the live-voice accepted record now carries same-run OpenRouter DeepSeek dialogue evidence, LiveKit/session evidence, provider-smoke and timing ledgers, zero failed post-capture validation checks, and passed secret-redaction checks.
 
-## Proof record refresh (verified 2026-05-23 CDT / 2026-05-24 UTC)
+## Proof record refresh (verified 2026-05-23 CDT / superseded 2026-05-24 UTC)
 
-The current `provider-backed-live-voice-proof.failed-record.json` now references the refreshed OpenRouter smoke ledger `94857bb9-c5eb-4174-8bc5-6687bd8befbe`, timing ledger `3244077a-e689-4d26-9a9e-ff8c1ddb74df`, and realtime session `ebd43531-86e3-4af1-ade0-15ac8d7184bf`. Validation reports `valid_failed_record`, with 6/7 post-capture checks passed and only the first-text/audio-plus-interruption check failed because barge-in/cancellation proof is still absent.
+The older `provider-backed-live-voice-proof.failed-record.json` referenced OpenRouter smoke ledger `94857bb9-c5eb-4174-8bc5-6687bd8befbe`, timing ledger `3244077a-e689-4d26-9a9e-ff8c1ddb74df`, and realtime session `ebd43531-86e3-4af1-ade0-15ac8d7184bf`. This failed-record state is superseded by the accepted live-voice proof below.
+
+## Accepted live-voice proof (verified 2026-05-24 UTC)
+
+Codex captured and recorded the accepted provider-backed live-voice proof for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`.
+
+| Evidence | Current value |
+|----------|---------------|
+| Accepted proof | `provider-backed-live-voice-proof.accepted-record.json` |
+| Realtime provider | `openrouter_livekit` |
+| Provider smoke ledger | `94857bb9-c5eb-4174-8bc5-6687bd8befbe` |
+| Timing ledger | `7e932381-4bf4-4206-a490-58d6a4ca7880` |
+| Realtime session | `ebd43531-86e3-4af1-ade0-15ac8d7184bf` |
+| LiveKit timing capture | `livekit-voice-timing-capture.json` |
+| Post-capture validation | 7/7 checks passed, including first text/audio plus interruption evidence |
+| Secret redaction | passed |
+
+`completion-status.json` now lists `provider-backed-live-voice-proof` in `accepted_proofs`. The overall objective is not complete because `external-publication-proof` remains the latest failed proof.
+
+## Remaining objective blocker (verified 2026-05-24 UTC)
+
+External publication remains blocked by operator inputs and must not be faked or performed without action-time approval. Required inputs are a readable local LinkedIn token file path, a durable policy acknowledgement artifact id, a durable LinkedIn destination URL or platform id, and a durable rollback/postcondition artifact id. `publish-readiness.preflight.json` is still `blocked` with `missing_publish_channel_credentials`.
 
 ## Backend runtime caveat (verified 2026-05-23 CDT / 2026-05-24 UTC)
 

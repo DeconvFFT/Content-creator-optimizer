@@ -68,6 +68,32 @@ const LOCAL_LIVEKIT_DEV_ENV_NAMES = [
   "LIVEKIT_API_SECRET"
 ];
 
+function isOpenRouterProvider(provider: string) {
+  return provider === "openrouter_livekit" || provider === "openrouter-livekit";
+}
+
+function voiceAgentLabel(provider: string) {
+  return isOpenRouterProvider(provider) ? "OpenRouter/Kokoro agent" : "Gemma/Kokoro agent";
+}
+
+function localVoiceAgentLabel(provider: string) {
+  return isOpenRouterProvider(provider)
+    ? "Local OpenRouter/Kokoro agent"
+    : "Local Gemma/Kokoro agent";
+}
+
+function startVoiceAgentAction(provider: string) {
+  return isOpenRouterProvider(provider)
+    ? "Start OpenRouter/Kokoro agent"
+    : "Start Gemma/Kokoro agent";
+}
+
+function missingParticipantSummary(provider: string) {
+  return isOpenRouterProvider(provider)
+    ? "OpenRouter/Kokoro participant has not been observed."
+    : "Gemma/Kokoro participant has not been observed.";
+}
+
 function pending(label: string, detail: string, nextAction?: string): VoiceSetupStep {
   return { id: label, label, status: "pending", detail, nextAction, required: true };
 }
@@ -89,10 +115,11 @@ function processStep(
   process: VoiceAgentProcessStatusResult | LocalLiveKitProcessStatusResult | null,
   fallback: string,
   blocker: (process: never) => string | null,
-  startAction: string
+  startAction: string,
+  uncheckedAction = "Check setup"
 ): VoiceSetupStep {
   if (!process) {
-    return pending(label, `${fallback} status has not been checked.`, "Check setup");
+    return pending(label, `${fallback} status has not been checked.`, uncheckedAction);
   }
   if (!process.enabled) {
     return ready(label, `${fallback} is externally managed.`);
@@ -171,9 +198,16 @@ function requiredRuntimeBlocker(readiness: VoiceRuntimeReadinessResult) {
   );
 }
 
-function runtimeReadinessDetail(readiness: VoiceRuntimeReadinessResult | null) {
+function runtimeReadinessMissingDetail(provider: string) {
+  if (isOpenRouterProvider(provider)) {
+    return "Runtime readiness has not been checked with LiveKit, Rust edge, OpenRouter, and Kokoro.";
+  }
+  return "Runtime readiness has not been checked with LiveKit, Rust edge, Gemma/HF, and Kokoro.";
+}
+
+function runtimeReadinessDetail(readiness: VoiceRuntimeReadinessResult | null, provider: string) {
   if (!readiness) {
-    return "Runtime readiness has not been checked with LiveKit, Rust edge, Gemma/HF, and Kokoro.";
+    return runtimeReadinessMissingDetail(provider);
   }
   const providerPreflightBlocker = runtimeProviderPreflightBlocker(readiness);
   if (providerPreflightBlocker) {
@@ -247,7 +281,7 @@ export function buildVoiceSetupChecklist(input: VoiceSetupChecklistInput): Voice
   }
 
   const readiness = input.readiness;
-  const readinessDetail = runtimeReadinessDetail(readiness);
+  const readinessDetail = runtimeReadinessDetail(readiness, input.provider);
   const providerPreflightBlocker = runtimeProviderPreflightBlocker(readiness);
   let readinessStep: VoiceSetupStep;
   if (providerPreflightBlocker) {
@@ -280,7 +314,7 @@ export function buildVoiceSetupChecklist(input: VoiceSetupChecklistInput): Voice
         ? ready("Agent presence", input.voicePresence.summary)
         : blocked(
             "Agent presence",
-            input.voicePresence?.summary ?? "Gemma/Kokoro participant has not been observed.",
+            input.voicePresence?.summary ?? missingParticipantSummary(input.provider),
             input.voicePresence?.next_actions[0] ?? "Probe agent presence"
           );
 
@@ -297,11 +331,12 @@ export function buildVoiceSetupChecklist(input: VoiceSetupChecklistInput): Voice
     ),
     readinessStep,
     processStep(
-      "Gemma/Kokoro agent",
+      voiceAgentLabel(input.provider),
       input.voiceProcess,
-      "Local Gemma/Kokoro agent",
+      localVoiceAgentLabel(input.provider),
       voiceAgentProcessStartBlocker as (process: never) => string | null,
-      "Start Gemma/Kokoro agent"
+      startVoiceAgentAction(input.provider),
+      startVoiceAgentAction(input.provider)
     ),
     roomStep,
     presenceStep,
@@ -339,7 +374,7 @@ export function voiceSetupActionForStep(step: VoiceSetupStep | null): VoiceSetup
     }
     return "run_preflight";
   }
-  if (step.label === "Gemma/Kokoro agent") {
+  if (step.label === "Gemma/Kokoro agent" || step.label === "OpenRouter/Kokoro agent") {
     return "start_agent";
   }
   if (step.label === "LiveKit room") {

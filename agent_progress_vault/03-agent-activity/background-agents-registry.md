@@ -22,7 +22,7 @@ Transcript root:
 | `74997cfb` | `...ef41cd56f778` | generalPurpose | Synthesis v1 | **Stalled** | 2 | Reading agent transcripts | — |
 | `59e319d8` | `...12eb65c86c4c` | generalPurpose | Final synthesis | **Completed** | 10 | Writing ship-readiness report | Full report: pytest 766/808, security grep, TestClient smoke, GO/NO-GO |
 | `5cfe3007` | `...bca690db34f6` | generalPurpose | Status board | **Completed** | — | Delivering monitoring artifacts | See monitoring deliverables below |
-| `c75e2d04` | `...edf7b97e61cf` | generalPurpose | Ship-readiness execution | **Stalled** | 2 | Running tests and verification | **None on disk** — CI/skills/ruff not created |
+| `c75e2d04` | `...edf7b97e61cf` | generalPurpose | Ship-readiness execution | **Stalled / superseded** | 2 | Running tests and verification | Historical stall; current repo now has CI scaffold, ship skills, ruff baseline, `uv.lock` tracked, and local command logs ignored. Remaining follow-up is remote CI/branch-protection and Playwright install proof. |
 | `c74873d8` | `...a8196708456f` | explore | Vault audit | **Completed** | 10 | Compiling audit deliverable | Cross-vault audit report (read-only; vault write deferred) |
 | `66c8abf4` | (parent subagent) | — | Write agent progress vault | **Active/this task** | — | Creating vault files | `agent_progress_vault/` |
 
@@ -61,17 +61,17 @@ cd "/Users/saumyamehta/Gen AI/all-about-llms"
 | Leibniz reviewer | On material code slices | No Critical/Important on latest A2A redaction | Review packets in feedback-loop map |
 | Nightly ingestion | Cron / orchestrator | Clear — [[../system_design_vault/05-ingestion-runs/urgent-blockers.json]] | CS336/book cross-checks, status-summary |
 
-## c75e2d04 pending deliverables (for re-run)
+## c75e2d04 follow-up status
 
-When re-launching ship-readiness execution:
+The original Cursor execution stalled before writing artifacts, but later Codex work superseded most of the missing-file list:
 
-1. `.github/workflows/ci.yml`
-2. `skills/agent-studio-local-bootstrap/SKILL.md`
-3. `skills/agent-studio-ship-gate/SKILL.md`
-4. `skills/agent-studio-provider-proof-capture/SKILL.md`
-5. `skills/agent-studio-ci-scaffold/SKILL.md`
-6. Ruff in `pyproject.toml`
-7. Post-`playwright install` pytest report
+1. Done locally: `.github/workflows/ci.yml`
+2. Done locally: `skills/agent-studio-local-bootstrap/SKILL.md`
+3. Done locally: `skills/agent-studio-ship-gate/SKILL.md`
+4. Done locally: `skills/agent-studio-provider-proof-capture/SKILL.md`
+5. Done locally: `skills/agent-studio-ci-scaffold/SKILL.md`
+6. Done locally: Ruff baseline in `pyproject.toml`
+7. Still pending: remote CI/branch-protection proof and post-`playwright install` report
 
 ## Limitations
 

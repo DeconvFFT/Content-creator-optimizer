@@ -370,8 +370,10 @@ def _model_routing_check() -> FoundationAuditCheck:
     if live_route and "Gemma" in live_route.primary_model:
         missing.append("Live conversation must not route through Gemma 4 directly.")
     deep_route = routes.get("deep_reasoning_and_planning")
-    if deep_route and "gemma-4" not in deep_route.primary_model:
-        missing.append("Deep reasoning route must use a Gemma 4 expert endpoint.")
+    if deep_route and "deepseek/deepseek-v4-flash" not in deep_route.primary_model:
+        missing.append(
+            "Deep reasoning route must use OpenRouter deepseek/deepseek-v4-flash."
+        )
     image_route = routes.get("raster_visual_generation")
     if image_route and "imagegen" not in image_route.primary_model:
         missing.append("Raster visual generation must stay on the imagegen boundary.")
@@ -381,8 +383,9 @@ def _model_routing_check() -> FoundationAuditCheck:
         status=_status(missing, hard_fail=True),
         owner_agent_id="principal-software-engineer",
         requirement=(
-            "Realtime voice providers handle dialogue transport, Gemma 4 handles "
-            "expert reasoning, and imagegen is used only for raster visuals."
+            "LiveKit handles realtime dialogue transport, OpenRouter DeepSeek "
+            "V4 Flash handles approved reasoning, and imagegen is used only "
+            "for raster visuals."
         ),
         evidence=[f"{len(routes)} model route contracts registered."],
         missing=missing,
@@ -394,10 +397,10 @@ def _provider_contract_check(settings: Settings) -> FoundationAuditCheck:
     provider_types = {provider.provider_type for provider in readiness.providers}
     provider_ids = {provider.provider_id for provider in readiness.providers}
     missing = []
-    if "gemma4_hf_endpoint" not in provider_types:
-        missing.append("Gemma 4 Hugging Face endpoint readiness is not represented.")
-    if "gemma4-realtime" not in provider_ids:
-        missing.append("Gemma/Kokoro realtime provider missing from readiness.")
+    if "openrouter-livekit" not in provider_ids:
+        missing.append("OpenRouter/LiveKit realtime provider missing from readiness.")
+    if "realtime_audio" not in provider_types:
+        missing.append("Realtime audio readiness providers are not represented.")
     if "open-source-realtime" not in provider_ids:
         missing.append("Open-source realtime fallback provider missing from readiness.")
     if not {"tavily-search", "serpapi-search"} & provider_ids:
@@ -410,8 +413,9 @@ def _provider_contract_check(settings: Settings) -> FoundationAuditCheck:
         status=_status(missing, hard_fail=True),
         owner_agent_id="observability-agent",
         requirement=(
-            "Gemma 4 HF endpoints, Gemma/Kokoro realtime audio, web search, and "
-            "imagegen boundaries are visible through non-secret readiness metadata."
+            "OpenRouter/LiveKit realtime audio, web search, reranking, legacy "
+            "non-default model lanes, and imagegen boundaries are visible through "
+            "non-secret readiness metadata."
         ),
         evidence=[
             readiness.summary,

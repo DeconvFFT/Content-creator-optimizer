@@ -54,7 +54,7 @@ def test_live_voice_acceptance_gate_is_preserved_across_blocker_exports():
                 page,
                 "social_media_optimiser/02-research/gemma-voice-boundary-map.html",
             )
-            page.get_by_role("button", name="Audio proof").click()
+            page.get_by_role("button", name="Proof gate").click()
             expect(page.locator("#route-detail")).to_contain_text("Acceptance gate")
             boundary_gate = _json(page, "#boundary-export")["routes"][0][
                 "proof_acceptance_gate"

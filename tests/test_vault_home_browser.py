@@ -46,8 +46,12 @@ def test_vault_home_links_to_generated_knowledge_viewers():
             )
 
             page.goto(home_path.as_uri())
-            page.get_by_role("link", name="Open Gemma Voice Boundary Map").click()
-            expect(page.locator("h1")).to_have_text("Gemma Voice Boundary Map")
+            page.get_by_role(
+                "link", name="Open OpenRouter LiveKit Voice Boundary Map"
+            ).click()
+            expect(page.locator("h1")).to_have_text(
+                "OpenRouter LiveKit Voice Boundary Map"
+            )
             expect(page.locator("body")).to_contain_text(
                 "provider-backed-live-voice-proof"
             )

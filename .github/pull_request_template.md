@@ -11,7 +11,8 @@
 ## Verification
 
 - [ ] `uv run ruff check src/ tests/`
-- [ ] `uv run pytest -q`
+- [ ] `bash scripts/ci-python-stable-tests.sh`
+- [ ] `uv run pytest -q` run locally for broader migration coverage when feasible
 - [ ] `cd frontend/next-app && npm run build`
 - [ ] `cd frontend/next-app && npm run lint`
 - [ ] `cd frontend/next-app && npm run typecheck`
@@ -23,6 +24,7 @@
 - [ ] No `.env`, `.secrets/`, tokens, credentials, local databases, or private key files
 - [ ] No generated screenshots, image artifacts, PDFs, media files, or bulky local outputs
 - [ ] No local worktree, cache, virtualenv, browser trace, or provider proof output directories
+- [ ] Dependency changes include `uv.lock`; local command logs stay untracked
 - [ ] Any required operator secrets are documented as env names only, never values
 
 ## Merge Readiness

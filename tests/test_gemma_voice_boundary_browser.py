@@ -113,6 +113,13 @@ def test_openrouter_voice_boundary_filters_proof_gate_and_exports_current_eviden
                 "voice_agent_process_start_artifact_id"
                 in voice_packet["proof_record_required_fields"]
             )
+            assert voice_packet["current_gate"]["completion_next_action_commands"][
+                -1
+            ] == (
+                "uv run all-about-llms-admin provider-proof-completion-status "
+                f"--run-id {run_id} --output-dir "
+                f"social_media_optimiser/output/provider-proof/{run_id}"
+            )
             assert export_payload["routes"][0]["proof_plan"][
                 "blocking_reasons"
             ] == []

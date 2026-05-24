@@ -274,9 +274,32 @@ Operational hardening from the latest official/open cross-check:
 - Off-policy ratios only mean what they claim if `old_log_probs` and `response_mask` came from the same rollout boundary. A stale old-logprob tensor or a mask that leaks prompt/padding tokens can change apparent clipping or loss behavior without any real policy improvement.
 - Microbatch accumulation is part of the RL contract, not just memory plumbing. The public Assignment 5 train-step surface makes it explicit that a large rollout batch may need to be split across learner microbatches, but the accumulated gradient still has to preserve the full-batch objective under the chosen sequence-versus-constant normalization policy.
 
-Use `[[../../01-sources/official-open/cs336-assignment5-learner-generator-weight-sync-cross-check]]` as the supporting companion note for learner/generator boundaries, rollout-sync epochs, cache-reset obligations, stale-rollout handling, and microbatch-equivalence governance.
+### 12. The live Assignment 5 repo proves a concrete vLLM weight-sync topology
+The public `assignment5-alignment` repo (confirmed live 2026-05-24 during the course site migration to `cs336.stanford.edu`) exposes a complete online-RL weight-sync topology through `vllm_utils.py`. This is not generic speculation — it is the actual implementation Stanford students build against:
 
-![[assets/cs336-assignment5-learner-generator-weight-sync.svg]]
+```mermaid
+flowchart LR
+    subgraph Learner
+        L[PyTorch policy]
+    end
+    subgraph Generator
+        V[vLLM server]
+    end
+    L -- "pause / update_weights / NCCL send / reset_prefix_cache / resume" --> V
+    V -- "generate_completions()" --> R[Rollout batch]
+```
+
+The `VLLMServer` dataclass manages the full lifecycle:
+- `start()`: launches vLLM with `--enable-prefix-caching`, `--weight-transfer-config '{"backend": "nccl"}'`, `--tensor-parallel-size 1`, `bfloat16`; waits for `/health` endpoint up to 600s
+- `init_weight_sync(policy_device)`: creates an `NCCLWeightTransferEngine` via vLLM's distributed module, negotiating `master_address`, `master_port`, `rank_offset=1`, `world_size=(inference_world_size + 1)`. The trainer side calls `trainer_init()`, the generator side initializes via `POST /init_weight_transfer_engine`
+- `generate_completions()`: batched `POST /v1/completions` with `temperature`, `max_tokens`, `n`, `seed`, `return_token_ids`, and optional `stop` + `include_stop_str_in_output`
+- `sync_policy_weights()`: `POST /pause` → `POST /update_weights` with NCCL `trainer_send_weights` (packed mode) → `POST /reset_prefix_cache` → `POST /resume`
+
+**Implementation meaning:** the weight-sync topology is a provenance field. Every rollout epoch is bounded by a pause-sync-resume sequence. Runs that batch multiple learner steps per sync must preserve `old_logprob_source` and `sync_epoch`.
+
+See the live-repo companion note `[[../../01-sources/official-open/cs336-alignment-rl-systems-runtime-cross-check]]` for the full 4-variant test matrix, grader provenance (sail-sg/understand-r1-zero), and the confirmed `question_only.prompt` template.
+
+![[assets/cs336-assignment5-weight-sync-topology.svg]]
 
 Agent Studio implications:
 
@@ -315,6 +338,9 @@ High-value operational details from the public artifact:
 - Train-step equivalence across microbatches matters too. The public Assignment 5 train-step surface makes a large-batch / small-memory trade explicit: split the learner step across microbatches, but preserve the same effective objective by weighting losses correctly under the chosen normalization mode before one accumulated optimizer step.
 - Rollout termination is part of the optimization contract. Stop strings, stop-text retention, max-token ceilings, finish reasons, and response masks define which tokens count as the response before sequence-level clipping or loss normalization is even applied.
 - Verifier provenance belongs in the same contract. The public grader extracts a final answer, normalizes it with Minerva-lineage rules, and then runs semantic or symbolic equivalence checks, so `answer_reward` is truth-after-parser-plus-normalizer-plus-verifier rather than raw exact-match over model text.
+- The public grader exposes a multi-stage grading cascade with escalating leniency: `grade_answer_mathd()` (strict Dan Hendrycks-style string match) → `grade_answer_sympy()` (sympy structural equivalence with 1s timeout and repetition filter) → `is_latex_equal()` (math_verify library, slow path only). During training only the first two stages are active, so two runs using different normalization rule sets (395+ unit texts vs 22-unit regex, fraction fixing vs LaTeX→text fallback) can see different reward rates for identical model outputs.
+- Answer extraction is prompt-family-dependent. `r1_zero_reward_fn` parses `<answer>` tags and extracts boxed answers from within; `question_only_reward_fn` searches for `\boxed{}` directly. A prompt-family swap that changes the extraction method is therefore a reward-surface change even when the optimizer and grading backend stay fixed.
+- Edge-case handling is part of the reward contract. The grader has explicit policies for repeated/template output detection (suffix-array >20% repetition), sympy timeout guards (signal.SIGALRM at 1s), tuple/interval answer splitting, integer strictness (no sympy simplification when GT is int), and multiple ground-truth support (logical OR across list elements). Each is a fine-grained knob that can silently reshape the reward surface.
 - The optional DPO/safety supplement is adjacent to, but distinct from, the core verifier-backed reasoning-RL lane.
 
 Agent Studio implications:
@@ -365,6 +391,8 @@ Use `[[../../01-sources/official-open/cs336-assignment5-reasoning-rl-variants-cr
 ![[assets/cs336-assignment5-microbatch-equivalence-contract.svg]]
 
 ![[assets/cs336-assignment5-prompt-parser-stop-bundle.svg]]
+
+![[assets/cs336-assignment5-grading-cascade-contract.svg]]
 
 ## 2026 Alignment Availability Check - 2026-05-20
 
@@ -417,6 +445,58 @@ The gate rejects promotion unless the release record binds:
 - held-out evals for grounding, citation validity, source diversity, safety, tool correctness, style drift, latency, cost, and hard failure slices;
 - decontamination/overlap checks across training, eval, retrieval, prompt, and feedback data;
 - route-change record with baseline, candidate, rejected lighter interventions, capacity estimate, serving impact, fallback, rollback, incident feedback path, and human approval.
+
+## Lecture 17 — Policy Gradient Mechanics (2025 Archive)
+
+This section synthesizes the concrete RL algorithm mechanics from the 2025 CS336 Lecture 17 (Percy Liang), whose `lecture_17.py` is publicly available in the official spring2025 archive. These are the per-tensor update semantics that the Assignment 5 contract layers reference but do not implement.
+
+### RL from the policy's viewpoint
+
+| Concept | Lecture 17 formulation | Implementation meaning |
+|---|---|---|
+| **State** | prompt + generated response so far | `s = concat(prompt_tokens, response_tokens[:t])` |
+| **Action** | next token | `a = response_tokens[t]` |
+| **Reward** | outcome reward, verifiable, deterministic | `R(s,a) = correctness(response)` — no bootstrapping or discount |
+| **Transition** | deterministic `s' = s + a` | Enables test-time compute planning (unlike robotics) |
+| **Policy** | π(a\|s) = fine-tuned LM | Just the model's next-token distribution |
+
+### Delta modes — what the gradient actually scales by
+
+The lecture implements four delta (advantage-like) modes, each producing a qualitatively different update landscape:
+
+**Raw rewards** (`deltas = rewards`): Naive policy gradient. Positive-reward responses get scaled gradient, zero-reward responses get zero gradient — equivalent to SFT on a self-generated correct-response dataset that evolves as the policy changes. High variance because a response with reward 9 on one prompt may be worse than a response with reward 2 on another.
+
+**Centered rewards** (`deltas = R - μ`): Per-prompt group mean subtraction. Above-mean responses get positive gradient; below-mean responses get negative gradient. If all responses for a prompt have the same reward, no update occurs. This is the GRPO-style group baseline.
+
+**Normalized rewards** (`deltas = (R - μ) / σ`): Dr. GRPO mode. Unit-variance advantages. The lecture's experiments find negligible difference from centered rewards for equal-length responses, and the lecture explicitly warns about Dr. GRPO's length-bias risk when response lengths vary.
+
+**Max rewards** (`deltas = nonzero only for max`): Only the best response per prompt gets gradient; all others get zero. Equivalent to rejection sampling / Best-of-N distillation with no off-policy correction.
+
+### Loss modes — how the policy absorbs the gradient
+
+| Mode | Update formula | Behavioral effect |
+|---|---|---|
+| **Naive** | `-Σ log π(a\|s) · δ` | Weighted SFT — only the current policy's probability of each action matters |
+| **Unclipped** | `-Σ (π/π_old) · δ` | Importance-ratio weighted — the ratio of (new action prob / old action prob) reweights the gradient |
+| **Clipped** | `-min( r·δ, clip(r, 1±ε)·δ )` | PPO-style clipping with `ε=0.01` — prevents ratio from drifting beyond the trust region in one step |
+
+### KL penalty and reference model
+
+The KL penalty estimator `E[exp(log q - log p) - (log q - log p) - 1]` is computed against a periodically frozen reference model (`ref_model = model.clone()`). The penalty coefficient `λ` is additive: `loss += λ * KL_penalty`. This prevents over-optimization even when rewards are dense.
+
+### Critical freezing semantics
+
+`old_log_probs` must be computed under `torch.no_grad()` — the lecture's `freezing_parameters()` section demonstrates that accidentally differentiating through `p_old` doubles the effective gradient because the ratio `π/π_old` becomes a function of both numerator and denominator parameters.
+
+### Toy model evidence
+
+The sorting-task experiments (3-number sort with full-information inclusion+ordering rewards) show the practical difficulty of even minimal RL:
+
+- **Raw rewards**: barely learns — most responses get near-zero reward and the gradient only touches the few that happen to be correct
+- **Centered/normalized**: learns faster but still hits local optima where the model converges to a partial-sorting strategy (e.g., sorts first element correctly but fails on the rest)
+- **Reinforcement learning is brittle**: even with full-information rewards covering inclusion and ordering, hyperparameter sensitivity means runs can easily plateau below ceiling
+
+![[./assets/cs336-lecture17-delta-mode-flow.svg]]
 
 ## Remaining Work
 

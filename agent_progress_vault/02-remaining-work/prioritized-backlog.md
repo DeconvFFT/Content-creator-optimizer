@@ -1,9 +1,10 @@
 ---
 type: backlog
-updated: 2026-05-23
+updated: 2026-05-24
 sources:
   - synthesis-59e319d8
   - vault-audit-c74873d8
+  - codex-live-voice-proof-accepted
 ---
 
 # Prioritized Backlog
@@ -16,10 +17,10 @@ Requires user secrets and operator action. **Cannot be closed by agents alone.**
 
 | # | Item | Commands / refs |
 |---|------|-----------------|
-| 1 | Capture accepted live voice proof | OpenRouter `deepseek/deepseek-v4-flash`, LiveKit, and Kokoro inputs are configured for the current path per [[../social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json\|current-blocker-matrix.json]]; remaining work is same-run runtime/timing/participant proof capture and accepted record validation |
+| 1 | Capture accepted live voice proof | **Done 2026-05-24** — `provider-backed-live-voice-proof.accepted-record.json` is recorded for OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro with timing ledger `7e932381-4bf4-4206-a490-58d6a4ca7880` |
 | 2 | Configure publication inputs | LinkedIn token file, policy acknowledgement, durable destination, rollback/postcondition artifacts |
-| 3 | Run post-unblock proof capture | UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`; `proof_capture_commands_after_unblock` from matrix |
-| 4 | Record accepted proof records | `validate-provider-proof-record` → `record-provider-proof-record` for both proofs |
+| 3 | Run post-unblock external publication proof capture | UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`; use external-publication `proof_capture_commands_after_unblock` from matrix only after explicit action-time approval |
+| 4 | Record accepted external publication proof | `validate-provider-proof-record` -> `record-provider-proof-record` for `external-publication-proof` |
 | 5 | Closure review | `provider-proof-closure-review-template`; update blocker state when `all_required_proofs_accepted: true` |
 
 ```bash
@@ -34,7 +35,7 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 | # | Item | Effort | Status |
 |---|------|--------|--------|
 | 1 | Install Playwright browsers | **S** | Pending — `uv run playwright install` |
-| 2 | CI pipeline | **M** | **Pending** — c75e2d04 stalled; create `.github/workflows/ci.yml` |
+| 2 | CI pipeline | **M** | **Scaffolded on feature branch** — `.github/workflows/ci.yml` and `scripts/ci-python-stable-tests.sh`; verify before merge |
 | 3 | Four ship skills | **M** | **Pending** — local-bootstrap, ship-gate, provider-proof-capture, ci-scaffold |
 | 4 | Ruff baseline | **S** | **Pending** — add to `pyproject.toml`, run on `src/` |
 | 5 | Initial git commit | **S** | Pending user approval |
@@ -71,14 +72,14 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 
 ## Top 5 (vault perspective)
 
-1. **Provider-backed live voice proof** — same-run OpenRouter DeepSeek + LiveKit + Kokoro dialogue, participant evidence, smoke, runtime health, and complete timing ledgers
-2. **External publication proof** — LinkedIn credential + channel policy; durable destination evidence
-3. **Execute UUID proof capture chain** — run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` post-unblock commands
+1. **External publication proof** — LinkedIn credential + channel policy; durable destination and rollback/postcondition evidence
+2. **Execute external-publication UUID proof capture chain** — run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` post-unblock commands after explicit approval
+3. **Closure review** — only after both required proofs are accepted and completion status reports `all_required_proofs_accepted: true`
 4. **Non-credential product hardening** — Kanban next bounded slice
-5. **Complete c75e2d04 deliverables** — CI, skills, ruff, Playwright install (still on disk as gaps)
+5. **Finish branch integration** — CI verification, skills/ruff follow-up decisions, clean commit/PR path
 
 ## Do not
 
 - Mark objective complete without accepted proof records
-- Reopen local LiveKit/Kokoro as substitute for Gemma audio proof
+- Reopen Gamma/Gemma/Hugging Face as the active realtime default unless the user explicitly reactivates legacy native-audio research
 - Implement Qdrant/Neo4j without benchmark justification

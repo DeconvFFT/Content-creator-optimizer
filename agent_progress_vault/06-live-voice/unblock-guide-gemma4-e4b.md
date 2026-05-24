@@ -17,4 +17,4 @@ Current live dialogue direction:
 
 Do not open new Hugging Face, Gamma, Gemma, or MLX setup tasks for the current realtime dialogue proof unless a later architecture decision explicitly reverses the OpenRouter default. The legacy native-audio lane may remain as historical reference or optional non-default research only.
 
-Use [[openrouter-livekit-live-dialogue]] and [[status-snapshot-2026-05-23]] for the current proof handoff. The remaining blocker is accepted same-run proof-record capture/recheck, plus the separate external publication proof.
+Use [[openrouter-livekit-live-dialogue]] and [[status-snapshot-2026-05-23]] for current proof context. Provider-backed live voice is accepted for OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro; the remaining active blocker is `external-publication-proof` plus completion-status recheck, closure review, and release/CI closure.

@@ -7,10 +7,8 @@ from all_about_llms.orchestration.blocker_credentials import (
 
 
 PLACEHOLDER_ENV_NAMES = {
-    "GEMMA4_MULTIMODAL_ENDPOINT_URL",
-    "KOKORO_TTS_ENDPOINT_URL",
-    "HF_TOKEN",
-    "GEMMA4_REALTIME_LIVEKIT_URL",
+    "OPENROUTER_API_KEY",
+    "OPENROUTER_LIVEKIT_URL",
     "LIVEKIT_API_KEY",
     "LIVEKIT_API_SECRET",
     "INSTAGRAM_ACCESS_TOKEN",
@@ -21,11 +19,7 @@ PLACEHOLDER_ENV_NAMES = {
 }
 
 PUBLICATION_SECRET_FILE_ENV_NAMES = {
-    "INSTAGRAM_ACCESS_TOKEN_FILE",
     "LINKEDIN_ACCESS_TOKEN_FILE",
-    "X_ACCESS_TOKEN_FILE",
-    "X_API_KEY_FILE",
-    "SUBSTACK_API_TOKEN_FILE",
 }
 
 
@@ -42,10 +36,8 @@ def test_blocker_credential_classifier_reports_placeholder_only_state_without_va
     assert voice["shell_values_loaded"] is False
     assert voice["secret_values_printed"] is False
     assert voice["placeholder_only_inputs"] == [
-        "GEMMA4_MULTIMODAL_ENDPOINT_URL",
-        "KOKORO_TTS_ENDPOINT_URL",
-        "HF_TOKEN",
-        "GEMMA4_REALTIME_LIVEKIT_URL",
+        "OPENROUTER_API_KEY",
+        "OPENROUTER_LIVEKIT_URL",
         "LIVEKIT_API_KEY",
         "LIVEKIT_API_SECRET",
     ]
@@ -56,21 +48,15 @@ def test_blocker_credential_classifier_reports_placeholder_only_state_without_va
     assert publication["shell_values_loaded"] is False
     assert publication["secret_values_printed"] is False
     assert publication["placeholder_only_inputs"] == [
-        "INSTAGRAM_ACCESS_TOKEN",
         "LINKEDIN_ACCESS_TOKEN",
-        "X_ACCESS_TOKEN",
-        "X_API_KEY",
-        "SUBSTACK_API_TOKEN",
     ]
     assert publication["absent_inputs"] == []
 
 
 def test_blocker_credential_classifier_never_echoes_configured_secret_values():
     env_values = {
-        "GEMMA4_MULTIMODAL_ENDPOINT_URL": "https://gemma.example/v1/audio",
-        "KOKORO_TTS_ENDPOINT_URL": "https://kokoro.example/tts",
-        "HF_TOKEN": "hf_live_secret_value_that_must_not_echo",
-        "GEMMA4_REALTIME_LIVEKIT_URL": "wss://livekit.example",
+        "OPENROUTER_API_KEY": "openrouter_live_secret_value_that_must_not_echo",
+        "OPENROUTER_LIVEKIT_URL": "wss://livekit.example",
         "LIVEKIT_API_KEY": "lk_key_that_must_not_echo",
         "LIVEKIT_API_SECRET": "lk_secret_that_must_not_echo",
         "LIVEKIT_URL": "wss://legacy_livekit_that_must_not_echo",
@@ -106,12 +92,9 @@ def test_blocker_credential_classifier_never_echoes_configured_secret_values():
     assert publication["state"] == "runtime_configuration_present_unverified"
     assert publication["shell_values_loaded"] is True
     assert publication["configured_inputs"] == [
-        "INSTAGRAM_ACCESS_TOKEN",
         "LINKEDIN_ACCESS_TOKEN",
-        "X_API_KEY",
-        "SUBSTACK_API_TOKEN",
     ]
-    assert publication["placeholder_only_inputs"] == ["X_ACCESS_TOKEN"]
+    assert publication["placeholder_only_inputs"] == []
     assert "placeholder-only" not in publication["note"]
     assert publication["secret_values_printed"] is False
 
@@ -120,12 +103,9 @@ def test_blocker_credential_classifier_reports_missing_required_configuration():
     snapshots = build_blocker_credential_snapshots(
         env_values={},
         placeholder_env_names={
-            "GEMMA4_MULTIMODAL_ENDPOINT_URL",
-            "HF_TOKEN",
-            "GEMMA4_REALTIME_LIVEKIT_URL",
+            "OPENROUTER_API_KEY",
             "LIVEKIT_API_KEY",
             "LIVEKIT_API_SECRET",
-            "LINKEDIN_ACCESS_TOKEN",
             "X_ACCESS_TOKEN",
             "SUBSTACK_API_TOKEN",
         },
@@ -134,25 +114,27 @@ def test_blocker_credential_classifier_reports_missing_required_configuration():
 
     voice = snapshots["provider-backed-live-voice-proof"]
     assert voice["state"] == "blocked_by_missing_configuration"
-    assert "KOKORO_TTS_ENDPOINT_URL" in voice["absent_inputs"]
+    assert "OPENROUTER_LIVEKIT_URL" in voice["absent_inputs"]
     assert "LIVEKIT_URL" in voice["absent_inputs"]
 
     publication = snapshots["external-publication-proof"]
     assert publication["state"] == "blocked_by_missing_configuration"
-    assert publication["absent_inputs"] == ["INSTAGRAM_ACCESS_TOKEN"]
+    assert publication["absent_inputs"] == ["LINKEDIN_ACCESS_TOKEN"]
 
 
 def test_blocker_credential_classifier_accepts_secret_file_presence_without_values():
     snapshots = build_blocker_credential_snapshots(
         env_values={
-            "GEMMA4_MULTIMODAL_ENDPOINT_URL": "https://gemma.example/v1/audio",
-            "KOKORO_TTS_ENDPOINT_URL": "https://kokoro.example/tts",
-            "GEMMA4_REALTIME_LIVEKIT_URL": "wss://livekit.example",
+            "OPENROUTER_LIVEKIT_URL": "wss://livekit.example",
         },
         placeholder_env_names=PLACEHOLDER_ENV_NAMES
-        | {"HF_TOKEN_FILE", "LIVEKIT_API_KEY_FILE", "LIVEKIT_API_SECRET_FILE"},
+        | {
+            "OPENROUTER_API_KEY_FILE",
+            "LIVEKIT_API_KEY_FILE",
+            "LIVEKIT_API_SECRET_FILE",
+        },
         configured_file_env_names={
-            "HF_TOKEN_FILE",
+            "OPENROUTER_API_KEY_FILE",
             "LIVEKIT_API_KEY_FILE",
             "LIVEKIT_API_SECRET_FILE",
         },
@@ -162,12 +144,10 @@ def test_blocker_credential_classifier_accepts_secret_file_presence_without_valu
     voice = snapshots["provider-backed-live-voice-proof"]
     assert voice["state"] == "runtime_configuration_present_unverified"
     assert voice["configured_inputs"] == [
-        "GEMMA4_MULTIMODAL_ENDPOINT_URL",
-        "KOKORO_TTS_ENDPOINT_URL",
-        "GEMMA4_REALTIME_LIVEKIT_URL",
+        "OPENROUTER_LIVEKIT_URL",
     ]
     assert voice["configured_file_inputs"] == [
-        "HF_TOKEN_FILE",
+        "OPENROUTER_API_KEY_FILE",
         "LIVEKIT_API_KEY_FILE",
         "LIVEKIT_API_SECRET_FILE",
     ]
@@ -182,10 +162,7 @@ def test_blocker_credential_classifier_accepts_publication_secret_files_without_
         placeholder_env_names=PLACEHOLDER_ENV_NAMES
         | PUBLICATION_SECRET_FILE_ENV_NAMES,
         configured_file_env_names={
-            "INSTAGRAM_ACCESS_TOKEN_FILE",
             "LINKEDIN_ACCESS_TOKEN_FILE",
-            "X_API_KEY_FILE",
-            "SUBSTACK_API_TOKEN_FILE",
         },
         checked_at="2026-05-20",
     )
@@ -195,12 +172,9 @@ def test_blocker_credential_classifier_accepts_publication_secret_files_without_
     assert publication["shell_values_loaded"] is False
     assert publication["configured_inputs"] == []
     assert publication["configured_file_inputs"] == [
-        "INSTAGRAM_ACCESS_TOKEN_FILE",
         "LINKEDIN_ACCESS_TOKEN_FILE",
-        "X_API_KEY_FILE",
-        "SUBSTACK_API_TOKEN_FILE",
     ]
-    assert publication["placeholder_only_inputs"] == ["X_ACCESS_TOKEN"]
+    assert publication["placeholder_only_inputs"] == []
     assert publication["absent_inputs"] == []
     assert publication["secret_files_loaded"] is True
     assert publication["secret_values_printed"] is False

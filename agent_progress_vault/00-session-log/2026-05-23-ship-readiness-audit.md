@@ -62,6 +62,8 @@ Parent session: `dc541605-3c57-402f-bbbd-538d6748fe61`.
 - **No git commits** on `main`
 - **No production auth** deployment model
 
+Current superseding note (2026-05-24): this audit is historical. The repo now has `.github/workflows/ci.yml`, `scripts/ci-python-stable-tests.sh`, ship-gate/local-bootstrap/provider-proof/CI skills, a Ruff baseline, tracked `uv.lock`, and ignored local command logs. Provider-backed live voice is accepted on the OpenRouter + LiveKit + Kokoro path. Remaining ship-readiness proof is external publication, closure review, remote CI/branch-protection proof, Playwright install proof, and production auth/deployment hardening.
+
 ## c75e2d04 execution agent — intended vs actual
 
 **Intended deliverables** (from parent handoff):
@@ -98,11 +100,11 @@ See [[../01-implementation-matrix/feature-implementation-status]] and [[../04-cr
 | Dimension | Assessment |
 |-----------|------------|
 | Local implementation | **~75–90%** by major feature area (honest, evidence-based) |
-| Accepted completion proofs | **0%** — both `provider-backed-live-voice-proof` and `external-publication-proof` have `latest_record_failed` |
+| Accepted completion proofs | **Historical audit superseded** — this row was accurate for the 2026-05-23 snapshot, but current state has accepted `provider-backed-live-voice-proof`; `external-publication-proof` remains the blocker |
 | Production ship | **NO-GO** — score **4/10** |
 | Local demo (provider-free) | **CONDITIONAL GO** — score **7/10** |
 
-Current update: live dialogue is no longer blocked on Gemma/HF/Gamma/MLX setup. The active path is OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro; remaining live-voice work is accepted same-run proof capture with runtime, participant, smoke, timing, and redaction evidence. External publication remains blocked on LinkedIn credentials/policy/destination/rollback evidence. The handoff machinery is present; accepted proof records are still missing.
+Current superseding update: live dialogue is no longer blocked on Gemma/HF/Gamma/MLX setup. The active path is OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro, and `provider-backed-live-voice-proof` is now accepted for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`. External publication remains blocked on LinkedIn credentials, policy acknowledgement, durable destination, and rollback/postcondition evidence. Do not treat this historical audit as the current proof-state source of truth; use `active-codex-context.md`, the UUID current proof packets, and the objective completion audits.
 
 ## Evidence paths
 

@@ -2,7 +2,7 @@
 type: objective-completion-audit-mirror
 project: agent-studio-system-design
 status: active
-updated: 2026-05-23
+updated: 2026-05-24
 source_vault_note: ../../social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md
 ---
 
@@ -16,8 +16,8 @@ This is the system-design-vault mirror of the implementation objective audit in 
 |---|---|---:|
 | Obsidian-first planning | Keep HLD, LLD, source maps, and generated viewers aligned with the project vault. | proven |
 | Long-running autonomous agents | Treat worker profiles, background runner, topbar Refresh/New source-refresh exclusion proof, manual Continue-specialists browser proof, work-plan execution, Activity retry browser single-flight proof, Activity retry source-refresh boundary proof, always-on launch source-refresh boundary proof, always-on stop source-refresh boundary proof, always-on pulse/scheduler browser proof, Run-pulse source-refresh boundary proof, Check-due-work source-refresh boundary proof, Start-runner source-refresh boundary proof, Stop-runner source-refresh boundary proof, long-running stop-control browser proof, and heartbeat ledgers as the core long-running control loop. | proven for local/non-live operation |
-| OpenRouter realtime provider | Keep OpenRouter DeepSeek V4 Flash as the default realtime dialogue provider with LiveKit transport and Kokoro spoken output; Hugging Face and Gamma/Gemma are not the active default for live dialogue. | preflight valid / blocked on accepted proof record |
-| Realtime audio | Require same-session LiveKit/reasoning/Kokoro proof before claiming production voice readiness; the voice boundary surfaces should now distinguish OpenRouter text-turn dialogue from legacy native Gemma/Gamma checks. Cursor live-voice coordination reports OpenRouter text reasoning with LiveKit/Kokoro as the current local dialogue path, with local MLX and `GEMMA4_MULTIMODAL_ENDPOINT_URL` no longer required for that path; accepted product proof still requires product-owned proof-record acceptance. | blocked on accepted live proof |
+| OpenRouter realtime provider | Keep OpenRouter DeepSeek V4 Flash as the default realtime dialogue provider with LiveKit transport and Kokoro spoken output; Hugging Face and Gamma/Gemma are not the active default for live dialogue. | accepted live-voice proof |
+| Realtime audio | Require same-session LiveKit/reasoning/Kokoro proof before claiming production voice readiness; the voice boundary surfaces should now distinguish OpenRouter text reasoning and text-turn dialogue from legacy native Gemma/Gamma checks. The accepted live proof for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` measures 8/8 timing stages from LiveKit session readiness through barge-in cancellation. | accepted live-voice proof / external publication still blocked |
 | A2A-style collaboration | Represent current local Agent Card/routes, discoverable public projections for run-level message lists and per-agent inbox polling, conversation-turn durable event redaction, A2A skill-invocation event redaction, A2A context-packet event redaction, A2A stale-recovery event redaction, A2A retry/dependency event redaction, A2A status-event redaction, A2A accepted-message event redaction, and the A2A map browser proof as A2A-style discovery and collaboration, not a full external protocol server claim. The well-known Agent Card, `/api/a2a`, durable conversation-turn/skill-invocation/context-packet/accepted-message/status-update/stale-recovery/retry-authorization/dependency-repair/dependency-waiting/retry-exhausted events including top-level task/claimant/notes/reason/query strings, and A2A map now expose safe public or trace redaction policy where appropriate. | scoped proven |
 | Interactive HTML knowledge surfaces | Treat HTML/JSON viewers, the project A2A map, feedback loop map, OpenRouter LiveKit voice boundary map (legacy filename), publication boundary map, project skill matrix, proof-readiness browser surface, filtered research artifacts, and the system-design-vault browser index as companion projections derived from notes, not source truth. | proven |
 | Kanban and review tracking | Keep Kanban and review-watch in the project vault; architecture notes should link to status, not duplicate board operations. The mirrored review-watch contract is `leibniz-review-watch-escalation` for standing reviewer `019e3899-5ab3-7171-9d3c-32e7c57bbde7`, where material review findings surface with severity, files, and next action. | proven |
@@ -25,15 +25,19 @@ This is the system-design-vault mirror of the implementation objective audit in 
 
 ## Design Implications
 
-- The full Agent Studio goal should remain active until provider-backed live voice and external publication proof have direct runtime evidence.
+- The full Agent Studio goal should remain active until external publication proof has direct runtime evidence and the reviewed completion path closes the remaining blocker.
+- Provider-backed live voice now has direct accepted runtime evidence for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`: the headless capture recorded 25 LiveKit agent events, the realtime voice timing ledger is `ready` with 8/8 stages measured, and `provider-proof-completion-status` recognizes `provider-backed-live-voice-proof` as accepted in all configured audit targets. The full objective remains open because `external-publication-proof` is still the latest failed required proof.
 - Cursor live-voice coordination changed the local runtime assumption: current notes in `agent_progress_vault/06-live-voice/` route live dialogue through OpenRouter DeepSeek V4 Flash text reasoning plus LiveKit/Kokoro, not local MLX, Hugging Face, or Gamma/Gemma multimodal.
 - OpenRouter text-turn live-dialogue readiness is now represented in the runtime API contract as `openrouter-live-dialogue-reasoning`: `/api/voice-runtime-readiness` can mark OpenRouter chat completions ready without `GEMMA4_MULTIMODAL_ENDPOINT_URL`. Hugging Face and Gamma/Gemma endpoint checks are legacy/non-default for this flow and should not block the current realtime dialogue path.
-- The UUID operator-input packet now reflects `OPENROUTER_API_KEY_FILE`, `OPENROUTER_LIVEKIT_URL`, `LIVEKIT_API_KEY_FILE`, and `LIVEKIT_API_SECRET_FILE` as configured for the live-voice proof. There is no remaining live-voice operator-input blocker; accepted provider-backed proof still needs proof-record capture/recheck.
-- The refreshed UUID proof workspace confirms the current path: `voice-runtime-readiness.preflight.json` is overall `ready` for OpenRouter text-turn dialogue plus LiveKit/Kokoro/Rust/agent checks, and `provider-backed-live-voice-proof.preflight-validation.json` is valid for the required OpenRouter LiveKit checks. Architecture review should treat Cursor's LiveKit interruption as an orchestration failure already worked around, while leaving final completion blocked until accepted live-voice and external-publication proof records exist.
-- The live OpenRouter provider-smoke ledger has now advanced beyond preflight: `provider-smoke-ledger.live-openrouter.json` passes for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` with `execute_live_calls=true`, ledger artifact `94857bb9-c5eb-4174-8bc5-6687bd8befbe`, events `105510` through `105516`, selected realtime session `ebd43531-86e3-4af1-ade0-15ac8d7184bf`, OpenRouter `deepseek/deepseek-v4-flash` first text delta at 1111.171 ms, Kokoro `hexgrad/Kokoro-82M` first audio chunk at 4946.351 ms, and first-audio end-to-end latency at 6057.54 ms. The architecture proof gap is now narrower but still open: `realtime-voice-timing-ledger.json` remains `needs_more_evidence` while artifact `3244077a-e689-4d26-9a9e-ff8c1ddb74df` measures 4/8 stages: LiveKit session ready, OpenRouter response start, first text delta, and first audio out. Missing stages are audio-track bridge, speech start, end-of-turn/agent-turn correlation, and barge-in stop. Do not mark provider-backed live voice accepted until that same-run timing evidence is captured and recorded in an accepted proof record.
+- The UUID operator-input packet now reflects `OPENROUTER_API_KEY_FILE`, `OPENROUTER_LIVEKIT_URL`, `LIVEKIT_API_KEY_FILE`, and `LIVEKIT_API_SECRET_FILE` as configured for the live-voice proof. There is no remaining live-voice operator-input blocker; the provider-backed proof has been captured, validated, and recorded as accepted.
+- The refreshed UUID proof workspace confirms the current path: `voice-runtime-readiness.preflight.json` is overall `ready` for OpenRouter text-turn dialogue plus LiveKit/Kokoro/Rust/agent checks, and `provider-backed-live-voice-proof.preflight-validation.json` is valid for the required OpenRouter LiveKit checks. Architecture review should treat Cursor's LiveKit interruption as an orchestration failure already worked around, while leaving final completion blocked until the external-publication proof record exists and closure review is accepted.
+- The current-gate external-publication recovery handoff must gate on operator-input readiness while LinkedIn/publication inputs are blocked: strict `provider-proof-operator-input-readiness --fail-on-blocked`, credential snapshot, proof-plan, matrix/status/checklist refresh, and one completion-status recheck. The full product/publish preflight capture, `build-distribution-package > distribution-package.json`, proof-record template, record validation, and record audit chain resumes only after operator-input readiness clears. Accepted `provider-backed-live-voice-proof` commands must stay excluded from this recovery chain.
+- `provider-proof-completion-status --output-dir <provider-proof-workspace>` is now part of the recovery contract. Completion-status review for custom proof workspaces must read that workspace's `operator-input-readiness.json` before choosing strict operator-input retry versus post-unblock publication capture, and every generated completion-status recheck in that custom-workspace route must preserve the same `--output-dir` to prevent fallback to the default UUID path.
+- The live OpenRouter provider-smoke ledger has advanced beyond preflight and is now part of the accepted record: `provider-smoke-ledger.live-openrouter.json` passes for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` with `execute_live_calls=true`, ledger artifact `94857bb9-c5eb-4174-8bc5-6687bd8befbe`, events `105510` through `105516`, selected realtime session `ebd43531-86e3-4af1-ade0-15ac8d7184bf`, OpenRouter `deepseek/deepseek-v4-flash` first text delta at 1111.171 ms, Kokoro `hexgrad/Kokoro-82M` first audio chunk at 4946.351 ms, and first-audio end-to-end latency at 6057.54 ms. The fresh headless LiveKit capture recorded 25 agent events, and realtime voice timing ledger `7e932381-4bf4-4206-a490-58d6a4ca7880` is `ready` with 8/8 stages measured, including audio bridge, speech start, turn correlation, first text/audio, barge-in, cancellation acknowledgement, and cancelled-turn proof.
 - Conversation-turn durable event redaction keeps transcript/event observability useful without turning run traces into a secret sink. Direct run turn recording, content workflow capture, and conversation router user/assistant turn paths now sanitize `conversation_turn_recorded` event payloads through `_safe_realtime_metadata` or `safe_realtime_metadata`, while private `ConversationTurn` storage and API responses retain original transcript content for trusted local workflows.
 - Feedback and memory durable event redaction keeps human feedback loops observable without turning event logs into a secret sink. `FeedbackRoutingWorkflow`, `RevisionWorkflow`, and the direct `/api/memories` record path now sanitize `feedback_recorded`, `feedback_routed`, and `memory_recorded` event payloads through `safe_realtime_metadata`, while stored `FeedbackItem` records, routed A2A task payloads, and private `AgentMemory` content retain original user feedback or memory text for trusted local workflows.
 - Project-memory and publish-readiness durable event redaction keeps durable memory and publication traces observable without storing raw secret-shaped user text. `ProjectMemoryWorkflow` and `PublishReadinessWorkflow` now sanitize `project_memory_recorded`, publish-readiness `feedback_recorded`, `human_feedback_gate_opened`, and `publish_readiness_checked` event payloads through `safe_realtime_metadata`, while private memory/feedback stores and publish-readiness responses keep trusted local content for the operator.
+- Repo workflow hygiene must keep scratch/course checkouts outside the product PR surface while preserving the dependency lockfile. The root `/repo_check_temp/` scratch checkout is now explicitly ignored and guarded by `tests/test_repo_workflow_ci.py`, without hiding nested product paths named `repo_check_temp`; CI sync is guarded to use committed `uv.lock`, and `uv.lock` is tracked/not ignored. Downloaded assignment PDFs, snapshots, nested `.git` state, local command logs, and other bulky local research artifacts stay local while durable project knowledge is summarized in vault notes.
 - A2A task inspection should use the same safe public projection as single-message detail. `/api/runs/{run_id}/agent-messages?projection=public` now returns redacted list entries, `/api/a2a/agents/{agent_id}/inbox?projection=public` does the same for recipient polling, and both `/.well-known/agent-card.json` plus `/api/a2a` advertise the `publicProjection` contract with supported read endpoints, unsupported mutation endpoints, and `agent-message-public-projection-v1`, so external/client inspectors can enumerate work without receiving private provider payloads or token-shaped runtime strings.
 - Browser-first A2A reviewers should see that projection contract without opening raw API output. `agent-studio-a2a-map.html` now renders and exports `projection=public`, `agent-message-public-projection-v1`, and supported projection endpoints from the Public boundary detail.
 - A2A skill-invocation event redaction keeps skill-use observability without echoing sensitive task strings. `public_a2a_skill_invocation_event_payload` preserves workflow/status/notes, message id, agent id, skill ids, source paths, outputs, guardrails, and context summary counts for `agent_skill_invocation_recorded`, while redacting token-shaped task type strings before durable event persistence.
@@ -41,7 +45,7 @@ This is the system-design-vault mirror of the implementation objective audit in 
 - A2A stale-recovery event redaction applies the same public control-event boundary to `agent_message_recovered`. `public_a2a_recovered_event_payload` preserves message id, transition status, previous timestamp, worker id, and stale threshold while redacting token-shaped task type and previous claimant strings before durable event persistence.
 - A2A context-packet event redaction applies the same public durable-event boundary to worker and `/api/runs/{run_id}/context-packet` `context_packet_built` writers. `public_a2a_context_packet_event_payload` preserves context counts, skill ids, project-memory policy, and retrieval summary shape while redacting token-shaped task type and project-memory query strings before durable event persistence.
 - Product-run proof has advanced from an operator handoff to actual UUID evidence for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`. The corresponding provider-proof workspace has valid workspace structure, live product-run/provider-readiness/voice-runtime/publish-readiness preflight captures, operator checkpoint `cc9c7ff8-99d8-4656-9ef1-7412694602bb`, a runtime-health ledger with 10/10 checks ready, a local source-backed publication-readiness fixture with approved guardrail audit and source-ledger coverage, OpenRouter LiveKit provider-readiness evidence, local LiveKit dev transport evidence, local LiveKit participant startup-construction evidence, and local Kokoro package evidence. Architecture status is still blocked only at the accepted-record layer: `openrouter-livekit`, `livekit-transport`, `livekit-agent-participant`, `openrouter-live-dialogue-reasoning`, `kokoro-tts`, `rust-voice-edge`, and context pruning are ready in the canonical preflights, live voice has no operator-input blockers, publication validation reports missing LinkedIn credential plus policy review, and completion status is `blocked_by_latest_failed_proof_record`.
-- Post-unblock proof-capture routes must execute evidence builders before record templating. `proof_capture_commands_after_unblock` now routes live voice through a managed `POST /api/voice-agent-process/start` capture, runtime-health ledger, live provider-smoke ledger, and realtime voice timing ledger, and routes external publication through distribution-package generation before proof-record template/validation/record commands. The CLI plan, project proof-readiness/boundary HTML packets, UUID matrix, and system-design viewer now carry the same route. Architecture review should treat the raw long-running `run-voice-agent --dev` command as a supervised process implementation detail, not an inline sequential proof-capture step. This is handoff accuracy, not accepted external proof.
+- Post-unblock proof-capture routes must execute evidence builders before record templating. `proof_capture_commands_after_unblock` now routes live voice through a managed `POST /api/voice-agent-process/start` capture, runtime-health ledger, live provider-smoke ledger, and realtime voice timing ledger, and routes external publication through distribution-package generation captured to `distribution-package.json` before proof-record template/validation/record commands. The CLI plan and project proof-readiness/publication-boundary HTML packets now carry that durable distribution-package artifact path; architecture review should treat the raw long-running `run-voice-agent --dev` command as a supervised process implementation detail, not an inline sequential proof-capture step. This is handoff accuracy, not accepted external proof.
 - Accepted live-voice proof records must link the supervised process start. The provider-backed live voice schema now requires `voice_agent_process_start_artifact_id`, and validation rejects an accepted record that omits it, so architecture review can trace the managed `POST /api/voice-agent-process/start` artifact alongside runtime-health, provider-smoke, realtime timing, LiveKit, participant, and workspace-validation evidence.
 - Proof workspace READMEs should be self-contained command sources. Generated READMEs now list `proof_record_schema` metadata plus `proof_record_required_fields` per proof, so operators can inspect accepted-record type, allowed outcomes, state field, and required fields before template filling or audit recording from the workspace itself. Non-UUID README handoff keeps product-run UUID bootstrap ahead of proof preflight paths.
 - Operator proof packets should be self-contained enough for packet-first review. `operator_proof_packets` in the current blocker matrix now include full `proof_record_schema` metadata, including `artifact_type`, `allowed_outcomes`, `state_field`, and `required_fields`, while keeping `proof_record_required_fields`, so A2A/review agents can validate expected accepted-record type, outcome, state field, and fields without separately opening the proof plan.
@@ -75,7 +79,7 @@ This is the system-design-vault mirror of the implementation objective audit in 
 - The generated system-design viewer must also expose the full operator proof packet, not only selected fields. Its Objective Completion Audit routes now embed the current matrix `operator_proof_packet`, and the HTML detail renders packet label, no-secret handling, `must_capture`, vault targets, and next packet refs. Architecture viewer regressions now fail if this route falls back to a subset of the packet.
 - The proof-readiness HTML surface must expose the same packet-level record contract. `agent-studio-proof-readiness.html` now carries `proof_record_schema` metadata plus `proof_record_required_fields` inside its exported/rendered `operator_proof_packet` blocks, so the central operator HTML surface is aligned with the current blocker matrix before operators cross-open boundary maps.
 - The specialized voice/publication boundary maps must expose the same packet-level record contract. `gemma-voice-boundary-map.html` and `agent-studio-publication-boundary-map.html` now carry `proof_record_schema` metadata plus `proof_record_required_fields` inside exported/rendered `operator_proof_packet` blocks, so architecture reviewers can inspect record type, allowed outcomes, state field, and fields without leaving those boundary surfaces.
-- Static proof-review surfaces must not drift from the current concrete blocker state. The project proof-readiness page, legacy-named live-voice boundary map, and publication boundary map export credential snapshots from the current provider-proof workspace. This is freshness alignment only; architecture status remains blocked on accepted OpenRouter LiveKit live-voice proof-record capture/recheck and external publication proof.
+- Static proof-review surfaces must not drift from the current concrete blocker state. The project proof-readiness page, legacy-named live-voice boundary map, and publication boundary map export credential snapshots from the current provider-proof workspace. This is freshness alignment only; architecture status remains blocked on external publication proof.
 - Current blocker handoff generators must be accepted-proof aware. `provider-proof-current-blocker-matrix` should report `accepted_proof_record_available` with empty `remaining_blockers` once completion status proves an accepted record for a proof, and `provider-proof-operator-unblocker-checklist` should then switch from credential prompts to closure-review guidance. This keeps architecture review from reopening stale Gemma/LinkedIn blockers after future accepted proof records, while the current UUID workspace remains blocked by failed proof records.
 - Current blocker matrix accepted-evidence references must follow completion status. Accepted proof rows now point to `completion-status.json` and `accepted_record_sources` rather than stale failed-record files, preserving clean provenance for future closure review packets.
 - Current blocker matrix accepted state must also follow per-proof completion status. A proof row cannot clear blockers from top-level `accepted_proofs` alone; incomplete audit-target coverage, invalid accepted audit notes, or secret-shaped accepted notes remain blocked until completion status reports `accepted_record_found` for that proof.
@@ -98,8 +102,8 @@ This is the system-design-vault mirror of the implementation objective audit in 
 - The setup handoff now has proof that generated shell snippets feed the same no-secret classifier used by `provider-proof-plan`. Architecture can treat `ready_for_runtime_attempt` as a reproducible post-setup classifier state, but not as live proof or blocker closure.
 - Malformed local provider config files are now a controlled setup failure, not a traceback path. Existing malformed JSON, non-UTF-8 bytes, and directory paths for `LOCAL_PROVIDER_CONFIG_FILE` are preserved/rejected with an env-name-only error, which keeps the local runtime-config bridge fail-closed.
 - Local provider config files are now part of the no-secret proof classifier. `LOCAL_PROVIDER_CONFIG_FILE` can satisfy the endpoint-name side of provider-backed runtime configuration for explicitly selected legacy routes, but the current live-voice path uses `OPENROUTER_API_KEY_FILE`, `OPENROUTER_LIVEKIT_URL`, `LIVEKIT_API_KEY_FILE`, and `LIVEKIT_API_SECRET_FILE`. Exported proof packets expose only configured field names and booleans, never secret values.
-- Live voice endpoint setup historically persisted through the local provider config file. The proof setup handoff validates legacy Gemma multimodal, Kokoro TTS, and LiveKit URL values before writing `LOCAL_PROVIDER_CONFIG_FILE` with `0600` permissions, and preserves unmanaged config keys while replacing the managed endpoint entries. Architecture should treat that file as a legacy/native-audio runtime-config bridge; the current default path uses OpenRouter `deepseek/deepseek-v4-flash` plus LiveKit and Kokoro, with accepted proof-record capture/recheck as the blocker.
-- Current blocker evidence: UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` has OpenRouter/LiveKit/Kokoro live-voice operator inputs configured and no remaining live-voice operator-input blockers. Architecture notes must still not promote provider-backed live voice or external publication proof from local/rehearsal evidence without accepted proof-record capture/recheck.
+- Live voice endpoint setup historically persisted through the local provider config file. The proof setup handoff validates legacy Gemma multimodal, Kokoro TTS, and LiveKit URL values before writing `LOCAL_PROVIDER_CONFIG_FILE` with `0600` permissions, and preserves unmanaged config keys while replacing the managed endpoint entries. Architecture should treat that file as a legacy/native-audio runtime-config bridge; the current default path uses OpenRouter `deepseek/deepseek-v4-flash` plus LiveKit and Kokoro, and live voice is now accepted.
+- Current blocker evidence: UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` has OpenRouter/LiveKit/Kokoro live-voice operator inputs configured and no remaining live-voice operator-input blockers. Architecture notes may cite the accepted provider-backed live-voice proof for this run; they must still not promote external publication proof from local/rehearsal evidence without accepted publication proof-record capture/recheck.
 - Credential snapshot source attribution should stay portable in durable proof packets: top-level `.env.example` provenance renders as `<workspace-root>/.env.example`, while blocker-level entries preserve `source: non-secret local classifier`. This keeps architecture/proof exports reproducible across checkout paths without changing blocked credential state.
 - Standalone credential snapshots should be durable review artifacts. The current `RUN-2026-05-20-NEXT/credential-snapshot.json` snapshot matches the fresh no-secret classifier payload, records placeholder-only credential state, and shows no configured direct or file inputs; it must not be interpreted as credential configuration or runtime readiness.
 - Concrete proof-plan snapshots should be durable review artifacts. The current `RUN-2026-05-20-NEXT/proof-plan.json` snapshot matches the fresh CLI payload, captures the no-secret operator plan and credential setup handoff, and keeps both proof attempt gates `blocked_by_credentials`; it must not be interpreted as credential configuration or runtime proof.
@@ -376,7 +380,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - checked_at: 2026-05-21
 - source: `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md`
 - generator: `uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
-- live_voice_inputs_needed: none for the current OpenRouter DeepSeek + LiveKit + Kokoro path; accepted proof-record capture/recheck is still required.
+- live_voice_inputs_needed: none; provider-backed live voice is accepted for the current OpenRouter DeepSeek + LiveKit + Kokoro path.
 - publication_inputs_needed: LinkedIn credential, policy acknowledgement, durable external destination proof, and rollback or postcondition evidence
 - architecture implication: remaining completion risk is no longer workspace ambiguity; it is external provider/platform proof capture.
 
@@ -387,7 +391,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json`
 - generator: `uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
 - architecture implication: review and implementation should not reopen local LiveKit, Kokoro, Rust voice edge, source-ledger, guardrail-audit, or workspace-validation blockers unless new evidence contradicts them.
-- remaining architecture blockers: accepted OpenRouter LiveKit live-voice proof-record capture/recheck and LinkedIn external publication proof capture.
+- remaining architecture blockers: LinkedIn external publication proof capture.
 
 
 ## Proof Workspace README Handoff - 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
@@ -417,7 +421,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 
 - checked_at: 2026-05-21
 - source: `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/`
-- architecture implication: completion, closure review, blocker-state update, blocker matrix, and operator checklist now all reflect the refreshed failed-proof state; no downstream artifact allows blocker mutation or objective completion while latest proof records are failed.
+- architecture implication: completion, closure review, blocker-state update, blocker matrix, and operator checklist now all reflect the refreshed proof state; no downstream artifact allows blocker mutation or objective completion while external publication remains failed.
 
 
 ## Current Blocker Matrix Audit-State Summary - 2026-05-21
@@ -426,7 +430,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - architecture implication: current-blocker matrix consumers can now read completion-level audit blocker lists directly when accepted proof evidence is blocked by incomplete target coverage, secret-shaped accepted audit notes, or invalid accepted audit notes.
 - architecture implication: matrix consumers no longer depend on both top-level and per-proof completion-status fields being present; missing top-level audit blocker arrays are derived from per-proof statuses.
 - verification: full provider-proof CLI suite passed with `199 passed`.
-- boundary: this is reporting fidelity, not proof capture; accepted OpenRouter LiveKit live-voice proof-record capture/recheck and external publication remain the completion blockers.
+- boundary: this is reporting fidelity, not proof capture; external publication remain the completion blockers.
 
 
 ## Operator Checklist Credential Snapshot - 2026-05-21
@@ -439,7 +443,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - architecture implication: the operator handoff now shows current and expected credential states together, reducing restart ambiguity without exposing secret values.
 - architecture implication: credential snapshot freshness is visible in the operator handoff via the snapshot `checked_at` value.
 - verification: full provider-proof CLI suite passed with `201 passed`.
-- boundary: accepted OpenRouter LiveKit live-voice proof-record capture/recheck and external publication are still unproven.
+- boundary: external publication are still unproven.
 
 
 ## Operator Input Template - 2026-05-21
@@ -476,7 +480,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - architecture implication: the retry path now has a no-secret gate between the operator input template and credential snapshot refresh, reducing ambiguous failed retries when placeholders or missing token files remain.
 - validation implication: generated README/checklist handoff now asks operators to capture readiness before rerunning proof preflights; current UUID readiness has OpenRouter and LiveKit inputs configured, with live voice waiting on proof-record capture/recheck rather than Hugging Face or Gamma/Gemma setup.
 - verification: full provider-proof CLI suite passed with `205 passed`.
-- boundary: this is readiness classification only; accepted proof still requires OpenRouter/LiveKit/Kokoro live evidence and external LinkedIn publication evidence. Real Gemma/HF audio evidence is legacy/optional for the current default route.
+- boundary: this is readiness classification only; accepted live-voice proof now has OpenRouter/LiveKit/Kokoro live evidence. External LinkedIn publication evidence is still required. Real Gemma/HF audio evidence is legacy/optional for the current default route.
 
 
 ## Operator Input Path Consumption - 2026-05-21
@@ -508,7 +512,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - validation implication: the readiness command now supports a nonzero blocked-input exit path without changing the default report-only behavior.
 - validation implication: the readiness JSON now carries its exit policy directly, so orchestration can interpret strict-mode failures from the artifact.
 - validation implication: invalid operator-input file statuses now point automation to file repair instead of credential filling.
-- boundary: this improves retry mechanics only; OpenRouter LiveKit live-voice proof-record capture/recheck and external LinkedIn publication remain unproven until actual external evidence is captured and accepted.
+- boundary: this improves retry mechanics only; provider-backed live voice is accepted; external LinkedIn publication remains unproven until actual external evidence is captured and accepted.
 
 
 ## Static Proof Packet Guarded Retry Chain - 2026-05-21
@@ -653,7 +657,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `social_media_optimiser/01-work-tracking/Agent Studio Kanban.md`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json`
 - architecture implication: the vault-only Kanban now distinguishes the report-only operator-input retry chain from the guarded strict-first retry chain on the remaining live-voice and publication blockers, keeping human board review aligned with the matrix/status/checklist command model.
 - verification: the foundation vault contract first failed because the Kanban linked generated proof packets but omitted the retry-chain split; after the board update, focused foundation verification passed with `1 passed`.
-- boundary: this is planning-memory routing only; it does not supply accepted OpenRouter/LiveKit/Kokoro live proof or external publication proof. HF/Gemma live-audio wording is legacy for the current route.
+- boundary: this is planning-memory routing only; it does not alter the accepted OpenRouter/LiveKit/Kokoro live proof or supply external publication proof. HF/Gemma live-audio wording is legacy for the current route.
 
 
 ## Memory Log UUID Status Correction - 2026-05-21
@@ -669,7 +673,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-runtime-readiness.preflight.json`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md`
 - architecture implication: the current proof matrix now preserves `openrouter-live-dialogue-reasoning` as the active live-dialogue check and keeps legacy `gemma-audio-reasoning` separate, so Markdown-first review agents do not treat missing Gemma audio proof as a blocker for the OpenRouter/LiveKit/Kokoro path.
 - verification: the focused current-status regression first failed on the stale `unknown` label; after the renderer update and packet refresh, matrix/status/checklist freshness checks passed with `3 passed`.
-- boundary: this is status-label accuracy only; it does not create accepted OpenRouter/LiveKit/Kokoro proof. Native Gemma multimodal endpoint work is legacy/optional and must not block the current default route.
+- boundary: this is status-label accuracy only; it does not create accepted OpenRouter/LiveKit/Kokoro live proof. Native Gemma multimodal endpoint work is legacy/optional and must not block the current default route.
 
 
 ## Publication Blocker Status Label - 2026-05-21
@@ -683,9 +687,9 @@ This failed record is preserved as historical audit evidence from the prior nati
 ## Operator Checklist Blocker Status Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md`
-- architecture implication: the compact operator checklist now mirrors proof-level blocker statuses from the status packet: live voice remains blocked on accepted proof-record capture/recheck for `openrouter-live-dialogue-reasoning` plus LiveKit transport, LiveKit agent participant, backend event sink, Kokoro TTS, and Rust voice edge where applicable; publication remains `blocked` on `linkedin-publication-readiness`. `gemma-audio-reasoning` is legacy/native optional and must not block the OpenRouter path.
+- architecture implication: the compact operator checklist now mirrors proof-level blocker statuses from the status packet: live voice is accepted for `openrouter-live-dialogue-reasoning` plus LiveKit transport, LiveKit agent participant, backend event sink, Kokoro TTS, and Rust voice edge where applicable; publication remains `blocked` on `linkedin-publication-readiness`. `gemma-audio-reasoning` is legacy/native optional and must not block the OpenRouter path.
 - verification: the concrete checklist regression first failed on missing status lines; after the renderer update and UUID checklist refresh, focused checklist verification passed with `1 passed`.
-- boundary: this is status visibility only; it does not supply accepted OpenRouter/LiveKit/Kokoro realtime evidence, LinkedIn credentials, durable destination proof, or rollback/postcondition evidence.
+- boundary: this is status visibility only; it does not supply LinkedIn credentials, durable destination proof, or rollback/postcondition evidence.
 
 
 ## Machine-Readable Proof Capture Commands - 2026-05-21
@@ -757,7 +761,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html`, `social_media_optimiser/02-research/gemma-voice-boundary-map.html`, `social_media_optimiser/03-review-packets/agent-studio-publication-boundary-map.html`
 - architecture implication: browser-exported `proof_plan` packets now include `proof_capture_commands_after_unblock`, matching the CLI proof rows and preserving the same post-unblock command path for browser-first A2A/review agents.
 - verification: the static parity regression first failed on the missing field; after the HTML updates, focused static parity passed with `4 passed`, affected browser suites passed with `8 passed`, and compileall passed for the touched test file.
-- boundary: this closes an export parity gap only; provider-backed live voice and external publication proof remain externally blocked.
+- boundary: this closes an export parity gap only; provider-backed live voice is accepted; external publication proof remains blocked.
 
 
 ## Static Proof Plan Visible Capture Chain - 2026-05-21
@@ -781,7 +785,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md`
 - architecture implication: Markdown-first operators and A2A/review agents can now see the same `operator_proof_packet` metadata that the matrix owns, including label, packet schema version, value-free handoff contract, state-change guardrail, secret handling, next packet refs, `must_capture`, and `store_in`.
 - verification: focused regressions first failed with zero `operator_proof_packet` sections; after the shared renderer and UUID packet refresh, focused Markdown checks passed with `2 passed`, full provider-proof CLI passed with `221 passed`, foundation passed with `21 passed`, compileall passed, and touched-file whitespace/secret scans plus `git diff --check` were clean.
-- boundary: this is architecture/handoff parity only; accepted provider-backed live voice and external publication proof records remain externally blocked.
+- boundary: this is architecture/handoff parity only; provider-backed live voice is accepted; external publication proof remains blocked.
 
 
 ## Markdown Operator Proof Packet Identity Refs - 2026-05-21
@@ -845,7 +849,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/README.md`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json`
 - architecture implication: the generated proof workspace README now carries the same packet-contract metadata as the matrix/status/checklist surfaces, so the command-source handoff remains sufficient for A2A/human proof capture routing.
 - verification: README regressions first failed on missing packet metadata, and the new UUID workspace-validation guard first failed as `invalid_workspace`; after adding the README renderer, refreshing the live-voice template field, and refreshing validation, full provider-proof CLI passed with `222 passed`, foundation passed with `21 passed`, compileall passed, and touched-file whitespace/secret scans plus `git diff --check` were clean.
-- boundary: this restores local proof-workspace freshness only; accepted OpenRouter/LiveKit/Kokoro live proof and external publication proof remain required before closure. Real HF/Gemma audio proof is legacy/optional for the current default route.
+- boundary: this restores local proof-workspace freshness only; external publication proof remains required before closure. Real HF/Gemma audio proof is legacy/optional for the current default route.
 
 
 ## Proof Plan Operator Packet Metadata - 2026-05-21
@@ -853,7 +857,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/RUN-2026-05-20-NEXT/proof-plan.json`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json`
 - architecture implication: plan-first A2A/review agents can now route proof capture from `proof-plan.json` without opening the matrix, README, status packet, or checklist.
 - verification: proof-plan regressions first failed on missing `operator_proof_packet`; after the payload update and proof-plan refresh, full provider-proof CLI passed with `223 passed`, foundation passed with `21 passed`, compileall passed, and touched-file whitespace/secret scans plus `git diff --check` were clean.
-- boundary: this is machine-readable routing parity only; accepted OpenRouter/LiveKit/Kokoro live proof and publication proof evidence remains blocked.
+- boundary: this is machine-readable routing parity only; provider-backed live voice is accepted; publication proof evidence remains blocked.
 
 ## Proof Plan Operator Matrix Back-Reference - 2026-05-21
 
@@ -876,161 +880,161 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `social_media_optimiser/output/viewers/agent-studio-system-design.json`, `social_media_optimiser/output/viewers/agent-studio-system-design-viewer.html`
 - architecture implication: architecture-level A2A/review agents can now compare the compact provider-proof-plan packet in `proof_plan_operator_packet` against the richer current-matrix operator packet in the same Objective Completion Audit route row.
 - verification: system-design viewer parity first failed on missing `proof_plan_operator_packet`; after adding the route field and visible detail, viewer checks passed with `2 passed`, foundation passed with `21 passed`, and compileall passed for the touched viewer test.
-- boundary: this is route visibility only; accepted OpenRouter/LiveKit/Kokoro live proof and publication proof remain required.
+- boundary: this is route visibility only; publication proof remains required.
 
 ## Static Operator Input Field Status Parity - 2026-05-21
 
 - source: `social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html`, `social_media_optimiser/02-research/gemma-voice-boundary-map.html`, `social_media_optimiser/03-review-packets/agent-studio-publication-boundary-map.html`, `tests/test_blocker_snapshot_consistency.py`, `tests/test_blocker_proof_packets_browser.py`
 - architecture implication: browser-first A2A/review agents now get the same field-level operator-input contract and readiness diagnostics as matrix-first and Markdown-first agents, including secret-file vs placeholder state, value source, issue code, next action, and contract.
 - verification: the new source-level static parity check first failed on stale embedded packets; after refreshing the static packet data and visible renderers, the combined provider-proof/static/browser/foundation suite passed with `253 passed`, compileall passed, and `git diff --check` was clean.
-- boundary: this is static export and handoff visibility only; the objective remains blocked until accepted OpenRouter LiveKit live-voice and external publication proof records exist.
+- boundary: this is static export and handoff visibility only; the objective remains blocked until accepted external publication proof, completion-status recheck, and closure review exist.
 
 ## System Design Viewer Field Status Parity - 2026-05-21
 
 - source: `social_media_optimiser/output/viewers/agent-studio-system-design.json`, `social_media_optimiser/output/viewers/agent-studio-system-design-viewer.html`, `tests/test_system_design_viewer_browser.py`
 - architecture implication: architecture-level A2A/review agents now see the same field-level operator-input contract and readiness status maps as matrix/static/Markdown agents directly in the Objective Completion Audit routes.
 - verification: viewer parity first failed on missing route-level `field_contracts` and `field_statuses`; after refreshing the standalone JSON, embedded viewer data, and visible detail renderer, viewer checks passed with `2 passed`, combined viewer/static/foundation checks passed with `32 passed`, provider-proof CLI passed with `223 passed`, compileall passed, and `git diff --check` was clean.
-- boundary: this is system-design viewer parity only; accepted OpenRouter LiveKit live voice and external publication proof records are still required before closure.
+- boundary: this is system-design viewer parity only; external publication proof, completion-status recheck, and closure review are still required.
 
 ## Workspace README Field Status Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, generated provider proof workspace READMEs, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: command-source proof workspaces now carry the same field-level operator-input readiness status map as matrix, Markdown, static HTML, and system-design viewer surfaces, so operators and A2A/review agents can unblock credentials without scraping other artifacts.
 - verification: the README regression first failed because `operator_proof_packet` blocks had field contracts but omitted `field_statuses`; after updating the README generator and refreshing UUID/RUN-NEXT READMEs, focused README checks passed with `2 passed`, provider-proof CLI passed with `223 passed`, combined viewer/static/foundation checks passed with `32 passed`, compileall passed, and `git diff --check` was clean.
-- boundary: this is proof-workspace handoff parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is proof-workspace handoff parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Aggregate Operator Input Field Groups - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `operator-input-readiness.json`, `current-blocker-matrix.json`, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: readiness and matrix packets now expose aggregate configured, missing, placeholder, invalid, and unavailable secret-file field groups, allowing A2A/review agents to reason over operator-input readiness without traversing every proof packet.
 - verification: focused regressions first failed on missing aggregate field groups; after the CLI update and UUID packet refresh, focused checks passed with `3 passed`, provider-proof CLI passed with `223 passed`, static/viewer parity passed with `9 passed`, compileall passed, and `git diff --check` was clean.
-- boundary: this is no-secret readiness metadata only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is no-secret readiness metadata only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Markdown Aggregate Operator Input Groups - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `current-proof-status.md`, `operator-unblocker-checklist.md`, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: text-first A2A/review agents can now read aggregate configured fields and grouped missing/placeholder/invalid/unavailable inputs before descending into per-proof routes.
 - verification: focused Markdown regressions first failed on missing aggregate sections; after the renderer update and UUID packet refresh, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is Markdown handoff parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is Markdown handoff parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## System Design Viewer Aggregate Readiness Diagnostics - 2026-05-21
 
 - source: `social_media_optimiser/output/viewers/agent-studio-system-design.json`, `social_media_optimiser/output/viewers/agent-studio-system-design-viewer.html`, `tests/test_system_design_viewer_browser.py`
 - architecture implication: architecture-level A2A/review agents can now inspect aggregate blocked fields, configured fields, and grouped operator-input readiness directly from Objective Completion Audit diagnostics in the interactive viewer.
 - verification: focused viewer parity first failed on missing aggregate diagnostics; after refreshing the viewer projection, system-design viewer checks passed with `2 passed`, static/viewer parity passed with `9 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is interactive viewer parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is interactive viewer parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Workspace README Aggregate Readiness - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, generated provider proof workspace READMEs, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: workspace-local command-source READMEs now expose aggregate configured fields and grouped missing/placeholder/invalid/unavailable inputs before per-proof route commands, so operators and review agents can triage readiness without opening matrix, status, or checklist packets.
 - verification: README regressions first failed on missing aggregate readiness; after the generator update and refreshing UUID/RUN-NEXT READMEs plus validation artifacts, focused checks passed with `3 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is no-secret workspace handoff parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is no-secret workspace handoff parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Per-Proof Configured Field Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `current-blocker-matrix.json`, generated proof-plan/status/checklist/README/static/viewer packets, `tests/test_provider_proof_plan_cli.py`, `tests/test_blocker_proof_packets_browser.py`, `tests/test_system_design_viewer_browser.py`
 - architecture implication: per-proof configured-field state now survives from the source operator-input readiness report into matrix rows, operator proof packets, static proof pages, and Objective Completion Audit routes, giving A2A/review agents the same configured-versus-blocked field view at every handoff.
 - verification: focused matrix/browser regressions first failed on missing `configured_fields`; after generator and artifact refresh, focused packet/viewer checks passed with `4 passed`, static/viewer suites passed with `11 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is no-secret field-name parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is no-secret field-name parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Per-Proof Required Field Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `current-blocker-matrix.json`, generated proof-plan/status/checklist/README/static/viewer packets, `tests/test_provider_proof_plan_cli.py`, `tests/test_blocker_proof_packets_browser.py`, `tests/test_system_design_viewer_browser.py`
 - architecture implication: per-proof required-field state now survives from the source operator-input readiness report into matrix rows, operator proof packets, static proof pages, and Objective Completion Audit routes, so A2A/review agents can compare required, configured, and blocked fields without opening source JSON.
 - verification: focused matrix/browser/viewer regressions first failed on missing `required_fields`; after generator and artifact refresh, focused checks passed with `5 passed`, provider-proof CLI passed with `223 passed`, and static/viewer suites passed with `11 passed`.
-- boundary: this is no-secret input-schema parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is no-secret input-schema parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Compact Markdown Required/Configured Field Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `current-proof-status.md`, `operator-unblocker-checklist.md`, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: text-first A2A/review agents can now compare each proof's required, configured, and blocked operator inputs inside the compact Markdown route sections without opening source JSON or richer packet blocks.
 - verification: focused Markdown regressions first failed on missing per-proof required/configured labels; after the renderer update and UUID packet refresh, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is Markdown handoff parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is Markdown handoff parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Aggregate Markdown Required Field Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `current-proof-status.md`, `operator-unblocker-checklist.md`, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: text-first A2A/review agents can inspect the aggregate required operator-input field set before moving into configured fields, grouped diagnostics, or per-proof routes.
 - verification: focused Markdown regressions first failed on missing aggregate required-field labels; after the renderer update and UUID packet refresh, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is aggregate Markdown handoff parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is aggregate Markdown handoff parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Aggregate Markdown Field Contract/Status Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `current-proof-status.md`, `operator-unblocker-checklist.md`, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: text-first A2A/review agents can now inspect aggregate operator-input contracts and per-field status states without opening `operator-input-readiness.json` or richer proof packets.
 - verification: focused Markdown regressions first failed on missing aggregate contract/status sections; after the renderer update and UUID packet refresh, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is no-secret Markdown handoff parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is no-secret Markdown handoff parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Per-Proof Markdown Field Contract/Status Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `current-proof-status.md`, `operator-unblocker-checklist.md`, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: text-first A2A/review agents can now inspect per-proof operator-input contracts and statuses in the compact live voice and publication routes without opening JSON or larger packet blocks.
 - verification: focused Markdown regressions first failed on missing per-proof contract/status sections; after the renderer update and UUID packet refresh, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is no-secret per-proof Markdown handoff parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is no-secret per-proof Markdown handoff parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Workspace README Aggregate Field Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, generated provider proof workspace READMEs, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: command-source proof workspaces now expose aggregate required fields, field contracts, and field statuses before per-proof routes, so operators and A2A/review agents can triage input readiness from the README alone.
 - verification: focused README regressions first failed on missing aggregate required/contract/status sections; after the generator update and refreshing UUID plus RUN-NEXT READMEs, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is README handoff parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is README handoff parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Workspace README Per-Proof Route Field Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, generated provider proof workspace READMEs, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: README-first operators and A2A/review agents can inspect live voice/publication route-specific required/configured fields, contracts, and statuses before choosing retry commands.
 - verification: focused README regressions first failed on missing per-proof route field sections; after the generator update and refreshing UUID plus RUN-NEXT READMEs, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is command-source README parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is command-source README parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Workspace README Per-Proof Route State Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, generated provider proof workspace READMEs, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: README-first operators and A2A/review agents can now see each route's blocked state, freshness date, source artifact, next action, and guarded failure code before selecting retry commands.
 - verification: focused README regressions first failed on missing route state metadata; after the generator update and refreshing UUID plus RUN-NEXT READMEs, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is command-source route-state parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is command-source route-state parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Operator Input Template Contract Handoff - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, generated `operator-inputs.template.env` files, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: operators and A2A/review agents can now inspect value-source type and validation contract at the exact file they must fill, reducing drift between README/status guidance and the actual unblock input.
 - verification: focused template regressions first failed on missing contract/value-source comments; after the generator update and refreshing UUID plus RUN-NEXT templates, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is no-secret operator-input guidance only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is no-secret operator-input guidance only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Workspace README Blocked Field Parity - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, generated provider proof workspace READMEs, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: README-first operators and A2A/review agents can now identify aggregate and route-specific blocked fields before reading field contracts or running retry commands.
 - verification: focused README regressions first failed on missing blocked-field sections; after the generator update and refreshing UUID plus RUN-NEXT READMEs, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is command-source blocked-field parity only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is command-source blocked-field parity only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Operator Input Template Status Handoff - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, generated `operator-inputs.template.env` files, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: operators and A2A/review agents can see default blocked state, issue code, and next action in the exact file used to supply the remaining external inputs.
 - verification: focused template regressions first failed on missing state/issue/action comments; after the generator update and refreshing UUID plus RUN-NEXT templates, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is no-secret operator-input guidance only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is no-secret operator-input guidance only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Operator Input Template Proof Ownership Handoff - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, generated `operator-inputs.template.env` files, `tests/test_provider_proof_plan_cli.py`
 - architecture implication: operators and A2A/review agents can identify the owning proof and role for each required input directly in the fillable env template, reducing cross-reference drift between live voice and publication unblock work.
 - verification: focused template regressions first failed on missing proof ownership comments; after the generator update and refreshing UUID plus RUN-NEXT templates, focused checks passed with `2 passed`, and provider-proof CLI passed with `223 passed`.
-- boundary: this is no-secret operator-input ownership guidance only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is no-secret operator-input ownership guidance only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Operator Input Readiness Proof Ownership Handoff - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `operator-input-readiness.json`, current blocker matrix, proof-readiness HTML, legacy-named live-voice boundary map, publication boundary map, system-design viewer, `tests/test_provider_proof_plan_cli.py`, `tests/test_blocker_snapshot_consistency.py`, `tests/test_blocker_proof_packets_browser.py`, `tests/test_system_design_viewer_browser.py`
 - architecture implication: A2A/review agents can now route each required input field from machine-readable readiness JSON to its owning live-voice or publication proof without parsing env-template comments or inferring ownership from grouped blockers.
 - verification: focused readiness regressions first failed on missing proof ownership keys; after the CLI update and artifact refresh, focused checks passed with `2 passed`, provider-proof CLI passed with `223 passed`, and escalated static/viewer parity passed with `11 passed`.
-- boundary: this is no-secret operator-input ownership metadata only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is no-secret operator-input ownership metadata only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Operator Input Direct Field Ownership Map - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `operator-input-readiness.json`, current blocker matrix, proof-readiness HTML, legacy-named live-voice boundary map, publication boundary map, system-design viewer, `tests/test_provider_proof_plan_cli.py`, `tests/test_blocker_snapshot_consistency.py`, `tests/test_blocker_proof_packets_browser.py`, `tests/test_system_design_viewer_browser.py`
 - architecture implication: automation can now route each required input field through direct aggregate and per-proof `field_ownership` maps instead of traversing field-status objects, making live-voice versus publication unblock ownership explicit at every handoff.
 - verification: focused readiness/viewer regressions first failed on missing direct ownership maps; after the CLI update and artifact refresh, focused checks passed, provider-proof CLI passed with `223 passed`, and escalated static/viewer parity passed with `11 passed`.
-- boundary: this is direct no-secret routing metadata only; accepted OpenRouter LiveKit live voice and external publication proof records remain external requirements.
+- boundary: this is direct no-secret routing metadata only; external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## OpenRouter Text-Turn Live-Dialogue Readiness Contract - 2026-05-23
 
@@ -1044,14 +1048,14 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `system_design_vault/agent-studio-system-design-home.html`, `system_design_vault/MOC.md`, `social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md`, `tests/test_system_design_vault_home_browser.py`, `tests/test_foundation.py`
 - architecture implication: system-design-vault home links to the project HLD/LLD review surface and generated viewer now give reviewers a direct route from the architecture vault to `Project HLD/LLD Review Surface` comment export and `Project System Design Viewer` generated viewer inspection.
 - verification: red foundation/browser coverage first failed on the missing direct routes and audit references; after the home, MOC, and audit updates, the focused and full foundation checks require both route labels.
-- boundary: this is architecture-review navigation only; Obsidian notes remain source truth and accepted OpenRouter LiveKit live voice plus external publication proof records remain external requirements.
+- boundary: this is architecture-review navigation only; Obsidian notes remain source truth and external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## System Design Source Map Viewer Proof - 2026-05-21
 
 - source: `system_design_vault/output/viewers/system-design-source-map.html`, `system_design_vault/output/viewers/system-design-source-map.json`, `tests/test_system_design_source_map_viewer_browser.py`, `tests/test_foundation.py`
 - architecture implication: system-design source-map viewer browser proof now makes the generated source inventory inspectable in-browser through rendered source records, source groups, policy lists, first-slice items, search, kind filter, and coverage-granularity filter, plus design implications, implication search, visible record counts, no-match states, and clickable source-note paths.
 - verification: red browser coverage first failed because the viewer shell did not render embedded data; after the renderer update, focused Chromium coverage and foundation checks require the viewer behavior.
-- boundary: this is generated inspection only; Markdown notes remain the canonical source and accepted OpenRouter LiveKit live voice plus external publication proof records remain external requirements.
+- boundary: this is generated inspection only; Markdown notes remain the canonical source and external publication proof, completion-status recheck, and closure review remain external requirements.
 
 ## Project Vault Home Source Map Route - 2026-05-21
 
@@ -1149,3 +1153,86 @@ This failed record is preserved as historical audit evidence from the prior nati
 - existing_backend: the shared FastAPI process on `127.0.0.1:8000` is listening but `/health` currently times out, and the Next dev proxy reports repeated `ECONNRESET` responses from `/api/worker-scheduler-process`.
 - isolated_check: a temporary backend started on `127.0.0.1:8001` returned `/health` successfully with OpenRouter LiveKit configured, then was stopped.
 - implication: the implementation path can start cleanly, but the shared `:8000` runtime should be treated as stale or wedged until the operator approves restart; do not use the rendered frontend alone as accepted backend proof.
+
+
+## Frontend OpenRouter Smoke Proof Display - 2026-05-24
+
+- source: `frontend/next-app/lib/voice/providerSmoke.ts`, `frontend/next-app/tests/voiceProviderSmoke.test.ts`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-smoke-ledger.live-openrouter.json`
+- architecture implication: current provider-smoke proof display now follows the accepted OpenRouter/LiveKit/Kokoro evidence shape. When the smoke step is `openrouter-livekit` or carries `reasoning_model_id`, the frontend labels it as `OpenRouter/Kokoro transport`, shows `OpenRouter TTFT`, and records the DeepSeek reasoning model as `Reasoning: deepseek/deepseek-v4-flash` instead of rendering stale `Gemma/Kokoro transport` copy.
+- verification: the regression first failed on the old `Gemma/Kokoro transport` title, then passed after formatter update. `npm run test:race`, `npm run typecheck`, `npm run lint`, and `npm run build` passed.
+- boundary: this is display/proof interpretation fidelity only; provider-backed live voice is already accepted, and external publication proof remains blocked on real LinkedIn credential, policy acknowledgement, durable destination, and rollback/postcondition evidence.
+
+
+## Provider Proof Record - provider-backed-live-voice-proof - 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
+
+- checked_at: 2026-05-24
+- validation_timestamp: 2026-05-24T06:06:52Z
+- proof_outcome: accepted
+- validation_status: valid_accepted_record
+- state_change_allowed: true
+- proof_artifact_type: provider_backed_live_voice_proof_record
+- validation_issues: none
+- preflight_validation_report_status: valid_preflight_artifacts
+- preflight_validation_report_matched_fields: all_required_fields_matched
+- preflight_validation_report_validated_product_run_id: 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
+- preflight_validation_report_validated_runtime_checks: livekit-transport, livekit-agent-participant, voice-agent-backend-event-sink, openrouter-live-dialogue-reasoning, kokoro-tts, rust-voice-edge
+- workspace_validation_report_status: valid_workspace
+- workspace_validation_report_matched_fields: all_required_fields_matched
+- workspace_validation_report_artifact_id: <workspace-root>/social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json
+- preflight_validation_report_artifact_id: <workspace-root>/social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json
+- product_run_preflight_artifact_id: <workspace-root>/social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json
+- provider_readiness_preflight_artifact_id: <workspace-root>/social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-readiness.preflight.json
+- voice_runtime_readiness_preflight_artifact_id: <workspace-root>/social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-runtime-readiness.preflight.json
+- voice_agent_process_start_artifact_id: <workspace-root>/social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-agent-process.start.json
+- runtime_health_ledger_artifact_id: 93a723c3-01c4-4559-9cf5-cf52e4e3f287
+- voice_edge_benchmark_status: ready
+- provider_smoke_ledger_artifact_id: 94857bb9-c5eb-4174-8bc5-6687bd8befbe
+- livekit_voice_timing_capture_artifact_id: <workspace-root>/social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/livekit-voice-timing-capture.json
+- realtime_voice_timing_ledger_artifact_id: 7e932381-4bf4-4206-a490-58d6a4ca7880
+- realtime_provider: openrouter_livekit
+- execute_live_calls: true
+- realtime_session_id_or_livekit_room: ebd43531-86e3-4af1-ade0-15ac8d7184bf
+- participant_identity: provider-smoke-creator
+- runtime_configuration_snapshot_id: <workspace-root>/social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json
+- post_capture_validation_results: 7 recorded / 7 passed / 0 failed
+- secret_redaction_check: passed
+
+## Frontend OpenRouter Setup And Release-Gate Copy - 2026-05-24
+
+- source: `frontend/next-app/lib/voice/setup.ts`, `frontend/next-app/lib/voice/providerReadiness.ts`, `frontend/next-app/lib/voice/providerSmoke.ts`, `frontend/next-app/tests/voiceSetup.test.ts`, `frontend/next-app/tests/voiceProviderReadiness.test.ts`, `frontend/next-app/tests/voiceProviderSmoke.test.ts`
+- architecture implication: active voice UI status surfaces now derive the current realtime stack from the selected provider or OpenRouter smoke evidence. For the current default route, setup and release gates render `OpenRouter/Kokoro agent`, `Live OpenRouter/Kokoro smoke`, `OpenRouter/Kokoro transport`, and provider-aware captured-audio proof. Legacy `Gemma/Kokoro` labels and the Gemma expert endpoint gate remain only for explicit selected Gemma fixtures, so legacy Gemma/HF readiness cannot block OpenRouter release readiness.
+- architecture implication: OpenRouter live voice release readiness is now separated from content research providers. Web-search/reranker readiness and Tavily secret guidance stay outside the OpenRouter voice release gate and should be treated as retrieval/publication readiness, while legacy/Gemma selected-provider behavior remains unchanged.
+- verification: regressions first failed on stale Gemma labels in setup, release-gate, no-ledger streaming-proof, selected-provider release blocking, captured-audio proof states, Tavily blocking OpenRouter voice readiness, and Gemma/HF missing-runtime fallback copy. After the fix, `npm run test:race` passed with `259 passed`, and `npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`, and `uv run pytest tests/test_repo_workflow_ci.py -q` passed. Repo workflow language tracks the committed `uv.lock`.
+- render evidence: Browser DOM verification against `http://127.0.0.1:3001/` found the rendered Content Studio page, OpenRouter/DeepSeek/Kokoro voice runtime copy, no `data-nextjs-error`, and no stale default Gemma/Gamma body copy. Browser screenshot capture timed out.
+- boundary: this is frontend/status-copy correctness, not a new provider proof. Accepted live voice remains `valid_accepted_record`; external publication remains blocked on operator-owned LinkedIn credential, policy acknowledgement, durable destination, and rollback/postcondition evidence.
+
+## Current Proof Packet Refresh - 2026-05-24
+
+- source: `operator-input-readiness.json`, `credential-snapshot.json`, `proof-plan.json`, `current-blocker-matrix.json`, `current-proof-status.md`, `operator-unblocker-checklist.md`, `completion-status.json`, proof-readiness HTML, OpenRouter LiveKit voice boundary HTML, publication boundary HTML
+- architecture implication: the current proof workspace and browser-facing proof packets now share the 2026-05-24 no-secret operator-input snapshot. Live voice remains accepted; external publication remains the only failed required proof, with strict readiness blocking on LinkedIn credential file, policy acknowledgement artifact, durable destination, and rollback/postcondition artifact.
+- verification: strict operator input readiness exited `2` with the expected four publication fields; focused proof-packet browser regressions passed with `5 passed, 2 skipped`; `git diff --check` passed; targeted stale lockfile wording and token-shaped secret scans produced no hits.
+- boundary: this advances handoff freshness and review reliability only. It does not supply the external publication credential or durable platform evidence required for completion.
+
+## LinkedIn-Only Publication Proof Setup - 2026-05-24
+
+- source: `src/all_about_llms/orchestration/blocker_credentials.py`, `src/all_about_llms/cli.py`, current UUID proof workspace packets, proof-readiness HTML, publication boundary HTML
+- architecture implication: the current external publication proof gate is no longer a generic multi-channel social credential gate. It is a LinkedIn-first proof contract: LinkedIn credential file plus policy acknowledgement, durable destination, and rollback/postcondition evidence. Instagram, X, and Substack credentials should not appear in the current proof-plan setup handoff.
+- generated-state implication: the UUID proof workspace now validates as `valid_workspace` after template and README refresh. The `RUN-2026-05-20-NEXT` workspace remains `blocked_by_run_id`, which is expected because it is not a durable product UUID.
+- verification: proof/static suite passed with `204 passed, 32 skipped`; stable CI Python slice passed with `227 passed, 30 skipped`; `uv run ruff check src/ tests/`, frontend lint/typecheck/race tests/build, and `git diff --check` passed. Stale Instagram/X/Substack credential strings were absent from the regenerated current proof packets and browser maps.
+- boundary: no external publication call, LiveKit restart, Cursor process action, or secret write was performed. Overall objective completion remains blocked until the four LinkedIn/publication operator-owned evidence fields are supplied.
+
+## LinkedIn-Only Accepted Publication Proof Validation - 2026-05-24
+
+- source: Leibniz review `019e3899-5ab3-7171-9d3c-32e7c57bbde7`, `src/all_about_llms/cli.py`, `tests/test_provider_proof_plan_cli.py`, proof-readiness HTML, publication boundary HTML
+- architecture implication: the external publication proof contract is now LinkedIn-only at both setup time and accepted-record validation time. A hand-built accepted publication record cannot use Instagram/X/Substack evidence even if its preflight report lists those channels; accepted state requires `destination_channel=linkedin`, a durable LinkedIn URL/platform id, and preflight `validated_publish_channels` exactly equal to `linkedin`.
+- audit implication: compact accepted proof audit notes are guarded by the same invariant, preventing hand-edited audit text from promoting non-LinkedIn publication evidence into completion status.
+- verification: failing-first regressions reproduced the generic accepted-channel bypass; after the fix, provider-proof CLI passed with `200 passed, 30 skipped`, proof/static suite passed with `205 passed, 32 skipped`, stable Python CI passed with `228 passed, 30 skipped`, `uv run ruff check src/ tests/` passed, and `git diff --check` passed.
+- boundary: this is a fail-closed proof-quality change, not a publication attempt. The system remains incomplete until LinkedIn credential, policy acknowledgement, durable destination, rollback/postcondition evidence, completion-status recheck, and closure review are present.
+
+## CI/CD Verification And Lockfile Boundary - 2026-05-24
+
+- source: `.github/workflows/ci.yml`, `scripts/ci-python-stable-tests.sh`, `tests/test_repo_workflow_ci.py`, `.gitignore`, `uv.lock`, frontend package scripts, Rust service manifests
+- architecture implication: the repo workflow now treats `uv.lock` as the committed dependency lockfile and keeps local command logs, generated proof/viewer state, screenshots, images, PDFs, media, caches, DBs, and secret files outside commits.
+- verification: full Python suite passed with `789 passed, 49 skipped`; stable Python CI slice passed with `228 passed, 30 skipped`; `uv run ruff check src/ tests/` passed; frontend lint/typecheck/race tests/build passed; Rust `cargo fmt --all -- --check` and `cargo test --locked` passed for `services/retrieval-ranker` and `services/voice-edge`; `git diff --check` passed.
+- security implication: targeted secret scan found only placeholders and deliberate redaction-test strings. No secret values or large binary artifacts should be staged for PR.
+- boundary: local verification is green, but remote branch protection/auto-merge still needs GitHub-side setup and an actual CI run on the pushed PR. Product objective completion remains blocked on external LinkedIn publication proof and closure review.

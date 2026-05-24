@@ -1,6 +1,6 @@
 ---
 type: cross-vault-links
-updated: 2026-05-23
+updated: 2026-05-24
 ---
 
 # Vault Sync Notes
@@ -33,15 +33,16 @@ Run ID: `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
 | Operator checklist | `../social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md` |
 | Proof plan | `../social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json` |
 
-**Workspace state (2026-05-23):**
+**Workspace state (2026-05-24):**
 
 - `valid_workspace`; latest runtime-health ledger reports 10/10 checks ready locally
 - Local LiveKit transport, Kokoro, Rust voice edge, context pruning evidenced
 - OpenRouter text-turn live dialogue uses distinct **`openrouter-live-dialogue-reasoning`** readiness; it is not native Gemma audio proof
+- Provider-backed live voice proof is accepted for this run using OpenRouter `deepseek/deepseek-v4-flash`, LiveKit, Kokoro, provider-smoke ledger `94857bb9-c5eb-4174-8bc5-6687bd8befbe`, and realtime timing ledger `7e932381-4bf4-4206-a490-58d6a4ca7880`
 - Latest live provider smoke passes with ledger artifact `9b371737-1344-4cfa-be2e-fcfc9cc30700`, selected realtime session `89f7b584-6905-4e74-9210-08c28ba254e4`, first text delta `489.124 ms`, Kokoro first audio chunk `5668.734 ms`, and first-audio latency `6157.88 ms`
 - Legacy/native **`gemma-audio-reasoning`** is optional/superseded for the current default path; accepted live proof capture/recheck must verify LiveKit transport, the LiveKit agent participant, backend event sink, OpenRouter `deepseek/deepseek-v4-flash` live-dialogue reasoning, Kokoro TTS, and Rust voice edge where applicable
-- **Publication blocked** — LinkedIn credential + policy artifacts
-- Both proofs: `latest_record_failed` / `valid_failed_record`
+- **Publication blocked** — LinkedIn credential, policy acknowledgement, durable destination, and rollback/postcondition artifacts
+- External publication proof: `latest_record_failed` / `valid_failed_record`; live voice is `accepted_proof_record_available`
 - Completion: `blocked_by_latest_failed_proof_record`
 
 **Do not confuse with:** `RUN-2026-05-20-NEXT` — intentionally blocked (`run_id_not_product_uuid`); operators must use UUID bootstrap.
@@ -71,9 +72,10 @@ Run ID: `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
 
 Project audit and system-design mirror agree on:
 
-- Two proof blockers (live voice, external publication)
+- Live voice accepted on the current OpenRouter/LiveKit/Kokoro path
+- One remaining proof blocker: external publication
 - UUID run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
-- Failed proof records pending accepted live proof capture/recheck plus publication operator inputs
+- Failed external publication record pending operator inputs and accepted destination proof
 
 ## Agent progress vault role
 
