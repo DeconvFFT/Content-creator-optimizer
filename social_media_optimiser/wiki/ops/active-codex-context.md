@@ -1303,3 +1303,18 @@ At the end of a meaningful slice:
 - PR state: Auto PR generated the no-secret provider-proof handoff after CI success but still hit repository-settings `403` on draft PR create/update. The last verified pre-note branch evidence was CI run `26373706362` for head `cd13be28271e3cae55b7e312566e248f94e91c20`; regenerate `provider-proof-pr-handoff` with fresh `--ci-url` and `--head-sha` immediately before creating or updating the manual PR.
 - Render state: local Next app rendered at `http://127.0.0.1:3001/` with title `All About LLMs Content Studio`, visible Content Studio/OpenRouter/DeepSeek/Kokoro copy, no `data-nextjs-error` marker, and no console errors. Browser screenshot capture timed out, so this pass has DOM/console evidence only.
 - Proof state: `provider-backed-live-voice-proof` remains accepted. `external-publication-proof` remains blocked by `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
+
+## Latest PR Helper Handoff Attempt - 2026-05-24
+
+- Source: remote branch check, GitHub Actions API, `provider-proof-pr-create`, `provider-proof-completion-status`, and `provider-proof-operator-input-readiness`.
+- Current branch snapshot: `feature/livekit-voice-proof-capture` is pushed at `3d18b63582a0d176368d66ac01f8bf32806973b1`; CI run `26373893633` completed `success`; Auto PR run `26373893639` completed but still emitted the repository-settings create/update denial path.
+- Token-aware PR helper result: `provider-proof-pr-create` returned `manual_required` with issue code `github_token_unavailable` because no local `GITHUB_TOKEN` or `GH_TOKEN` is available. The helper did not print the generated Markdown body or secret values.
+- Next PR action: use the compare URL for a manual PR, or configure repository Actions permissions and rerun the workflow/helper. Regenerate the `provider-proof-pr-handoff` body with fresh CI URL and head SHA at action time so the PR body does not depend on stale vault text.
+- Proof boundary: this does not close `external-publication-proof`; strict readiness still blocks on LinkedIn token file, policy acknowledgement artifact, durable destination URL/platform id, and rollback/postcondition evidence.
+
+## Local Dev Server Render Follow-up - 2026-05-24
+
+- Source: local Next dev server start attempts, in-app Browser navigation, and `npm run build` in `frontend/next-app`.
+- Finding: port `3001` is occupied by a Next dev process rooted in `frontend/next-app`, but local HTTP and Browser navigation did not complete. A second dev server on `3002` was refused because Next detected the existing dev server lock at PID `60273`.
+- Boundary: do not kill or restart that shared local dev process without explicit operator approval. Treat this as a local environment/dev-server issue, not as evidence that the committed view fails to compile.
+- Verification still available: `npm run build` completed successfully with Next.js 16.2.6 and prerendered `/`, `/_not-found`, and `/icon.svg`. Remote CI for the same branch head also completed green.
