@@ -9173,6 +9173,13 @@ def _provider_proof_operator_packet_markdown_section(packet: object) -> list[str
     ]
 
 
+def _provider_proof_accepted_record_available(proof: Mapping[str, object]) -> bool:
+    return (
+        proof.get("latest_record_outcome") == "accepted"
+        and proof.get("accepted_record_available") is True
+    )
+
+
 def _provider_proof_current_status_markdown(
     args: argparse.Namespace,
     *,
@@ -9278,6 +9285,7 @@ def _provider_proof_current_status_markdown(
     def proof_lines(proof_id: str, title: str) -> list[str]:
         raw_proof = proofs.get(proof_id, {})
         proof = raw_proof if isinstance(raw_proof, Mapping) else {}
+        accepted_record_available = _provider_proof_accepted_record_available(proof)
         blockers = proof.get("remaining_blockers")
         blocker_lines: list[str] = []
         if isinstance(blockers, list) and blockers:
@@ -9337,6 +9345,24 @@ def _provider_proof_current_status_markdown(
             *bullet_values(proof_packet.get("proof_record_required_fields")),
             "",
         ]
+        if accepted_record_available:
+            proof_handoff_lines = [
+                "Accepted proof handoff:",
+                "",
+                "- Accepted proof record is available.",
+                (
+                    "- Proof-level operator retry and capture packets are "
+                    "suppressed for this proof."
+                ),
+                "",
+            ]
+        else:
+            proof_handoff_lines = [
+                *_provider_proof_operator_packet_markdown_section(proof_packet),
+                *proof_schema_lines,
+                *proof_required_field_lines,
+                *proof_capture_command_lines,
+            ]
 
         return [
             f"## {title}",
@@ -9360,10 +9386,7 @@ def _provider_proof_current_status_markdown(
             "",
             *bullet_values(proof.get("evidence_refs")),
             "",
-            *_provider_proof_operator_packet_markdown_section(proof_packet),
-            *proof_schema_lines,
-            *proof_required_field_lines,
-            *proof_capture_command_lines,
+            *proof_handoff_lines,
         ]
 
     raw_operator_proofs = operator_input_readiness.get("proofs")
@@ -9375,6 +9398,22 @@ def _provider_proof_current_status_markdown(
         ]:
             raw_proof = raw_operator_proofs.get(proof_id)
             if not isinstance(raw_proof, Mapping):
+                continue
+            raw_matrix_proof = proofs.get(proof_id)
+            matrix_proof = (
+                raw_matrix_proof if isinstance(raw_matrix_proof, Mapping) else {}
+            )
+            if _provider_proof_accepted_record_available(matrix_proof):
+                operator_proof_lines.extend(
+                    [
+                        f"- `{proof_id}`: `accepted_proof_record_available`",
+                        "  - next_action: `none`",
+                        (
+                            "  - accepted proof record already available; "
+                            "operator-input retry commands are suppressed for this proof."
+                        ),
+                    ]
+                )
                 continue
             raw_field_groups = raw_proof.get("field_groups")
             field_group_lines: list[str] = []
@@ -9662,14 +9701,16 @@ def _provider_proof_operator_unblocker_checklist_markdown(
         publication = {}
     voice_blockers = voice.get("remaining_blockers")
     publication_blockers = publication.get("remaining_blockers")
-    voice_accepted = (
-        voice.get("latest_record_outcome") == "accepted"
-        and voice.get("accepted_record_available") is True
-    )
-    publication_accepted = (
-        publication.get("latest_record_outcome") == "accepted"
-        and publication.get("accepted_record_available") is True
-    )
+    voice_accepted = _provider_proof_accepted_record_available(voice)
+    publication_accepted = _provider_proof_accepted_record_available(publication)
+    accepted_proof_names = {
+        proof_name
+        for proof_name, proof in {
+            "provider-backed-live-voice-proof": voice,
+            "external-publication-proof": publication,
+        }.items()
+        if _provider_proof_accepted_record_available(proof)
+    }
     voice_blocker = (
         voice_blockers[0]
         if isinstance(voice_blockers, list)
@@ -9935,6 +9976,8 @@ def _provider_proof_operator_unblocker_checklist_markdown(
             "provider-backed-live-voice-proof",
             "external-publication-proof",
         ]:
+            if proof_name in accepted_proof_names:
+                continue
             raw_snapshot = raw_snapshots.get(proof_name)
             if not isinstance(raw_snapshot, Mapping):
                 continue
@@ -9950,6 +9993,17 @@ def _provider_proof_operator_unblocker_checklist_markdown(
                 "",
             ]
 
+    expected_snapshot_state_lines: list[str] = []
+    if not voice_accepted:
+        expected_snapshot_state_lines.append(
+            "- `provider-backed-live-voice-proof`: "
+            "`runtime_configuration_present_unverified`"
+        )
+    if not publication_accepted:
+        expected_snapshot_state_lines.append(
+            "- `external-publication-proof`: "
+            "`runtime_configuration_present_unverified`"
+        )
     credential_snapshot_section = (
         [
             "## Credential Snapshot",
@@ -9961,14 +10015,7 @@ def _provider_proof_operator_unblocker_checklist_markdown(
             "",
             "Expected snapshot state before retrying preflight:",
             "",
-            (
-                "- `provider-backed-live-voice-proof`: "
-                "`runtime_configuration_present_unverified`"
-            ),
-            (
-                "- `external-publication-proof`: "
-                "`runtime_configuration_present_unverified`"
-            ),
+            *expected_snapshot_state_lines,
             "",
             *current_credential_snapshot_lines,
             "",
@@ -10093,6 +10140,19 @@ def _provider_proof_operator_unblocker_checklist_markdown(
                         continue
                     raw_state = raw_proof.get("state")
                     proof_state = raw_state if isinstance(raw_state, str) else "unknown"
+                    if proof_name in accepted_proof_names:
+                        current_operator_input_lines.extend(
+                            [
+                                f"  - `{proof_name}`: `accepted_proof_record_available`",
+                                f"    - {proof_name} next action: `none`",
+                                (
+                                    "    - accepted proof record already available; "
+                                    "operator-input retry commands are suppressed for "
+                                    "this proof."
+                                ),
+                            ]
+                        )
+                        continue
 
                     def proof_fields(field_name: str) -> list[str]:
                         raw_fields = raw_proof.get(field_name, [])

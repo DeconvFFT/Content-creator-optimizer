@@ -508,9 +508,15 @@ def _assert_operator_packet_current_gate(markdown: str) -> None:
             "provider-proof-record-template --proof "
             "provider-backed-live-voice-proof"
         ) not in current_gate_block
-        assert (
-            "provider-proof-record-template --proof external-publication-proof"
-        ) in current_gate_block
+        if "provider-proof-operator-input-readiness" in current_gate_block:
+            assert (
+                "provider-proof-record-template --proof external-publication-proof"
+                not in current_gate_block
+            )
+        else:
+            assert (
+                "provider-proof-record-template --proof external-publication-proof"
+            ) in current_gate_block
         assert (
             current_gate_block.count("provider-proof-completion-status --run-id")
             == 1
@@ -6647,7 +6653,7 @@ def test_concrete_current_proof_status_report_is_current():
     ) in report
     assert "- remaining blockers: `none`" in report
     assert "realtime-voice-timing-ledger-evidence" not in report
-    assert "`realtime-voice-timing-ledger.json`" in report
+    assert "`realtime-voice-timing-ledger.json`" not in report
     assert "`external-publication-proof`: `local_publication_fixture_ready_external_destination_blocked`" in report
     assert "HF_TOKEN or HF_TOKEN_FILE" not in report
     assert "blocked_by_latest_failed_proof_record" in report
@@ -6672,9 +6678,10 @@ def test_concrete_current_proof_status_report_is_current():
         "provider-proof-record-template --proof provider-backed-live-voice-proof"
         not in current_gate_block
     )
+    assert "provider-proof-operator-input-readiness" in current_gate_block
     assert (
         "provider-proof-record-template --proof external-publication-proof"
-        in current_gate_block
+        not in current_gate_block
     )
     assert (
         current_gate_block.count("provider-proof-completion-status --run-id")
@@ -6722,31 +6729,31 @@ def test_concrete_current_proof_status_report_is_current():
         "## Regeneration Commands",
         1,
     )[0]
-    assert per_proof_readiness_block.count("  - next_action_commands:") == 2
-    assert per_proof_readiness_block.count("  - guarded_next_action_commands:") == 2
-    assert per_proof_readiness_block.count("  - required fields:") == 2
-    assert per_proof_readiness_block.count("  - configured fields:") == 2
-    assert per_proof_readiness_block.count("  - field_contracts:") == 2
-    assert per_proof_readiness_block.count("  - field_ownership:") == 2
-    assert per_proof_readiness_block.count("  - field_statuses:") == 2
-    assert per_proof_readiness_block.count("  - issue_codes:") == 2
-    assert per_proof_readiness_block.count("  - field_groups:") == 2
-    assert "`OPENROUTER_API_KEY_FILE`" in per_proof_readiness_block
-    assert "`OPENROUTER_LIVEKIT_URL`" in per_proof_readiness_block
-    assert "`LIVEKIT_API_KEY_FILE`" in per_proof_readiness_block
-    assert "`LIVEKIT_API_SECRET_FILE`" in per_proof_readiness_block
+    assert per_proof_readiness_block.count("  - next_action_commands:") == 1
+    assert per_proof_readiness_block.count("  - guarded_next_action_commands:") == 1
+    assert per_proof_readiness_block.count("  - required fields:") == 1
+    assert per_proof_readiness_block.count("  - configured fields:") == 1
+    assert per_proof_readiness_block.count("  - field_contracts:") == 1
+    assert per_proof_readiness_block.count("  - field_ownership:") == 1
+    assert per_proof_readiness_block.count("  - field_statuses:") == 1
+    assert per_proof_readiness_block.count("  - issue_codes:") == 1
+    assert per_proof_readiness_block.count("  - field_groups:") == 1
+    assert "`OPENROUTER_API_KEY_FILE`" not in per_proof_readiness_block
+    assert "`OPENROUTER_LIVEKIT_URL`" not in per_proof_readiness_block
+    assert "`LIVEKIT_API_KEY_FILE`" not in per_proof_readiness_block
+    assert "`LIVEKIT_API_SECRET_FILE`" not in per_proof_readiness_block
     assert "`LINKEDIN_ACCESS_TOKEN_FILE`" in per_proof_readiness_block
     assert "`HF_TOKEN_FILE`" not in per_proof_readiness_block
     assert "`GEMMA4_MULTIMODAL_ENDPOINT_URL`" not in per_proof_readiness_block
     assert "secret_file_unavailable" in per_proof_readiness_block
-    assert "endpoint_url" in per_proof_readiness_block
-    assert "    - OPENROUTER_API_KEY_FILE:" in per_proof_readiness_block
-    assert "      - proof_input_role: `provider_credential`" in per_proof_readiness_block
-    assert "    - OPENROUTER_LIVEKIT_URL:" in per_proof_readiness_block
-    assert "      - proof_input_role: `transport_endpoint`" in per_proof_readiness_block
-    assert "    - LIVEKIT_API_KEY_FILE:" in per_proof_readiness_block
-    assert "    - LIVEKIT_API_SECRET_FILE:" in per_proof_readiness_block
-    assert "      - proof_input_role: `transport_credential`" in per_proof_readiness_block
+    assert "endpoint_url" not in per_proof_readiness_block
+    assert "    - OPENROUTER_API_KEY_FILE:" not in per_proof_readiness_block
+    assert "      - proof_input_role: `provider_credential`" not in per_proof_readiness_block
+    assert "    - OPENROUTER_LIVEKIT_URL:" not in per_proof_readiness_block
+    assert "      - proof_input_role: `transport_endpoint`" not in per_proof_readiness_block
+    assert "    - LIVEKIT_API_KEY_FILE:" not in per_proof_readiness_block
+    assert "    - LIVEKIT_API_SECRET_FILE:" not in per_proof_readiness_block
+    assert "      - proof_input_role: `transport_credential`" not in per_proof_readiness_block
     assert "    - PUBLICATION_DURABLE_PLATFORM_ID_OR_URL:" in per_proof_readiness_block
     assert "      - proof_input_role: `publication_destination`" in per_proof_readiness_block
     assert "    - placeholder_fields:" in per_proof_readiness_block
@@ -6771,8 +6778,8 @@ def test_concrete_current_proof_status_report_is_current():
         "--fail-on-blocked > social_media_optimiser/output/provider-proof/"
         "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json"
     ) in per_proof_readiness_block
-    assert report.count("proof_capture_commands_after_unblock:") == 4
-    assert report.count("operator_proof_packet:") == 2
+    assert report.count("proof_capture_commands_after_unblock:") == 2
+    assert report.count("operator_proof_packet:") == 1
     _assert_operator_packet_capture_commands(report)
     _assert_operator_packet_closeout_refs(report)
     _assert_operator_packet_record_schema(report)
@@ -6783,39 +6790,41 @@ def test_concrete_current_proof_status_report_is_current():
     _assert_operator_packet_input_contracts(report)
     _assert_operator_packet_current_gate(report)
     _assert_operator_packet_current_state_packets(report)
-    assert "- proof_id: `provider-backed-live-voice-proof`" in report
+    assert "- proof_id: `provider-backed-live-voice-proof`" not in (
+        per_proof_readiness_block
+    )
     assert "- proof_id: `external-publication-proof`" in report
-    assert report.count("- matrix_parity_ref:") == 2
+    assert report.count("- matrix_parity_ref:") == 1
     assert (
         "- matrix_parity_ref: "
         "`/operator_input_readiness/proofs/provider-backed-live-voice-proof`"
-    ) in report
+    ) not in report
     assert (
         "- matrix_parity_ref: "
         "`/operator_input_readiness/proofs/external-publication-proof`"
     ) in report
-    assert report.count("- proof_capture_matrix_ref:") == 2
+    assert report.count("- proof_capture_matrix_ref:") == 1
     assert (
         "- proof_capture_matrix_ref: "
         "`/proofs/provider-backed-live-voice-proof/proof_capture_commands_after_unblock`"
-    ) in report
+    ) not in report
     assert (
         "- proof_capture_matrix_ref: "
         "`/proofs/external-publication-proof/proof_capture_commands_after_unblock`"
     ) in report
-    assert "- label: `Provider-backed live voice proof packet`" in report
+    assert "- label: `Provider-backed live voice proof packet`" not in report
     assert "- label: `External publication proof packet`" in report
     assert "- packet_schema_version: `operator-proof-packet.v1`" in report
     assert "- handoff_contract: `value-free-operator-proof-handoff`" in report
     assert "- state_change_allowed: `False`" in report
     assert "- secret_handling: `Do not print tokens, API keys, or secrets; record endpoint and account identifiers only.`" in report
-    assert report.count("- source_artifacts:") == 2
+    assert report.count("- source_artifacts:") == 1
     assert "  - operator_input_readiness: `operator-input-readiness.json`" in report
     assert "  - current_blocker_matrix: `current-blocker-matrix.json`" in report
     assert "  - operator_input_template: `operator-inputs.template.env`" in report
     assert "  - proof_plan: `proof-plan.json`" in report
     assert "- must_capture:" in report
-    assert "`LiveKit room/session id and participant identity`" in report
+    assert "`LiveKit room/session id and participant identity`" not in report
     assert "`durable platform ID or URL`" in report
     assert "- store_in:" in report
     assert "`social_media_optimiser/wiki/ops/active-codex-context.md`" in report
@@ -6837,22 +6846,22 @@ def test_concrete_current_proof_status_report_is_current():
     assert (
         "- proof_plan_operator_packet_ref: "
         "`/proofs/provider-backed-live-voice-proof/operator_proof_packet`"
-    ) in report
+    ) not in report
     assert (
         "- proof_plan_operator_packet_ref: "
         "`/proofs/external-publication-proof/operator_proof_packet`"
     ) in report
-    assert report.count("proof_record_schema:") == 4
-    assert "- artifact_type: `provider_backed_live_voice_proof_record`" in report
-    assert "- state_field: `provider-backed-live-voice-proof`" in report
+    assert report.count("proof_record_schema:") == 2
+    assert "- artifact_type: `provider_backed_live_voice_proof_record`" not in report
+    assert "- state_field: `provider-backed-live-voice-proof`" not in report
     assert "- artifact_type: `external_publication_proof_record`" in report
     assert "- state_field: `external-publication-proof`" in report
-    assert report.count("- allowed_outcomes:") == 4
-    assert report.count("proof_record_required_fields:") == 4
-    assert "`voice_agent_process_start_artifact_id`" in report
+    assert report.count("- allowed_outcomes:") == 2
+    assert report.count("proof_record_required_fields:") == 2
+    assert "`voice_agent_process_start_artifact_id`" not in report
     assert "`durable_platform_id_or_url`" in report
-    assert "validate-provider-proof-preflight-artifacts --proof provider-backed-live-voice-proof" in report
-    assert "record-provider-proof-record --proof provider-backed-live-voice-proof" in report
+    assert "validate-provider-proof-preflight-artifacts --proof provider-backed-live-voice-proof" not in report
+    assert "record-provider-proof-record --proof provider-backed-live-voice-proof" not in report
     assert "validate-provider-proof-preflight-artifacts --proof external-publication-proof" in report
     assert "record-provider-proof-record --proof external-publication-proof" in report
     publication_capture_block = report.split("## External Publication", 1)[1].split(
@@ -7647,7 +7656,7 @@ def test_concrete_operator_unblocker_checklist_is_current():
     assert "  - PUBLICATION_DURABLE_PLATFORM_ID_OR_URL:" in report
     assert "    - proof_id: `external-publication-proof`" in report
     assert "    - proof_input_role: `publication_destination`" in report
-    assert "    - provider-backed-live-voice-proof field ownership:" in report
+    assert "    - provider-backed-live-voice-proof field ownership:" not in report
     assert "    - external-publication-proof field ownership:" in report
     assert "`closure-review-status.json`: `blocked_by_completion_status`" in report
     assert "state_change_allowed: `False`" in report
@@ -7673,9 +7682,10 @@ def test_concrete_operator_unblocker_checklist_is_current():
         "provider-proof-record-template --proof provider-backed-live-voice-proof"
         not in current_gate_block
     )
+    assert "provider-proof-operator-input-readiness" in current_gate_block
     assert (
         "provider-proof-record-template --proof external-publication-proof"
-        in current_gate_block
+        not in current_gate_block
     )
     assert (
         current_gate_block.count("provider-proof-completion-status --run-id")
@@ -7756,6 +7766,14 @@ def test_concrete_operator_unblocker_checklist_is_current():
     assert "record-provider-proof-record --proof provider-backed-live-voice-proof" not in report
     assert "validate-provider-proof-preflight-artifacts --proof external-publication-proof" in report
     assert "record-provider-proof-record --proof external-publication-proof" in report
+    assert "provider-backed-live-voice-proof next_action_commands:" not in report
+    assert "provider-backed-live-voice-proof guarded_next_action_commands:" not in report
+    assert "provider-backed-live-voice-proof required evidence after unblock:" not in report
+    assert (
+        "- `provider-backed-live-voice-proof`: "
+        "`runtime_configuration_present_unverified`"
+        not in report
+    )
     publication_section = report.split("## External Publication", 1)[1].split(
         "## Completion Sequence",
         1,
@@ -7786,7 +7804,7 @@ def test_concrete_operator_unblocker_checklist_is_current():
     assert "credential-snapshot.json" in report
     assert "runtime_configuration_present_unverified" in report
     assert "Current snapshot state:" in report
-    assert "snapshot checked_at: `2026-05-23`" in report
+    assert "snapshot checked_at: `2026-05-24`" in report
     assert "blocked_by_placeholder_only_configuration" in report
     assert "operator-inputs.template.env" in report
     assert "provider-proof-operator-input-readiness" in report
@@ -7841,7 +7859,7 @@ def test_concrete_operator_unblocker_checklist_is_current():
     assert guarded_sequence in report
     assert "Current operator input readiness:" in report
     assert "HF_TOKEN or HF_TOKEN_FILE" not in report
-    assert "input readiness checked_at: `2026-05-23`" in report
+    assert "input readiness checked_at: `2026-05-24`" in report
     assert "input readiness status: `blocked_by_operator_inputs`" in report
     assert "input readiness `--fail-on-blocked` exit code: `2`" in report
     assert "operator_input_secret_file_unavailable" in report
@@ -7872,12 +7890,12 @@ def test_concrete_operator_unblocker_checklist_is_current():
         "Validate the filled file",
         1,
     )[0]
-    assert per_proof_input_block.count(" next_action_commands:") == 2
-    assert per_proof_input_block.count(" guarded_next_action_commands:") == 2
-    assert per_proof_input_block.count(" required fields:") == 2
-    assert per_proof_input_block.count(" configured fields:") == 2
-    assert per_proof_input_block.count(" field contracts:") == 2
-    assert per_proof_input_block.count(" field statuses:") == 2
+    assert per_proof_input_block.count(" next_action_commands:") == 1
+    assert per_proof_input_block.count(" guarded_next_action_commands:") == 1
+    assert per_proof_input_block.count(" required fields:") == 1
+    assert per_proof_input_block.count(" configured fields:") == 1
+    assert per_proof_input_block.count(" field contracts:") == 1
+    assert per_proof_input_block.count(" field statuses:") == 1
     assert (
         "provider-proof-operator-input-readiness "
         "--run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e "
@@ -7896,20 +7914,20 @@ def test_concrete_operator_unblocker_checklist_is_current():
     ) in per_proof_input_block
     assert (
         "`provider-backed-live-voice-proof`: "
-        "`ready_for_credential_snapshot_refresh`"
+        "`accepted_proof_record_available`"
     ) in report
     assert "`external-publication-proof`: `blocked_by_operator_inputs`" in report
     assert (
         "provider-backed-live-voice-proof next action: "
-        "`refresh_credential_snapshot`"
+        "`none`"
     ) in report
     assert (
         "external-publication-proof next action: "
         "`supply_linkedin_token_policy_destination_and_rollback_evidence`"
     ) in report
-    assert "provider-backed-live-voice-proof required evidence after unblock:" in report
-    assert "same-run OpenRouter DeepSeek live dialogue reasoning evidence" in report
-    assert "realtime voice timing ledger evidence" in report
+    assert "provider-backed-live-voice-proof required evidence after unblock:" not in report
+    assert "same-run OpenRouter DeepSeek live dialogue reasoning evidence" not in report
+    assert "realtime voice timing ledger evidence" not in report
     assert "external-publication-proof required evidence after unblock:" in report
     assert (
         "destination channel and durable URL linked to validated linkedin readiness"
@@ -11369,6 +11387,40 @@ def test_current_packets_do_not_reopen_accepted_live_voice_completion_commands(
         assert (
             "--proof provider-backed-live-voice-proof"
             not in completion_command_block
+        )
+        live_voice_section = report.split(
+            "## Provider-Backed Live Voice",
+            1,
+        )[1].split("## External Publication", 1)[0]
+        assert "Accepted proof record is available." in live_voice_section
+        assert "operator_proof_packet:" not in live_voice_section
+        assert "proof_record_schema:" not in live_voice_section
+        assert "proof_record_required_fields:" not in live_voice_section
+        assert "proof_capture_commands_after_unblock:" not in live_voice_section
+        assert (
+            "provider-proof-record-template --proof provider-backed-live-voice-proof"
+            not in live_voice_section
+        )
+        assert (
+            "validate-provider-proof-preflight-artifacts --proof "
+            "provider-backed-live-voice-proof"
+            not in live_voice_section
+        )
+
+    for report in [current_status, operator_checklist]:
+        assert "provider-backed-live-voice-proof next_action_commands:" not in report
+        assert (
+            "provider-backed-live-voice-proof guarded_next_action_commands:"
+            not in report
+        )
+        assert (
+            "provider-backed-live-voice-proof required evidence after unblock:"
+            not in report
+        )
+        assert (
+            "- `provider-backed-live-voice-proof`: "
+            "`runtime_configuration_present_unverified`"
+            not in report
         )
 
 

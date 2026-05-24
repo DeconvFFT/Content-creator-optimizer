@@ -1270,3 +1270,10 @@ At the end of a meaningful slice:
 - Source: `src/all_about_llms/cli.py`, `tests/test_provider_proof_plan_cli.py`, `docs/external-publication-proof-runbook.md`, and current operator-readiness proof gate output.
 - Handoff: `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID` and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID` now fail closed when filled with generic bare strings such as `policy-artifact-1` or `rollback-artifact-1`. The accepted shapes are external non-local URLs, LinkedIn URNs with an ID suffix, whitelisted namespaced durable artifact ids, or bare artifact ids carrying a UUID.
 - Boundary: this advances external-publication proof integrity only. The gate is still blocked until the operator supplies the LinkedIn token file, policy acknowledgement artifact, durable LinkedIn destination, and rollback/postcondition artifact.
+
+## Accepted-Proof Handoff Suppression - 2026-05-24
+
+- Source: `src/all_about_llms/cli.py`, `tests/test_provider_proof_plan_cli.py`, and the current UUID proof gate for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`.
+- Handoff: `current-proof-status.md` and `operator-unblocker-checklist.md` now suppress proof-level operator packet, schema, capture, readiness-command, required-evidence, and credential-snapshot retry details for proofs whose current state is `accepted_proof_record_available`.
+- Current effect: `provider-backed-live-voice-proof` stays closed as accepted. The compact handoff should only route operators toward `external-publication-proof` until LinkedIn credential, policy acknowledgement artifact, durable destination, and rollback/postcondition evidence are supplied.
+- Boundary: this is report/handoff accuracy only. It does not create accepted external publication evidence, run closure review, create a PR, or change blocker state.
