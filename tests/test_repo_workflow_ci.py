@@ -1,3 +1,4 @@
+import json
 import re
 from pathlib import Path
 import subprocess
@@ -380,6 +381,77 @@ def test_external_publication_operator_runbook_is_committed_no_secret_handoff() 
     ]
     for term in forbidden_terms:
         assert term not in runbook
+
+
+def test_external_publication_operator_input_example_is_committed_no_secret_template() -> None:
+    example_path = ROOT / "docs/external-publication-operator-inputs.example.env"
+    runbook = (ROOT / "docs/external-publication-proof-runbook.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert example_path.exists(), (
+        "external publication proof should have a committed no-secret example "
+        "for the ignored operator input file"
+    )
+    example = example_path.read_text(encoding="utf-8")
+
+    required_fields = [
+        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+        "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+        "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
+    ]
+    for field in required_fields:
+        assert f"{field}=" in example
+
+    required_placeholders = [
+        "/absolute/path/to/local/linkedin-access-token.txt",
+        "https://docs.example.com/linkedin-policy-acknowledgement",
+        "<durable-linkedin-publication-url-or-id>",
+        "https://docs.example.com/publication-rollback-or-postcondition",
+    ]
+    for placeholder in required_placeholders:
+        assert placeholder in example
+
+    forbidden_terms = [
+        "uv.log",
+        "LINKEDIN_ACCESS_TOKEN=",
+        "sk-or-v1-",
+        "ghp_",
+        "hf_",
+    ]
+    for term in forbidden_terms:
+        assert term not in example
+
+    assert str(example_path.relative_to(ROOT)) in runbook
+    assert "uv.log" not in runbook
+
+    readiness = subprocess.run(
+        [
+            "uv",
+            "run",
+            "all-about-llms-admin",
+            "provider-proof-operator-input-readiness",
+            "--run-id",
+            "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+            "--input-path",
+            str(example_path.relative_to(ROOT)),
+            "--fail-on-blocked",
+        ],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert readiness.returncode == 2
+    readiness_report = json.loads(readiness.stdout)
+    publication_field = readiness_report["field_statuses"][
+        "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL"
+    ]
+    assert publication_field["state"] == "placeholder"
+    assert publication_field["issue_code"] == "operator_input_placeholder"
 
 
 def test_external_publication_runbook_is_linked_from_current_vault_handoffs() -> None:

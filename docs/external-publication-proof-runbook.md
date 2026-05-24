@@ -12,7 +12,7 @@ This is the committed no-secret handoff for closing the remaining Agent Studio p
 
 ## Required Operator Inputs
 
-Fill only local file paths or durable artifact IDs in `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env`.
+Fill only local file paths or durable artifact IDs in `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env`. Use `docs/external-publication-operator-inputs.example.env` as the committed no-secret key list, then copy only the keys and local replacements into the ignored operator input file.
 
 - `LINKEDIN_ACCESS_TOKEN_FILE`: readable local secret file path. No token value belongs in Markdown, Git, PR text, shell history, or proof notes.
 - `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`: durable non-local policy acknowledgement artifact id or URL. Generic bare values such as `policy-artifact-1` are not sufficient; LinkedIn URNs must include the platform id suffix, not only the prefix.

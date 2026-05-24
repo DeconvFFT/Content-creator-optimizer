@@ -1284,3 +1284,9 @@ At the end of a meaningful slice:
 - Source: `.github/pull_request_template.md`, `.github/CODEOWNERS`, `docs/repo-workflow.md`, `agent_progress_vault/00-session-log/2026-05-23-ship-readiness-audit.md`, and `tests/test_repo_workflow_ci.py`.
 - Handoff: manual PRs now explicitly require CODEOWNERS review approval, and durable vault handoff surfaces must not pin exact branch-head CI run ids as current evidence. Regenerate `provider-proof-pr-handoff` with fresh `--ci-url` and `--head-sha` when opening or updating the PR.
 - Boundary: this advances review/merge handoff reliability only. It does not create the GitHub PR, enable repository auto-merge, or satisfy `external-publication-proof`.
+
+## External Publication Operator Input Example - 2026-05-24
+
+- Source: `docs/external-publication-operator-inputs.example.env`, `docs/external-publication-proof-runbook.md`, and `tests/test_repo_workflow_ci.py`.
+- Handoff: the committed example env contains only placeholder values for `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`. Operators should copy those keys into the ignored UUID `operator-inputs.template.env` and replace values locally.
+- Boundary: do not commit filled operator input files, token values, generated proof output, screenshots, PDFs, images, media, local DBs, or local command logs. This does not close `external-publication-proof`; it only lowers pickup friction.
