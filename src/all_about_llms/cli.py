@@ -12237,6 +12237,22 @@ def _provider_proof_pr_create_result(
             error_payload.get("message"), str
         ):
             message = str(error_payload["message"])
+        if exc.code == 403:
+            return {
+                **base_payload,
+                "status": "manual_required",
+                "issue_code": "github_pr_permission_denied",
+                "http_status": exc.code,
+                "message": message,
+                "workflow_permissions_next_action": (
+                    "Enable repository Settings > Actions > General > "
+                    "Workflow permissions: Read and write permissions and "
+                    "Allow GitHub Actions to create and approve pull requests, "
+                    "or create the PR manually with provider-proof-pr-handoff."
+                ),
+                "handoff_command": _provider_proof_pr_handoff_command(args),
+                "exit_code": 2,
+            }
         return {
             **base_payload,
             "status": "github_api_error",

@@ -1,4 +1,5 @@
 import argparse
+import io
 import json
 import os
 import re
@@ -682,6 +683,7 @@ def test_current_handoff_notes_avoid_exact_latest_ci_run_ids() -> None:
 
 def test_manual_pr_handoff_notes_do_not_pin_exact_current_head_evidence() -> None:
     handoff_paths = [
+        ROOT / "cloud.md",
         ROOT / "agent_progress_vault/06-live-voice/openrouter-livekit-current-unblock-guide.md",
         ROOT / "social_media_optimiser/wiki/ops/active-codex-context.md",
         ROOT
@@ -692,6 +694,9 @@ def test_manual_pr_handoff_notes_do_not_pin_exact_current_head_evidence() -> Non
         re.compile(r"Green CI run: <https://github\.com/[^>]+/actions/runs/\d+>"),
         re.compile(r"source: .*GitHub Actions run `\d+`, branch head `[0-9a-f]{40}`"),
         re.compile(r"Source: .*GitHub Actions run `\d+`, and pushed branch head `[0-9a-f]{40}`"),
+        re.compile(r"Latest verified branch snapshot.*head `[0-9a-f]{40}`.*CI run `\d+`"),
+        re.compile(r"Current branch snapshot: .*`[0-9a-f]{40}`.*CI run `\d+`"),
+        re.compile(r"Current branch head `[0-9a-f]{40}` has branch CI success at run `\d+`"),
     ]
 
     for path in handoff_paths:
@@ -707,6 +712,7 @@ def test_manual_pr_handoff_notes_do_not_pin_exact_current_head_evidence() -> Non
 def test_current_handoff_notes_do_not_reopen_accepted_live_voice_proof() -> None:
     handoff_paths = [
         ROOT / "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+        ROOT / "social_media_optimiser/log.md",
         ROOT / "social_media_optimiser/wiki/ops/active-codex-context.md",
         ROOT / "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md",
     ]
@@ -721,6 +727,8 @@ def test_current_handoff_notes_do_not_reopen_accepted_live_voice_proof() -> None
         "accepted OpenRouter/LiveKit/Kokoro live voice proof and external publication proof records remain required",
         "does not create OpenRouter/LiveKit/Kokoro live voice evidence",
         "does not satisfy current OpenRouter/LiveKit/Kokoro live proof",
+        "only Gemma audio reasoning remains blocked for live voice",
+        "successful live proof is recorded",
     ]
 
     for path in handoff_paths:
@@ -1337,6 +1345,56 @@ def test_provider_proof_pr_create_result_compacts_url_errors_without_token_leak(
     assert payload["exit_code"] == 1
     assert "handoff_command" in payload
     assert "local-test-token-not-secret" not in json.dumps(payload)
+
+
+def test_provider_proof_pr_create_result_reports_permission_denied_without_token_leak(
+    tmp_path: Path,
+) -> None:
+    args = argparse.Namespace(
+        audit_target=None,
+        base="main",
+        branch="feature/livekit-voice-proof-capture",
+        checked_at=None,
+        ci_url="https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
+        draft=True,
+        dry_run=False,
+        env_example_path=ROOT / ".env.example",
+        head_sha="cd3106728909cb422a6b7687b91308119b17f7d9",
+        operator_input_path=tmp_path / "operator-inputs.template.env",
+        output_dir=None,
+        repo="DeconvFFT/Content-creator-optimizer",
+        run_id="190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+        timeout_seconds=5.0,
+        title="Agent Studio LiveKit/OpenRouter proof gates",
+    )
+
+    def forbidden_opener(request: object, timeout: float) -> object:
+        assert timeout == 5.0
+        raise cli_module.urlerror.HTTPError(
+            request.full_url,
+            403,
+            "Forbidden",
+            {},
+            io.BytesIO(b'{"message":"Resource not accessible by integration"}'),
+        )
+
+    payload = cli_module._provider_proof_pr_create_result(
+        args,
+        env={"GITHUB_TOKEN": "local-test-token-not-secret"},
+        opener=forbidden_opener,
+    )
+
+    assert payload["status"] == "manual_required"
+    assert payload["issue_code"] == "github_pr_permission_denied"
+    assert payload["http_status"] == 403
+    assert payload["exit_code"] == 2
+    assert "workflow_permissions_next_action" in payload
+    assert "Allow GitHub Actions to create and approve pull requests" in json.dumps(
+        payload
+    )
+    assert "handoff_command" in payload
+    assert "local-test-token-not-secret" not in json.dumps(payload)
+    assert "Authorization" not in json.dumps(payload)
 
 
 def test_provider_proof_pr_create_result_compacts_invalid_success_json(

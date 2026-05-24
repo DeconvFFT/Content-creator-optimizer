@@ -1307,7 +1307,7 @@ At the end of a meaningful slice:
 ## Latest PR Helper Handoff Attempt - 2026-05-24
 
 - Source: remote branch check, GitHub Actions API, `provider-proof-pr-create`, `provider-proof-completion-status`, and `provider-proof-operator-input-readiness`.
-- Current branch snapshot: `feature/livekit-voice-proof-capture` is pushed at `3d18b63582a0d176368d66ac01f8bf32806973b1`; CI run `26373893633` completed `success`; Auto PR run `26373893639` completed but still emitted the repository-settings create/update denial path.
+- Current branch snapshot evidence must be regenerated at PR creation time with `provider-proof-pr-handoff --ci-url <latest-branch-head-ci-url> --head-sha <current-branch-head-sha>`; do not treat committed SHA or run IDs as current evidence after follow-up commits. The last observed PR-state pattern still matters: branch CI reached green, Auto PR reached the no-secret handoff path, and GitHub repository settings denied draft PR create/update.
 - Token-aware PR helper result: `provider-proof-pr-create` returned `manual_required` with issue code `github_token_unavailable` because no local `GITHUB_TOKEN` or `GH_TOKEN` is available. The helper did not print the generated Markdown body or secret values.
 - Next PR action: use the compare URL for a manual PR, or configure repository Actions permissions and rerun the workflow/helper. Regenerate the `provider-proof-pr-handoff` body with fresh CI URL and head SHA at action time so the PR body does not depend on stale vault text.
 - Proof boundary: this does not close `external-publication-proof`; strict readiness still blocks on LinkedIn token file, policy acknowledgement artifact, durable destination URL/platform id, and rollback/postcondition evidence.
@@ -1318,3 +1318,10 @@ At the end of a meaningful slice:
 - Finding: port `3001` is occupied by a Next dev process rooted in `frontend/next-app`, but local HTTP and Browser navigation did not complete. A second dev server on `3002` was refused because Next detected the existing dev server lock at PID `60273`.
 - Boundary: do not kill or restart that shared local dev process without explicit operator approval. Treat this as a local environment/dev-server issue, not as evidence that the committed view fails to compile.
 - Verification still available: `npm run build` completed successfully with Next.js 16.2.6 and prerendered `/`, `/_not-found`, and `/icon.svg`. Remote CI for the same branch head also completed green.
+
+## PR Permission Error Handoff Guard - 2026-05-24
+
+- Source: `src/all_about_llms/cli.py`, `tests/test_repo_workflow_ci.py`, `cloud.md`, and `Leibniz` review-watch findings.
+- Handoff: `provider-proof-pr-create` now treats GitHub HTTP `403` as `manual_required` with issue code `github_pr_permission_denied`, explicit workflow-permission next action, and the no-secret `provider-proof-pr-handoff` command. Missing local tokens still return `github_token_unavailable`.
+- Guardrail: committed handoff notes now avoid treating exact branch-head SHA or GitHub Actions run IDs as current evidence. Regenerate the PR handoff with fresh `--ci-url` and `--head-sha` at PR creation or update time.
+- Review-watch cleanup: stale notes that said live voice still needed successful proof, only Gemma audio reasoning remained blocked, or live voice latest-failed state was current are marked superseded or rewritten. Current proof status accepts OpenRouter/LiveKit/Kokoro live voice and keeps only external publication blocked.
