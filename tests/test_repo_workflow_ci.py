@@ -135,7 +135,7 @@ def test_agents_handoff_documents_pr_ci_and_proof_boundaries() -> None:
     for term in required_terms:
         assert term in handoff
 
-    assert "uv.log" not in handoff
+    assert re.search(r"\buv[.]log\b", handoff) is None
     assert "local command-log artifacts" in handoff.lower()
 
 
@@ -473,6 +473,8 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
         "LiveKit",
         "Kokoro",
         "No Hugging Face, Gemma4, Gamma4, or MLX",
+        "Dependency changes include `uv.lock`",
+        "local command logs stay untracked",
         "no secret values printed",
         "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/example",
     ]

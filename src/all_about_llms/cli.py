@@ -11835,6 +11835,7 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
             "- Provider proof output, secret snapshots, and operator credential "
             "files are not committed."
         ),
+        "- Dependency changes include `uv.lock`; local command logs stay untracked.",
         "- This handoff has no secret values printed.",
     ]
 
