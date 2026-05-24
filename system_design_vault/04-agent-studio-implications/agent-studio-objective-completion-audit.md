@@ -1290,6 +1290,14 @@ This failed record is preserved as historical audit evidence from the prior nati
 - architecture implication: the CI/CD contract now distinguishes the committed dependency lockfile from local command logs explicitly. `uv.lock` remains the tracked dependency artifact, and both backend Python jobs run `uv lock --check` before `uv sync --locked`, so dependency metadata drift fails before tests run.
 - merge implication: this advances repo workflow safety only. GitHub REST still shows no open PR for `feature/livekit-voice-proof-capture`, public branch metadata reports `main` is unprotected, and branch-protection/auto-merge setup remains a GitHub-side configuration gate requiring authenticated repo-admin permissions.
 
+## Latest CI And Render Evidence - 2026-05-24
+
+- source: GitHub Actions CI run `26373706362`, Auto PR run `26373706339`, branch head `cd13be28271e3cae55b7e312566e248f94e91c20`, `social_media_optimiser/wiki/ops/active-codex-context.md`, and in-app Browser DOM/console verification.
+- architecture implication: the current branch head keeps the OpenRouter/LiveKit/Kokoro path buildable and visible. CI passed Branch name policy, Python backend including `uv.lock` freshness, Next.js frontend build/lint/typecheck/race tests, and both Rust service jobs; Live Postgres remains an optional main/manual job skipped on this branch run.
+- render implication: the local Next app rendered at `http://127.0.0.1:3001/` with title `All About LLMs Content Studio`, visible Content Studio/OpenRouter/DeepSeek/Kokoro copy, no Next.js error marker, and no console errors. Browser screenshot capture timed out, so this evidence is DOM/console-based rather than screenshot-based.
+- merge implication: Auto PR generated the no-secret provider-proof PR body after matching CI success but GitHub denied draft PR create/update with repository-settings `403`; manual PR creation or repository Actions permission changes are still required.
+- proof implication: this evidence supports branch/render readiness only. `provider-backed-live-voice-proof` remains accepted; `external-publication-proof` remains blocked until the LinkedIn token-file path, policy acknowledgement artifact, durable destination URL/platform id, and rollback/postcondition artifact are supplied and validated.
+
 ## External Publication Durable Artifact Guard - 2026-05-24
 
 - source: `src/all_about_llms/cli.py`, `tests/test_provider_proof_plan_cli.py`, `docs/external-publication-proof-runbook.md`, and `social_media_optimiser/wiki/ops/active-codex-context.md`
