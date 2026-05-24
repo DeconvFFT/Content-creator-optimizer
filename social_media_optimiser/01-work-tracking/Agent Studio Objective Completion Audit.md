@@ -790,3 +790,9 @@ This failed record is preserved as historical audit evidence from the prior nati
 - purpose: committed no-secret handoff for the remaining `external-publication-proof` blocker, so operators do not have to mine ignored generated proof output for the next action.
 - blocked operator inputs: `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
 - boundary: this runbook does not create the LinkedIn token file, durable platform URL/id, policy acknowledgement artifact, rollback/postcondition artifact, accepted publication proof, closure review, or blocker-state update.
+
+## External Publication Placeholder-domain Guard - 2026-05-24
+
+- source: `src/all_about_llms/cli.py`, `docs/external-publication-operator-inputs.example.env`, `docs/external-publication-proof-runbook.md`, and `tests/test_provider_proof_plan_cli.py`
+- update: strict operator readiness and accepted-record validation now reject reserved documentation-domain artifact URLs such as `docs.example.com`, `example.com`, `example.org`, and `example.net`. The committed no-secret input example now uses angle-bracket placeholders for policy acknowledgement and rollback/postcondition evidence instead of documentation-domain URLs.
+- boundary: this prevents placeholder evidence from clearing `external-publication-proof`; it does not supply the LinkedIn token file, durable LinkedIn destination, policy acknowledgement artifact, rollback/postcondition artifact, completion recheck, closure review, or blocker-state update.

@@ -1304,6 +1304,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 
 - source: `src/all_about_llms/cli.py`, `tests/test_provider_proof_plan_cli.py`, `docs/external-publication-proof-runbook.md`, and `social_media_optimiser/wiki/ops/active-codex-context.md`
 - architecture implication: external publication operator-input readiness and accepted-record validation now reject generic bare publication evidence strings such as `policy-artifact-1` and `rollback-artifact-1`. Policy acknowledgement and rollback/postcondition artifacts must be external non-local URLs, LinkedIn URNs with an ID suffix, whitelisted namespaced durable artifact ids, or bare artifact ids carrying a UUID before readiness can clear.
+- placeholder-domain implication: reserved documentation domains such as `docs.example.com`, `example.com`, `example.org`, and `example.net` are now rejected as publication artifact substitutes in both operator readiness and accepted-record validation. The committed no-secret example env uses angle-bracket placeholders instead of example-domain URLs so operators cannot accidentally advance the gate with documentation placeholders.
 - proof implication: this closes a local-bypass path only. The goal remains blocked on real operator-owned LinkedIn publication inputs and accepted external-publication proof evidence.
 
 ## Provider-backed Specialist Default Alignment - 2026-05-24

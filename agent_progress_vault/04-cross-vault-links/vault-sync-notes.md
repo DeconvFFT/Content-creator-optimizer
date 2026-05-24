@@ -88,6 +88,7 @@ Project audit and system-design mirror agree on:
 - UUID run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
 - Failed external publication record pending operator inputs and accepted destination proof
 - External publication artifact inputs must now avoid generic bare values such as `policy-artifact-1` / `rollback-artifact-1`; use an external non-local URL, LinkedIn URN with an ID suffix, whitelisted namespaced durable artifact id, or UUID-bearing artifact id.
+- Reserved documentation domains such as `docs.example.com`, `example.com`, `example.org`, and `example.net` are now treated as placeholder evidence and must not clear policy acknowledgement or rollback/postcondition readiness.
 - Accepted proof packet rendering now suppresses proof-specific retry/capture/credential-snapshot details for `provider-backed-live-voice-proof`; future agents should treat only `external-publication-proof` as actionable unless completion status changes.
 
 ## Agent progress vault role

@@ -4876,6 +4876,73 @@ def test_provider_proof_operator_input_readiness_rejects_generic_bare_publicatio
     assert "rollback-artifact-1" not in serialized
 
 
+def test_provider_proof_operator_input_readiness_rejects_documentation_domain_publication_artifacts(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("", encoding="utf-8")
+    secret_dir = tmp_path / ".secrets"
+    secret_dir.mkdir()
+    (secret_dir / "openrouter_api_key").write_text(
+        "openrouter_secret_token\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "livekit_api_key").write_text(
+        "livekit_key_secret\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "livekit_api_secret").write_text(
+        "livekit_secret_token\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "linkedin_access_token").write_text(
+        "linkedin_secret_token\n",
+        encoding="utf-8",
+    )
+    input_path = tmp_path / "operator-inputs.local.env"
+    input_path.write_text(
+        "\n".join(
+            [
+                "OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key",
+                "OPENROUTER_LIVEKIT_URL=wss://livekit.example.com",
+                "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
+                "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
+                "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "https://docs.example.com/linkedin-policy-acknowledgement",
+                (
+                    "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
+                    "https://www.linkedin.com/feed/update/urn:li:activity:123"
+                ),
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID="
+                "https://example.org/publication-rollback-or-postcondition",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    payload = provider_cli._provider_proof_operator_input_readiness_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-21",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            input_path=input_path,
+        )
+    )
+    serialized = json.dumps(payload)
+
+    assert payload["status"] == "blocked_by_operator_inputs"
+    assert "operator_input_local_artifact_substitute" in payload["issue_codes"]
+    invalid_fields = payload["proofs"]["external-publication-proof"][
+        "invalid_fields"
+    ]
+    assert "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID" in invalid_fields
+    assert "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID" in invalid_fields
+    assert "docs.example.com" not in serialized
+    assert "example.org" not in serialized
+
+
 def test_provider_proof_operator_input_readiness_rejects_prefix_only_linkedin_artifact_urns(
     tmp_path,
 ):
@@ -4975,6 +5042,46 @@ def test_provider_proof_record_validation_rejects_generic_bare_publication_artif
     assert "publication_artifact_local_substitute" in payload["issue_codes"]
     assert "policy-artifact-1" not in serialized
     assert "rollback-artifact-1" not in serialized
+
+
+def test_provider_proof_record_validation_rejects_documentation_domain_publication_artifacts(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("", encoding="utf-8")
+    record = _accepted_provider_proof_record(
+        env_example,
+        "external-publication-proof",
+    )
+    record["policy_acknowledgement_artifact_id"] = (
+        "https://docs.example.com/linkedin-policy-acknowledgement"
+    )
+    record["rollback_or_postcondition_artifact_id"] = (
+        "https://example.org/publication-rollback-or-postcondition"
+    )
+
+    payload = provider_cli._provider_proof_record_validation_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-21",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            proof="external-publication-proof",
+            record_path=None,
+            workspace_validation_path=Path(
+                record["workspace_validation_report_artifact_id"]
+            ),
+            preflight_validation_path=Path(
+                record["preflight_validation_report_artifact_id"]
+            ),
+        ),
+        record,
+    )
+    serialized = json.dumps(payload)
+
+    assert payload["status"] == "invalid_record"
+    assert "publication_artifact_local_substitute" in payload["issue_codes"]
+    assert "docs.example.com" not in serialized
+    assert "example.org" not in serialized
 
 
 def test_provider_proof_record_validation_rejects_prefix_only_linkedin_artifact_urns(

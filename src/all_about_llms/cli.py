@@ -6000,6 +6000,12 @@ def _provider_proof_publication_linkedin_urn_is_durable(value: object) -> bool:
     )
 
 
+def _provider_proof_host_is_reserved_example_domain(host: str) -> bool:
+    return host in {"example.com", "example.org", "example.net"} or host.endswith(
+        (".example.com", ".example.org", ".example.net")
+    )
+
+
 def _provider_proof_publication_destination_is_local_substitute(value: object) -> bool:
     if not isinstance(value, str):
         return True
@@ -6042,6 +6048,8 @@ def _provider_proof_publication_destination_is_local_substitute(value: object) -
         if host.endswith(
             (".internal", ".lan", ".test", ".invalid", ".example")
         ):
+            return True
+        if _provider_proof_host_is_reserved_example_domain(host):
             return True
         try:
             if not ipaddress.ip_address(host).is_global:

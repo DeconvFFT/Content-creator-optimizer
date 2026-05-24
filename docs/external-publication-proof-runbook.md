@@ -18,6 +18,7 @@ Fill only local file paths or durable artifact IDs in `social_media_optimiser/ou
 - `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`: durable non-local policy acknowledgement artifact id or URL. Generic bare values such as `policy-artifact-1` are not sufficient; LinkedIn URNs must include the platform id suffix, not only the prefix.
 - `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`: durable LinkedIn platform id or URL. Local previews, screenshots, and draft-only IDs are not enough.
 - `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`: durable non-local rollback, delete/private/correction, or postcondition monitoring artifact id or URL. Generic bare values such as `rollback-artifact-1` are not sufficient; LinkedIn URNs must include the platform id suffix, not only the prefix.
+- Reserved documentation domains such as `example.com`, `example.org`, and `example.net` are placeholders, not durable evidence. Replace them with real external artifact IDs, approved document URLs, LinkedIn URNs with IDs, or whitelisted UUID-bearing artifact IDs before running strict readiness.
 
 No secret values should ever be printed by these commands. Do not commit `.secrets/`, operator input files, generated provider proof output, screenshots, PDFs, images, media, browser traces, local databases, or token-bearing logs.
 

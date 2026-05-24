@@ -510,6 +510,8 @@ def test_external_publication_operator_runbook_is_committed_no_secret_handoff() 
         "record-provider-proof-blocker-state-update",
         "No secret values",
         "Do not commit",
+        "Reserved documentation domains",
+        "example.com",
         "OpenRouter",
         "deepseek/deepseek-v4-flash",
         "LiveKit",
@@ -552,9 +554,9 @@ def test_external_publication_operator_input_example_is_committed_no_secret_temp
 
     required_placeholders = [
         "/absolute/path/to/local/linkedin-access-token.txt",
-        "https://docs.example.com/linkedin-policy-acknowledgement",
+        "<linkedin-policy-acknowledgement-artifact-id-or-url>",
         "<durable-linkedin-publication-url-or-id>",
-        "https://docs.example.com/publication-rollback-or-postcondition",
+        "<publication-rollback-or-postcondition-artifact-id-or-url>",
     ]
     for placeholder in required_placeholders:
         assert placeholder in example
@@ -566,6 +568,8 @@ def test_external_publication_operator_input_example_is_committed_no_secret_temp
         "sk-or-v1-",
         "ghp_",
         "hf_",
+        "docs.example.com",
+        "example.org",
     ]
     for term in forbidden_terms:
         assert term not in example
