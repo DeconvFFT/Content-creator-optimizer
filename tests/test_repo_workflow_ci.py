@@ -1,5 +1,6 @@
 from pathlib import Path
 import subprocess
+import tomllib
 
 import yaml
 
@@ -85,3 +86,17 @@ def test_uv_lock_is_tracked_and_not_ignored() -> None:
         check=False,
     )
     assert ignored.returncode == 1, "uv.lock must not be ignored"
+
+
+def test_dev_extra_installs_livekit_sdk_for_stable_ci_voice_timing_tests() -> None:
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text())
+
+    dev_dependencies = pyproject["project"]["optional-dependencies"]["dev"]
+
+    assert any(
+        dependency == "livekit" or dependency.startswith("livekit>=")
+        for dependency in dev_dependencies
+    ), (
+        "CI runs tests/test_livekit_voice_timing_capture.py under the dev extra, "
+        "so dev dependencies must install the livekit SDK"
+    )

@@ -154,6 +154,7 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
+    { name = "livekit" },
     { name = "playwright" },
     { name = "pytest" },
     { name = "ruff" },
@@ -176,6 +177,7 @@ requires-dist = [
     { name = "kokoro", marker = "extra == 'voice'", specifier = ">=0.9.2" },
     { name = "langgraph", specifier = ">=0.6.0" },
     { name = "langgraph-checkpoint-postgres", specifier = ">=2.0.0" },
+    { name = "livekit", marker = "extra == 'dev'", specifier = ">=1.1.8" },
     { name = "livekit-agents", marker = "extra == 'voice'", specifier = ">=1.0.0" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "numpy", specifier = ">=2.3.3,<2.4.0" },

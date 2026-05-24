@@ -34,8 +34,8 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 
 | # | Item | Effort | Status |
 |---|------|--------|--------|
-| 1 | Install Playwright browsers | **S** | Local browser-dependent viewer check passes (`tests/test_system_design_viewer_browser.py`: `2 passed`); clean-env `playwright install --with-deps chromium` proof still needs remote CI or a fresh runner |
-| 2 | CI pipeline | **M** | **Scaffolded and pushed on feature branch** — `.github/workflows/ci.yml`, `scripts/ci-python-stable-tests.sh`, and `tests/test_repo_workflow_ci.py`; PR creation is blocked by GitHub connector `403`, so remote run/branch-protection proof is still pending |
+| 1 | Install Playwright browsers | **S** | Remote run `26360567043` proved `uv run playwright install --with-deps chromium` completes on GitHub Actions; full CI proof still awaits a passing post-fix run |
+| 2 | CI pipeline | **M** | **Scaffolded and pushed on feature branch** — latest remote run failed only in Python stable tests because the clean runner lacked the `livekit` SDK; local fix adds `livekit>=1.1.8` to the `dev` extra, refreshes `uv.lock`, and passes the exact stable CI script locally. PR creation remains blocked by GitHub connector `403`, and post-fix remote run/branch-protection proof is still pending |
 | 3 | Four ship skills | **M** | **Done** — local-bootstrap, ship-gate, provider-proof-capture, and ci-scaffold skills exist under `skills/agent-studio-*` |
 | 4 | Ruff baseline | **S** | **Done locally** — `[tool.ruff]` exists in `pyproject.toml`; fresh `uv run ruff check src/ tests/` returned `All checks passed!` |
 | 5 | Initial git commit / branch push | **S** | **Done** — `main` is seeded and `feature/livekit-voice-proof-capture` is pushed; PR/merge/release tag remain pending |
