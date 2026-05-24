@@ -6,6 +6,8 @@ import json
 import os
 import re
 import shlex
+from urllib import error as urlerror
+from urllib import request as urlrequest
 from collections.abc import Mapping, Sequence
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -12023,6 +12025,197 @@ def _print_provider_proof_pr_handoff(args: argparse.Namespace) -> None:
     print("\n".join(_provider_proof_pr_handoff_lines(args)))
 
 
+GITHUB_PR_TOKEN_ENV_CANDIDATES = ("GITHUB_TOKEN", "GH_TOKEN")
+
+
+def _github_pull_request_api_url(repo: str) -> str:
+    return f"https://api.github.com/repos/{repo}/pulls"
+
+
+def _github_compare_url(repo: str, base: str, branch: str) -> str:
+    return f"https://github.com/{repo}/compare/{base}...{branch}?expand=1"
+
+
+def _provider_proof_cli_arg_path_text(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(PROJECT_ROOT.resolve()).as_posix()
+    except ValueError:
+        return _provider_proof_portable_path_text(path)
+
+
+def _provider_proof_pr_handoff_command(args: argparse.Namespace) -> str:
+    parts = [
+        "uv",
+        "run",
+        "all-about-llms-admin",
+        "provider-proof-pr-handoff",
+        "--run-id",
+        args.run_id,
+    ]
+    if args.operator_input_path is not None:
+        parts.extend(
+            [
+                "--operator-input-path",
+                _provider_proof_cli_arg_path_text(args.operator_input_path),
+            ]
+        )
+    if args.output_dir is not None:
+        parts.extend(
+            ["--output-dir", _provider_proof_cli_arg_path_text(args.output_dir)]
+        )
+    parts.extend(["--ci-url", args.ci_url, "--head-sha", args.head_sha])
+    return " ".join(shlex.quote(part) for part in parts)
+
+
+def _provider_proof_pr_create_request_body(
+    args: argparse.Namespace,
+) -> dict[str, object]:
+    body = "\n".join(_provider_proof_pr_handoff_lines(args))
+    return {
+        "title": args.title,
+        "head": args.branch,
+        "base": args.base,
+        "body": body,
+        "draft": bool(args.draft),
+        "maintainer_can_modify": True,
+    }
+
+
+def _provider_proof_pr_create_result(
+    args: argparse.Namespace,
+    *,
+    env: Mapping[str, str] | None = None,
+    opener: object = urlrequest.urlopen,
+) -> dict[str, object]:
+    effective_env = os.environ if env is None else env
+    token = next(
+        (
+            effective_env[name].strip()
+            for name in GITHUB_PR_TOKEN_ENV_CANDIDATES
+            if effective_env.get(name, "").strip()
+        ),
+        None,
+    )
+    post_url = _github_pull_request_api_url(args.repo)
+    compare_url = _github_compare_url(args.repo, args.base, args.branch)
+    request_body = _provider_proof_pr_create_request_body(args)
+    safe_request = {
+        "title": request_body["title"],
+        "head": request_body["head"],
+        "base": request_body["base"],
+        "draft": request_body["draft"],
+        "maintainer_can_modify": request_body["maintainer_can_modify"],
+        "body_line_count": len(str(request_body["body"]).splitlines()),
+    }
+    base_payload: dict[str, object] = {
+        "artifact": "agent-studio-provider-proof-pr-create",
+        "body_source": "provider-proof-pr-handoff",
+        "boundary": "no_secret_values_printed",
+        "compare_url": compare_url,
+        "post_url": post_url,
+        "request": safe_request,
+    }
+
+    if args.dry_run:
+        return {**base_payload, "status": "dry_run", "exit_code": 0}
+
+    if token is None:
+        return {
+            **base_payload,
+            "status": "manual_required",
+            "issue_code": "github_token_unavailable",
+            "token_env_candidates": list(GITHUB_PR_TOKEN_ENV_CANDIDATES),
+            "handoff_command": _provider_proof_pr_handoff_command(args),
+            "exit_code": 2,
+        }
+
+    request = urlrequest.Request(
+        post_url,
+        data=json.dumps(request_body, separators=(",", ":")).encode("utf-8"),
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "User-Agent": "all-about-llms-agent-studio-pr-create",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+        method="POST",
+    )
+    try:
+        with opener(request, timeout=args.timeout_seconds) as response:
+            response_payload = json.loads(response.read().decode("utf-8") or "{}")
+    except urlerror.HTTPError as exc:
+        message = "GitHub API request failed"
+        try:
+            error_payload = json.loads(exc.read().decode("utf-8") or "{}")
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            error_payload = {}
+        if isinstance(error_payload, Mapping) and isinstance(
+            error_payload.get("message"), str
+        ):
+            message = str(error_payload["message"])
+        return {
+            **base_payload,
+            "status": "github_api_error",
+            "issue_code": "github_api_request_failed",
+            "http_status": exc.code,
+            "message": message,
+            "handoff_command": _provider_proof_pr_handoff_command(args),
+                "exit_code": 1,
+            }
+    except (urlerror.URLError, TimeoutError, OSError) as exc:
+        return {
+            **base_payload,
+            "status": "github_api_error",
+            "issue_code": "github_api_request_failed",
+            "message": type(exc).__name__,
+            "handoff_command": _provider_proof_pr_handoff_command(args),
+            "exit_code": 1,
+        }
+    except (UnicodeError, json.JSONDecodeError):
+        return {
+            **base_payload,
+            "status": "github_api_error",
+            "issue_code": "github_api_response_invalid",
+            "message": "GitHub API response was not valid JSON",
+            "handoff_command": _provider_proof_pr_handoff_command(args),
+            "exit_code": 1,
+        }
+
+    if not isinstance(response_payload, Mapping):
+        return {
+            **base_payload,
+            "status": "github_api_error",
+            "issue_code": "github_api_response_invalid",
+            "message": "GitHub API response JSON was not an object",
+            "handoff_command": _provider_proof_pr_handoff_command(args),
+            "exit_code": 1,
+        }
+
+    return {
+        "artifact": "agent-studio-provider-proof-pr-create",
+        "boundary": "no_secret_values_printed",
+        "status": "created",
+        "number": response_payload.get("number"),
+        "url": response_payload.get("html_url"),
+        "state": response_payload.get("state"),
+        "draft": response_payload.get("draft"),
+        "auto_merge_next_action": (
+            "enable repository auto-merge or merge queue after required "
+            "checks and review pass"
+        ),
+        "exit_code": 0,
+    }
+
+
+def _print_provider_proof_pr_create(args: argparse.Namespace) -> None:
+    payload = _provider_proof_pr_create_result(args)
+    exit_code = int(payload.get("exit_code", 0))
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    if exit_code:
+        raise SystemExit(exit_code)
+
+
 def _probability_thresholds(value: str) -> list[float]:
     thresholds = []
     for raw in value.split(","):
@@ -13005,6 +13198,83 @@ def main() -> None:
         type=_git_commit_sha,
         help="Current feature branch head SHA to include in the manual PR handoff.",
     )
+    proof_pr_create_parser = subparsers.add_parser(
+        "provider-proof-pr-create",
+        help=(
+            "Create the Agent Studio proof PR through GitHub REST when a local "
+            "token is available, or emit a no-secret manual fallback."
+        ),
+    )
+    proof_pr_create_parser.add_argument(
+        "--env-example-path",
+        type=_project_relative_path,
+        default=PROJECT_ROOT / ".env.example",
+    )
+    proof_pr_create_parser.add_argument("--checked-at")
+    proof_pr_create_parser.add_argument("--run-id", required=True)
+    proof_pr_create_parser.add_argument(
+        "--operator-input-path",
+        type=_project_relative_path,
+        help=(
+            "Optional filled no-secret operator input file to inspect for the "
+            "external publication gate."
+        ),
+    )
+    proof_pr_create_parser.add_argument(
+        "--output-dir",
+        type=_project_relative_path,
+        help=(
+            "Provider proof workspace directory used for recovery command "
+            "context."
+        ),
+    )
+    proof_pr_create_parser.add_argument(
+        "--audit-target",
+        action="append",
+        type=_project_relative_path,
+        help=(
+            "Override a default vault audit target; repeat for multiple targets."
+        ),
+    )
+    proof_pr_create_parser.add_argument(
+        "--repo",
+        default="DeconvFFT/Content-creator-optimizer",
+    )
+    proof_pr_create_parser.add_argument("--base", default="main")
+    proof_pr_create_parser.add_argument(
+        "--branch",
+        default="feature/livekit-voice-proof-capture",
+    )
+    proof_pr_create_parser.add_argument(
+        "--ci-url",
+        required=True,
+        type=_github_actions_run_url,
+        help=(
+            "Latest branch-head GitHub Actions URL to include in the PR body."
+        ),
+    )
+    proof_pr_create_parser.add_argument(
+        "--head-sha",
+        required=True,
+        type=_git_commit_sha,
+        help="Current feature branch head SHA to include in the PR body.",
+    )
+    proof_pr_create_parser.add_argument(
+        "--title",
+        default="Agent Studio LiveKit/OpenRouter proof gates",
+    )
+    proof_pr_create_parser.add_argument(
+        "--ready-for-review",
+        action="store_false",
+        dest="draft",
+        help="Create a ready PR instead of a draft PR.",
+    )
+    proof_pr_create_parser.add_argument("--dry-run", action="store_true")
+    proof_pr_create_parser.add_argument(
+        "--timeout-seconds",
+        type=float,
+        default=15.0,
+    )
     proof_closure_template_parser = subparsers.add_parser(
         "provider-proof-closure-review-template",
         help=(
@@ -13569,7 +13839,7 @@ def main() -> None:
         "--concurrent-iterations", type=_positive_int, default=2
     )
     args = parser.parse_args()
-    if args.command == "provider-proof-pr-handoff":
+    if args.command in {"provider-proof-pr-handoff", "provider-proof-pr-create"}:
         try:
             _validate_provider_proof_pr_handoff_evidence(args)
         except argparse.ArgumentTypeError as exc:
@@ -13607,6 +13877,8 @@ def main() -> None:
         _print_provider_proof_completion_status(args)
     elif args.command == "provider-proof-pr-handoff":
         _print_provider_proof_pr_handoff(args)
+    elif args.command == "provider-proof-pr-create":
+        _print_provider_proof_pr_create(args)
     elif args.command == "provider-proof-closure-review-template":
         _print_provider_proof_closure_review_template(args)
     elif args.command == "validate-provider-proof-closure-review":

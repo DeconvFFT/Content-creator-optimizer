@@ -67,7 +67,17 @@ Secrets belong in local environment variables or ignored files under `.secrets/`
 
 Open PRs into `main`. The PR checklist should show the local verification commands that were run, plus the current provider proof gate state. For the current Agent Studio branch, the PR must explicitly state the `provider-backed-live-voice-proof` status, the `external-publication-proof` status, and whether any operator-owned LinkedIn inputs remain blocked. Enable auto-merge only after required CI checks and review pass.
 
-If GitHub integration permissions prevent creating the PR automatically, generate a no-secret manual PR body from the current proof gates:
+First try the token-aware no-secret PR helper. It uses `GITHUB_TOKEN` or `GH_TOKEN` only as an Authorization header for the GitHub REST pull-request call and does not print the token or the generated Markdown body when credentials are unavailable:
+
+```bash
+uv run all-about-llms-admin provider-proof-pr-create \
+  --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
+  --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env \
+  --ci-url <latest-branch-head-ci-url> \
+  --head-sha <current-branch-head-sha>
+```
+
+If no local GitHub token is available, or GitHub integration permissions still prevent creating the PR automatically, generate a no-secret manual PR body from the current proof gates:
 
 ```bash
 uv run all-about-llms-admin provider-proof-pr-handoff \

@@ -7,7 +7,7 @@ This repo is the product/code workspace for Agent Studio. The Obsidian vaults ar
 - Use branch prefixes that describe the work: `feature/` for new features, `fix_` plus a timestamp or UUID for bug fixes, and `tests/` for test-only changes.
 - Prefer small PR-style commits with focused verification notes.
 - Do not merge or claim completion until CI is green and the proof gates below are checked.
-- If GitHub PR creation is blocked by integration permissions, leave the branch pushed and record the exact blocker in the vault handoff.
+- If GitHub PR creation is blocked by integration permissions, first try the no-secret `provider-proof-pr-create` helper with `GITHUB_TOKEN` or `GH_TOKEN`; if no token is available, leave the branch pushed and record the exact blocker in the vault handoff.
 
 ## Files That May Be Versioned
 

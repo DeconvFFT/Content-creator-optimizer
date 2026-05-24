@@ -1,10 +1,14 @@
+import argparse
 import json
+import os
 import re
 from pathlib import Path
 import subprocess
 import tomllib
 
 import yaml
+
+from all_about_llms import cli as cli_module
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -262,8 +266,11 @@ def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
     workflow_doc = (ROOT / "docs/repo-workflow.md").read_text(encoding="utf-8")
 
     required_terms = [
+        "provider-proof-pr-create",
         "provider-proof-pr-handoff",
         "manual PR",
+        "GITHUB_TOKEN",
+        "GH_TOKEN",
         "no secret values",
         "--ci-url",
         "--head-sha",
@@ -811,3 +818,297 @@ def test_provider_proof_pr_handoff_cli_uses_custom_output_dir_workspace(
     assert f"- input_path: `{expected_operator_input}`" in handoff
     assert f"--output-dir {custom_workspace}" in handoff
     assert f"--input-path {expected_operator_input}" in handoff
+
+
+def test_provider_proof_pr_create_cli_dry_run_outputs_no_secret_request(
+    tmp_path: Path,
+) -> None:
+    operator_input_path = tmp_path / "operator-inputs.template.env"
+    operator_input_path.write_text(
+        "\n".join(
+            [
+                "OPENROUTER_API_KEY_FILE=",
+                "OPENROUTER_LIVEKIT_URL=",
+                "LIVEKIT_API_KEY_FILE=",
+                "LIVEKIT_API_SECRET_FILE=",
+                "LINKEDIN_ACCESS_TOKEN_FILE=",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=",
+                "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [
+            "uv",
+            "run",
+            "all-about-llms-admin",
+            "provider-proof-pr-create",
+            "--run-id",
+            "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+            "--operator-input-path",
+            str(operator_input_path),
+            "--ci-url",
+            "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
+            "--head-sha",
+            "cd3106728909cb422a6b7687b91308119b17f7d9",
+            "--dry-run",
+        ],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+
+    assert payload["status"] == "dry_run"
+    assert (
+        payload["post_url"]
+        == "https://api.github.com/repos/DeconvFFT/Content-creator-optimizer/pulls"
+    )
+    assert (
+        payload["compare_url"]
+        == "https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1"
+    )
+    assert payload["request"]["base"] == "main"
+    assert payload["request"]["head"] == "feature/livekit-voice-proof-capture"
+    assert payload["request"]["draft"] is True
+    assert payload["body_source"] == "provider-proof-pr-handoff"
+    assert payload["boundary"] == "no_secret_values_printed"
+
+    forbidden_terms = [
+        "Authorization",
+        "OPENROUTER_API_KEY=",
+        "LIVEKIT_API_SECRET=",
+        "LINKEDIN_ACCESS_TOKEN=",
+    ]
+    combined_output = result.stdout + result.stderr
+    for term in forbidden_terms:
+        assert term not in combined_output
+
+
+def test_provider_proof_pr_create_cli_reports_manual_required_without_token() -> None:
+    operator_input_path = (
+        ROOT
+        / "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env"
+    )
+
+    result = subprocess.run(
+        [
+            "uv",
+            "run",
+            "all-about-llms-admin",
+            "provider-proof-pr-create",
+            "--run-id",
+            "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+            "--operator-input-path",
+            str(operator_input_path),
+            "--ci-url",
+            "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
+            "--head-sha",
+            "cd3106728909cb422a6b7687b91308119b17f7d9",
+        ],
+        cwd=ROOT,
+        env={"PATH": os.environ["PATH"]},
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode == 2
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "manual_required"
+    assert payload["issue_code"] == "github_token_unavailable"
+    assert payload["token_env_candidates"] == ["GITHUB_TOKEN", "GH_TOKEN"]
+    assert "<workspace-root>" not in payload["handoff_command"]
+    assert (
+        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env"
+        in payload["handoff_command"]
+    )
+    assert "Agent Studio PR Handoff" not in result.stdout
+    assert "LINKEDIN_ACCESS_TOKEN=" not in result.stdout
+
+
+def test_provider_proof_pr_create_result_posts_with_token_without_leaking_it(
+    tmp_path: Path,
+) -> None:
+    operator_input_path = tmp_path / "operator-inputs.template.env"
+    operator_input_path.write_text(
+        "\n".join(
+            [
+                "OPENROUTER_API_KEY_FILE=",
+                "OPENROUTER_LIVEKIT_URL=",
+                "LIVEKIT_API_KEY_FILE=",
+                "LIVEKIT_API_SECRET_FILE=",
+                "LINKEDIN_ACCESS_TOKEN_FILE=",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=",
+                "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    args = argparse.Namespace(
+        audit_target=None,
+        base="main",
+        branch="feature/livekit-voice-proof-capture",
+        checked_at=None,
+        ci_url="https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
+        draft=True,
+        dry_run=False,
+        env_example_path=ROOT / ".env.example",
+        head_sha="cd3106728909cb422a6b7687b91308119b17f7d9",
+        operator_input_path=operator_input_path,
+        output_dir=None,
+        repo="DeconvFFT/Content-creator-optimizer",
+        run_id="190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+        timeout_seconds=5.0,
+        title="Agent Studio LiveKit/OpenRouter proof gates",
+    )
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        def __enter__(self) -> "FakeResponse":
+            return self
+
+        def __exit__(self, *_exc: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return json.dumps(
+                {
+                    "number": 17,
+                    "html_url": (
+                        "https://github.com/DeconvFFT/Content-creator-optimizer/pull/17"
+                    ),
+                    "state": "open",
+                    "draft": True,
+                }
+            ).encode("utf-8")
+
+    def fake_opener(request: object, timeout: float) -> FakeResponse:
+        captured["timeout"] = timeout
+        captured["headers"] = dict(request.header_items())
+        captured["body"] = json.loads(request.data.decode("utf-8"))
+        captured["url"] = request.full_url
+        return FakeResponse()
+
+    payload = cli_module._provider_proof_pr_create_result(
+        args,
+        env={"GITHUB_TOKEN": "local-test-token-not-secret"},
+        opener=fake_opener,
+    )
+
+    assert payload["status"] == "created"
+    assert payload["number"] == 17
+    assert payload["url"] == (
+        "https://github.com/DeconvFFT/Content-creator-optimizer/pull/17"
+    )
+    assert captured["url"] == (
+        "https://api.github.com/repos/DeconvFFT/Content-creator-optimizer/pulls"
+    )
+    assert captured["headers"]["Authorization"] == (
+        "Bearer local-test-token-not-secret"
+    )
+    request_body = captured["body"]
+    assert request_body["head"] == "feature/livekit-voice-proof-capture"
+    assert request_body["base"] == "main"
+    assert request_body["draft"] is True
+    assert "Agent Studio PR Handoff" in request_body["body"]
+    assert "local-test-token-not-secret" not in json.dumps(payload)
+
+
+def test_provider_proof_pr_create_result_compacts_url_errors_without_token_leak(
+    tmp_path: Path,
+) -> None:
+    args = argparse.Namespace(
+        audit_target=None,
+        base="main",
+        branch="feature/livekit-voice-proof-capture",
+        checked_at=None,
+        ci_url="https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
+        draft=True,
+        dry_run=False,
+        env_example_path=ROOT / ".env.example",
+        head_sha="cd3106728909cb422a6b7687b91308119b17f7d9",
+        operator_input_path=tmp_path / "operator-inputs.template.env",
+        output_dir=None,
+        repo="DeconvFFT/Content-creator-optimizer",
+        run_id="190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+        timeout_seconds=5.0,
+        title="Agent Studio LiveKit/OpenRouter proof gates",
+    )
+
+    def failing_opener(_request: object, timeout: float) -> object:
+        assert timeout == 5.0
+        raise cli_module.urlerror.URLError("network unavailable")
+
+    payload = cli_module._provider_proof_pr_create_result(
+        args,
+        env={"GITHUB_TOKEN": "local-test-token-not-secret"},
+        opener=failing_opener,
+    )
+
+    assert payload["status"] == "github_api_error"
+    assert payload["issue_code"] == "github_api_request_failed"
+    assert payload["exit_code"] == 1
+    assert "handoff_command" in payload
+    assert "local-test-token-not-secret" not in json.dumps(payload)
+
+
+def test_provider_proof_pr_create_result_compacts_invalid_success_json(
+    tmp_path: Path,
+) -> None:
+    args = argparse.Namespace(
+        audit_target=None,
+        base="main",
+        branch="feature/livekit-voice-proof-capture",
+        checked_at=None,
+        ci_url="https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
+        draft=True,
+        dry_run=False,
+        env_example_path=ROOT / ".env.example",
+        head_sha="cd3106728909cb422a6b7687b91308119b17f7d9",
+        operator_input_path=tmp_path / "operator-inputs.template.env",
+        output_dir=None,
+        repo="DeconvFFT/Content-creator-optimizer",
+        run_id="190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+        timeout_seconds=5.0,
+        title="Agent Studio LiveKit/OpenRouter proof gates",
+    )
+
+    class InvalidJsonResponse:
+        def __enter__(self) -> "InvalidJsonResponse":
+            return self
+
+        def __exit__(self, *_exc: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return b"not-json"
+
+    def invalid_json_opener(
+        _request: object, timeout: float
+    ) -> InvalidJsonResponse:
+        assert timeout == 5.0
+        return InvalidJsonResponse()
+
+    payload = cli_module._provider_proof_pr_create_result(
+        args,
+        env={"GITHUB_TOKEN": "local-test-token-not-secret"},
+        opener=invalid_json_opener,
+    )
+
+    assert payload["status"] == "github_api_error"
+    assert payload["issue_code"] == "github_api_response_invalid"
+    assert payload["exit_code"] == 1
+    assert "handoff_command" in payload
+    assert "local-test-token-not-secret" not in json.dumps(payload)

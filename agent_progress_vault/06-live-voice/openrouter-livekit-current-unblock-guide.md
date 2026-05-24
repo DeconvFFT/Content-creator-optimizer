@@ -22,17 +22,19 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 - `external-publication-proof`: still blocked by LinkedIn token file, policy acknowledgement artifact, durable LinkedIn URL/platform id, and rollback or postcondition evidence
 - External publication validation now rejects local/draft/bare-placeholder policy acknowledgement and rollback/postcondition artifact references in both accepted proof records and compact audit notes; use durable non-local artifact IDs only.
 - Completion status: not complete until external publication proof validates, records, and passes closure review
-- PR state: feature branch is pushed and CI is green, but PR creation may need the manual `provider-proof-pr-handoff` body until GitHub integration permissions are upgraded
+- PR state: feature branch is pushed and CI is green, but PR creation may need either the token-aware `provider-proof-pr-create` helper or the manual `provider-proof-pr-handoff` body until GitHub integration permissions are upgraded
 
 ## Current Manual PR Handoff
 
 - Latest live check: the pushed feature branch had green GitHub Actions CI for the branch head at check time.
 - Regenerate exact PR evidence at manual PR creation time; do not treat this vault note as the source of truth for branch head or CI run because follow-up documentation commits can make pinned values stale.
+- Token-aware PR attempt:
+  `uv run all-about-llms-admin provider-proof-pr-create --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --ci-url <latest-branch-head-ci-url> --head-sha <current-branch-head-sha>`
 - Manual PR body command:
   `uv run all-about-llms-admin provider-proof-pr-handoff --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --ci-url <latest-branch-head-ci-url> --head-sha <current-branch-head-sha>`
 - Manual PR handoff output includes `operator_input_example: docs/external-publication-operator-inputs.example.env`; use that committed no-secret file as the key list before filling the ignored UUID operator input file locally.
 - Manual PR compare: <https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1>
-- Automated PR creation remains blocked by GitHub integration permission `403 Resource not accessible by integration`; use the generated `provider-proof-pr-handoff` body in a manual PR until repository app permissions are upgraded.
+- Automated PR creation through the GitHub connector remains blocked by integration permission `403 Resource not accessible by integration`; `provider-proof-pr-create` can create the PR only when a local `GITHUB_TOKEN` or `GH_TOKEN` is available, otherwise use the generated `provider-proof-pr-handoff` body in a manual PR until repository app permissions are upgraded.
 - Auto-merge cannot be enabled by this session until a PR exists and repository settings permit the integration to mutate it.
 
 ## Do Next
