@@ -1236,3 +1236,10 @@ At the end of a meaningful slice:
 - Current blocked fields remain `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
 - Verification: repo workflow guards passed with `16 passed`; stable Python CI script passed with `242 passed, 30 skipped`; ruff passed on `tests/test_repo_workflow_ci.py`; touched docs/vault surfaces had no OpenRouter, GitHub, Hugging Face, or LinkedIn token-shaped values.
 - Boundary: this improves pickup clarity only. It does not supply LinkedIn credentials, publish externally, record an accepted publication proof, or mark the goal complete.
+
+## Frontend README Current Route Guard - 2026-05-24
+
+- Source: `frontend/next-app/README.md` and `tests/test_repo_workflow_ci.py`.
+- Handoff: the Next app validation README now describes browser single-flight voice proof as OpenRouter DeepSeek V4 Flash + LiveKit + Kokoro provenance and OpenRouter/LiveKit/Kokoro preflight readiness. A repo workflow regression rejects the stale current-route phrases `Gemma 4 E4B/Kokoro provenance` and `LiveKit/Gemma/Kokoro preflight readiness`.
+- Verification: the focused regression failed first on the stale README wording, then passed after the README update.
+- Boundary: this is documentation and guardrail alignment only. It does not supply the LinkedIn publication proof inputs or create a GitHub PR; connector PR creation still returns GitHub permission `403`.

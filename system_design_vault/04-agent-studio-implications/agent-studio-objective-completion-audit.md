@@ -1260,3 +1260,10 @@ This failed record is preserved as historical audit evidence from the prior nati
 - architecture implication: manual PRs now carry proof-gate state as a first-class merge artifact. The PR template asks for the accepted live-voice proof path, the remaining external-publication proof state, LinkedIn operator-input blockers, and confirmation that Hugging Face/Gemma4/Gamma4/MLX were not reintroduced as active realtime defaults.
 - verification: a failing-first repo workflow regression caught the missing PR proof-gate handoff section, then passed after the template update. Fresh evidence still shows branch-head CI green at last live check, no open PR, live voice accepted, and external publication blocked by operator-owned inputs.
 - boundary: this is a merge-readiness and coordination improvement. It cannot satisfy the `external-publication-proof` gate without the operator-owned LinkedIn token file, policy acknowledgement artifact, durable destination URL/id, and rollback/postcondition artifact.
+
+## Frontend README Current Route Guard - 2026-05-24
+
+- source: `frontend/next-app/README.md`, `tests/test_repo_workflow_ci.py`, `social_media_optimiser/wiki/ops/active-codex-context.md`
+- architecture implication: the frontend validation README now treats OpenRouter DeepSeek V4 Flash + LiveKit + Kokoro as the current voice-proof provenance path. The matching repo workflow regression prevents the old Gemma current-route phrases from returning to the browser single-flight proof docs.
+- verification: the focused regression failed first on the stale README wording, then passed after the README update.
+- boundary: this is documentation and guardrail alignment only. It does not supply LinkedIn publication credentials, durable publication artifacts, closure review, or GitHub-side PR permissions.

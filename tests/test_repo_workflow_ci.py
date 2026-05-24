@@ -139,6 +139,24 @@ def test_agents_handoff_documents_pr_ci_and_proof_boundaries() -> None:
     assert "local command-log artifacts" in handoff.lower()
 
 
+def test_next_app_readme_keeps_openrouter_livekit_as_current_voice_proof_route() -> None:
+    readme = (ROOT / "frontend/next-app/README.md").read_text(encoding="utf-8")
+
+    required_terms = [
+        "OpenRouter DeepSeek V4 Flash + LiveKit + Kokoro provenance",
+        "OpenRouter/LiveKit/Kokoro preflight readiness",
+    ]
+    for term in required_terms:
+        assert term in readme
+
+    stale_current_route_terms = [
+        "Gemma 4 E4B/Kokoro provenance",
+        "LiveKit/Gemma/Kokoro preflight readiness",
+    ]
+    for term in stale_current_route_terms:
+        assert term not in readme
+
+
 def test_pull_request_template_requires_proof_gate_handoff() -> None:
     template_path = ROOT / ".github" / "pull_request_template.md"
 
