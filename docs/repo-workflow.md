@@ -79,7 +79,7 @@ uv run all-about-llms-admin provider-proof-pr-handoff \
 
 Fill the CI URL and head SHA placeholders from the current branch head before pasting the generated PR body. The generated handoff must keep `provider-backed-live-voice-proof`, `external-publication-proof`, `LINKEDIN_ACCESS_TOKEN_FILE`, the OpenRouter/LiveKit/Kokoro route, CI evidence, and the no secret values boundary visible in the manual PR description.
 
-For the remaining publication gate, use `docs/external-publication-proof-runbook.md` as the committed no-secret operator handoff. The generated `operator-unblocker-checklist.md` under `social_media_optimiser/output/provider-proof/` remains the detailed ignored proof packet and must not be committed.
+For the remaining publication gate, use `docs/external-publication-proof-runbook.md` as the committed no-secret operator handoff and `docs/external-publication-operator-inputs.example.env` as the placeholder-only key list for the ignored operator input file. The generated `operator-unblocker-checklist.md` under `social_media_optimiser/output/provider-proof/` remains the detailed ignored proof packet and must not be committed.
 
 Repository settings still need to enforce:
 

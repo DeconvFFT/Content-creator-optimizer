@@ -270,6 +270,7 @@ def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
         "provider-backed-live-voice-proof",
         "external-publication-proof",
         "external-publication-proof-runbook.md",
+        "external-publication-operator-inputs.example.env",
         "LINKEDIN_ACCESS_TOKEN_FILE",
         "uv.lock",
         ".github/CODEOWNERS",
@@ -299,6 +300,10 @@ def test_manual_pr_handoff_notes_include_current_ci_evidence_inputs() -> None:
         assert "--head-sha" in handoff, (
             f"{path.relative_to(ROOT)} must pass the current branch head SHA "
             "when it claims CI evidence"
+        )
+        assert "docs/external-publication-operator-inputs.example.env" in handoff, (
+            f"{path.relative_to(ROOT)} must point manual PR operators to the "
+            "committed no-secret external-publication input example"
         )
 
 
@@ -645,6 +650,8 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
         "Dependency changes include `uv.lock`",
         "local command logs stay untracked",
         "no secret values printed",
+        "operator_input_example",
+        "docs/external-publication-operator-inputs.example.env",
         "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
         "cd3106728909cb422a6b7687b91308119b17f7d9",
     ]

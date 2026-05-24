@@ -30,13 +30,14 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 - Regenerate exact PR evidence at manual PR creation time; do not treat this vault note as the source of truth for branch head or CI run because follow-up documentation commits can make pinned values stale.
 - Manual PR body command:
   `uv run all-about-llms-admin provider-proof-pr-handoff --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --ci-url <latest-branch-head-ci-url> --head-sha <current-branch-head-sha>`
+- Manual PR handoff output includes `operator_input_example: docs/external-publication-operator-inputs.example.env`; use that committed no-secret file as the key list before filling the ignored UUID operator input file locally.
 - Manual PR compare: <https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1>
 - Automated PR creation remains blocked by GitHub integration permission `403 Resource not accessible by integration`; use the generated `provider-proof-pr-handoff` body in a manual PR until repository app permissions are upgraded.
 - Auto-merge cannot be enabled by this session until a PR exists and repository settings permit the integration to mutate it.
 
 ## Do Next
 
-1. Fill a local no-secret operator input file from `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env`.
+1. Fill a local no-secret operator input file from `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env`, using `docs/external-publication-operator-inputs.example.env` as the committed placeholder-only key list.
 2. Keep secret values in files only; do not paste token values into notes, commits, PR bodies, or logs.
 3. Run strict readiness:
    `uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked`

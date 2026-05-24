@@ -1338,4 +1338,5 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 
 - Done: added a committed no-secret example at `docs/external-publication-operator-inputs.example.env` for the ignored external-publication operator input file. It lists only the four required keys and placeholder local/path URL shapes; filled files remain under ignored provider-proof output.
 - Done: linked the example from `docs/external-publication-proof-runbook.md` so operators can copy key names without opening generated output or committing secrets.
+- Done: `provider-proof-pr-handoff` now prints `operator_input_example` so manual PR reviewers can find the committed placeholder-only key list from the generated no-secret PR body.
 - Boundary: this improves operator handoff only. It does not supply the LinkedIn token file, policy acknowledgement artifact, durable LinkedIn publication URL/id, rollback/postcondition artifact, accepted publication proof, closure review, GitHub PR, or auto-merge setup.

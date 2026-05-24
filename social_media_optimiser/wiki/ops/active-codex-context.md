@@ -1287,6 +1287,6 @@ At the end of a meaningful slice:
 
 ## External Publication Operator Input Example - 2026-05-24
 
-- Source: `docs/external-publication-operator-inputs.example.env`, `docs/external-publication-proof-runbook.md`, and `tests/test_repo_workflow_ci.py`.
-- Handoff: the committed example env contains only placeholder values for `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`. Operators should copy those keys into the ignored UUID `operator-inputs.template.env` and replace values locally.
+- Source: `docs/external-publication-operator-inputs.example.env`, `docs/external-publication-proof-runbook.md`, `provider-proof-pr-handoff`, and `tests/test_repo_workflow_ci.py`.
+- Handoff: the committed example env contains only placeholder values for `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`. Operators should copy those keys into the ignored UUID `operator-inputs.template.env` and replace values locally. The generated manual PR handoff now prints `operator_input_example` so a PR reviewer can find the committed template without opening ignored proof output.
 - Boundary: do not commit filled operator input files, token values, generated proof output, screenshots, PDFs, images, media, local DBs, or local command logs. This does not close `external-publication-proof`; it only lowers pickup friction.

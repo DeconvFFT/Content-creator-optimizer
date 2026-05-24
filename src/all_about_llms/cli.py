@@ -100,6 +100,10 @@ PROVIDER_PROOF_RECORD_TARGETS = [
     ),
 ]
 
+PROVIDER_PROOF_OPERATOR_INPUT_EXAMPLE_PATH = (
+    PROJECT_ROOT / "docs/external-publication-operator-inputs.example.env"
+)
+
 PROVIDER_PROOF_CREDENTIAL_SETUP_REQUIREMENTS = {
     "provider-backed-live-voice-proof": [
         "configure OPENROUTER_API_KEY_FILE or OPENROUTER_API_KEY",
@@ -11979,6 +11983,10 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
         "## Operator Input Gate",
         f"- readiness_status: `{readiness.get('status', 'unknown')}`",
         f"- input_path: `{_provider_proof_portable_path_text(operator_input_path)}`",
+        (
+            "- operator_input_example: "
+            f"`{_provider_proof_portable_path_text(PROVIDER_PROOF_OPERATOR_INPUT_EXAMPLE_PATH)}`"
+        ),
         "- blocked_fields:",
         *bullet_values(readiness.get("blocked_fields")),
         "",
