@@ -54,10 +54,17 @@ Run ID: `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
 |---------|------|
 | Proof readiness | `../social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html` |
 | A2A map | `../social_media_optimiser/00-system-design/agent-studio-a2a-map.html` |
-| Legacy-named Gemma voice boundary | `../social_media_optimiser/02-research/gemma-voice-boundary-map.html` |
+| OpenRouter LiveKit voice boundary | `../social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html` |
 | Publication boundary | `../social_media_optimiser/03-review-packets/agent-studio-publication-boundary-map.html` |
 | Feedback loop map | `../social_media_optimiser/03-review-packets/agent-studio-feedback-loop-map.html` |
 | System-design source map | `../system_design_vault/output/viewers/system-design-source-map.html` |
+
+Current rename sync: the live voice boundary review surface now uses
+`../social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html`,
+and the current unblock guide is
+`../agent_progress_vault/06-live-voice/openrouter-livekit-current-unblock-guide.md`.
+Do not reintroduce Gemma/Gamma/Hugging Face/MLX as active-current filenames or
+task names for the accepted OpenRouter/LiveKit/Kokoro proof path.
 
 ## Known contradictions & stale docs
 

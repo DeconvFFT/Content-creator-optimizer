@@ -443,7 +443,7 @@ def test_blocker_credential_snapshots_keep_source_attribution_across_exports():
 
             _open(
                 page,
-                "social_media_optimiser/02-research/gemma-voice-boundary-map.html",
+                "social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html",
             )
             page.get_by_role("button", name="Proof gate").click()
             voice_boundary = _export_json(page, "#boundary-export")["routes"][0][
@@ -520,7 +520,7 @@ def test_static_operator_packets_use_current_matrix_checked_at():
 
             _open(
                 page,
-                "social_media_optimiser/02-research/gemma-voice-boundary-map.html",
+                "social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html",
             )
             page.get_by_role("button", name="Proof gate").click()
             voice_route = _export_json(page, "#boundary-export")["routes"][0]
@@ -592,7 +592,7 @@ def test_static_operator_packets_match_current_matrix_contracts():
 
             _open(
                 page,
-                "social_media_optimiser/02-research/gemma-voice-boundary-map.html",
+                "social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html",
             )
             page.get_by_role("button", name="Proof gate").click()
             voice_route = _export_json(page, "#boundary-export")["routes"][0]
@@ -630,7 +630,7 @@ def test_static_embedded_operator_packets_match_current_matrix_without_browser()
         "blockers",
     )
     voice_boundary_packets = _static_operator_packets(
-        "social_media_optimiser/02-research/gemma-voice-boundary-map.html",
+        "social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html",
         "routes",
     )
     publication_boundary_packets = _static_operator_packets(
@@ -675,7 +675,7 @@ def test_proof_plan_propagates_from_readiness_to_boundary_maps():
 
             _open(
                 page,
-                "social_media_optimiser/02-research/gemma-voice-boundary-map.html",
+                "social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html",
             )
             page.get_by_role("button", name="Proof gate").click()
             voice_boundary = _export_json(page, "#boundary-export")["routes"][0][

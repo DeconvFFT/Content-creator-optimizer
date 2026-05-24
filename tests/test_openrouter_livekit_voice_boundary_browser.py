@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_openrouter_voice_boundary_filters_proof_gate_and_exports_current_evidence():
     map_path = (
-        ROOT / "social_media_optimiser/02-research/gemma-voice-boundary-map.html"
+        ROOT / "social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html"
     )
     run_id = "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
 
@@ -92,7 +92,7 @@ def test_openrouter_voice_boundary_filters_proof_gate_and_exports_current_eviden
             export_payload = json.loads(page.locator("#boundary-export").input_value())
             assert export_payload["artifact"] == "openrouter-livekit-voice-boundary-map"
             assert export_payload["source"] == (
-                "social_media_optimiser/02-research/gemma-voice-boundary-map.html"
+                "social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html"
             )
             assert [route["id"] for route in export_payload["routes"]] == [
                 "provider-backed-live-voice-proof"
@@ -183,7 +183,7 @@ def test_openrouter_voice_boundary_filters_proof_gate_and_exports_current_eviden
 
 def test_openrouter_voice_boundary_keeps_legacy_routes_separate():
     map_path = (
-        ROOT / "social_media_optimiser/02-research/gemma-voice-boundary-map.html"
+        ROOT / "social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html"
     )
 
     with sync_playwright() as playwright:
@@ -212,7 +212,7 @@ def test_openrouter_voice_boundary_keeps_legacy_routes_separate():
 
 def test_openrouter_voice_boundary_switches_filters_without_stale_route_context():
     map_path = (
-        ROOT / "social_media_optimiser/02-research/gemma-voice-boundary-map.html"
+        ROOT / "social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html"
     )
 
     with sync_playwright() as playwright:

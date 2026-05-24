@@ -71,10 +71,12 @@ If GitHub integration permissions prevent creating the PR automatically, generat
 ```bash
 uv run all-about-llms-admin provider-proof-pr-handoff \
   --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
-  --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env
+  --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env \
+  --ci-url <latest-branch-head-ci-url> \
+  --head-sha <current-branch-head-sha>
 ```
 
-The generated handoff must keep `provider-backed-live-voice-proof`, `external-publication-proof`, `LINKEDIN_ACCESS_TOKEN_FILE`, the OpenRouter/LiveKit/Kokoro route, CI evidence, and the no secret values boundary visible in the manual PR description.
+Fill the CI URL and head SHA placeholders from the current branch head before pasting the generated PR body. The generated handoff must keep `provider-backed-live-voice-proof`, `external-publication-proof`, `LINKEDIN_ACCESS_TOKEN_FILE`, the OpenRouter/LiveKit/Kokoro route, CI evidence, and the no secret values boundary visible in the manual PR description.
 
 Repository settings still need to enforce:
 

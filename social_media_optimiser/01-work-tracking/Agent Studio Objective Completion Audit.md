@@ -452,7 +452,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 ## Current-Gate External Publication Recovery Correction - 2026-05-24
 
 - evidence: `src/all_about_llms/cli.py` now gates latest-failed `external-publication-proof` recovery on blocked operator inputs. While LinkedIn/publication inputs remain blocked, current-gate completion commands start with strict `provider-proof-operator-input-readiness --fail-on-blocked`, credential snapshot, proof-plan, matrix/status/checklist refresh, and a single completion-status recheck instead of jumping to product/publish capture.
-- browser-visible handoff: `agent-studio-proof-readiness.html`, `gemma-voice-boundary-map.html`, and `agent-studio-publication-boundary-map.html` now embed the same strict operator-input gate inside `operator_proof_packet.current_gate.completion_next_action_commands`. Distribution-package capture remains a post-readiness publication proof step, not the first blocked-input recovery action.
+- browser-visible handoff: `agent-studio-proof-readiness.html`, `openrouter-livekit-voice-boundary-map.html`, and `agent-studio-publication-boundary-map.html` now embed the same strict operator-input gate inside `operator_proof_packet.current_gate.completion_next_action_commands`. Distribution-package capture remains a post-readiness publication proof step, not the first blocked-input recovery action.
 - accepted proof guardrail: `provider-backed-live-voice-proof` is accepted and remains excluded from the current-gate recovery command list.
 - verification: focused red/green checks passed, then affected provider-proof/browser suites passed with `201 passed, 30 skipped`; ruff passed on the touched proof handoff files.
 
@@ -545,7 +545,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 
 ## Static Proof Packet Guarded Retry Chain - 2026-05-21
 
-- evidence: `social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html`, `social_media_optimiser/02-research/gemma-voice-boundary-map.html`, and `social_media_optimiser/03-review-packets/agent-studio-publication-boundary-map.html` now include `operator_input_readiness.guarded_next_action_commands` in exported proof packets.
+- evidence: `social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html`, `social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html`, and `social_media_optimiser/03-review-packets/agent-studio-publication-boundary-map.html` now include `operator_input_readiness.guarded_next_action_commands` in exported proof packets.
 - evidence: each static proof packet renders the guarded strict-first retry sequence for operator handoff review.
 - regression_coverage: `tests/test_blocker_proof_packets_browser.py` first failed with missing `guarded_next_action_commands`; after the static packet update it passed with `2 passed`.
 - evidence: static proof packets now also export and render operator-input `exit_policy`, matching the strict-mode semantics already present in the machine-readable blocker matrix.

@@ -169,6 +169,8 @@ def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
         "provider-proof-pr-handoff",
         "manual PR",
         "no secret values",
+        "--ci-url",
+        "--head-sha",
         "provider-backed-live-voice-proof",
         "external-publication-proof",
         "LINKEDIN_ACCESS_TOKEN_FILE",
@@ -177,6 +179,64 @@ def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
 
     for term in required_terms:
         assert term in workflow_doc
+
+
+def test_manual_pr_handoff_notes_include_current_ci_evidence_inputs() -> None:
+    handoff_paths = [
+        ROOT / "docs/repo-workflow.md",
+        ROOT / "social_media_optimiser/wiki/ops/active-codex-context.md",
+        ROOT
+        / "system_design_vault/07-agent-studio-knowledge-graph/Agent Studio Sidecar Pickup 2026-05-24.md",
+    ]
+
+    for path in handoff_paths:
+        handoff = path.read_text(encoding="utf-8")
+
+        assert "provider-proof-pr-handoff" in handoff
+        assert "--ci-url" in handoff, (
+            f"{path.relative_to(ROOT)} must pass the latest branch-head CI URL "
+            "when it claims CI evidence"
+        )
+        assert "--head-sha" in handoff, (
+            f"{path.relative_to(ROOT)} must pass the current branch head SHA "
+            "when it claims CI evidence"
+        )
+
+
+def test_live_voice_vault_unblock_guide_uses_current_openrouter_path() -> None:
+    moc = (ROOT / "agent_progress_vault/MOC.md").read_text(encoding="utf-8")
+
+    assert "[[06-live-voice/openrouter-livekit-current-unblock-guide]]" in moc
+    assert "[[06-live-voice/unblock-guide-gemma4-e4b]]" not in moc
+    assert not (
+        ROOT / "agent_progress_vault/06-live-voice/unblock-guide-gemma4-e4b.md"
+    ).exists()
+
+
+def test_openrouter_voice_boundary_map_replaces_legacy_gemma_filename() -> None:
+    current_map = (
+        ROOT
+        / "social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html"
+    )
+    legacy_map = ROOT / "social_media_optimiser/02-research/gemma-voice-boundary-map.html"
+    active_moc = (ROOT / "social_media_optimiser/Agent Studio MOC.md").read_text(
+        encoding="utf-8"
+    )
+    progress_links = (
+        ROOT / "agent_progress_vault/04-cross-vault-links/vault-sync-notes.md"
+    ).read_text(encoding="utf-8")
+    stable_ci_script = (
+        ROOT / "scripts/ci-python-stable-tests.sh"
+    ).read_text(encoding="utf-8")
+
+    assert current_map.exists()
+    assert not legacy_map.exists()
+    assert "02-research/openrouter-livekit-voice-boundary-map.html" in active_moc
+    assert "02-research/gemma-voice-boundary-map.html" not in active_moc
+    assert "openrouter-livekit-voice-boundary-map.html" in progress_links
+    assert "Legacy-named Gemma voice boundary" not in progress_links
+    assert "tests/test_openrouter_livekit_voice_boundary_browser.py" in stable_ci_script
+    assert "tests/test_gemma_voice_boundary_browser.py" not in stable_ci_script
 
 
 def test_current_handoff_notes_avoid_exact_latest_ci_run_ids() -> None:

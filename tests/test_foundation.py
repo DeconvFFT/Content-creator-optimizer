@@ -1303,7 +1303,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
         vault / "03-review-packets/agent-studio-publication-boundary-map.html"
     ).read_text()
     gemma_voice_boundary = (
-        vault / "02-research/gemma-voice-boundary-map.html"
+        vault / "02-research/openrouter-livekit-voice-boundary-map.html"
     ).read_text()
     tracker = (vault / "01-work-tracking/agent-studio-work-tracker.html").read_text()
     kanban = (vault / "01-work-tracking/Agent Studio Kanban.md").read_text()
@@ -1408,7 +1408,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "Open Agent Studio Publication Boundary Map" in home
     assert "03-review-packets/agent-studio-publication-boundary-map.html" in home
     assert "Open OpenRouter LiveKit Voice Boundary Map" in home
-    assert "02-research/gemma-voice-boundary-map.html" in home
+    assert "02-research/openrouter-livekit-voice-boundary-map.html" in home
     assert "[[00-system-design/HLD - Agent Studio]]" in moc
     assert "[[00-system-design/LLD - Agent Studio]]" in moc
     assert "[[01-work-tracking/Agent Studio Kanban]]" in moc
@@ -1424,7 +1424,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "operator-unblocker-checklist.md" in moc
     assert "Feedback Loop Map HTML: `03-review-packets/agent-studio-feedback-loop-map.html`" in moc
     assert "Publication Boundary HTML: `03-review-packets/agent-studio-publication-boundary-map.html`" in moc
-    assert "OpenRouter LiveKit Voice Boundary HTML: `02-research/gemma-voice-boundary-map.html`" in moc
+    assert "OpenRouter LiveKit Voice Boundary HTML: `02-research/openrouter-livekit-voice-boundary-map.html`" in moc
     assert "System Design Source Map Viewer: `../system_design_vault/output/viewers/system-design-source-map.html`" in moc
     assert "[[../01-work-tracking/Agent Studio Kanban]]" in index
     assert "[[../01-work-tracking/Agent Studio Objective Completion Audit]]" in index
@@ -1534,7 +1534,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "System-design source-map viewer browser proof added" in kanban
     assert "design implications, implication search, visible record counts, no-match states, and clickable source-note paths" in kanban
     assert "OpenRouter LiveKit voice boundary browser proof added" in kanban
-    assert "tests/test_gemma_voice_boundary_browser.py" in kanban
+    assert "tests/test_openrouter_livekit_voice_boundary_browser.py" in kanban
     assert "Publication boundary browser proof added" in kanban
     assert "tests/test_publication_boundary_browser.py" in kanban
     assert "type: objective-completion-audit" in objective_audit
@@ -1603,7 +1603,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "019e3899-5ab3-7171-9d3c-32e7c57bbde7" in objective_audit
     assert "severity, files, and next action" in objective_audit
     assert "OpenRouter LiveKit voice boundary browser proof" in objective_audit
-    assert "gemma-voice-boundary-map.html" in objective_audit
+    assert "openrouter-livekit-voice-boundary-map.html" in objective_audit
     assert "publication boundary browser proof" in objective_audit
     assert "agent-studio-publication-boundary-map.html" in objective_audit
     assert "provider-backed live voice proof" in objective_audit
@@ -1798,7 +1798,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "comment export" in system_design_home
     assert "generated viewer" in system_design_home
     assert "Project OpenRouter LiveKit Voice Boundary Map" in system_design_home
-    assert "../social_media_optimiser/02-research/gemma-voice-boundary-map.html" in system_design_home
+    assert "../social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html" in system_design_home
     assert "Project Publication Boundary Map" in system_design_home
     assert "../social_media_optimiser/03-review-packets/agent-studio-publication-boundary-map.html" in system_design_home
     assert "Project Feedback Loop Map" in system_design_home
@@ -1871,7 +1871,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "system-design-source-map.html" in active_context
     assert "design implications, implication search, visible record counts, no-match states, and clickable source-note paths" in active_context
     assert "OpenRouter LiveKit voice boundary browser proof" in active_context
-    assert "gemma-voice-boundary-map.html" in active_context
+    assert "openrouter-livekit-voice-boundary-map.html" in active_context
     assert "publication boundary browser proof" in active_context
     assert "agent-studio-publication-boundary-map.html" in active_context
     assert "objective completion audit added" in active_context

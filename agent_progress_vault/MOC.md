@@ -29,10 +29,10 @@ Current live voice default: OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + 
 | [[05-quality/errors-and-failures]] | Runtime/setup interruptions and failure evidence |
 | [[06-live-voice/local-livekit-setup]] | Local LiveKit + start commands |
 | [[06-live-voice/openrouter-livekit-live-dialogue]] | OpenRouter + LiveKit live-dialogue runbook |
+| [[06-live-voice/openrouter-livekit-current-unblock-guide]] | Current OpenRouter/LiveKit/Kokoro proof and external publication unblock guide |
 | [[06-live-voice/status-snapshot-2026-05-23]] | Current local voice stack status |
 | [[06-live-voice/local-e4b-setup-runbook]] | Superseded local E4B MLX + proxy runbook for native-audio experiments |
 | [[06-live-voice/local-e4b-inference-options]] | Superseded MLX/vLLM/SGLang comparison for native-Gemma experiments |
-| [[06-live-voice/unblock-guide-gemma4-e4b]] | Superseded Gemma 4 E4B unblock notes, not the current default |
 | [[06-live-voice/operator-inputs-checklist]] | Historical credential checklist; current OpenRouter/LiveKit live-voice inputs are configured |
 
 ## Current gate (2026-05-24)
