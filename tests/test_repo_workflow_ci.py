@@ -207,3 +207,92 @@ def test_current_handoff_notes_do_not_reopen_accepted_live_voice_proof() -> None
                     f"{path.relative_to(ROOT)}:{line_number} reopens accepted live voice "
                     f"proof with stale phrase: {phrase}"
                 )
+
+
+def test_provider_proof_pr_handoff_cli_generates_manual_pr_body() -> None:
+    result = subprocess.run(
+        [
+            "uv",
+            "run",
+            "all-about-llms-admin",
+            "provider-proof-pr-handoff",
+            "--run-id",
+            "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+            "--operator-input-path",
+            (
+                "social_media_optimiser/output/provider-proof/"
+                "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env"
+            ),
+            "--ci-url",
+            "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/example",
+        ],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    handoff = result.stdout
+
+    required_terms = [
+        "Agent Studio PR Handoff",
+        "provider-backed-live-voice-proof",
+        "accepted_record_found",
+        "external-publication-proof",
+        "latest_record_failed",
+        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+        "deepseek/deepseek-v4-flash",
+        "LiveKit",
+        "Kokoro",
+        "No Hugging Face, Gemma4, Gamma4, or MLX",
+        "no secret values printed",
+        "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/example",
+    ]
+
+    for term in required_terms:
+        assert term in handoff
+
+    forbidden_terms = [
+        "OPENROUTER_API_KEY=",
+        "LIVEKIT_API_SECRET=",
+        "LINKEDIN_ACCESS_TOKEN=",
+        ".secrets/openrouter_api_key",
+        ".secrets/livekit_api_secret",
+    ]
+    for term in forbidden_terms:
+        assert term not in handoff
+
+
+def test_provider_proof_pr_handoff_cli_uses_custom_output_dir_workspace(
+    tmp_path: Path,
+) -> None:
+    custom_workspace = tmp_path / "provider-proof" / "custom-run"
+
+    result = subprocess.run(
+        [
+            "uv",
+            "run",
+            "all-about-llms-admin",
+            "provider-proof-pr-handoff",
+            "--run-id",
+            "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+            "--output-dir",
+            str(custom_workspace),
+        ],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    handoff = result.stdout
+    expected_operator_input = custom_workspace / "operator-inputs.template.env"
+
+    assert f"- input_path: `{expected_operator_input}`" in handoff
+    assert f"--output-dir {custom_workspace}" in handoff
+    assert f"--input-path {expected_operator_input}" in handoff

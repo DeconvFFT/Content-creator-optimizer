@@ -11709,6 +11709,140 @@ def _print_provider_proof_completion_status(args: argparse.Namespace) -> None:
     print(json.dumps(payload, indent=2, sort_keys=True))
 
 
+def _provider_proof_pr_handoff_operator_input_path(args: argparse.Namespace) -> Path:
+    operator_input_path = getattr(args, "operator_input_path", None)
+    if operator_input_path is not None:
+        return Path(operator_input_path)
+    output_dir = getattr(args, "output_dir", None)
+    if output_dir is not None:
+        return Path(output_dir) / "operator-inputs.template.env"
+    return (
+        PROJECT_ROOT
+        / "social_media_optimiser/output/provider-proof"
+        / str(args.run_id)
+        / "operator-inputs.template.env"
+    )
+
+
+def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
+    operator_input_path = _provider_proof_pr_handoff_operator_input_path(args)
+    completion_args = argparse.Namespace(
+        env_example_path=args.env_example_path,
+        checked_at=args.checked_at,
+        run_id=args.run_id,
+        output_dir=args.output_dir,
+        audit_target=args.audit_target,
+        operator_input_path=operator_input_path,
+    )
+    readiness_args = argparse.Namespace(
+        env_example_path=args.env_example_path,
+        checked_at=args.checked_at,
+        run_id=args.run_id,
+        input_path=operator_input_path,
+    )
+    completion = _provider_proof_completion_status_payload(completion_args)
+    readiness = _provider_proof_operator_input_readiness_payload(readiness_args)
+    proofs = completion.get("proofs")
+    if not isinstance(proofs, Mapping):
+        proofs = {}
+
+    def bullet_values(values: object) -> list[str]:
+        if not isinstance(values, list) or not values:
+            return ["  - none"]
+        return [f"  - `{value}`" for value in values]
+
+    proof_lines: list[str] = []
+    for proof_name in completion.get("required_proofs", []):
+        proof = proofs.get(str(proof_name))
+        if not isinstance(proof, Mapping):
+            continue
+        proof_lines.extend(
+            [
+                f"- `{proof_name}`: `{proof.get('status', 'unknown')}`",
+                f"  - accepted_record_found: `{proof.get('accepted_record_found', False)}`",
+                f"  - next_action: `{proof.get('next_action', 'unknown')}`",
+            ]
+        )
+
+    compare_url = (
+        f"https://github.com/{args.repo}/compare/{args.base}...{args.branch}?expand=1"
+    )
+    ci_url = args.ci_url or "Check the latest branch-head CI run before merge."
+    head_sha = args.head_sha or "Check latest branch head before merge."
+    completion_status_command = (
+        "uv run all-about-llms-admin provider-proof-completion-status "
+        f"--run-id {args.run_id}"
+    )
+    if args.output_dir is not None:
+        completion_status_command = (
+            f"{completion_status_command} --output-dir "
+            f"{_provider_proof_portable_path_text(args.output_dir)}"
+        )
+
+    return [
+        "# Agent Studio PR Handoff",
+        "",
+        "## Branch",
+        f"- repo: `{args.repo}`",
+        f"- base: `{args.base}`",
+        f"- branch: `{args.branch}`",
+        f"- compare: {compare_url}",
+        f"- head_sha: `{head_sha}`",
+        f"- ci: {ci_url}",
+        "",
+        "## Active Realtime Path",
+        "- OpenRouter model: `deepseek/deepseek-v4-flash`",
+        "- Transport/runtime: `LiveKit`",
+        "- Voice: `Kokoro`",
+        "- No Hugging Face, Gemma4, Gamma4, or MLX active realtime default.",
+        "",
+        "## Provider Proof Gates",
+        f"- completion_status: `{completion.get('status', 'unknown')}`",
+        f"- all_required_proofs_accepted: `{completion.get('all_required_proofs_accepted', False)}`",
+        "- accepted_proofs:",
+        *bullet_values(completion.get("accepted_proofs")),
+        "- latest_failed_proofs:",
+        *bullet_values(completion.get("latest_failed_proofs")),
+        *proof_lines,
+        "",
+        "## Operator Input Gate",
+        f"- readiness_status: `{readiness.get('status', 'unknown')}`",
+        f"- input_path: `{_provider_proof_portable_path_text(operator_input_path)}`",
+        "- blocked_fields:",
+        *bullet_values(readiness.get("blocked_fields")),
+        "",
+        "## Verification Commands",
+        f"- `{completion_status_command}`",
+        (
+            "- `uv run all-about-llms-admin provider-proof-operator-input-readiness "
+            f"--run-id {args.run_id} --input-path "
+            f"{_provider_proof_portable_path_text(operator_input_path)} "
+            "--fail-on-blocked`"
+        ),
+        "- CI must be green on the latest branch head before merge.",
+        "",
+        "## Merge And Safety",
+        (
+            "- GitHub PR creation may be manual if the integration cannot create "
+            "the PR; paste this body into the PR description."
+        ),
+        "- Branch protection and auto-merge should require the GitHub Actions checks.",
+        (
+            "- External publication remains blocked until operator-owned LinkedIn "
+            "and durable publication artifacts are supplied and accepted."
+        ),
+        (
+            "- Provider proof output, secret snapshots, and operator credential "
+            "files are not committed."
+        ),
+        "- This handoff has no secret values printed.",
+    ]
+
+
+def _print_provider_proof_pr_handoff(args: argparse.Namespace) -> None:
+    print("\n".join(_provider_proof_pr_handoff_lines(args)))
+
+
 def _probability_thresholds(value: str) -> list[float]:
     thresholds = []
     for raw in value.split(","):
@@ -12629,6 +12763,55 @@ def main() -> None:
             "Override a default vault audit target; repeat for multiple targets."
         ),
     )
+    proof_pr_handoff_parser = subparsers.add_parser(
+        "provider-proof-pr-handoff",
+        help=(
+            "Print a no-secret manual PR body from the current provider proof "
+            "completion and operator-input gates."
+        ),
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--env-example-path",
+        type=_project_relative_path,
+        default=PROJECT_ROOT / ".env.example",
+    )
+    proof_pr_handoff_parser.add_argument("--checked-at")
+    proof_pr_handoff_parser.add_argument("--run-id", required=True)
+    proof_pr_handoff_parser.add_argument(
+        "--operator-input-path",
+        type=_project_relative_path,
+        help=(
+            "Optional filled no-secret operator input file to inspect for the "
+            "external publication gate."
+        ),
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--output-dir",
+        type=_project_relative_path,
+        help=(
+            "Provider proof workspace directory used for recovery command "
+            "context."
+        ),
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--audit-target",
+        action="append",
+        type=_project_relative_path,
+        help=(
+            "Override a default vault audit target; repeat for multiple targets."
+        ),
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--repo",
+        default="DeconvFFT/Content-creator-optimizer",
+    )
+    proof_pr_handoff_parser.add_argument("--base", default="main")
+    proof_pr_handoff_parser.add_argument(
+        "--branch",
+        default="feature/livekit-voice-proof-capture",
+    )
+    proof_pr_handoff_parser.add_argument("--ci-url")
+    proof_pr_handoff_parser.add_argument("--head-sha")
     proof_closure_template_parser = subparsers.add_parser(
         "provider-proof-closure-review-template",
         help=(
@@ -13224,6 +13407,8 @@ def main() -> None:
         _print_record_provider_proof_record(args)
     elif args.command == "provider-proof-completion-status":
         _print_provider_proof_completion_status(args)
+    elif args.command == "provider-proof-pr-handoff":
+        _print_provider_proof_pr_handoff(args)
     elif args.command == "provider-proof-closure-review-template":
         _print_provider_proof_closure_review_template(args)
     elif args.command == "validate-provider-proof-closure-review":
