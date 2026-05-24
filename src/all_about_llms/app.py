@@ -1,5 +1,6 @@
 import asyncio
 import hmac
+import inspect
 import json
 import os
 import time
@@ -407,10 +408,17 @@ def _request_admin_bearer_token(request: Request) -> str | None:
     return stripped_token or None
 
 
-@app.middleware("http")
-async def require_production_admin_auth(request: Request, call_next):
+async def _request_settings(request: Request) -> Settings:
     settings_provider = request.app.dependency_overrides.get(get_settings, get_settings)
     settings = settings_provider()
+    if inspect.isawaitable(settings):
+        settings = await settings
+    return settings
+
+
+@app.middleware("http")
+async def require_production_admin_auth(request: Request, call_next):
+    settings = await _request_settings(request)
     if (
         _is_local_environment(settings)
         or request.method.upper() not in _PRODUCTION_ADMIN_AUTH_METHODS

@@ -659,7 +659,7 @@ test("ActivityPanel uses creator-facing rail language instead of operations-dash
   assert.match(html, /Studio flow/);
   assert.match(html, /Continue specialists/);
   assert.match(html, /Suggest next step/);
-  assert.match(html, /Provider-backed specialists/);
+  assert.match(html, /Legacy Gemma\/HF opt-in/);
   assert.match(html, /Always-on studio/);
   assert.match(html, /Background runner/);
   assert.match(html, /Recent specialist outputs/);

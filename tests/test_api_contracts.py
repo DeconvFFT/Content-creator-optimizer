@@ -71,6 +71,7 @@ from all_about_llms.contracts import (
     ReviewDecisionStatus,
     RevisionRequest,
     RunEvent,
+    RunResumeRequest,
     RunResumePlanRequest,
     RunState,
     RunStatus,
@@ -80,8 +81,10 @@ from all_about_llms.contracts import (
     VoiceAgentProcessStatus,
     VoiceAgentProcessStatusResult,
     WorkerProfile,
+    WorkerProfileCreate,
     WorkerProfileExecutionMode,
     WorkerProfileStatus,
+    AutopilotLaunchRequest,
     WorkerSchedulerProcessStatusResult,
 )
 from all_about_llms.providers.readiness import build_provider_readiness
@@ -132,7 +135,19 @@ from all_about_llms.voice_agent.control_binding import (
 
 def test_provider_smoke_defaults_defer_to_configured_kokoro_voice():
     assert ProviderSmokeRunRequest().voice is None
+    assert ProviderSmokeRunRequest().include_gemma is False
     assert AutonomousStudioPassRequest().provider_smoke_voice is None
+
+
+def test_worker_requests_default_to_non_gemma_provider_path():
+    run_id = uuid4()
+    assert AgentWorkerRunRequest(run_id=run_id).use_gemma is False
+    assert AgentWorkerCycleRequest(run_id=run_id).use_gemma is False
+    assert RunResumeRequest().use_gemma is False
+    assert AutonomousStudioPassRequest().use_gemma is False
+    assert WorkerProfile(run_id=run_id, name="Default worker").use_gemma is False
+    assert WorkerProfileCreate(name="Default worker").use_gemma is False
+    assert AutopilotLaunchRequest().use_gemma is False
 
 
 def _contains_string_value_prefix(value, prefix: str) -> bool:
@@ -9642,7 +9657,11 @@ def test_provider_smoke_blocks_missing_live_config_and_records_local_proof(
         client = TestClient(app)
         response = client.post(
             f"/api/runs/{store.run.run_id}/provider-smoke",
-            json={"record_artifact": True, "execute_live_calls": False},
+            json={
+                "record_artifact": True,
+                "execute_live_calls": False,
+                "include_gemma": True,
+            },
         )
 
         assert response.status_code == 200
@@ -11680,6 +11699,7 @@ def test_provider_smoke_live_fake_providers_records_sources_and_realtime_session
                 "execute_live_calls": True,
                 "topic": "Gemma 4 context engineering",
                 "realtime_provider": "openai_realtime",
+                "include_gemma": True,
             },
         )
 
@@ -21437,7 +21457,11 @@ def test_agent_worker_processes_accepted_task_with_context_and_gemma_provider():
     worker_result = asyncio.run(
         worker.run(
             "web-research-agent",
-            AgentWorkerRunRequest(run_id=content_result.run_id, max_tasks=1),
+            AgentWorkerRunRequest(
+                run_id=content_result.run_id,
+                max_tasks=1,
+                use_gemma=True,
+            ),
         )
     )
 

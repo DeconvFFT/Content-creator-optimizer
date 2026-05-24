@@ -12384,7 +12384,7 @@ async def _run_agent_worker(args: argparse.Namespace) -> None:
                 AgentWorkerRunRequest(
                     run_id=args.run_id,
                     max_tasks=args.max_tasks,
-                    use_gemma=not args.disable_gemma,
+                    use_gemma=_use_gemma_from_args(args),
                     fail_on_provider_error=args.fail_on_provider_error,
                     recover_stale_tasks=not args.disable_stale_task_recovery,
                     stale_task_after_seconds=args.stale_task_after_seconds,
@@ -12419,7 +12419,7 @@ async def _run_agent_cycle(args: argparse.Namespace) -> None:
                     agent_ids=agent_ids,
                     max_tasks_per_agent=args.max_tasks_per_agent,
                     max_rounds=args.max_rounds,
-                    use_gemma=not args.disable_gemma,
+                    use_gemma=_use_gemma_from_args(args),
                     fail_on_provider_error=args.fail_on_provider_error,
                     recover_stale_tasks=not args.disable_stale_task_recovery,
                     stale_task_after_seconds=args.stale_task_after_seconds,
@@ -12491,6 +12491,18 @@ def _worker_scheduler_request_from_args(
         max_profiles=args.max_profiles,
         run_id=UUID(args.run_id) if args.run_id else None,
         execution_mode=args.execution_mode,
+    )
+
+
+def _use_gemma_from_args(args: argparse.Namespace) -> bool:
+    return bool(getattr(args, "enable_gemma", False)) and not bool(
+        getattr(args, "disable_gemma", False)
+    )
+
+
+def _include_gemma_from_args(args: argparse.Namespace) -> bool:
+    return bool(getattr(args, "include_gemma", False)) and not bool(
+        getattr(args, "skip_gemma", False)
     )
 
 
@@ -12578,7 +12590,7 @@ async def _run_autonomous_pass(args: argparse.Namespace) -> None:
                 build_run_replay_ledger=not args.skip_run_replay_ledger,
                 generate_interactive_note=args.generate_note,
                 open_feedback_gate=not args.disable_feedback_gate,
-                use_gemma=not args.disable_gemma,
+                use_gemma=_use_gemma_from_args(args),
                 fail_on_provider_error=args.fail_on_provider_error,
                 include_replay_event_payloads=args.include_replay_event_payloads,
                 notes=args.notes,
@@ -12634,7 +12646,7 @@ async def _build_provider_smoke_ledger(args: argparse.Namespace) -> None:
                 voice=args.voice,
                 search_query=args.search_query,
                 event_limit=args.event_limit,
-                include_gemma=not args.skip_gemma,
+                include_gemma=_include_gemma_from_args(args),
                 include_realtime=not args.skip_realtime,
                 include_web_search=not args.skip_web_search,
                 include_reranker=not args.skip_reranker,
@@ -12666,7 +12678,7 @@ async def _resume_run(args: argparse.Namespace) -> None:
                 run_worker_cycle=not args.skip_worker_cycle,
                 max_tasks_per_agent=args.max_tasks_per_agent,
                 max_worker_rounds=args.max_worker_rounds,
-                use_gemma=not args.disable_gemma,
+                use_gemma=_use_gemma_from_args(args),
                 fail_on_provider_error=args.fail_on_provider_error,
                 notes=args.notes,
             ),
@@ -13580,6 +13592,7 @@ def main() -> None:
     worker_parser.add_argument("--max-tasks", type=int, default=1)
     worker_parser.add_argument("--watch", action="store_true")
     worker_parser.add_argument("--poll-interval-seconds", type=float, default=5.0)
+    worker_parser.add_argument("--enable-gemma", action="store_true")
     worker_parser.add_argument("--disable-gemma", action="store_true")
     worker_parser.add_argument("--fail-on-provider-error", action="store_true")
     worker_parser.add_argument("--disable-stale-task-recovery", action="store_true")
@@ -13594,6 +13607,7 @@ def main() -> None:
     cycle_parser.add_argument("--max-rounds", type=int, default=1)
     cycle_parser.add_argument("--watch", action="store_true")
     cycle_parser.add_argument("--poll-interval-seconds", type=float, default=5.0)
+    cycle_parser.add_argument("--enable-gemma", action="store_true")
     cycle_parser.add_argument("--disable-gemma", action="store_true")
     cycle_parser.add_argument("--fail-on-provider-error", action="store_true")
     cycle_parser.add_argument("--disable-stale-task-recovery", action="store_true")
@@ -13671,6 +13685,7 @@ def main() -> None:
     pass_parser.add_argument("--generate-note", action="store_true")
     pass_parser.add_argument("--include-replay-event-payloads", action="store_true")
     pass_parser.add_argument("--disable-feedback-gate", action="store_true")
+    pass_parser.add_argument("--enable-gemma", action="store_true")
     pass_parser.add_argument("--disable-gemma", action="store_true")
     pass_parser.add_argument("--fail-on-provider-error", action="store_true")
     pass_parser.add_argument("--notes")
@@ -13688,6 +13703,7 @@ def main() -> None:
     resume_parser.add_argument("--skip-followup-tasks", action="store_true")
     resume_parser.add_argument("--skip-active-profiles", action="store_true")
     resume_parser.add_argument("--skip-worker-cycle", action="store_true")
+    resume_parser.add_argument("--enable-gemma", action="store_true")
     resume_parser.add_argument("--disable-gemma", action="store_true")
     resume_parser.add_argument("--fail-on-provider-error", action="store_true")
     resume_parser.add_argument("--notes")
@@ -13735,6 +13751,7 @@ def main() -> None:
     provider_smoke_parser.add_argument("--voice")
     provider_smoke_parser.add_argument("--search-query")
     provider_smoke_parser.add_argument("--event-limit", type=int, default=250)
+    provider_smoke_parser.add_argument("--include-gemma", action="store_true")
     provider_smoke_parser.add_argument("--skip-gemma", action="store_true")
     provider_smoke_parser.add_argument("--skip-realtime", action="store_true")
     provider_smoke_parser.add_argument("--skip-web-search", action="store_true")

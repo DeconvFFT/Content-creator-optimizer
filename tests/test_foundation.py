@@ -290,6 +290,9 @@ def test_admin_cli_and_migrations_have_no_sqlite_fallback():
     agent_worker = (
         ROOT / "src/all_about_llms/orchestration/agent_worker.py"
     ).read_text()
+    autonomous_pass = (
+        ROOT / "src/all_about_llms/orchestration/autonomous_pass.py"
+    ).read_text()
     migrations = (ROOT / "src/all_about_llms/storage/migrations.py").read_text()
     checkpointer = (
         ROOT / "src/all_about_llms/orchestration/checkpointing.py"
@@ -338,6 +341,11 @@ def test_admin_cli_and_migrations_have_no_sqlite_fallback():
     assert "skip-foundation-audit" in cli
     assert "skip-run-replay-ledger" in cli
     assert "include-replay-event-payloads" in cli
+    assert "--enable-gemma" in cli
+    assert "use_gemma=_use_gemma_from_args(args)" in cli
+    assert "use_gemma=not args.disable_gemma" not in cli
+    assert "include_gemma=request.use_gemma" in autonomous_pass
+    assert "include_gemma=True" not in autonomous_pass
     assert "AsyncPostgresSaver" in checkpointer
     assert "setup_postgres_checkpointer" in migrations
     assert "sqlite" not in cli.lower()
@@ -1178,9 +1186,14 @@ def test_next_voice_panel_uses_gemma_kokoro_transport_contract():
     assert "agentCycleInFlightRef" in page
     assert "runVersionRef" in page
     assert "useGemmaAgentCycle" in page
+    assert "useGemmaAgentCycle: false" in page
+    assert "state.useGemmaAgentCycle ?? false" in page
+    assert "useGemmaAgentCycle: current.useGemmaAgentCycle ?? false" in page
     assert "continueAgents" in page
     assert "Continue specialists" in activity_panel
-    assert "Gemma experts" in activity_panel
+    assert "Legacy Gemma/HF opt-in" in activity_panel
+    assert "Gemma experts" not in activity_panel
+    assert "Gemma workers" not in activity_panel
     assert "Always-on studio" in activity_panel
     assert "buildAutopilotEvidence" in activity_panel
     assert "Specialist pulse" in activity_panel

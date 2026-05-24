@@ -143,7 +143,7 @@ type RefreshRunOptions = {
 export default function HomePage() {
   const [state, setState] = useState<AppState>({
     selectedArtifactIds: [],
-    useGemmaAgentCycle: true,
+    useGemmaAgentCycle: false,
     autopilotAutoWakeEnabled: true
   });
   const [autopilotAutoWakeNow, setAutopilotAutoWakeNow] = useState(() => new Date());
@@ -175,7 +175,7 @@ export default function HomePage() {
   const claims = state.context?.claims ?? [];
   const feedback = state.context?.feedback_items ?? [];
   const sourceEvidence = state.context?.source_evidence ?? [];
-  const useGemmaAgentCycle = state.useGemmaAgentCycle ?? true;
+  const useGemmaAgentCycle = state.useGemmaAgentCycle ?? false;
   const autopilotAutoWakeEnabled = state.autopilotAutoWakeEnabled ?? true;
 
   useEffect(() => {
@@ -1171,7 +1171,7 @@ export default function HomePage() {
       busyLabel: undefined,
       error: undefined,
       selectedArtifactIds: [],
-      useGemmaAgentCycle: current.useGemmaAgentCycle ?? true,
+      useGemmaAgentCycle: current.useGemmaAgentCycle ?? false,
       autopilotAutoWakeEnabled: current.autopilotAutoWakeEnabled ?? true,
       autopilotAutoWakeSummary: undefined,
       runEventStreamStatus: "idle",
