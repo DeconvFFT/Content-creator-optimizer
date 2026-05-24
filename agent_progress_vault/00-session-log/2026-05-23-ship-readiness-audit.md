@@ -62,7 +62,7 @@ Parent session: `dc541605-3c57-402f-bbbd-538d6748fe61`.
 - **No git commits** on `main`
 - **No production auth** deployment model
 
-Current superseding note (2026-05-24): this audit is historical. The repo now has `.github/workflows/ci.yml`, `scripts/ci-python-stable-tests.sh`, ship-gate/local-bootstrap/provider-proof/CI skills, a Ruff baseline, tracked `uv.lock`, and ignored local command logs. Provider-backed live voice is accepted on the OpenRouter + LiveKit + Kokoro path. Latest branch-head CI run `26360881281` passed on `7c4955b`, including Playwright install. Remaining ship-readiness proof is external publication, closure review, branch-protection/auto-merge setup, PR/merge/release follow-through, and production auth/deployment hardening.
+Current superseding note (2026-05-24): this audit is historical. The repo now has `.github/workflows/ci.yml`, `scripts/ci-python-stable-tests.sh`, ship-gate/local-bootstrap/provider-proof/CI skills, a Ruff baseline, tracked `uv.lock`, ignored local command logs, and CODEOWNERS review routing. Provider-backed live voice is accepted on the OpenRouter + LiveKit + Kokoro path. Branch-head CI was green at the last live check; regenerate `provider-proof-pr-handoff` with the current `--ci-url` and `--head-sha` before opening or updating a PR. Remaining ship-readiness proof is external publication, closure review, branch-protection/auto-merge setup, PR/merge/release follow-through, and production auth/deployment hardening.
 
 ## c75e2d04 execution agent — intended vs actual
 

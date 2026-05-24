@@ -1278,3 +1278,9 @@ At the end of a meaningful slice:
 - Handoff: `current-proof-status.md` and `operator-unblocker-checklist.md` now suppress proof-level operator packet, schema, capture, readiness-command, required-evidence, and credential-snapshot retry details for proofs whose current state is `accepted_proof_record_available`.
 - Current effect: `provider-backed-live-voice-proof` stays closed as accepted. The compact handoff should only route operators toward `external-publication-proof` until LinkedIn credential, policy acknowledgement artifact, durable destination, and rollback/postcondition evidence are supplied.
 - Boundary: this is report/handoff accuracy only. It does not create accepted external publication evidence, run closure review, create a PR, or change blocker state.
+
+## PR Review And CI Evidence Drift Guard - 2026-05-24
+
+- Source: `.github/pull_request_template.md`, `.github/CODEOWNERS`, `docs/repo-workflow.md`, `agent_progress_vault/00-session-log/2026-05-23-ship-readiness-audit.md`, and `tests/test_repo_workflow_ci.py`.
+- Handoff: manual PRs now explicitly require CODEOWNERS review approval, and durable vault handoff surfaces must not pin exact branch-head CI run ids as current evidence. Regenerate `provider-proof-pr-handoff` with fresh `--ci-url` and `--head-sha` when opening or updating the PR.
+- Boundary: this advances review/merge handoff reliability only. It does not create the GitHub PR, enable repository auto-merge, or satisfy `external-publication-proof`.

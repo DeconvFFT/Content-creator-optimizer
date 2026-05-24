@@ -250,6 +250,7 @@ def test_pull_request_template_requires_proof_gate_handoff() -> None:
         "LINKEDIN_ACCESS_TOKEN_FILE",
         "No Hugging Face, Gemma4, Gamma4, or MLX",
         "not committed",
+        "CODEOWNERS",
     ]
 
     for term in required_terms:
@@ -270,6 +271,7 @@ def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
         "external-publication-proof-runbook.md",
         "LINKEDIN_ACCESS_TOKEN_FILE",
         "uv.lock",
+        ".github/CODEOWNERS",
     ]
 
     for term in required_terms:
@@ -435,6 +437,7 @@ def test_openrouter_voice_boundary_map_replaces_legacy_gemma_filename() -> None:
 
 def test_current_handoff_notes_avoid_exact_latest_ci_run_ids() -> None:
     handoff_paths = [
+        ROOT / "agent_progress_vault/00-session-log/2026-05-23-ship-readiness-audit.md",
         ROOT / "agent_progress_vault/01-implementation-matrix/feature-implementation-status.md",
         ROOT / "agent_progress_vault/02-remaining-work/prioritized-backlog.md",
         ROOT / "agent_progress_vault/03-agent-activity/background-agents-registry.md",
@@ -444,8 +447,10 @@ def test_current_handoff_notes_avoid_exact_latest_ci_run_ids() -> None:
         ROOT / "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md",
     ]
     stale_latest_claim_patterns = [
-        re.compile(r"latest branch-head[^\n`]*run `\d{8,}`"),
+        re.compile(r"latest branch-head[^\n`]*run `\d{8,}`", re.IGNORECASE),
         re.compile(r"branch-head CI run \d{8,} passed for [0-9a-f]{7,40}"),
+        re.compile(r"branch-head CI run `\d{8,}` passed on `[0-9a-f]{7,40}`", re.IGNORECASE),
+        re.compile(r"remote CI run[s]? `\d{8,}`", re.IGNORECASE),
     ]
 
     for path in handoff_paths:

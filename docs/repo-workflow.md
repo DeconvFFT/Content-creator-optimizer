@@ -85,7 +85,7 @@ Repository settings still need to enforce:
 
 - `main` branch protection or a GitHub ruleset
 - required status checks: branch policy, Python backend, Next.js frontend, and Rust service jobs
-- required review, preferably through CODEOWNERS
+- required review through `.github/CODEOWNERS`
 - auto-merge enabled in repository settings
 - conversation resolution and up-to-date branch requirements if desired
 

@@ -37,5 +37,5 @@
 ## Merge Readiness
 
 - [ ] CI is green
-- [ ] Required review is approved
+- [ ] Required CODEOWNERS review is approved
 - [ ] Auto-merge can be enabled after branch protection checks are satisfied
