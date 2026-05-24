@@ -1487,8 +1487,9 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
             "destination proof all reference command_run_id"
         ),
         (
-            "accepted preflight validation report validates exactly linkedin "
-            "and the durable URL is a LinkedIn destination"
+            "destination_channel is linkedin and the preflight validation "
+            "report's validated_publish_channels is exactly linkedin; durable "
+            "URL is a LinkedIn destination"
         ),
         (
             "approved artifact snapshot has disclosure, visibility, audience, "
@@ -3385,6 +3386,26 @@ def test_provider_proof_workspace_writes_templates_and_readme(tmp_path):
     publication_record = json.loads(publication_path.read_text(encoding="utf-8"))
     operator_inputs = operator_inputs_path.read_text(encoding="utf-8")
     readme = readme_path.read_text(encoding="utf-8")
+    generated_handoff_text = "\n".join(
+        [
+            json.dumps(publication_record, sort_keys=True),
+            readme,
+        ]
+    )
+    stale_publication_linkage_phrases = [
+        (
+            "destination_channel appears in validated_publish_channels "
+            "from the accepted preflight validation report"
+        ),
+        (
+            "destination_channel appears in the preflight validation "
+            "report's validated_publish_channels"
+        ),
+    ]
+    linkedin_only_publication_linkage = (
+        "destination_channel is linkedin and the preflight validation "
+        "report's validated_publish_channels is exactly linkedin"
+    )
 
     assert payload["artifact"] == "agent-studio-provider-proof-workspace"
     assert payload["status"] == "workspace_ready"
@@ -3406,6 +3427,9 @@ def test_provider_proof_workspace_writes_templates_and_readme(tmp_path):
     assert publication_record["run_id"] == "123e4567-e89b-12d3-a456-426614174000"
     assert voice_record["proof_outcome"] == "<accepted-or-failed>"
     assert publication_record["proof_outcome"] == "<accepted-or-failed>"
+    assert linkedin_only_publication_linkage in generated_handoff_text
+    for stale_phrase in stale_publication_linkage_phrases:
+        assert stale_phrase not in generated_handoff_text
     assert "OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key" in operator_inputs
     assert "OPENROUTER_LIVEKIT_URL=ws://127.0.0.1:7880" in operator_inputs
     assert "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token" in operator_inputs

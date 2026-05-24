@@ -1929,8 +1929,9 @@ def _publication_post_capture_validation_checks() -> list[str]:
             "destination proof all reference command_run_id"
         ),
         (
-            "accepted preflight validation report validates exactly linkedin "
-            "and the durable URL is a LinkedIn destination"
+            "destination_channel is linkedin and the preflight validation "
+            "report's validated_publish_channels is exactly linkedin; durable "
+            "URL is a LinkedIn destination"
         ),
         (
             "approved artifact snapshot has disclosure, visibility, audience, "

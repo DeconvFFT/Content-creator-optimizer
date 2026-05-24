@@ -1180,6 +1180,7 @@ At the end of a meaningful slice:
 
 - Source: Leibniz review finding plus `src/all_about_llms/cli.py`, `tests/test_provider_proof_plan_cli.py`, proof-readiness HTML, and publication boundary HTML.
 - Fix: accepted `external-publication-proof` records now require normalized `destination_channel=linkedin`, a durable LinkedIn destination URL/platform id, and linked preflight `validated_publish_channels` exactly equal to `linkedin`. Completion-status audit-note parsing enforces the same rule for hand-edited accepted proof notes.
+- Follow-up: the generated proof handoff now says the same invariant directly. Provider-proof templates, `proof-plan.json`, proof-readiness HTML, and publication boundary HTML use the exact LinkedIn destination/preflight wording instead of the older generic destination/preflight-channel phrasing.
 - Verification: generic Instagram/X accepted-record regressions failed first, then provider-proof CLI passed with `200 passed, 30 skipped`; proof/static suite passed with `205 passed, 32 skipped`; stable Python CI passed with `228 passed, 30 skipped`; ruff and `git diff --check` passed.
 - Boundary: this closes the LinkedIn-only proof-quality gap only. External publication remains blocked by the four operator-owned fields: `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
 
