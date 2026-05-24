@@ -11,6 +11,7 @@ This is the no-secret cloud setup checklist for Agent Studio in `DeconvFFT/Conte
 - Local `gh` CLI is not installed in the current Codex environment.
 - GitHub connector PR creation currently returns `403 Resource not accessible by integration`.
 - Latest branch-head evidence must be regenerated before opening or updating a PR. Do not treat committed SHA or run IDs as current evidence; run `provider-proof-pr-handoff` with fresh `--ci-url` and `--head-sha` values from the latest branch-head CI. The current known blocker is still repository PR mutation: Auto PR can reach the no-secret handoff step but may emit `Auto PR skipped` when repository settings deny draft PR create/update, and local `provider-proof-pr-create` returns `manual_required` until `GITHUB_TOKEN` or `GH_TOKEN` is available.
+- Fresh connector attempt after the latest green branch-head CI still returned `403 Resource not accessible by integration`; REST PR lookup returned no open feature-branch PR. Continue with manual PR creation or repository Actions/app permission changes.
 
 ## Required GitHub Settings
 

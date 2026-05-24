@@ -1298,9 +1298,9 @@ At the end of a meaningful slice:
 
 ## Latest CI And Render Evidence - 2026-05-24
 
-- Source: GitHub Actions runs `26373706362` and `26373706339`, current branch head `cd13be28271e3cae55b7e312566e248f94e91c20`, `provider-proof-completion-status`, `provider-proof-operator-input-readiness`, and in-app Browser DOM/console verification.
-- CI state: branch-head CI for `cd13be2` completed green across Branch name policy, Python backend including `uv.lock` freshness, Next.js frontend build/lint/typecheck/race tests, and both Rust service jobs. Live Postgres was skipped by design.
-- PR state: Auto PR generated the no-secret provider-proof handoff after CI success but still hit repository-settings `403` on draft PR create/update. The last verified pre-note branch evidence was CI run `26373706362` for head `cd13be28271e3cae55b7e312566e248f94e91c20`; regenerate `provider-proof-pr-handoff` with fresh `--ci-url` and `--head-sha` immediately before creating or updating the manual PR.
+- Source: GitHub Actions branch-head checks, `provider-proof-completion-status`, `provider-proof-operator-input-readiness`, and in-app Browser DOM/console verification.
+- CI state: branch-head CI completed green across Branch name policy, Python backend including `uv.lock` freshness, Next.js frontend build/lint/typecheck/race tests, and both Rust service jobs. Live Postgres was skipped by design.
+- PR state: Auto PR generated the no-secret provider-proof handoff after CI success but still hit repository-settings `403` on draft PR create/update. Regenerate `provider-proof-pr-handoff` with fresh `--ci-url` and `--head-sha` immediately before creating or updating the manual PR.
 - Render state: local Next app rendered at `http://127.0.0.1:3001/` with title `All About LLMs Content Studio`, visible Content Studio/OpenRouter/DeepSeek/Kokoro copy, no `data-nextjs-error` marker, and no console errors. Browser screenshot capture timed out, so this pass has DOM/console evidence only.
 - Proof state: `provider-backed-live-voice-proof` remains accepted. `external-publication-proof` remains blocked by `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
 
@@ -1323,5 +1323,7 @@ At the end of a meaningful slice:
 
 - Source: `src/all_about_llms/cli.py`, `tests/test_repo_workflow_ci.py`, `cloud.md`, and `Leibniz` review-watch findings.
 - Handoff: `provider-proof-pr-create` now treats GitHub HTTP `403` as `manual_required` with issue code `github_pr_permission_denied`, explicit workflow-permission next action, and the no-secret `provider-proof-pr-handoff` command. Missing local tokens still return `github_token_unavailable`.
+- Fresh integration attempt: after the latest green branch-head CI, a no-secret `provider-proof-pr-handoff` body was generated with action-time `--ci-url` and `--head-sha`, then GitHub connector PR creation still returned `403 Resource not accessible by integration`; REST PR lookup still showed no open feature-branch PR.
+- Manual PR body update: generated `provider-proof-pr-handoff` now includes the repository settings checklist from `cloud.md` so manual PR creators can see Actions read/write permission, PR-creation permission, `main` protection/ruleset, required checks, CODEOWNERS review, and auto-merge setup without consulting a second file.
 - Guardrail: committed handoff notes now avoid treating exact branch-head SHA or GitHub Actions run IDs as current evidence. Regenerate the PR handoff with fresh `--ci-url` and `--head-sha` at PR creation or update time.
 - Review-watch cleanup: stale notes that said live voice still needed successful proof, only Gemma audio reasoning remained blocked, or live voice latest-failed state was current are marked superseded or rewritten. Current proof status accepts OpenRouter/LiveKit/Kokoro live voice and keeps only external publication blocked.

@@ -12021,6 +12021,14 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
         ),
         "- CI must be green on the latest branch head before merge.",
         "",
+        "## Repository Settings",
+        "- GitHub Actions workflow permissions: `Read and write permissions`.",
+        "- Enable `Allow GitHub Actions to create and approve pull requests`.",
+        "- Configure `main branch protection` or an equivalent ruleset.",
+        "- Require `required status checks` for branch policy, Python backend, Next.js frontend, and affected Rust services.",
+        "- Require `CODEOWNERS review` before merge.",
+        "- Enable `auto-merge` only after required checks and reviews are enforced.",
+        "",
         "## Merge And Safety",
         (
             "- GitHub PR creation may be manual if the integration cannot create "

@@ -670,6 +670,9 @@ def test_current_handoff_notes_avoid_exact_latest_ci_run_ids() -> None:
         re.compile(r"branch-head CI run \d{8,} passed for [0-9a-f]{7,40}"),
         re.compile(r"branch-head CI run `\d{8,}` passed on `[0-9a-f]{7,40}`", re.IGNORECASE),
         re.compile(r"remote CI run[s]? `\d{8,}`", re.IGNORECASE),
+        re.compile(r"GitHub Actions .*run[s]? `\d{8,}`.*branch head `[0-9a-f]{7,40}`", re.IGNORECASE),
+        re.compile(r"current branch head `[0-9a-f]{7,40}`", re.IGNORECASE),
+        re.compile(r"pre-note branch evidence was CI run `\d{8,}` for head `[0-9a-f]{7,40}`", re.IGNORECASE),
     ]
 
     for path in handoff_paths:
@@ -801,6 +804,13 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
         "no secret values printed",
         "operator_input_example",
         "docs/external-publication-operator-inputs.example.env",
+        "Repository Settings",
+        "Read and write permissions",
+        "Allow GitHub Actions to create and approve pull requests",
+        "main branch protection",
+        "required status checks",
+        "CODEOWNERS review",
+        "auto-merge",
         "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
         "cd3106728909cb422a6b7687b91308119b17f7d9",
     ]
