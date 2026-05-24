@@ -124,6 +124,8 @@ External publication:
 - Local/non-live publication fixture and source/guardrail evidence exist.
 - The proof remains blocked by missing LinkedIn credential/path, policy acknowledgement, durable destination, and rollback/postcondition evidence.
 - Accepted proof record is not available.
+- Committed no-secret operator runbook: `docs/external-publication-proof-runbook.md`; generated detailed packet remains `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md`.
+- Required operator inputs remain `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
 
 Closeout:
 

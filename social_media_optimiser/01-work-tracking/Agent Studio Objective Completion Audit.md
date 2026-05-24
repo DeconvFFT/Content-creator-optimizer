@@ -782,3 +782,11 @@ This failed record is preserved as historical audit evidence from the prior nati
 - runtime_configuration_snapshot_id: <workspace-root>/social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json
 - post_capture_validation_results: 7 recorded / 7 passed / 0 failed
 - secret_redaction_check: passed
+
+## External Publication Operator Runbook - 2026-05-24
+
+- source: `docs/external-publication-proof-runbook.md`
+- generated packet source: `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md`
+- purpose: committed no-secret handoff for the remaining `external-publication-proof` blocker, so operators do not have to mine ignored generated proof output for the next action.
+- blocked operator inputs: `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
+- boundary: this runbook does not create the LinkedIn token file, durable platform URL/id, policy acknowledgement artifact, rollback/postcondition artifact, accepted publication proof, closure review, or blocker-state update.

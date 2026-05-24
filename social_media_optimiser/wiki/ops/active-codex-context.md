@@ -1228,3 +1228,11 @@ At the end of a meaningful slice:
 - Handoff: the stale Gemma-named live-voice guide and review surface were replaced with OpenRouter/LiveKit/Kokoro-named paths. MOCs, vault homes, Kanban/audit references, system-design mirrors, and browser tests now point at the current OpenRouter LiveKit voice boundary and current unblock guide.
 - Verification: stale-name regressions and handoff CI-evidence regressions failed first and then passed; focused repo/browser/foundation checks passed with `43 passed, 9 skipped`; stable Python CI script passed with `240 passed, 30 skipped`; ruff passed on the changed Python test surfaces.
 - Boundary: this is naming and pickup-surface alignment only. It does not create the LinkedIn token file, policy acknowledgement artifact, durable publication URL/id, rollback/postcondition artifact, accepted external publication proof, or PR.
+
+## External Publication Operator Runbook - 2026-05-24
+
+- Source: `docs/external-publication-proof-runbook.md`, generated packet reference `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md`, and `tests/test_repo_workflow_ci.py`.
+- Handoff: the remaining `external-publication-proof` path now has a committed no-secret operator runbook with the strict readiness gate, packet-refresh commands, publication preflight validation, proof-record validation/recording, completion-status recheck, closure review, and blocker-state update order.
+- Current blocked fields remain `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
+- Verification: repo workflow guards passed with `16 passed`; stable Python CI script passed with `242 passed, 30 skipped`; ruff passed on `tests/test_repo_workflow_ci.py`; touched docs/vault surfaces had no OpenRouter, GitHub, Hugging Face, or LinkedIn token-shaped values.
+- Boundary: this improves pickup clarity only. It does not supply LinkedIn credentials, publish externally, record an accepted publication proof, or mark the goal complete.

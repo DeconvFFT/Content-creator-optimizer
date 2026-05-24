@@ -173,6 +173,7 @@ def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
         "--head-sha",
         "provider-backed-live-voice-proof",
         "external-publication-proof",
+        "external-publication-proof-runbook.md",
         "LINKEDIN_ACCESS_TOKEN_FILE",
         "uv.lock",
     ]
@@ -201,6 +202,71 @@ def test_manual_pr_handoff_notes_include_current_ci_evidence_inputs() -> None:
             f"{path.relative_to(ROOT)} must pass the current branch head SHA "
             "when it claims CI evidence"
         )
+
+
+def test_external_publication_operator_runbook_is_committed_no_secret_handoff() -> None:
+    runbook_path = ROOT / "docs/external-publication-proof-runbook.md"
+
+    assert runbook_path.exists(), (
+        "external publication proof needs a committed no-secret operator runbook, "
+        "not only ignored generated proof output"
+    )
+    runbook = runbook_path.read_text(encoding="utf-8")
+
+    required_terms = [
+        "external-publication-proof",
+        "provider-backed-live-voice-proof",
+        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+        "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+        "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
+        "operator-inputs.template.env",
+        "provider-proof-operator-input-readiness",
+        "--fail-on-blocked",
+        "--fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+        "validate-provider-proof-preflight-artifacts --proof external-publication-proof",
+        "provider-proof-record-template --proof external-publication-proof",
+        "validate-provider-proof-record --proof external-publication-proof",
+        "record-provider-proof-record --proof external-publication-proof",
+        "provider-proof-completion-status",
+        "provider-proof-closure-review-template",
+        "record-provider-proof-blocker-state-update",
+        "No secret values",
+        "Do not commit",
+        "OpenRouter",
+        "deepseek/deepseek-v4-flash",
+        "LiveKit",
+        "Kokoro",
+    ]
+
+    for term in required_terms:
+        assert term in runbook
+
+    forbidden_terms = [
+        "LINKEDIN_ACCESS_TOKEN=",
+        "sk-or-v1-",
+        "ghp_",
+        "hf_",
+    ]
+    for term in forbidden_terms:
+        assert term not in runbook
+
+
+def test_external_publication_runbook_is_linked_from_current_vault_handoffs() -> None:
+    handoff_paths = [
+        ROOT / "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+        ROOT / "social_media_optimiser/wiki/ops/active-codex-context.md",
+        ROOT
+        / "system_design_vault/07-agent-studio-knowledge-graph/Agent Studio Sidecar Pickup 2026-05-24.md",
+    ]
+
+    for path in handoff_paths:
+        handoff = path.read_text(encoding="utf-8")
+
+        assert "docs/external-publication-proof-runbook.md" in handoff
+        assert "operator-unblocker-checklist.md" in handoff
+        assert "LINKEDIN_ACCESS_TOKEN_FILE" in handoff
+        assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL" in handoff
 
 
 def test_live_voice_vault_unblock_guide_uses_current_openrouter_path() -> None:
