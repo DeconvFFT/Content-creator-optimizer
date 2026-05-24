@@ -34,8 +34,8 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 
 | # | Item | Effort | Status |
 |---|------|--------|--------|
-| 1 | Install Playwright browsers | **S** | Latest branch-head remote CI run `26360881281` passed the Python backend Playwright install step on GitHub Actions |
-| 2 | CI pipeline | **M** | **Remote green on feature branch** — latest branch-head run `26360881281` passed branch policy, frontend build/lint/typecheck/tests, Python Ruff + stable pytest slice, and both Rust services after adding `livekit>=1.1.8` to the `dev` extra and refreshing `uv.lock`. PR creation remains blocked by GitHub connector `403`, and branch-protection/auto-merge setup still needs GitHub-side configuration |
+| 1 | Install Playwright browsers | **S** | Latest branch-head remote CI run `26361066267` passed the Python backend Playwright install step on GitHub Actions |
+| 2 | CI pipeline | **M** | **Remote green on feature branch** — latest branch-head run `26361066267` passed branch policy, frontend build/lint/typecheck/tests, Python Ruff + stable pytest slice, and both Rust services after adding `livekit>=1.1.8` to the `dev` extra and refreshing `uv.lock`. PR creation was attempted and remains blocked by GitHub connector `403`, and branch-protection/auto-merge setup still needs GitHub-side configuration |
 | 3 | Four ship skills | **M** | **Done** — local-bootstrap, ship-gate, provider-proof-capture, and ci-scaffold skills exist under `skills/agent-studio-*` |
 | 4 | Ruff baseline | **S** | **Done locally** — `[tool.ruff]` exists in `pyproject.toml`; fresh `uv run ruff check src/ tests/` returned `All checks passed!` |
 | 5 | Initial git commit / branch push | **S** | **Done** — `main` is seeded and `feature/livekit-voice-proof-capture` is pushed; PR/merge/release tag remain pending |
@@ -76,7 +76,7 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 2. **Execute external-publication UUID proof capture chain** — run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` post-unblock commands after explicit approval
 3. **Closure review** — only after both required proofs are accepted and completion status reports `all_required_proofs_accepted: true`
 4. **Non-credential product hardening** — Kanban next bounded slice
-5. **Finish branch integration** — branch-protection/auto-merge proof, manual PR path, merge/release decision
+5. **Finish branch integration** — manual PR path or upgraded GitHub integration permission, branch-protection/auto-merge proof, merge/release decision
 
 ## Do not
 
