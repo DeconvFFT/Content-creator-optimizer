@@ -110,7 +110,6 @@ def test_agents_handoff_documents_pr_ci_and_proof_boundaries() -> None:
 
     required_terms = [
         "uv.lock",
-        "uv.log",
         "feature/",
         "fix_",
         "OpenRouter",
@@ -134,3 +133,6 @@ def test_agents_handoff_documents_pr_ci_and_proof_boundaries() -> None:
 
     for term in required_terms:
         assert term in handoff
+
+    assert "uv.log" not in handoff
+    assert "local command-log artifacts" in handoff.lower()

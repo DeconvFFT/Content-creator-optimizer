@@ -12,8 +12,8 @@ This repo is the product/code workspace for Agent Studio. The Obsidian vaults ar
 ## Files That May Be Versioned
 
 - Code, tests, `.github/workflows/ci.yml`, `uv.lock`, lightweight Markdown coordination files, `AGENTS.md`, `agents.md`, `CLOUD.md`, and `cloud.md`.
-- `uv.lock` is the committed Python dependency lockfile.
-- `uv.log` is local command output and must not be tracked.
+- `uv.lock` is the committed Python dependency lockfile; include it when Python dependencies change.
+- Local command-log artifacts are transient output and must not be tracked.
 
 ## Files That Must Stay Out
 
