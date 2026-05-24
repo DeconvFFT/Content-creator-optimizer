@@ -1350,3 +1350,11 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 - Done: added an explicit 403 failure message and docs for the repository setting `Allow GitHub Actions to create and approve pull requests`, because workflow-level `pull-requests: write` is not sufficient when repository Actions permissions disallow PR creation.
 - Done: after the first pushed Auto PR run hit that repository-settings 403, changed the 403 path to emit an `Auto PR skipped` warning and step summary instead of making the branch red. Real CI failures and non-permission workflow errors still fail.
 - Boundary: this only advances PR mechanics and clean-runner automation. It does not supply external publication operator evidence or complete the objective.
+
+## 2026-05-24 Production Admin Auth Hardening
+
+- Done: added a production/non-local FastAPI mutation guard. `POST`/`PUT`/`PATCH`/`DELETE` requests now require `Authorization: Bearer <ADMIN_API_TOKEN>` outside local/dev/test; missing deployment token fails closed before the endpoint, and missing/wrong bearer values return `401` without echoing token values.
+- Done: added `ADMIN_API_TOKEN` / `ADMIN_API_TOKEN_FILE` settings with ignored `.secrets/admin_api_token` as the documented secret-file path, and updated `.env.example`/README with placeholder-only guidance.
+- Done: Leibniz found that non-ASCII bearer values could raise inside `hmac.compare_digest`; a failing-first raw-header regression reproduced the `500`, and the guard now compares UTF-8 bytes so malformed non-ASCII bearer values return the same no-echo `401`.
+- Verified: failing-first production auth tests first returned the old endpoint-level `403`; after the guard, focused production/local-setup checks passed with `5 passed`, broader local secret/config endpoint regressions passed with `8 passed`, review-fix auth checks passed with `3 passed`, and Ruff passed on the touched Python files.
+- Boundary: this closes the backend admin-token slice of the production auth backlog only. It does not create LinkedIn credentials, external publication proof, closure review, GitHub branch protection, or auto-merge setup.

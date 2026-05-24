@@ -30,6 +30,10 @@ class Settings(BaseSettings):
 
     app_name: str = "all-about-llms-agent-studio"
     environment: str = "local"
+    admin_api_token: str | None = None
+    admin_api_token_file: Path | None = Field(
+        default=PROJECT_ROOT / ".secrets/admin_api_token"
+    )
     database_url: str = (
         "postgresql://agentstudio:agentstudio@localhost:5432/agentstudio"
     )
@@ -202,6 +206,7 @@ class Settings(BaseSettings):
         "livekit_api_key_file",
         "livekit_api_secret_file",
         "openrouter_api_key_file",
+        "admin_api_token_file",
         "local_provider_config_file",
         "rust_voice_edge_vad_model_path",
         "rust_voice_edge_benchmark_speech_wav_path",
@@ -229,6 +234,7 @@ class Settings(BaseSettings):
         "x_access_token",
         "x_api_key",
         "substack_api_token",
+        "admin_api_token",
         mode="before",
     )
     @classmethod
@@ -270,6 +276,7 @@ class Settings(BaseSettings):
         self._load_secret_file_if_missing(
             "openrouter_api_key", self.openrouter_api_key_file
         )
+        self._load_secret_file_if_missing("admin_api_token", self.admin_api_token_file)
         self._load_secret_file_if_missing(
             "instagram_access_token", self.instagram_access_token_file
         )

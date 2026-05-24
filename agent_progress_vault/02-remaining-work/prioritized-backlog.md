@@ -39,7 +39,7 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 | 3 | Four ship skills | **M** | **Done** — local-bootstrap, ship-gate, provider-proof-capture, and ci-scaffold skills exist under `skills/agent-studio-*` |
 | 4 | Ruff baseline | **S** | **Done locally** — `[tool.ruff]` exists in `pyproject.toml`; fresh `uv run ruff check src/ tests/` returned `All checks passed!` |
 | 5 | Initial git commit / branch push | **S** | **Done** — `main` is seeded and `feature/livekit-voice-proof-capture` is pushed; PR/merge/release tag remain pending |
-| 6 | Production auth + disable secret-write in prod | **L** | Not started |
+| 6 | Production auth + disable secret-write in prod | **L** | **Backend guard done 2026-05-24** — non-local mutating API requests require a configured `ADMIN_API_TOKEN` bearer token, missing token fails closed, and local secret/config write endpoints still reject production after auth. Broader identity/RBAC remains out of scope for this slice |
 | 7 | Closure review (after proofs) | **M** | Blocked on Phase 0 |
 
 **CI scaffold spec** (from c75e2d04 handoff):

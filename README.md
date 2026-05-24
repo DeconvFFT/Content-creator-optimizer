@@ -154,7 +154,7 @@ Run the open realtime voice participant after LiveKit and model credentials are 
 ```bash
 docker compose --profile voice up -d livekit
 export OPENROUTER_LIVEKIT_URL=ws://127.0.0.1:7880
-export OPENROUTER_API_KEY=...
+export OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key
 export LIVEKIT_API_KEY=<local-livekit-api-key>
 export LIVEKIT_API_SECRET=<local-livekit-api-secret>
 uv sync --extra voice
@@ -162,6 +162,7 @@ uv run all-about-llms-admin run-voice-agent --dev
 ```
 
 The Compose `voice` profile starts local LiveKit dev mode. Native `livekit-server --dev` is also valid. Keep the LiveKit API key/secret in local environment variables or ignored `.secrets/` files, never in committed docs or source. The default voice path is LiveKit transport + OpenRouter `deepseek/deepseek-v4-flash` dialogue reasoning + `hexgrad/Kokoro-82M` TTS. This requires `OPENROUTER_API_KEY`, `OPENROUTER_LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, and either local Kokoro dependencies or a configured Kokoro endpoint. Gemma/Hugging Face/MLX setup is legacy/native-audio background and is not required for the current LiveKit proof path. The current Python participant is the baseline media/model bridge; when the Rust voice-edge binary is present, it keeps a preflighted persistent JSONL edge process open for VAD-driven turn commits and barge-in cancellation. Captured LiveKit user turns are written as bounded local PCM artifacts under `ARTIFACTS_ROOT/voice-audio/...` when `VOICE_AGENT_PERSIST_AUDIO_ARTIFACTS=true`; durable events and materialized conversation turns store artifact URI/path/hash/byte metadata. `VOICE_AGENT_AUDIO_ARTIFACT_RETENTION_DAYS` and `VOICE_AGENT_AUDIO_ARTIFACT_CLEANUP_INTERVAL_SECONDS` provide opportunistic local cleanup for long-running sessions; this cleanup is intentionally destructive for expired `.pcm` files, so raise retention for evidence-preservation runs. Local Rust binary paths are resolved relative to the project root when configured as relative paths. Set `RUST_VOICE_EDGE_HTTP_URL=http://127.0.0.1:7071` to use the supervised Rust HTTP sidecar first, with startup health preflight and JSONL fallback when the binary is available. The LiveKit/Silero streaming bridge remains a follow-on slice.
+In non-local environments, mutating API requests require `Authorization: Bearer <ADMIN_API_TOKEN>`. Prefer `ADMIN_API_TOKEN_FILE=.secrets/admin_api_token` for deployments and keep the token value out of committed files.
 The product voice panel can supervise the local LiveKit dev server separately from the OpenRouter/Kokoro agent process. `GET /api/local-livekit-process`, `POST /api/local-livekit-process/start`, and `POST /api/local-livekit-process/stop` expose native `livekit-server --dev` or supervised foreground Compose mode (`docker compose --profile voice up livekit`), and the `Join voice room` flow attempts local transport startup before LiveKit preflight when supervision is enabled. Detached Compose (`docker compose --profile voice up -d livekit`) remains the manual/operator route outside the product supervisor.
 Build `services/voice-edge` first if you want the participant to call the Rust VAD/barge-in contract during local LiveKit runs.
 

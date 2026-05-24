@@ -95,6 +95,7 @@ Legacy or non-default unless explicitly re-promoted:
 - Capture an accepted external publication proof with LinkedIn credential/path, policy acknowledgement, durable external destination, and rollback/postcondition evidence.
 - Rerun completion status after external publication proof is accepted.
 - Run closure-review template, validation, recording, closure status, and blocker-state update only after accepted proof completion status allows it.
+- Keep the production admin-auth boundary explicit: non-local mutating API requests require `ADMIN_API_TOKEN` bearer auth, while local/dev/test proof and setup flows stay unauthenticated for operator ergonomics. This is backend API hardening, not an external publication substitute.
 - Continue retrieval/KG curation: broader graph coverage, evaluation, missed-source audits, and Obsidian-native retrieval-quality review outputs.
 - Improve Rust voice-edge toward benchmarked concurrent-session tuning and a LiveKit-side media bridge.
 - Keep system-design source ingestion focused on gaps that affect current blockers: realtime speech ops, provider smoke, publication governance, observability, and release gates.

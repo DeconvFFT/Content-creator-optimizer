@@ -7014,6 +7014,68 @@ def test_local_secret_file_endpoint_preserves_existing_custom_parent_permissions
 def test_local_secret_file_endpoint_rejects_non_local_environments(tmp_path: Path):
     settings = Settings(
         environment="production",
+        admin_api_token="prod-admin-token",
+        hf_token_file=tmp_path / "hf_token",
+    )
+
+    app.dependency_overrides[get_settings] = lambda: settings
+    try:
+        response = TestClient(app).post(
+            "/api/local-secret-files",
+            headers={"Authorization": "Bearer prod-admin-token"},
+            json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
+        )
+        assert response.status_code == 403
+        assert not (tmp_path / "hf_token").exists()
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_production_mutation_requests_require_configured_admin_bearer_token(
+    tmp_path: Path,
+):
+    settings = Settings(
+        environment="production",
+        admin_api_token="prod-admin-token",
+        hf_token_file=tmp_path / "hf_token",
+    )
+
+    app.dependency_overrides[get_settings] = lambda: settings
+    try:
+        client = TestClient(app)
+        missing = client.post(
+            "/api/local-secret-files",
+            json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
+        )
+        wrong = client.post(
+            "/api/local-secret-files",
+            headers={"Authorization": "Bearer wrong-token"},
+            json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
+        )
+        allowed_to_endpoint = client.post(
+            "/api/local-secret-files",
+            headers={"Authorization": "Bearer prod-admin-token"},
+            json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
+        )
+
+        assert missing.status_code == 401
+        assert wrong.status_code == 401
+        assert "prod-admin-token" not in json.dumps(missing.json())
+        assert "wrong-token" not in json.dumps(wrong.json())
+        assert allowed_to_endpoint.status_code == 403
+        assert "local/dev/test environments" in allowed_to_endpoint.json()["detail"]
+        assert not (tmp_path / "hf_token").exists()
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_production_mutation_requests_fail_closed_when_admin_token_missing(
+    tmp_path: Path,
+):
+    settings = Settings(
+        environment="production",
+        admin_api_token=None,
+        admin_api_token_file=None,
         hf_token_file=tmp_path / "hf_token",
     )
 
@@ -7023,7 +7085,37 @@ def test_local_secret_file_endpoint_rejects_non_local_environments(tmp_path: Pat
             "/api/local-secret-files",
             json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
         )
-        assert response.status_code == 403
+
+        assert response.status_code == 503
+        assert response.json()["detail"] == (
+            "Production admin token is not configured."
+        )
+        assert not (tmp_path / "hf_token").exists()
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_production_mutation_auth_rejects_non_ascii_bearer_without_echo(
+    tmp_path: Path,
+):
+    settings = Settings(
+        environment="production",
+        admin_api_token="prod-admin-token",
+        hf_token_file=tmp_path / "hf_token",
+    )
+
+    app.dependency_overrides[get_settings] = lambda: settings
+    try:
+        response = TestClient(app, raise_server_exceptions=False).post(
+            "/api/local-secret-files",
+            headers={
+                b"authorization": "Bearer päss-token".encode("utf-8"),
+            },
+            json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
+        )
+
+        assert response.status_code == 401
+        assert "päss-token" not in response.text
         assert not (tmp_path / "hf_token").exists()
     finally:
         app.dependency_overrides.clear()
@@ -7346,6 +7438,7 @@ def test_local_provider_config_endpoint_rejects_non_local_and_malformed_values(
     config_file = tmp_path / "local_provider_config.json"
     production_settings = Settings(
         environment="production",
+        admin_api_token="prod-admin-token",
         local_provider_config_file=config_file,
     )
 
@@ -7353,6 +7446,7 @@ def test_local_provider_config_endpoint_rejects_non_local_and_malformed_values(
     try:
         production_response = TestClient(app).post(
             "/api/local-provider-config",
+            headers={"Authorization": "Bearer prod-admin-token"},
             json={
                 "env_name": "GEMMA4_MULTIMODAL_ENDPOINT_URL",
                 "config_value": "https://hf.test/gemma-e4b",
@@ -7647,13 +7741,17 @@ def test_local_livekit_dev_config_rejects_non_local_and_pathless_setup(
 ):
     production_settings = Settings(
         environment="production",
+        admin_api_token="prod-admin-token",
         local_provider_config_file=tmp_path / "local_provider_config.json",
         livekit_api_key_file=tmp_path / "livekit_api_key",
         livekit_api_secret_file=tmp_path / "livekit_api_secret",
     )
     app.dependency_overrides[get_settings] = lambda: production_settings
     try:
-        production_response = TestClient(app).post("/api/local-livekit-dev-config")
+        production_response = TestClient(app).post(
+            "/api/local-livekit-dev-config",
+            headers={"Authorization": "Bearer prod-admin-token"},
+        )
         assert production_response.status_code == 403
         assert not production_settings.local_provider_config_file.exists()
     finally:
