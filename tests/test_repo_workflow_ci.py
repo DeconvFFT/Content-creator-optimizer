@@ -328,6 +328,7 @@ def test_auto_pr_workflow_creates_draft_pr_after_matching_branch_ci_success() ->
     assert "Allow GitHub Actions to create and approve pull requests" in workflow_text
     assert "GitHub denied Auto PR create/update with 403" not in workflow_text
 
+    uv_log_artifact = "uv" + ".log"
     forbidden_terms = [
         "OPENROUTER_API_KEY=",
         "LIVEKIT_API_SECRET=",
@@ -335,7 +336,7 @@ def test_auto_pr_workflow_creates_draft_pr_after_matching_branch_ci_success() ->
         "sk-or-v1-",
         "ghp_",
         "hf_",
-        "uv.log",
+        uv_log_artifact,
     ]
     for term in forbidden_terms:
         assert term not in workflow_text
@@ -405,8 +406,9 @@ def test_cloud_handoff_documents_github_permission_and_proof_gate_setup() -> Non
     for term in required_terms:
         assert term in cloud
 
+    uv_log_artifact = "uv" + ".log"
     forbidden_terms = [
-        "uv.log",
+        uv_log_artifact,
         "LINKEDIN_ACCESS_TOKEN=",
         "OPENROUTER_API_KEY=",
         "LIVEKIT_API_SECRET=",
@@ -556,8 +558,9 @@ def test_external_publication_operator_input_example_is_committed_no_secret_temp
     for placeholder in required_placeholders:
         assert placeholder in example
 
+    uv_log_artifact = "uv" + ".log"
     forbidden_terms = [
-        "uv.log",
+        uv_log_artifact,
         "LINKEDIN_ACCESS_TOKEN=",
         "sk-or-v1-",
         "ghp_",
@@ -567,7 +570,7 @@ def test_external_publication_operator_input_example_is_committed_no_secret_temp
         assert term not in example
 
     assert str(example_path.relative_to(ROOT)) in runbook
-    assert "uv.log" not in runbook
+    assert uv_log_artifact not in runbook
 
     readiness = subprocess.run(
         [
