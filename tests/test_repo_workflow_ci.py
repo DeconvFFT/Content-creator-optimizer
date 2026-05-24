@@ -370,6 +370,54 @@ def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
         assert term in workflow_doc
 
 
+def test_cloud_handoff_documents_github_permission_and_proof_gate_setup() -> None:
+    cloud_path = ROOT / "cloud.md"
+
+    assert cloud_path.exists(), (
+        "cloud.md should capture the GitHub-side CI/CD and auto-merge setup "
+        "that cannot be represented fully in repository workflow files"
+    )
+    cloud = cloud_path.read_text(encoding="utf-8")
+
+    required_terms = [
+        "GitHub Actions workflow permissions",
+        "Read and write permissions",
+        "Allow GitHub Actions to create and approve pull requests",
+        "main branch protection",
+        "required status checks",
+        "CODEOWNERS",
+        "auto-merge",
+        "feature/livekit-voice-proof-capture",
+        "provider-proof-pr-handoff",
+        "provider-proof-pr-create",
+        "provider-backed-live-voice-proof",
+        "external-publication-proof",
+        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+        "OpenRouter",
+        "deepseek/deepseek-v4-flash",
+        "LiveKit",
+        "Kokoro",
+        "uv.lock",
+        "no secret values",
+    ]
+
+    for term in required_terms:
+        assert term in cloud
+
+    forbidden_terms = [
+        "uv.log",
+        "LINKEDIN_ACCESS_TOKEN=",
+        "OPENROUTER_API_KEY=",
+        "LIVEKIT_API_SECRET=",
+        "sk-or-v1-",
+        "ghp_",
+        "hf_",
+    ]
+    for term in forbidden_terms:
+        assert term not in cloud
+
+
 def test_manual_pr_handoff_notes_include_current_ci_evidence_inputs() -> None:
     handoff_paths = [
         ROOT / "docs/repo-workflow.md",
@@ -998,7 +1046,10 @@ def test_provider_proof_pr_create_cli_reports_manual_required_without_token() ->
             "cd3106728909cb422a6b7687b91308119b17f7d9",
         ],
         cwd=ROOT,
-        env={"PATH": os.environ["PATH"]},
+        env={
+            "PATH": os.environ["PATH"],
+            "UV_CACHE_DIR": os.environ.get("UV_CACHE_DIR", str(ROOT / ".uv-cache")),
+        },
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

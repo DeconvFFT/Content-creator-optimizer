@@ -151,6 +151,7 @@ The vaults mostly record validation evidence and proof discipline. The repositor
 - If GitHub PR creation is blocked by integration permissions, run `uv run all-about-llms-admin provider-proof-pr-handoff --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --ci-url <latest-branch-head-ci-url> --head-sha <current-branch-head-sha>` and paste the generated no-secret body into a manual PR after filling the placeholders from the current branch head. This preserves provider-proof gate state, current OpenRouter/LiveKit/Kokoro routing, CI evidence, and LinkedIn operator blockers without exposing secret values.
 - The generated PR handoff prints `operator_input_example: docs/external-publication-operator-inputs.example.env`; use that committed no-secret template to find the expected external-publication keys without opening ignored proof output.
 - Branch protection, required status checks, CODEOWNERS/review, and auto-merge settings still need repository-level enforcement outside files.
+- `cloud.md` is now the committed no-secret cloud/repository operations handoff for the GitHub-side setup that files cannot enforce directly: Actions read/write workflow permissions, `Allow GitHub Actions to create and approve pull requests`, `main` branch protection/ruleset, required status checks, CODEOWNERS review, and auto-merge. Latest local checks found the GitHub connector still returns `403 Resource not accessible by integration`, local `gh` is unavailable, and no open feature-branch PR was visible.
 
 ## Source Attribution
 
@@ -168,6 +169,7 @@ The vaults mostly record validation evidence and proof discipline. The repositor
 Read-only non-vault workflow sources used for CI/PR summary:
 
 - `docs/repo-workflow.md`
+- `cloud.md`
 - `.github/pull_request_template.md`
 - `.github/workflows/ci.yml`
 

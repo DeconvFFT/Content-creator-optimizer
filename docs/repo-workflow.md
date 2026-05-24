@@ -103,3 +103,4 @@ Repository settings still need to enforce:
 - conversation resolution and up-to-date branch requirements if desired
 
 GitHub settings cannot be fully represented in repo files, so keep this document and the actual repository ruleset in sync.
+Use `cloud.md` as the no-secret operator checklist for the GitHub-side Actions permission, branch-protection, required-check, and auto-merge settings that must be configured outside this repository.
