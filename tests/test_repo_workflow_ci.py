@@ -262,12 +262,91 @@ def test_pull_request_template_requires_proof_gate_handoff() -> None:
         assert term in template
 
 
+def test_auto_pr_workflow_creates_draft_pr_after_matching_branch_ci_success() -> None:
+    workflow_path = ROOT / ".github" / "workflows" / "auto-pr.yml"
+
+    assert workflow_path.exists(), (
+        "feature/ and fix_ branches need a repo-owned draft PR workflow when "
+        "local GitHub tokens or connector PR creation are unavailable"
+    )
+    workflow_text = workflow_path.read_text(encoding="utf-8")
+    workflow = yaml.safe_load(workflow_text)
+    workflow_on = workflow.get("on") or workflow.get(True)
+
+    assert workflow_on["push"]["branches"] == ["feature/**", "fix_*"]
+    assert workflow["permissions"]["contents"] == "read"
+    assert workflow["permissions"]["actions"] == "read"
+    assert workflow["permissions"]["pull-requests"] == "write"
+
+    job = workflow["jobs"]["draft-pr"]
+    assert "github.ref_name != 'main'" in job["if"]
+    assert "github.event_name == 'push'" in job["if"]
+    assert "refs/heads/feature/" in job["if"]
+    assert "refs/heads/fix_" in job["if"]
+
+    step_names = [
+        step.get("name", "")
+        for step in job["steps"]
+        if isinstance(step, dict)
+    ]
+    assert "Wait for matching CI success" in step_names
+    assert "Generate no-secret provider proof PR body" in step_names
+    assert "Create or update draft PR" in step_names
+
+    assert "github.rest.actions.listWorkflowRuns" in workflow_text
+    assert 'workflow_id: "ci.yml"' in workflow_text
+    assert "head_sha === headSha" in workflow_text
+    assert "conclusion === \"success\"" in workflow_text
+
+    assert "provider-proof-pr-handoff" in workflow_text
+    assert "docs/external-publication-operator-inputs.example.env" in workflow_text
+    assert "PR_OPERATOR_INPUT_PATH" in workflow_text
+    assert "ci-non-secret-openrouter-placeholder" in workflow_text
+    assert "ci-non-secret-livekit-key-placeholder" in workflow_text
+    assert "ci-non-secret-livekit-voice-placeholder" in workflow_text
+    assert "wss://livekit.agent-studio.local" in workflow_text
+    assert "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID" in workflow_text
+    assert "<linkedin-policy-acknowledgement-artifact-id>" in workflow_text
+    assert "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID" in workflow_text
+    assert "<publication-rollback-or-postcondition-artifact-id>" in workflow_text
+    assert "social_media_optimiser/output/provider-proof" not in workflow_text
+    assert "--ci-url \"$CI_URL\"" in workflow_text
+    assert "--head-sha \"$HEAD_SHA\"" in workflow_text
+    assert "--branch \"$HEAD_BRANCH\"" in workflow_text
+    assert "--repo \"$GITHUB_REPOSITORY\"" in workflow_text
+    assert "secrets.GITHUB_TOKEN" in workflow_text
+
+    assert "github.rest.pulls.list" in workflow_text
+    assert "github.rest.pulls.create" in workflow_text
+    assert "github.rest.pulls.update" in workflow_text
+    assert "draft: true" in workflow_text
+    assert "maintainer_can_modify: true" in workflow_text
+    assert "error.status === 403" in workflow_text
+    assert "Allow GitHub Actions to create and approve pull requests" in workflow_text
+
+    forbidden_terms = [
+        "OPENROUTER_API_KEY=",
+        "LIVEKIT_API_SECRET=",
+        "LINKEDIN_ACCESS_TOKEN=",
+        "sk-or-v1-",
+        "ghp_",
+        "hf_",
+        "uv.log",
+    ]
+    for term in forbidden_terms:
+        assert term not in workflow_text
+
+
 def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
     workflow_doc = (ROOT / "docs/repo-workflow.md").read_text(encoding="utf-8")
 
     required_terms = [
         "provider-proof-pr-create",
         "provider-proof-pr-handoff",
+        ".github/workflows/auto-pr.yml",
+        "matching branch CI",
+        "draft PR",
+        "Allow GitHub Actions to create and approve pull requests",
         "manual PR",
         "GITHUB_TOKEN",
         "GH_TOKEN",

@@ -1341,3 +1341,10 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 - Done: linked the example from `docs/external-publication-proof-runbook.md` so operators can copy key names without opening generated output or committing secrets.
 - Done: `provider-proof-pr-handoff` now prints `operator_input_example` so manual PR reviewers can find the committed placeholder-only key list from the generated no-secret PR body.
 - Boundary: this improves operator handoff only. It does not supply the LinkedIn token file, policy acknowledgement artifact, durable LinkedIn publication URL/id, rollback/postcondition artifact, accepted publication proof, closure review, GitHub PR, or auto-merge setup.
+
+## 2026-05-24 Auto PR Workflow Fallback
+
+- Done: added `.github/workflows/auto-pr.yml` as the repo-owned PR fallback for `feature/**` and `fix_*` pushes after local token-backed PR creation and the GitHub connector path were unavailable.
+- Done: the workflow waits for matching branch CI success, synthesizes a temporary no-secret PR input file that keeps accepted live-voice fields configured while leaving publication placeholders blocked, generates a no-secret `provider-proof-pr-handoff` body, and creates or updates a draft PR with the Actions `GITHUB_TOKEN`.
+- Done: added an explicit 403 failure message and docs for the repository setting `Allow GitHub Actions to create and approve pull requests`, because workflow-level `pull-requests: write` is not sufficient when repository Actions permissions disallow PR creation.
+- Boundary: this only advances PR mechanics and clean-runner automation. It does not supply external publication operator evidence or complete the objective.

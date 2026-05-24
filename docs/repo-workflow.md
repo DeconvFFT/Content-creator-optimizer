@@ -67,6 +67,8 @@ Secrets belong in local environment variables or ignored files under `.secrets/`
 
 Open PRs into `main`. The PR checklist should show the local verification commands that were run, plus the current provider proof gate state. For the current Agent Studio branch, the PR must explicitly state the `provider-backed-live-voice-proof` status, the `external-publication-proof` status, and whether any operator-owned LinkedIn inputs remain blocked. Enable auto-merge only after required CI checks and review pass.
 
+`.github/workflows/auto-pr.yml` is the repository-owned fallback for PR creation from `feature/**` and `fix_*` branches. On each matching branch push, it waits for matching branch CI to complete successfully, generates the no-secret `provider-proof-pr-handoff` body with that CI URL and head SHA, then creates or updates a draft PR using the workflow `GITHUB_TOKEN`. Clean GitHub runners synthesize a temporary no-secret operator input file for PR body generation: accepted live-voice fields use dummy local files, publication fields stay blocked with placeholders, and the committed placeholder-only `docs/external-publication-operator-inputs.example.env` remains the key-list reference. This path uses only the built-in Actions token and must not introduce custom secret requirements or print provider credential values.
+
 First try the token-aware no-secret PR helper. It uses `GITHUB_TOKEN` or `GH_TOKEN` only as an Authorization header for the GitHub REST pull-request call and does not print the token or the generated Markdown body when credentials are unavailable:
 
 ```bash
@@ -97,6 +99,7 @@ Repository settings still need to enforce:
 - required status checks: branch policy, Python backend, Next.js frontend, and Rust service jobs
 - required review through `.github/CODEOWNERS`
 - auto-merge enabled in repository settings
+- Actions workflow permissions set to read/write, with `Allow GitHub Actions to create and approve pull requests` enabled so `.github/workflows/auto-pr.yml` can create or update the draft PR
 - conversation resolution and up-to-date branch requirements if desired
 
 GitHub settings cannot be fully represented in repo files, so keep this document and the actual repository ruleset in sync.

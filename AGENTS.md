@@ -7,11 +7,12 @@ This repo is the product/code workspace for Agent Studio. The Obsidian vaults ar
 - Use branch prefixes that describe the work: `feature/` for new features, `fix_` plus a timestamp or UUID for bug fixes, and `tests/` for test-only changes.
 - Prefer small PR-style commits with focused verification notes.
 - Do not merge or claim completion until CI is green and the proof gates below are checked.
-- If GitHub PR creation is blocked by integration permissions, first try the no-secret `provider-proof-pr-create` helper with `GITHUB_TOKEN` or `GH_TOKEN`; if no token is available, leave the branch pushed and record the exact blocker in the vault handoff.
+- `.github/workflows/auto-pr.yml` should create or update a draft PR after matching branch CI passes on `feature/**` or `fix_*` pushes, using only the workflow `GITHUB_TOKEN`, a temporary no-secret PR input file, and the committed no-secret operator input example as the key-list reference.
+- If workflow PR creation or integration PR creation is blocked, try the no-secret `provider-proof-pr-create` helper with `GITHUB_TOKEN` or `GH_TOKEN`; if no token is available, leave the branch pushed and record the exact blocker in the vault handoff.
 
 ## Files That May Be Versioned
 
-- Code, tests, `.github/workflows/ci.yml`, `uv.lock`, lightweight Markdown coordination files, `AGENTS.md`, `agents.md`, `CLOUD.md`, and `cloud.md`.
+- Code, tests, `.github/workflows/ci.yml`, `.github/workflows/auto-pr.yml`, `uv.lock`, lightweight Markdown coordination files, `AGENTS.md`, `agents.md`, `CLOUD.md`, and `cloud.md`.
 - `uv.lock` is the committed Python dependency lockfile; include it when Python dependencies change.
 - Local command-log artifacts are transient output and must not be tracked.
 
