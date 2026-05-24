@@ -1198,3 +1198,10 @@ At the end of a meaningful slice:
 - Current status after rerun: accepted proofs are `provider-backed-live-voice-proof`; invalid accepted audit-note proofs are empty; latest failed proof remains `external-publication-proof`.
 - Verification: provider-proof CLI suite passed with `201 passed, 30 skipped`; static proof/system-design browser render tests passed with `6 passed`; stable Python CI slice passed with `230 passed, 30 skipped`.
 - Boundary: this is a parser/status correction only. It does not create publication evidence or change the external publication blocker.
+
+## Root Agent Operating Contract - 2026-05-24
+
+- Source: `AGENTS.md`, `tests/test_repo_workflow_ci.py`, GitHub Actions run `26361620797`.
+- Handoff: root `AGENTS.md` now captures the repo operating contract for future Codex/Cursor agents: PR-style branch naming, `uv.lock` as the committed dependency lockfile, `uv.log` as local output only, no secrets or large artifacts, OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro as the active realtime path, and no Hugging Face/Gemma4/Gamma4/MLX active realtime default.
+- Gate state: `provider-backed-live-voice-proof` remains accepted; `external-publication-proof` still requires `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
+- Verification: the handoff regression failed first because `AGENTS.md` was absent, then passed after the file was added. Remote CI for the branch-head parser fix is green. PR creation remains blocked by GitHub integration permission `403 Resource not accessible by integration`.

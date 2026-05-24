@@ -100,3 +100,37 @@ def test_dev_extra_installs_livekit_sdk_for_stable_ci_voice_timing_tests() -> No
         "CI runs tests/test_livekit_voice_timing_capture.py under the dev extra, "
         "so dev dependencies must install the livekit SDK"
     )
+
+
+def test_agents_handoff_documents_pr_ci_and_proof_boundaries() -> None:
+    agents_path = ROOT / "AGENTS.md"
+
+    assert agents_path.exists(), "root AGENTS.md must capture repo operating rules"
+    handoff = agents_path.read_text(encoding="utf-8")
+
+    required_terms = [
+        "uv.lock",
+        "uv.log",
+        "feature/",
+        "fix_",
+        "OpenRouter",
+        "deepseek/deepseek-v4-flash",
+        "LiveKit",
+        "Kokoro",
+        "Hugging Face",
+        "Gemma4",
+        "MLX",
+        "provider-backed-live-voice-proof",
+        "external-publication-proof",
+        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+        "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+        "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
+        "social_media_optimiser",
+        "system_design_vault",
+        "Do not commit secrets",
+        "Do not restart",
+    ]
+
+    for term in required_terms:
+        assert term in handoff

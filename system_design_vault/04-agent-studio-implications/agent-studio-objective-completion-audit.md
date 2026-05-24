@@ -1245,3 +1245,11 @@ This failed record is preserved as historical audit evidence from the prior nati
 - verification: the regression first failed with `blocked_by_invalid_accepted_audit_note` when a valid live-voice proof was followed by ordinary Markdown bullets; after the fix, the focused regression passed, the provider-proof CLI suite passed with `201 passed, 30 skipped`, static proof/system-design browser render tests passed with `6 passed`, and the stable Python CI slice passed with `230 passed, 30 skipped`.
 - current proof implication: rerunning completion status for `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` reports `provider-backed-live-voice-proof` accepted across all three audit targets, no invalid accepted audit-note proofs, and `external-publication-proof` as the only latest failed proof.
 - boundary: this is status parsing and review reliability only. External LinkedIn publication proof, completion closure review, and GitHub-side PR/auto-merge setup remain unfinished.
+
+## Root Agent Operating Contract - 2026-05-24
+
+- source: `AGENTS.md`, `tests/test_repo_workflow_ci.py`, `social_media_optimiser/wiki/ops/active-codex-context.md`
+- architecture implication: root `AGENTS.md` is now the lightweight first-read operating contract for future agents. It encodes branch/PR workflow, no-secret and no-large-artifact boundaries, `uv.lock` versus `uv.log`, vault coordination, no shared-process restarts, and the active OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro realtime route.
+- proof implication: the operating contract names the accepted `provider-backed-live-voice-proof` and the remaining `external-publication-proof` inputs, preventing future agents from substituting Hugging Face/Gemma4/Gamma4/MLX or local publication substitutes for the current proof path.
+- verification: the repo workflow regression first failed because `AGENTS.md` was absent, then passed after adding the file. Remote branch CI run `26361620797` is green for the current branch head.
+- boundary: this is coordination and CI/CD handoff hardening only. PR creation still needs GitHub permissions outside the current connector, and the publication proof still needs operator-owned LinkedIn evidence.
