@@ -168,9 +168,19 @@ jobs:
               core.setOutput("pr_url", created.html_url);
             } catch (error) {
               if (error.status === 403) {
-                core.setFailed(
-                  "GitHub denied Auto PR create/update with 403. Enable repository Settings > Actions > General > Workflow permissions: Read and write permissions and Allow GitHub Actions to create and approve pull requests, or create the PR manually with provider-proof-pr-handoff."
+                const message = (
+                  "Auto PR skipped: GitHub denied draft PR create/update with 403. " +
+                  "Enable repository Settings > Actions > General > Workflow permissions: " +
+                  "Read and write permissions and Allow GitHub Actions to create and approve pull requests, " +
+                  "or create the PR manually with provider-proof-pr-handoff."
                 );
+                core.warning(message);
+                if (process.env.GITHUB_STEP_SUMMARY) {
+                  fs.appendFileSync(
+                    process.env.GITHUB_STEP_SUMMARY,
+                    `### Auto PR skipped\n\n${message}\n`
+                  );
+                }
                 return;
               }
               throw error;

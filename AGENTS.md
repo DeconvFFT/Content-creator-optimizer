@@ -7,7 +7,7 @@ This repo is the product/code workspace for Agent Studio. The Obsidian vaults ar
 - Use branch prefixes that describe the work: `feature/` for new features, `fix_` plus a timestamp or UUID for bug fixes, and `tests/` for test-only changes.
 - Prefer small PR-style commits with focused verification notes.
 - Do not merge or claim completion until CI is green and the proof gates below are checked.
-- `.github/workflows/auto-pr.yml` should create or update a draft PR after matching branch CI passes on `feature/**` or `fix_*` pushes, using only the workflow `GITHUB_TOKEN`, a temporary no-secret PR input file, and the committed no-secret operator input example as the key-list reference.
+- `.github/workflows/auto-pr.yml` should create or update a draft PR after matching branch CI passes on `feature/**` or `fix_*` pushes, using only the workflow `GITHUB_TOKEN`, a temporary no-secret PR input file, and the committed no-secret operator input example as the key-list reference. If repository Actions settings deny PR creation, it should warn with `Auto PR skipped` rather than make the branch red.
 - If workflow PR creation or integration PR creation is blocked, try the no-secret `provider-proof-pr-create` helper with `GITHUB_TOKEN` or `GH_TOKEN`; if no token is available, leave the branch pushed and record the exact blocker in the vault handoff.
 
 ## Files That May Be Versioned
