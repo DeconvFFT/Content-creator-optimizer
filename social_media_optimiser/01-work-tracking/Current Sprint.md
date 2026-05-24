@@ -1358,3 +1358,9 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 - Done: Leibniz found that non-ASCII bearer values could raise inside `hmac.compare_digest`; a failing-first raw-header regression reproduced the `500`, and the guard now compares UTF-8 bytes so malformed non-ASCII bearer values return the same no-echo `401`.
 - Verified: failing-first production auth tests first returned the old endpoint-level `403`; after the guard, focused production/local-setup checks passed with `5 passed`, broader local secret/config endpoint regressions passed with `8 passed`, review-fix auth checks passed with `3 passed`, and Ruff passed on the touched Python files.
 - Boundary: this closes the backend admin-token slice of the production auth backlog only. It does not create LinkedIn credentials, external publication proof, closure review, GitHub branch protection, or auto-merge setup.
+
+## 2026-05-24 Provider Proof PR Helper Update Path
+
+- Done: added create-or-update behavior to `provider-proof-pr-create`. With `GITHUB_TOKEN` or `GH_TOKEN`, the helper now looks up the open PR for the branch/base and updates its no-secret `provider-proof-pr-handoff` body before creating a new draft PR. This mirrors `.github/workflows/auto-pr.yml` and avoids duplicate-PR failures when a manual/token-backed rerun happens after a draft PR already exists.
+- Verified: failing-first test proved the helper returned `created` instead of updating an existing PR; after the fix, focused PR helper checks passed with `4 passed`.
+- Boundary: this advances PR handoff reliability only. It does not create a PR in this session, enable repository Actions permissions, enable auto-merge, or satisfy external publication proof.

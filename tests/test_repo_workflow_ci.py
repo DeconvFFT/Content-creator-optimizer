@@ -1056,9 +1056,12 @@ def test_provider_proof_pr_create_result_posts_with_token_without_leaking_it(
         timeout_seconds=5.0,
         title="Agent Studio LiveKit/OpenRouter proof gates",
     )
-    captured: dict[str, object] = {}
+    captured_calls: list[dict[str, object]] = []
 
     class FakeResponse:
+        def __init__(self, payload: object):
+            self.payload = payload
+
         def __enter__(self) -> "FakeResponse":
             return self
 
@@ -1066,23 +1069,34 @@ def test_provider_proof_pr_create_result_posts_with_token_without_leaking_it(
             return None
 
         def read(self) -> bytes:
-            return json.dumps(
-                {
-                    "number": 17,
-                    "html_url": (
-                        "https://github.com/DeconvFFT/Content-creator-optimizer/pull/17"
-                    ),
-                    "state": "open",
-                    "draft": True,
-                }
-            ).encode("utf-8")
+            return json.dumps(self.payload).encode("utf-8")
 
     def fake_opener(request: object, timeout: float) -> FakeResponse:
-        captured["timeout"] = timeout
-        captured["headers"] = dict(request.header_items())
-        captured["body"] = json.loads(request.data.decode("utf-8"))
-        captured["url"] = request.full_url
-        return FakeResponse()
+        captured_calls.append(
+            {
+                "timeout": timeout,
+                "headers": dict(request.header_items()),
+                "body": (
+                    json.loads(request.data.decode("utf-8"))
+                    if request.data
+                    else None
+                ),
+                "method": request.get_method(),
+                "url": request.full_url,
+            }
+        )
+        if request.get_method() == "GET":
+            return FakeResponse([])
+        return FakeResponse(
+            {
+                "number": 17,
+                "html_url": (
+                    "https://github.com/DeconvFFT/Content-creator-optimizer/pull/17"
+                ),
+                "state": "open",
+                "draft": True,
+            }
+        )
 
     payload = cli_module._provider_proof_pr_create_result(
         args,
@@ -1095,18 +1109,139 @@ def test_provider_proof_pr_create_result_posts_with_token_without_leaking_it(
     assert payload["url"] == (
         "https://github.com/DeconvFFT/Content-creator-optimizer/pull/17"
     )
-    assert captured["url"] == (
+    assert [call["method"] for call in captured_calls] == ["GET", "POST"]
+    assert captured_calls[1]["url"] == (
         "https://api.github.com/repos/DeconvFFT/Content-creator-optimizer/pulls"
     )
-    assert captured["headers"]["Authorization"] == (
+    assert captured_calls[1]["headers"]["Authorization"] == (
         "Bearer local-test-token-not-secret"
     )
-    request_body = captured["body"]
+    request_body = captured_calls[1]["body"]
     assert request_body["head"] == "feature/livekit-voice-proof-capture"
     assert request_body["base"] == "main"
     assert request_body["draft"] is True
     assert "Agent Studio PR Handoff" in request_body["body"]
     assert "local-test-token-not-secret" not in json.dumps(payload)
+
+
+def test_provider_proof_pr_create_result_updates_existing_open_pr_without_token_leak(
+    tmp_path: Path,
+) -> None:
+    operator_input_path = tmp_path / "operator-inputs.template.env"
+    operator_input_path.write_text(
+        "\n".join(
+            [
+                "OPENROUTER_API_KEY_FILE=",
+                "OPENROUTER_LIVEKIT_URL=",
+                "LIVEKIT_API_KEY_FILE=",
+                "LIVEKIT_API_SECRET_FILE=",
+                "LINKEDIN_ACCESS_TOKEN_FILE=",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=",
+                "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    args = argparse.Namespace(
+        audit_target=None,
+        base="main",
+        branch="feature/livekit-voice-proof-capture",
+        checked_at=None,
+        ci_url="https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
+        draft=True,
+        dry_run=False,
+        env_example_path=ROOT / ".env.example",
+        head_sha="cd3106728909cb422a6b7687b91308119b17f7d9",
+        operator_input_path=operator_input_path,
+        output_dir=None,
+        repo="DeconvFFT/Content-creator-optimizer",
+        run_id="190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+        timeout_seconds=5.0,
+        title="Agent Studio LiveKit/OpenRouter proof gates",
+    )
+    calls: list[dict[str, object]] = []
+
+    class FakeResponse:
+        def __init__(self, payload: object):
+            self.payload = payload
+
+        def __enter__(self) -> "FakeResponse":
+            return self
+
+        def __exit__(self, *_exc: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return json.dumps(self.payload).encode("utf-8")
+
+    def fake_opener(request: object, timeout: float) -> FakeResponse:
+        calls.append(
+            {
+                "timeout": timeout,
+                "headers": dict(request.header_items()),
+                "body": (
+                    json.loads(request.data.decode("utf-8"))
+                    if request.data
+                    else None
+                ),
+                "method": request.get_method(),
+                "url": request.full_url,
+            }
+        )
+        if request.get_method() == "GET":
+            return FakeResponse(
+                [
+                    {
+                        "number": 17,
+                        "html_url": (
+                            "https://github.com/DeconvFFT/Content-creator-optimizer/pull/17"
+                        ),
+                        "state": "open",
+                        "draft": True,
+                    }
+                ]
+            )
+        return FakeResponse(
+            {
+                "number": 17,
+                "html_url": (
+                    "https://github.com/DeconvFFT/Content-creator-optimizer/pull/17"
+                ),
+                "state": "open",
+                "draft": True,
+            }
+        )
+
+    payload = cli_module._provider_proof_pr_create_result(
+        args,
+        env={"GITHUB_TOKEN": "local-test-token-not-secret"},
+        opener=fake_opener,
+    )
+
+    assert payload["status"] == "updated"
+    assert payload["number"] == 17
+    assert payload["url"] == (
+        "https://github.com/DeconvFFT/Content-creator-optimizer/pull/17"
+    )
+    assert [call["method"] for call in calls] == ["GET", "PATCH"]
+    assert calls[0]["url"] == (
+        "https://api.github.com/repos/DeconvFFT/Content-creator-optimizer/pulls"
+        "?state=open&base=main&head=DeconvFFT%3Afeature%2Flivekit-voice-proof-capture"
+    )
+    assert calls[1]["url"] == (
+        "https://api.github.com/repos/DeconvFFT/Content-creator-optimizer/pulls/17"
+    )
+    assert calls[1]["headers"]["Authorization"] == (
+        "Bearer local-test-token-not-secret"
+    )
+    update_body = calls[1]["body"]
+    assert update_body["title"] == "Agent Studio LiveKit/OpenRouter proof gates"
+    assert update_body["body"].startswith("# Agent Studio PR Handoff")
+    assert update_body["maintainer_can_modify"] is True
+    assert "local-test-token-not-secret" not in json.dumps(payload)
+    assert "local-test-token-not-secret" not in json.dumps(calls[1]["body"])
 
 
 def test_provider_proof_pr_create_result_compacts_url_errors_without_token_leak(

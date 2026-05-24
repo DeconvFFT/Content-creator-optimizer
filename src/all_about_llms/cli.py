@@ -11,7 +11,7 @@ from urllib import request as urlrequest
 from collections.abc import Mapping, Sequence
 from datetime import date, datetime, timezone
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
 from pydantic import ValidationError
@@ -12032,6 +12032,22 @@ def _github_pull_request_api_url(repo: str) -> str:
     return f"https://api.github.com/repos/{repo}/pulls"
 
 
+def _github_pull_request_list_api_url(repo: str, base: str, branch: str) -> str:
+    owner = repo.split("/", 1)[0]
+    query = urlencode(
+        {
+            "state": "open",
+            "base": base,
+            "head": f"{owner}:{branch}",
+        }
+    )
+    return f"{_github_pull_request_api_url(repo)}?{query}"
+
+
+def _github_pull_request_update_api_url(repo: str, pull_number: int) -> str:
+    return f"{_github_pull_request_api_url(repo)}/{pull_number}"
+
+
 def _github_compare_url(repo: str, base: str, branch: str) -> str:
     return f"https://github.com/{repo}/compare/{base}...{branch}?expand=1"
 
@@ -12129,19 +12145,67 @@ def _provider_proof_pr_create_result(
             "exit_code": 2,
         }
 
-    request = urlrequest.Request(
-        post_url,
-        data=json.dumps(request_body, separators=(",", ":")).encode("utf-8"),
-        headers={
-            "Accept": "application/vnd.github+json",
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-            "User-Agent": "all-about-llms-agent-studio-pr-create",
-            "X-GitHub-Api-Version": "2022-11-28",
-        },
-        method="POST",
-    )
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "User-Agent": "all-about-llms-agent-studio-pr-create",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
     try:
+        list_url = _github_pull_request_list_api_url(args.repo, args.base, args.branch)
+        list_request = urlrequest.Request(
+            list_url,
+            headers=headers,
+            method="GET",
+        )
+        with opener(list_request, timeout=args.timeout_seconds) as response:
+            existing_prs_payload = json.loads(response.read().decode("utf-8") or "[]")
+        if not isinstance(existing_prs_payload, list):
+            return {
+                **base_payload,
+                "status": "github_api_error",
+                "issue_code": "github_api_response_invalid",
+                "message": "GitHub existing PR lookup JSON was not an array",
+                "handoff_command": _provider_proof_pr_handoff_command(args),
+                "exit_code": 1,
+            }
+        if existing_prs_payload:
+            existing_pr = existing_prs_payload[0]
+            if (
+                not isinstance(existing_pr, Mapping)
+                or not isinstance(existing_pr.get("number"), int)
+            ):
+                return {
+                    **base_payload,
+                    "status": "github_api_error",
+                    "issue_code": "github_api_response_invalid",
+                    "message": "GitHub existing PR lookup did not include a PR number",
+                    "handoff_command": _provider_proof_pr_handoff_command(args),
+                    "exit_code": 1,
+                }
+            pull_number = int(existing_pr["number"])
+            update_body = {
+                "title": args.title,
+                "body": request_body["body"],
+                "maintainer_can_modify": True,
+            }
+            request = urlrequest.Request(
+                _github_pull_request_update_api_url(args.repo, pull_number),
+                data=json.dumps(update_body, separators=(",", ":")).encode("utf-8"),
+                headers=headers,
+                method="PATCH",
+            )
+            result_status = "updated"
+        else:
+            request = urlrequest.Request(
+                post_url,
+                data=json.dumps(request_body, separators=(",", ":")).encode("utf-8"),
+                headers=headers,
+                method="POST",
+            )
+            result_status = "created"
+
         with opener(request, timeout=args.timeout_seconds) as response:
             response_payload = json.loads(response.read().decode("utf-8") or "{}")
     except urlerror.HTTPError as exc:
@@ -12195,7 +12259,7 @@ def _provider_proof_pr_create_result(
     return {
         "artifact": "agent-studio-provider-proof-pr-create",
         "boundary": "no_secret_values_printed",
-        "status": "created",
+        "status": result_status,
         "number": response_payload.get("number"),
         "url": response_payload.get("html_url"),
         "state": response_payload.get("state"),
