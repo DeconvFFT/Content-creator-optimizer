@@ -260,7 +260,7 @@ export function ActivityPanel({
                 disabled={disabled}
                 onChange={(event) => onUseGemmaChange(event.target.checked)}
               />
-              <span>Gemma experts</span>
+              <span>Provider-backed specialists</span>
             </label>
           )}
           <span>
