@@ -71,6 +71,22 @@ def test_ci_checks_uv_lock_is_current_before_python_tests() -> None:
         )
 
 
+def test_github_actions_workflows_opt_into_node24_action_runtime() -> None:
+    workflow_paths = [
+        ROOT / ".github/workflows/ci.yml",
+        ROOT / ".github/workflows/auto-pr.yml",
+    ]
+
+    for workflow_path in workflow_paths:
+        workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
+        assert workflow.get("env", {}).get("FORCE_JAVASCRIPT_ACTIONS_TO_NODE24") == (
+            "true"
+        ), (
+            f"{workflow_path.relative_to(ROOT)} must opt into the Node 24 "
+            "JavaScript action runtime before GitHub's June 2026 default switch"
+        )
+
+
 def test_gitignore_excludes_local_scratch_course_checkouts() -> None:
     gitignore_lines = {
         line.strip()
@@ -307,9 +323,9 @@ def test_auto_pr_workflow_creates_draft_pr_after_matching_branch_ci_success() ->
     assert "ci-non-secret-livekit-voice-placeholder" in workflow_text
     assert "wss://livekit.agent-studio.local" in workflow_text
     assert "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID" in workflow_text
-    assert "<linkedin-policy-acknowledgement-artifact-id>" in workflow_text
+    assert "<linkedin-policy-acknowledgement-artifact-id-or-url>" in workflow_text
     assert "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID" in workflow_text
-    assert "<publication-rollback-or-postcondition-artifact-id>" in workflow_text
+    assert "<publication-rollback-or-postcondition-artifact-id-or-url>" in workflow_text
     assert "social_media_optimiser/output/provider-proof" not in workflow_text
     assert "--ci-url \"$CI_URL\"" in workflow_text
     assert "--head-sha \"$HEAD_SHA\"" in workflow_text
@@ -363,6 +379,8 @@ def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
         "external-publication-proof",
         "external-publication-proof-runbook.md",
         "external-publication-operator-inputs.example.env",
+        "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
+        "Node 24",
         "LINKEDIN_ACCESS_TOKEN_FILE",
         "uv.lock",
         ".github/CODEOWNERS",
@@ -389,6 +407,8 @@ def test_cloud_handoff_documents_github_permission_and_proof_gate_setup() -> Non
         "required status checks",
         "CODEOWNERS",
         "auto-merge",
+        "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
+        "Node 24",
         "feature/livekit-voice-proof-capture",
         "provider-proof-pr-handoff",
         "provider-proof-pr-create",

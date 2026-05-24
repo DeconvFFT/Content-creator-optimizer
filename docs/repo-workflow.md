@@ -69,6 +69,8 @@ Open PRs into `main`. The PR checklist should show the local verification comman
 
 `.github/workflows/auto-pr.yml` is the repository-owned fallback for PR creation from `feature/**` and `fix_*` branches. On each matching branch push, it waits for matching branch CI to complete successfully, generates the no-secret `provider-proof-pr-handoff` body with that CI URL and head SHA, then creates or updates a draft PR using the workflow `GITHUB_TOKEN`. Clean GitHub runners synthesize a temporary no-secret operator input file for PR body generation: accepted live-voice fields use dummy local files, publication fields stay blocked with placeholders, and the committed placeholder-only `docs/external-publication-operator-inputs.example.env` remains the key-list reference. If repository Actions settings still deny PR creation, the workflow records an `Auto PR skipped` warning and step summary instead of making the branch red. This path uses only the built-in Actions token and must not introduce custom secret requirements or print provider credential values.
 
+The CI and Auto PR workflows set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` at workflow scope so JavaScript actions run on the Node 24 action runtime before GitHub's June 2026 default switch. Keep that opt-in in both workflows when editing the PR/CI path.
+
 First try the token-aware no-secret PR helper. It uses `GITHUB_TOKEN` or `GH_TOKEN` only as an Authorization header for the GitHub REST pull-request call and does not print the token or the generated Markdown body when credentials are unavailable. When an open PR already exists for the same branch and base, the helper updates that PR with the regenerated no-secret proof handoff instead of creating a duplicate:
 
 ```bash

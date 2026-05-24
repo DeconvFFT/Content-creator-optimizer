@@ -11,6 +11,9 @@ permissions:
   actions: read
   pull-requests: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 concurrency:
   group: auto-pr-${{ github.ref }}
   cancel-in-progress: true
@@ -102,9 +105,9 @@ jobs:
             printf 'LIVEKIT_API_KEY_FILE=%s\n' "$PR_OPERATOR_INPUT_DIR/lk_key_file"
             printf 'LIVEKIT_API_SECRET_FILE=%s\n' "$PR_OPERATOR_INPUT_DIR/lk_voice_file"
             printf 'LINKEDIN_ACCESS_TOKEN_FILE=%s\n' "/absolute/path/to/local/linkedin-access-token.txt"
-            printf 'LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=%s\n' "<linkedin-policy-acknowledgement-artifact-id>"
+            printf 'LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=%s\n' "<linkedin-policy-acknowledgement-artifact-id-or-url>"
             printf 'PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=%s\n' "<durable-linkedin-publication-url-or-id>"
-            printf 'PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=%s\n' "<publication-rollback-or-postcondition-artifact-id>"
+            printf 'PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=%s\n' "<publication-rollback-or-postcondition-artifact-id-or-url>"
           } > "$PR_OPERATOR_INPUT_PATH"
 
           uv run all-about-llms-admin provider-proof-pr-handoff \

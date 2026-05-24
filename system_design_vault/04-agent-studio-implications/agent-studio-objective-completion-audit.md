@@ -1325,3 +1325,9 @@ This failed record is preserved as historical audit evidence from the prior nati
 - manual PR implication: `provider-proof-pr-handoff` now embeds the repository settings checklist directly in the generated PR body, including Actions read/write permission, PR-creation permission, `main` protection/ruleset, required checks, CODEOWNERS review, and auto-merge setup.
 - handoff implication: committed cloud/vault handoffs must not pin exact branch-head SHA or Actions run IDs as current evidence. Fresh `--ci-url` and `--head-sha` values are action-time proof inputs for PR creation or update.
 - proof implication: `Leibniz` review-watch stale live-voice reopeners were corrected. Provider-backed OpenRouter/LiveKit/Kokoro live voice remains accepted; only external LinkedIn publication proof, completion recheck, closure review, and blocker-state update remain incomplete.
+
+## CI/CD Node Runtime Hardening - 2026-05-24
+
+- source: GitHub Actions check-run annotations for Auto PR run `26375041710`, `.github/workflows/ci.yml`, `.github/workflows/auto-pr.yml`, `docs/repo-workflow.md`, `cloud.md`, `tests/test_repo_workflow_ci.py`, and `social_media_optimiser/wiki/ops/active-codex-context.md`
+- architecture implication: CI and Auto PR now opt into the Node 24 JavaScript action runtime with `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`, reducing the risk that GitHub's June 2026 JavaScript action runtime switch breaks the PR-first workflow after this branch is merged.
+- proof implication: Auto PR's temporary no-secret operator input file now uses the same `-or-url` external-publication placeholder shape as the committed example env. The placeholders still keep external publication blocked until operator-owned LinkedIn and durable publication artifacts are supplied.

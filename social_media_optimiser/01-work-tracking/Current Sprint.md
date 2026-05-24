@@ -1381,3 +1381,10 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 - Auto PR: the Auto PR workflow waited for that CI success, generated the no-secret provider proof PR body, then hit GitHub repository-settings permission `403` on draft PR create/update. The workflow emitted `Auto PR skipped` and stayed green by design.
 - PR state: read-only GitHub REST lookup returned no PR for `DeconvFFT:feature/livekit-voice-proof-capture`; use the manual `provider-proof-pr-handoff` command with fresh `--ci-url` and `--head-sha` when opening the PR, or enable the Actions PR-create setting documented in `cloud.md`.
 - Boundary: this confirms the CI/CD handoff state only. It does not create LinkedIn publication evidence, enable branch protection, enable auto-merge, or mark the objective complete.
+
+## 2026-05-24 CI/CD Node Runtime Hardening
+
+- Done: checked the latest Auto PR run annotations after green branch CI. GitHub reported both the expected repository-settings `403` Auto PR skip and a Node 20 JavaScript action runtime deprecation warning ahead of GitHub's June 2026 Node 24 default switch.
+- Done: `.github/workflows/ci.yml` and `.github/workflows/auto-pr.yml` now set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` at workflow scope. Auto PR's temporary no-secret publication placeholders now match the committed `docs/external-publication-operator-inputs.example.env` `-or-url` shape.
+- Verified: failing-first workflow/doc tests caught the missing Node 24 opt-in, old placeholder shapes, and missing cloud/repo docs; after the fix, the focused checks passed with `4 passed`.
+- Boundary: this hardens CI/CD compatibility only. It does not create the GitHub PR, enable repository permissions, supply LinkedIn publication evidence, or mark the objective complete.

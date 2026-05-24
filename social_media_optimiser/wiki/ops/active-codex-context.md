@@ -1328,3 +1328,9 @@ At the end of a meaningful slice:
 - Manual PR body update: generated `provider-proof-pr-handoff` now includes the repository settings checklist from `cloud.md` so manual PR creators can see Actions read/write permission, PR-creation permission, `main` protection/ruleset, required checks, CODEOWNERS review, and auto-merge setup without consulting a second file.
 - Guardrail: committed handoff notes now avoid treating exact branch-head SHA or GitHub Actions run IDs as current evidence. Regenerate the PR handoff with fresh `--ci-url` and `--head-sha` at PR creation or update time.
 - Review-watch cleanup: stale notes that said live voice still needed successful proof, only Gemma audio reasoning remained blocked, or live voice latest-failed state was current are marked superseded or rewritten. Current proof status accepts OpenRouter/LiveKit/Kokoro live voice and keeps only external publication blocked.
+
+## CI/CD Node Runtime Hardening - 2026-05-24
+
+- Source: GitHub Actions check-run annotations for Auto PR run `26375041710`, `.github/workflows/ci.yml`, `.github/workflows/auto-pr.yml`, `docs/repo-workflow.md`, `cloud.md`, and `tests/test_repo_workflow_ci.py`.
+- Update: both CI workflows now set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` at workflow scope to opt into the Node 24 JavaScript action runtime before GitHub's June 2026 default switch. Auto PR's temporary external-publication placeholders now match the committed no-secret example form with `-or-url` suffixes.
+- Boundary: this hardens CI/CD compatibility only. It does not create the GitHub PR, change repository Actions permissions, reopen the accepted OpenRouter/LiveKit/Kokoro live-voice proof, or clear the external-publication proof gate.
