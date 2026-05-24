@@ -252,6 +252,7 @@ def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
 def test_manual_pr_handoff_notes_include_current_ci_evidence_inputs() -> None:
     handoff_paths = [
         ROOT / "docs/repo-workflow.md",
+        ROOT / "agent_progress_vault/06-live-voice/openrouter-livekit-current-unblock-guide.md",
         ROOT / "social_media_optimiser/wiki/ops/active-codex-context.md",
         ROOT
         / "system_design_vault/07-agent-studio-knowledge-graph/Agent Studio Sidecar Pickup 2026-05-24.md",
@@ -389,6 +390,30 @@ def test_current_handoff_notes_avoid_exact_latest_ci_run_ids() -> None:
                 f"{path.relative_to(ROOT)}:{line_number} must not bake an exact "
                 "CI run id into a durable latest-branch-head claim"
             )
+
+
+def test_manual_pr_handoff_notes_do_not_pin_exact_current_head_evidence() -> None:
+    handoff_paths = [
+        ROOT / "agent_progress_vault/06-live-voice/openrouter-livekit-current-unblock-guide.md",
+        ROOT / "social_media_optimiser/wiki/ops/active-codex-context.md",
+        ROOT
+        / "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md",
+    ]
+    stale_pinned_current_evidence = [
+        re.compile(r"Branch head: `[0-9a-f]{40}`"),
+        re.compile(r"Green CI run: <https://github\.com/[^>]+/actions/runs/\d+>"),
+        re.compile(r"source: .*GitHub Actions run `\d+`, branch head `[0-9a-f]{40}`"),
+        re.compile(r"Source: .*GitHub Actions run `\d+`, and pushed branch head `[0-9a-f]{40}`"),
+    ]
+
+    for path in handoff_paths:
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            for stale_pattern in stale_pinned_current_evidence:
+                assert not stale_pattern.search(line), (
+                    f"{path.relative_to(ROOT)}:{line_number} must not commit exact "
+                    "current head/run evidence for a manual PR handoff; regenerate "
+                    "provider-proof-pr-handoff at PR creation time instead"
+                )
 
 
 def test_current_handoff_notes_do_not_reopen_accepted_live_voice_proof() -> None:

@@ -1254,7 +1254,7 @@ At the end of a meaningful slice:
 
 ## Manual PR Handoff Refresh - 2026-05-24
 
-- Source: `provider-proof-pr-handoff`, GitHub Actions run `26366027364`, and pushed branch head `d176f80133fd56c906b87fbadc87ae421cf10382`.
+- Source: `provider-proof-pr-handoff`, latest branch-head GitHub Actions live check, and pushed feature branch.
 - Handoff: automated PR creation still returns GitHub permission `403 Resource not accessible by integration`; the current manual compare URL is `https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1`.
 - Current generated PR body preserves OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro as the active realtime path, `provider-backed-live-voice-proof` as accepted, and `external-publication-proof` as blocked by the four LinkedIn/publication operator inputs.
-- Merge boundary: CI is green for the pushed branch head, but auto-merge cannot be enabled from this session until a PR exists and GitHub integration permissions allow PR mutation.
+- Merge boundary: exact branch-head SHA and CI URL must be regenerated with `provider-proof-pr-handoff --ci-url <latest-branch-head-ci-url> --head-sha <current-branch-head-sha>` when the manual PR is created. Do not rely on committed vault text for those exact values; documentation-only follow-up commits can make pinned values stale. Auto-merge cannot be enabled from this session until a PR exists and GitHub integration permissions allow PR mutation.

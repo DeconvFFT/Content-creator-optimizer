@@ -26,8 +26,10 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 
 ## Current Manual PR Handoff
 
-- Branch head: `d176f80133fd56c906b87fbadc87ae421cf10382`
-- Green CI run: <https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/26366027364>
+- Latest live check: the pushed feature branch had green GitHub Actions CI for the branch head at check time.
+- Regenerate exact PR evidence at manual PR creation time; do not treat this vault note as the source of truth for branch head or CI run because follow-up documentation commits can make pinned values stale.
+- Manual PR body command:
+  `uv run all-about-llms-admin provider-proof-pr-handoff --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --ci-url <latest-branch-head-ci-url> --head-sha <current-branch-head-sha>`
 - Manual PR compare: <https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1>
 - Automated PR creation remains blocked by GitHub integration permission `403 Resource not accessible by integration`; use the generated `provider-proof-pr-handoff` body in a manual PR until repository app permissions are upgraded.
 - Auto-merge cannot be enabled by this session until a PR exists and repository settings permit the integration to mutate it.
