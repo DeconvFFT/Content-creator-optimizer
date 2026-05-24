@@ -62,7 +62,7 @@ Parent session: `dc541605-3c57-402f-bbbd-538d6748fe61`.
 - **No git commits** on `main`
 - **No production auth** deployment model
 
-Current superseding note (2026-05-24): this audit is historical. The repo now has `.github/workflows/ci.yml`, `scripts/ci-python-stable-tests.sh`, ship-gate/local-bootstrap/provider-proof/CI skills, a Ruff baseline, tracked `uv.lock`, and ignored local command logs. Provider-backed live voice is accepted on the OpenRouter + LiveKit + Kokoro path. Remaining ship-readiness proof is external publication, closure review, remote CI/branch-protection proof, Playwright install proof, and production auth/deployment hardening.
+Current superseding note (2026-05-24): this audit is historical. The repo now has `.github/workflows/ci.yml`, `scripts/ci-python-stable-tests.sh`, ship-gate/local-bootstrap/provider-proof/CI skills, a Ruff baseline, tracked `uv.lock`, and ignored local command logs. Provider-backed live voice is accepted on the OpenRouter + LiveKit + Kokoro path. Latest branch-head CI run `26360881281` passed on `7c4955b`, including Playwright install. Remaining ship-readiness proof is external publication, closure review, branch-protection/auto-merge setup, PR/merge/release follow-through, and production auth/deployment hardening.
 
 ## c75e2d04 execution agent — intended vs actual
 
@@ -118,4 +118,4 @@ Current superseding update: live dialogue is no longer blocked on Gemma/HF/Gamma
 
 1. `uv run playwright install && uv run pytest -q` — target 798+ pass
 2. Configure proof credentials; run capture chain for UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
-3. Re-run or complete `c75e2d04` scope: CI scaffold, four skills, ruff baseline (still pending)
+3. Historical only: `c75e2d04` scope is superseded by committed CI scaffold, four ship skills, ruff baseline, tracked `uv.lock`, and passing branch-head CI. Do not reopen this Cursor stall unless new evidence appears.

@@ -22,7 +22,7 @@ Transcript root:
 | `74997cfb` | `...ef41cd56f778` | generalPurpose | Synthesis v1 | **Stalled** | 2 | Reading agent transcripts | — |
 | `59e319d8` | `...12eb65c86c4c` | generalPurpose | Final synthesis | **Completed** | 10 | Writing ship-readiness report | Full report: pytest 766/808, security grep, TestClient smoke, GO/NO-GO |
 | `5cfe3007` | `...bca690db34f6` | generalPurpose | Status board | **Completed** | — | Delivering monitoring artifacts | See monitoring deliverables below |
-| `c75e2d04` | `...edf7b97e61cf` | generalPurpose | Ship-readiness execution | **Stalled / superseded** | 2 | Running tests and verification | Historical stall; current repo now has CI scaffold, ship skills, ruff baseline, `uv.lock` tracked, and local command logs ignored. Remaining follow-up is remote CI/branch-protection and Playwright install proof. |
+| `c75e2d04` | `...edf7b97e61cf` | generalPurpose | Ship-readiness execution | **Stalled / superseded** | 2 | Running tests and verification | Historical stall; Codex superseded the scope. Current repo has CI scaffold, ship skills, ruff baseline, `uv.lock` tracked, local command logs ignored, and latest branch-head CI run `26360881281` passed on `7c4955b`, including Playwright install. Remaining follow-up is PR/merge plus branch-protection/auto-merge setup. |
 | `c74873d8` | `...a8196708456f` | explore | Vault audit | **Completed** | 10 | Compiling audit deliverable | Cross-vault audit report (read-only; vault write deferred) |
 | `66c8abf4` | (parent subagent) | — | Write agent progress vault | **Active/this task** | — | Creating vault files | `agent_progress_vault/` |
 
@@ -63,7 +63,7 @@ cd "/Users/saumyamehta/Gen AI/all-about-llms"
 
 ## c75e2d04 follow-up status
 
-The original Cursor execution stalled before writing artifacts, but later Codex work superseded most of the missing-file list:
+The original Cursor execution stalled before writing artifacts, but later Codex work superseded the missing-file list:
 
 1. Done locally: `.github/workflows/ci.yml`
 2. Done locally: `skills/agent-studio-local-bootstrap/SKILL.md`
@@ -71,7 +71,9 @@ The original Cursor execution stalled before writing artifacts, but later Codex 
 4. Done locally: `skills/agent-studio-provider-proof-capture/SKILL.md`
 5. Done locally: `skills/agent-studio-ci-scaffold/SKILL.md`
 6. Done locally: Ruff baseline in `pyproject.toml`
-7. Still pending: remote CI/branch-protection proof and post-`playwright install` report
+7. Done remotely: latest branch-head CI run `26360881281` passed on `7c4955b`, including the Python backend `uv run playwright install --with-deps chromium` step.
+
+Still pending: PR/merge, GitHub branch-protection configuration, auto-merge setup, and tagged release.
 
 ## Limitations
 
