@@ -10724,7 +10724,7 @@ def _provider_proof_latest_audit_record_status(
 ) -> str | None:
     block_pattern = re.compile(
         rf"^## Provider Proof Record - {re.escape(proof_name)} - "
-        rf"{re.escape(run_id)}\n(?P<body>.*?)(?=^## Provider Proof Record - |\Z)",
+        rf"{re.escape(run_id)}\n(?P<body>.*?)(?=^## |\Z)",
         re.MULTILINE | re.DOTALL,
     )
     latest_status: str | None = None

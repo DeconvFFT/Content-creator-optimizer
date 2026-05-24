@@ -1190,3 +1190,11 @@ At the end of a meaningful slice:
 - Latest verification after LinkedIn-only proof validation: full Python `789 passed, 49 skipped`; stable Python CI `228 passed, 30 skipped`; ruff passed; `git diff --check` passed; frontend lint/typecheck/race tests/build passed; Rust fmt and locked tests passed for `services/retrieval-ranker` and `services/voice-edge`.
 - Local generated viewer/proof artifacts remain ignored by `.gitignore`; this is intentional to avoid pushing large generated state. Browser/render parity for those static files is covered by local Playwright pytest, not by committing image/PDF artifacts.
 - Remaining critical blocker: external publication proof still needs LinkedIn credential-file evidence, policy acknowledgement artifact, durable LinkedIn destination URL/platform id, rollback/postcondition artifact, completion-status recheck, and closure review before any goal-complete claim.
+
+## Provider Proof Status Parser Boundary Fix - 2026-05-24
+
+- Source: `src/all_about_llms/cli.py`, `tests/test_provider_proof_plan_cli.py`, `provider-proof-completion-status` for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`.
+- Fix: completion-status parsing now stops a `## Provider Proof Record ...` block at the next top-level Markdown `##` section, not only at the next provider-proof record. This prevents ordinary Obsidian handoff sections from being parsed as proof-record fields.
+- Current status after rerun: accepted proofs are `provider-backed-live-voice-proof`; invalid accepted audit-note proofs are empty; latest failed proof remains `external-publication-proof`.
+- Verification: provider-proof CLI suite passed with `201 passed, 30 skipped`; static proof/system-design browser render tests passed with `6 passed`; stable Python CI slice passed with `230 passed, 30 skipped`.
+- Boundary: this is a parser/status correction only. It does not create publication evidence or change the external publication blocker.

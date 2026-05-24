@@ -13161,6 +13161,58 @@ def test_provider_proof_completion_status_uses_latest_valid_record_per_target(
     ] == [str(audit_target)]
 
 
+def test_provider_proof_completion_status_stops_record_at_next_markdown_section(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("")
+    audit_target = tmp_path / "objective-audit.md"
+
+    _record_provider_proof_record_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            proof="provider-backed-live-voice-proof",
+            audit_target=[audit_target],
+        ),
+        _accepted_provider_proof_record(env_example, "provider-backed-live-voice-proof"),
+    )
+    audit_target.write_text(
+        audit_target.read_text(encoding="utf-8")
+        + "\n".join(
+            [
+                "## Frontend OpenRouter Copy Handoff",
+                "",
+                "- proof_outcome: accepted",
+                "- validation_status: valid_accepted_record",
+                "- source: live voice proof accepted in prior section",
+                "- source: repeated ordinary note field outside proof record",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    payload = provider_cli._provider_proof_completion_status_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            audit_target=[audit_target],
+        )
+    )
+
+    assert payload["status"] == "blocked_by_missing_accepted_proof"
+    assert payload["all_required_proofs_accepted"] is False
+    assert payload["accepted_proofs"] == ["provider-backed-live-voice-proof"]
+    assert payload["missing_accepted_proofs"] == ["external-publication-proof"]
+    assert payload["invalid_accepted_audit_note_proofs"] == []
+    assert payload["proofs"]["provider-backed-live-voice-proof"]["status"] == (
+        "accepted_record_found"
+    )
+
+
 def test_provider_proof_completion_status_prefers_validation_timestamp_over_file_order(
     tmp_path,
 ):

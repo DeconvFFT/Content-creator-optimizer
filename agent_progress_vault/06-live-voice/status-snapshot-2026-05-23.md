@@ -105,3 +105,11 @@ The pre-existing FastAPI process on `127.0.0.1:8000` is still listening, but `/h
 - `GEMMA4_MULTIMODAL_ENDPOINT_URL`
 
 See [[openrouter-livekit-live-dialogue]] for the current runbook.
+
+## Completion-status parser correction (verified 2026-05-24 UTC)
+
+Codex found and fixed a status-only parser drift: a valid accepted `provider-backed-live-voice-proof` note could be marked invalid when ordinary Obsidian `##` sections followed the proof record. The parser now stops proof-record parsing at the next top-level Markdown section.
+
+Fresh completion status for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` reports `provider-backed-live-voice-proof` accepted, no invalid accepted audit-note proofs, and `external-publication-proof` as the only latest failed proof. This does not change the remaining operator-owned LinkedIn publication blocker.
+
+Verification passed: provider-proof CLI suite `201 passed, 30 skipped`; static proof/system-design browser render tests `6 passed`; stable Python CI slice `230 passed, 30 skipped`.
