@@ -11901,8 +11901,27 @@ def _provider_proof_pr_handoff_operator_input_path(args: argparse.Namespace) -> 
     )
 
 
+def _provider_proof_pr_handoff_input_path_text(path: Path) -> str:
+    try:
+        path.resolve().relative_to(PROJECT_ROOT.resolve())
+    except (OSError, RuntimeError, ValueError):
+        return "<filled-ignored-operator-input-file>"
+    return _provider_proof_portable_path_text(path)
+
+
+def _provider_proof_pr_handoff_output_dir_text(path: Path) -> str:
+    try:
+        path.resolve().relative_to(PROJECT_ROOT.resolve())
+    except (OSError, RuntimeError, ValueError):
+        return "<provider-proof-output-dir>"
+    return _provider_proof_portable_path_text(path)
+
+
 def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
     operator_input_path = _provider_proof_pr_handoff_operator_input_path(args)
+    operator_input_path_text = _provider_proof_pr_handoff_input_path_text(
+        operator_input_path,
+    )
     completion_args = argparse.Namespace(
         env_example_path=args.env_example_path,
         checked_at=args.checked_at,
@@ -11953,7 +11972,7 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
     if args.output_dir is not None:
         completion_status_command = (
             f"{completion_status_command} --output-dir "
-            f"{_provider_proof_portable_path_text(args.output_dir)}"
+            f"{_provider_proof_pr_handoff_output_dir_text(Path(args.output_dir))}"
         )
 
     return [
@@ -11984,7 +12003,7 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
         "",
         "## Operator Input Gate",
         f"- readiness_status: `{readiness.get('status', 'unknown')}`",
-        f"- input_path: `{_provider_proof_portable_path_text(operator_input_path)}`",
+        f"- input_path: `{operator_input_path_text}`",
         (
             "- operator_input_example: "
             f"`{_provider_proof_portable_path_text(PROVIDER_PROOF_OPERATOR_INPUT_EXAMPLE_PATH)}`"
@@ -11997,7 +12016,7 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
         (
             "- `uv run all-about-llms-admin provider-proof-operator-input-readiness "
             f"--run-id {args.run_id} --input-path "
-            f"{_provider_proof_portable_path_text(operator_input_path)} "
+            f"{operator_input_path_text} "
             "--fail-on-blocked`"
         ),
         "- CI must be green on the latest branch head before merge.",

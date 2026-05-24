@@ -797,6 +797,9 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
     for term in required_terms:
         assert term in handoff
 
+    assert str(operator_input_path) not in handoff
+    assert "<filled-ignored-operator-input-file>" in handoff
+
     forbidden_terms = [
         "OPENROUTER_API_KEY=",
         "LIVEKIT_API_SECRET=",
@@ -944,11 +947,11 @@ def test_provider_proof_pr_handoff_cli_uses_custom_output_dir_workspace(
 
     assert result.returncode == 0, result.stderr
     handoff = result.stdout
-    expected_operator_input = custom_workspace / "operator-inputs.template.env"
 
-    assert f"- input_path: `{expected_operator_input}`" in handoff
-    assert f"--output-dir {custom_workspace}" in handoff
-    assert f"--input-path {expected_operator_input}" in handoff
+    assert str(custom_workspace) not in handoff
+    assert "- input_path: `<filled-ignored-operator-input-file>`" in handoff
+    assert "--output-dir <provider-proof-output-dir>" in handoff
+    assert "--input-path <filled-ignored-operator-input-file>" in handoff
 
 
 def test_provider_proof_pr_create_cli_dry_run_outputs_no_secret_request(

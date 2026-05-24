@@ -33,6 +33,7 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 - Manual PR body command:
   `uv run all-about-llms-admin provider-proof-pr-handoff --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --ci-url <latest-branch-head-ci-url> --head-sha <current-branch-head-sha>`
 - Manual PR handoff output includes `operator_input_example: docs/external-publication-operator-inputs.example.env`; use that committed no-secret file as the key list before filling the ignored UUID operator input file locally.
+- PR handoff output now redacts operator-input and provider-proof output paths outside the checkout to portable placeholders such as `<filled-ignored-operator-input-file>` and `<provider-proof-output-dir>`, so CI runner temp paths and local absolute paths do not enter PR descriptions.
 - Manual PR compare: <https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1>
 - Automated PR creation through the GitHub connector remains blocked by integration permission `403 Resource not accessible by integration`; `provider-proof-pr-create` can create the PR only when a local `GITHUB_TOKEN` or `GH_TOKEN` is available, otherwise use the generated `provider-proof-pr-handoff` body in a manual PR until repository app permissions are upgraded.
 - Auto-merge cannot be enabled by this session until a PR exists and repository settings permit the integration to mutate it.
