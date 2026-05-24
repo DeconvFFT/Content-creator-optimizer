@@ -1,0 +1,25 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.generative_deep_learning.chapter_12_world_models",
+  "parent_source_id": "local_books.generative_deep_learning",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Generative-Deep-Learning.pdf",
+  "chapter": {
+    "number": 12,
+    "title": "World Models",
+    "focus_slice": "latent-state compression, MDN-RNN transition uncertainty, compact controller optimization, dream training, and simulation-transfer release gates"
+  },
+  "extraction": {
+    "method": "pdftotext_plus_targeted_crosscheck",
+    "physical_pages": "331-356",
+    "line_span": "13496-14336"
+  },
+  "temp_extract": "/tmp/gdl_ch12_world_models_excerpt.txt",
+  "note_path": "system_design_vault/02-books/generative-deep-learning/chapters/ch12-world-models-latent-simulation-release-gates.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/gdl-ch12-world-models-cross-check.md",
+  "asset_path": "system_design_vault/02-books/generative-deep-learning/assets/ch12-world-models-dream-training-loop.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused Chapter 12 direct-read world-model slice and corroborating cross-check only. No raw chapter text or long excerpts are stored in the vault."
+}

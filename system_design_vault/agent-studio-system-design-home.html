@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Studio System Design Vault</title>
+  <style>
+    :root {
+      --ink: #111827;
+      --muted: #5d6b7a;
+      --line: #d6dee8;
+      --paper: #f6f8fb;
+      --panel: #ffffff;
+      --blue: #2f66d0;
+      --teal: #11746d;
+      --rose: #b8405f;
+      --amber: #9d650f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    header,
+    main {
+      padding: 28px clamp(18px, 4vw, 54px);
+    }
+
+    header {
+      display: grid;
+      gap: 12px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 960px;
+    }
+
+    main {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      display: grid;
+      gap: 10px;
+      min-height: 168px;
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--blue);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 16px;
+    }
+
+    .card:nth-child(2) { border-top-color: var(--teal); }
+    .card:nth-child(3) { border-top-color: var(--amber); }
+    .card:nth-child(4) { border-top-color: var(--rose); }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      width: fit-content;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: #34414e;
+      background: #f9fbfd;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    a {
+      color: var(--blue);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="pill">Planning memory only</span>
+    <h1>Agent Studio System Design Vault</h1>
+    <p>This is the browser-openable index for the system-design vault. It points to architecture evidence and source notes for Agent Studio; the project vault remains the sprint and work-tracking source of truth, and product UI stays separate.</p>
+    <div class="pill-row">
+      <span class="pill">Gemma 4 / HF boundary</span>
+      <span class="pill">Realtime voice blockers</span>
+      <span class="pill">A2A-style design</span>
+      <span class="pill">Source governance</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Current Objective Audit</h2>
+      <p>Requirement-level mirror for current proof, gaps, and blockers. The provider-backed live voice path is OpenRouter + LiveKit + Kokoro and remains blocked only until accepted proof-record capture/recheck exists.</p>
+      <a href="04-agent-studio-implications/agent-studio-objective-completion-audit.md">Objective Completion Audit Mirror</a>
+    </section>
+
+    <section class="grid" aria-label="System design source links">
+      <article class="card">
+        <h2>Production Canon</h2>
+        <p>Durable system-design rules for agents, data contracts, release gates, reliability, source boundaries, and generated-viewer constraints.</p>
+        <a href="03-patterns/system-design/production-agent-studio-canon.md">Production Agent Studio Canon</a>
+      </article>
+      <article class="card">
+        <h2>Gemma and Realtime</h2>
+        <p>Source-backed boundary for Gemma 4, Hugging Face routing, realtime speech, LiveKit, and audio-provider proof expectations.</p>
+        <a href="01-sources/official-open/gemma4-and-realtime-sources.md">Gemma and Realtime Sources</a>
+      </article>
+      <article class="card">
+        <h2>Publishing Governance</h2>
+        <p>External publication proof remains blocked until destination credentials and channel-specific policy review are available.</p>
+        <a href="01-sources/official-open/social-publishing-api-governance.md">Social Publishing Governance</a>
+      </article>
+      <article class="card">
+        <h2>Proof Readiness</h2>
+        <p>Project-vault blocker surface for the live voice and external publication evidence still required before objective completion. Reviewers should use it with the boundary maps because all three now preserve credential snapshot exports with <code>secret_values_printed=false</code>, <code>proof_plan</code> proof-plan packets, and <code>proof_plan.operator_proof_packet</code> compact provider-proof-plan packet exports.</p>
+        <a href="../social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html">Project Proof Readiness Surface</a>
+      </article>
+      <article class="card">
+        <h2>Planning State</h2>
+        <p>Project-vault work tracker for sprint status, next bounded slices, blocked proof gates, and review-watch handoff. The planning board stays out of product UI.</p>
+        <a href="../social_media_optimiser/01-work-tracking/agent-studio-work-tracker.html">Project Work Tracker</a>
+      </article>
+      <article class="card">
+        <h2>A2A Map</h2>
+        <p>Project-vault A2A discovery and collaboration surface for Agent Card, HTTP+JSON task routes, public read projection, dependency repair, and collaboration graph boundaries including <code>projection=public</code>.</p>
+        <a href="../social_media_optimiser/00-system-design/agent-studio-a2a-map.html">Project A2A Map</a>
+      </article>
+      <article class="card">
+        <h2>Skill Matrix</h2>
+        <p>Project-vault skill and agent-ownership surface for the nine project skills, including <code>agent-studio-guardrails-review</code>, source-grounding, retrieval, media, frontend, and inference reliability ownership.</p>
+        <a href="../social_media_optimiser/00-system-design/agent-studio-skill-matrix.html">Project Skill Matrix</a>
+      </article>
+      <article class="card">
+        <h2>Design Review Surfaces</h2>
+        <p>Project-vault HLD/LLD review surface with comment export routing, plus the generated viewer for the current system-design projection. Generated outputs remain inspection companions, not source truth.</p>
+        <a href="../social_media_optimiser/00-system-design/agent-studio-hld-lld.html">Project HLD/LLD Review Surface</a>
+        <a href="../social_media_optimiser/output/viewers/agent-studio-system-design-viewer.html">Project System Design Viewer</a>
+      </article>
+      <article class="card">
+        <h2>Current Proof Packets</h2>
+        <p>Project-vault generated current-state packets for review: <code>current-proof-status.md</code>, <code>current-blocker-matrix.json</code>, and <code>operator-unblocker-checklist.md</code>.</p>
+        <a href="../social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md">Open Current Proof Status</a>
+        <a href="../social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json">Open Current Blocker Matrix</a>
+        <a href="../social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md">Open Operator Unblocker Checklist</a>
+      </article>
+      <article class="card">
+        <h2>OpenRouter LiveKit Voice Boundary Map</h2>
+        <p>Project-vault map for the active OpenRouter DeepSeek live-dialogue path, LiveKit transport, Kokoro output, Rust edge evidence, legacy native-audio background, and provider-backed voice proof with credential snapshot exports and proof-plan packets including <code>proof_plan.operator_proof_packet</code>.</p>
+        <a href="../social_media_optimiser/02-research/gemma-voice-boundary-map.html">Project OpenRouter LiveKit Voice Boundary Map</a>
+      </article>
+      <article class="card">
+        <h2>Publication Boundary Map</h2>
+        <p>Project-vault map for non-live publish smoke, destination credential scope, exact policy review, external proof, rollback readiness, and blocked publication proof with credential snapshot exports and proof-plan packets including <code>proof_plan.operator_proof_packet</code> and viewer <code>proof_plan_operator_packet</code> routing.</p>
+        <a href="../social_media_optimiser/03-review-packets/agent-studio-publication-boundary-map.html">Project Publication Boundary Map</a>
+      </article>
+      <article class="card">
+        <h2>Feedback Loop Map</h2>
+        <p>Project-vault map for guardrails, publish gates, source quality, revision closure, planning feedback, and <code>leibniz-review-watch-escalation</code>; material review findings surface with severity, files, and next action.</p>
+        <a href="../social_media_optimiser/03-review-packets/agent-studio-feedback-loop-map.html">Project Feedback Loop Map</a>
+      </article>
+      <article class="card">
+        <h2>Source Map</h2>
+        <p>Top-level map for book, lecture, official-doc, and pattern notes used by the architecture memory layer, plus the generated source-map viewer for browser inspection.</p>
+        <a href="00-index/source-map.md">System Design Source Map</a>
+        <a href="output/viewers/system-design-source-map.html">System Design Source Map Viewer</a>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

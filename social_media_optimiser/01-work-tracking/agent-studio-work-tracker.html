@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Studio Work Tracker</title>
+  <style>
+    :root {
+      --ink: #101418;
+      --muted: #607080;
+      --line: #d9e1e8;
+      --panel: #ffffff;
+      --paper: #f5f7fa;
+      --blue: #2f66d0;
+      --teal: #137c72;
+      --rose: #bd3f63;
+      --amber: #a76000;
+      --green: #2f7843;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header,
+    main {
+      padding: 26px clamp(16px, 4vw, 54px);
+    }
+
+    header {
+      display: grid;
+      gap: 12px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 9px 12px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: var(--blue);
+      background: #edf4ff;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      resize: vertical;
+    }
+
+    main {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .panel,
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .item {
+      min-height: 160px;
+      border-left: 4px solid var(--blue);
+    }
+
+    .item[data-status="done"] { border-left-color: var(--green); }
+    .item[data-status="in_progress"] { border-left-color: var(--teal); }
+    .item[data-status="blocked"] { border-left-color: var(--rose); }
+    .item[data-status="not_started"] { border-left-color: var(--amber); }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      width: fit-content;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: #34414e;
+      background: #f9fbfd;
+      font-size: 0.78rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .export {
+      min-height: 160px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="pill">Obsidian vault tracker</span>
+    <h1>Agent Studio Work Tracker</h1>
+    <p>This page tracks design and implementation work for the multi-agent content studio. It is for our planning loop, not the product app. Click an item status to advance it and export the tracker packet when you want the agents to act on it.</p>
+    <div class="pill-row">
+      <span class="pill">Product boundary stays clean</span>
+      <span class="pill">No SQLite</span>
+      <span class="pill">No project-management UI in product app</span>
+      <span class="pill">HLD and LLD live in Obsidian HTML</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Operating Rule</h2>
+      <p>All planning, tracking, research synthesis, HLD, LLD, review packets, and user-facing architecture communication should be created inside this Obsidian vault as interactive HTML artifacts. Product code remains separate.</p>
+    </section>
+
+    <section>
+      <h2>Implementation Slices</h2>
+      <div class="grid" id="items"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Running Notes</h2>
+      <p>Use this as the local planning log while we work. It saves to browser localStorage for this artifact.</p>
+      <textarea id="notes"></textarea>
+      <div class="actions">
+        <button id="save-notes">Save notes</button>
+        <button id="export">Export tracker packet</button>
+        <button id="reset">Reset local status</button>
+      </div>
+      <textarea class="export" id="export-box" readonly></textarea>
+    </section>
+  </main>
+
+  <script id="tracker-data" type="application/json">
+  {
+    "items": [
+      {"id": "vault-hld-lld", "title": "Obsidian HLD and LLD", "owner": "Interactive Note-Taking Agent", "status": "done", "next": "Use comment packet to revise architecture."},
+      {"id": "cockpit-usable", "title": "Functional Content Studio Cockpit", "owner": "Lead UI/UX Designer + Principal Software Engineer", "status": "in_progress", "next": "Finish browser-smoked visible workflow and run app verification."},
+      {"id": "retrieval-intelligence", "title": "Retrieval Intelligence Layer", "owner": "Retrieval Intelligence Agent", "status": "in_progress", "next": "Wire retrieval quality ledger into autonomous pass and context packets."},
+      {"id": "knowledge-graph", "title": "Knowledge Graph Creation and Traversal", "owner": "Knowledge Graph Curator Agent", "status": "in_progress", "next": "Persist actual graph node and edge rows from source, claim, and artifact evidence."},
+      {"id": "audio-dialogue", "title": "Realtime Back-and-Forth Audio", "owner": "Realtime Conversation Host + Audio Producer", "status": "in_progress", "next": "Provider-pluggable realtime sessions, interruption, and spoken reply QA."},
+      {"id": "gemma-experts", "title": "Gemma 4 Expert Workers", "owner": "Agent Harness Engineer", "status": "in_progress", "next": "Keep Gemma as reasoning/writing/multimodal expert layer, not voice transport."},
+      {"id": "source-ledger", "title": "Source Ledger and Claim Verification", "owner": "Source Ledger Agent + Claim Verification Agent", "status": "in_progress", "next": "Require major claims to map to SourceRecord or unsupported label."},
+      {"id": "obsidian-loop", "title": "Obsidian Review Loop", "owner": "Forward Deployed Engineer", "status": "done", "next": "Route user comments from HTML exports into planning feedback items."}
+    ]
+  }
+  </script>
+
+  <script>
+    const base = JSON.parse(document.getElementById("tracker-data").textContent).items;
+    const statusOrder = ["not_started", "in_progress", "blocked", "done"];
+    const statusKey = "agent-studio-tracker-status-v1";
+    const noteKey = "agent-studio-tracker-notes-v1";
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function loadStatuses() {
+      return JSON.parse(localStorage.getItem(statusKey) || "{}");
+    }
+
+    function saveStatuses(statuses) {
+      localStorage.setItem(statusKey, JSON.stringify(statuses));
+    }
+
+    function items() {
+      const statuses = loadStatuses();
+      return base.map((item) => ({ ...item, status: statuses[item.id] || item.status }));
+    }
+
+    function render() {
+      const target = document.getElementById("items");
+      target.replaceChildren();
+      items().forEach((item) => {
+        const card = document.createElement("article");
+        card.className = "item";
+        card.dataset.status = item.status;
+        card.innerHTML = `
+          <div class="pill-row">
+            <span class="pill">${escapeHtml(item.status)}</span>
+            <span class="pill">${escapeHtml(item.owner)}</span>
+          </div>
+          <h3>${escapeHtml(item.title)}</h3>
+          <p>${escapeHtml(item.next)}</p>
+          <button data-id="${escapeHtml(item.id)}">Advance status</button>
+        `;
+        card.querySelector("button").addEventListener("click", () => {
+          const statuses = loadStatuses();
+          const current = statuses[item.id] || item.status;
+          const next = statusOrder[(statusOrder.indexOf(current) + 1) % statusOrder.length];
+          statuses[item.id] = next;
+          saveStatuses(statuses);
+          render();
+          exportPacket();
+        });
+        target.appendChild(card);
+      });
+    }
+
+    function exportPacket() {
+      const packet = {
+        artifact: "agent-studio-work-tracker",
+        generated_at: new Date().toISOString(),
+        items: items(),
+        notes: document.getElementById("notes").value,
+        requested_action: "Use this tracker as the active planning state for the next implementation slice."
+      };
+      document.getElementById("export-box").value = JSON.stringify(packet, null, 2);
+    }
+
+    document.getElementById("notes").value = localStorage.getItem(noteKey) || "Started Obsidian-first planning loop. HLD/LLD and retrieval research are now vault artifacts.";
+    document.getElementById("save-notes").addEventListener("click", () => {
+      localStorage.setItem(noteKey, document.getElementById("notes").value);
+      exportPacket();
+    });
+    document.getElementById("export").addEventListener("click", exportPacket);
+    document.getElementById("reset").addEventListener("click", () => {
+      localStorage.removeItem(statusKey);
+      render();
+      exportPacket();
+    });
+
+    render();
+    exportPacket();
+  </script>
+</body>
+</html>

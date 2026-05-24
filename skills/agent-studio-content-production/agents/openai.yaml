@@ -1,0 +1,4 @@
+interface:
+  display_name: "Content Production"
+  short_description: "Produce ELI5 short-form and detailed Substack content packs."
+  default_prompt: "Use this skill to turn a grounded brief into platform-ready content drafts."

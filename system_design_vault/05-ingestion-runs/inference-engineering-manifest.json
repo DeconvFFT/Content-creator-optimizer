@@ -1,0 +1,75 @@
+{
+  "title": "Inference Engineering",
+  "authors": "Philip Kiely",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Inference Engineering.pdf",
+  "rights_status": "user_provided_local",
+  "extraction_method": "pdftotext",
+  "chapter_count": 8,
+  "created_at": "2026-05-17T19:48:16.247149+00:00",
+  "chapters": [
+    {
+      "number": "0",
+      "title": "Inference",
+      "start_line": 382,
+      "end_line": 585,
+      "status": "canon_ready",
+      "note": "02-books/inference-engineering/chapters/0-inference.md"
+    },
+        {
+            "number": "1",
+            "title": "Prerequisites",
+            "start_line": 586,
+            "end_line": 1135,
+            "status": "canon_ready",
+            "note": "02-books/inference-engineering/chapters/1-prerequisites.md"
+    },
+    {
+      "number": "2",
+      "title": "Models",
+      "start_line": 1136,
+      "end_line": 2307,
+      "status": "canon_ready",
+      "note": "02-books/inference-engineering/chapters/2-models.md"
+    },
+    {
+      "number": "3",
+      "title": "Hardware",
+      "start_line": 2308,
+      "end_line": 3122,
+      "status": "canon_ready",
+      "note": "02-books/inference-engineering/chapters/3-hardware.md"
+    },
+    {
+      "number": "4",
+      "title": "Software",
+      "start_line": 3123,
+      "end_line": 4045,
+      "status": "canon_ready",
+      "note": "02-books/inference-engineering/chapters/4-software.md"
+    },
+        {
+            "number": "5",
+            "title": "Techniques",
+            "start_line": 4046,
+            "end_line": 5338,
+            "status": "canon_ready",
+            "note": "02-books/inference-engineering/chapters/5-techniques.md"
+    },
+    {
+      "number": "6",
+      "title": "Modalities",
+      "start_line": 5339,
+      "end_line": 6267,
+      "status": "canon_ready",
+      "note": "02-books/inference-engineering/chapters/6-modalities.md"
+    },
+        {
+            "number": "7",
+            "title": "Production",
+            "start_line": 6268,
+            "end_line": 7442,
+            "status": "canon_ready",
+            "note": "02-books/inference-engineering/chapters/7-production.md"
+        }
+  ]
+}

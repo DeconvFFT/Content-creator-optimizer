@@ -1,0 +1,23 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.hands_on_generative_ai_transformers_diffusion.chapter_10_video_generation_governance_multimodal_frontier",
+  "parent_source_id": "local_books.hands_on_generative_ai_transformers_diffusion",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Hands-On Generative AI with Transformers and Diffusion.pdf",
+  "chapter": {
+    "number": 10,
+    "title": "Rapidly Advancing Areas in Generative AI",
+    "focus_slice": "Video generation, multimodal frontier, governance-supporting data/deployment context, preference optimization, and MoE serving implications"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "physical_pages": "748-785",
+    "focus_pages": "776-784",
+    "governance_supporting_pages": "766-769"
+  },
+  "note_path": "system_design_vault/02-books/hands-on-generative-ai/chapters/10-video-generation-governance-multimodal-frontier.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read slice and note target only. No raw chapter text or long excerpts stored. Governance synthesis is derived from the chapter's video, multimodality, and data/deployment sections rather than a standalone governance subsection."
+}

@@ -1,0 +1,28 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.deep_learning_goodfellow_bengio_courville.chapter_8_optimization_for_training_deep_models",
+  "parent_source_id": "local_books.deep_learning_goodfellow_bengio_courville",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Deep Learning by Ian Goodfellow, Yoshua Bengio, Aaron Courville.pdf",
+  "chapter": {
+    "number": 8,
+    "title": "Optimization for Training Deep Models",
+    "focus_slice": "Proxy objectives, minibatch optimization, curvature/saddle/cliff behavior, momentum and adaptive optimizers, initialization, batch normalization, clipping, and staged optimization strategy"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "printed_pages": "274-329",
+    "line_span": {
+      "start_line": 12701,
+      "end_line": 15141
+    }
+  },
+  "temp_extract": "/tmp/deep_learning_ch8_optimization.txt",
+  "note_path": "system_design_vault/02-books/deep-learning-book/chapters/8-optimization-for-training-deep-models.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/deep-learning-ch8-optimization-cross-check.md",
+  "asset_path": "system_design_vault/02-books/deep-learning-book/assets/ch08-optimization-stability-release-gate.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read chapter slice and corroborating note targets only. No raw chapter text or long excerpts stored."
+}

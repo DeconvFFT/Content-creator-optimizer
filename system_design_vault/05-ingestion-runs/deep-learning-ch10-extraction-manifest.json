@@ -1,0 +1,28 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.deep_learning_goodfellow_bengio_courville.chapter_10_sequence_modeling_recurrent_and_recursive_nets",
+  "parent_source_id": "local_books.deep_learning_goodfellow_bengio_courville",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Deep Learning by Ian Goodfellow, Yoshua Bengio, Aaron Courville.pdf",
+  "chapter": {
+    "number": 10,
+    "title": "Sequence Modeling: Recurrent and Recursive Nets",
+    "focus_slice": "Printed pages 401-420, covering long-term dependency failure modes, echo state networks, multi-timescale strategies, LSTM/GRU-style gating, optimization for long dependencies, and explicit external memory"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "printed_pages": "401-420",
+    "line_span": {
+      "start_line": 30,
+      "end_line": 981
+    }
+  },
+  "temp_extract": "/tmp/deep_learning_ch10_7_12.txt",
+  "note_path": "system_design_vault/02-books/deep-learning-book/chapters/10-sequence-modeling-long-dependency-controls.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/deep-learning-ch10-sequence-modeling-cross-check.md",
+  "asset_path": "system_design_vault/02-books/deep-learning-book/assets/ch10-sequence-memory-release-gate.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read Chapter 10 slice and corroborating note targets only. No raw chapter text or long excerpts stored."
+}

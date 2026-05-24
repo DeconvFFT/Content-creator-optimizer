@@ -1,0 +1,21 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.hands_on_generative_ai_transformers_diffusion.chapter_8_controllable_image_editing_controlnet_ip_adapter_runtime_gates",
+  "parent_source_id": "local_books.hands_on_generative_ai_transformers_diffusion",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Hands-On Generative AI with Transformers and Diffusion.pdf",
+  "chapter": {
+    "number": 8,
+    "title": "Controllable image editing with ControlNet and IP-Adapter",
+    "focus_slice": "Gated edit-model setup, ControlNet conditioning, IP-Adapter image prompting, style-transfer scaling, and multi-control composition"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "physical_pages": "593-610"
+  },
+  "note_path": "system_design_vault/02-books/hands-on-generative-ai/chapters/8-controllable-image-editing-controlnet-ip-adapter-runtime-gates.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read slice and note target only. No raw chapter text or long excerpts stored."
+}

@@ -1,0 +1,23 @@
+{
+  "manifest_type": "local_book_chapter_extraction_manifest",
+  "project": "agent-studio-system-design",
+  "status": "active",
+  "updated": "2026-05-19",
+  "source_id": "local_books.ml_math.chapter_7_continuous_optimization",
+  "parent_source_id": "local_books.ml_math",
+  "source_title": "Mathematics for Machine Learning",
+  "chapter_number": "7",
+  "chapter_title": "Continuous Optimization",
+  "local_source_path": "/Users/saumyamehta/DS interview prep/books/ML Math.pdf",
+  "official_source": "https://mml-book.github.io/",
+  "extraction_method": "pdftotext -layout",
+  "temporary_extraction_cache": "/private/tmp/agent_studio_ingestion/ml_math.txt",
+  "line_span": {
+    "start_line": 12734,
+    "end_line": 14080
+  },
+  "note_path": "system_design_vault/02-books/math-for-ml/chapters/7-continuous-optimization-route-tuning.md",
+  "stores_raw_source_text": false,
+  "stores_long_excerpts": false,
+  "safe_notes_strategy": "Use this manifest only to reproduce the local line-span extraction from the user-provided official/free local PDF. Do not store raw extracted text in the vault."
+}

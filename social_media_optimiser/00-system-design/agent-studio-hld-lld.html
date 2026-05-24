@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Studio HLD and LLD</title>
+  <style>
+    :root {
+      --ink: #101418;
+      --muted: #607080;
+      --line: #d9e1e8;
+      --paper: #f6f8fb;
+      --panel: #ffffff;
+      --teal: #12756d;
+      --blue: #2f66d0;
+      --rose: #bd3f63;
+      --amber: #a76000;
+      --green: #2f7843;
+      --shadow: 0 14px 34px rgba(16, 20, 24, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 9px 12px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button.active {
+      border-color: var(--blue);
+      background: #edf4ff;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 10px 11px;
+    }
+
+    textarea {
+      min-height: 118px;
+      resize: vertical;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 4.6rem);
+      line-height: 0.98;
+      max-width: 980px;
+    }
+
+    h2 { font-size: clamp(1.35rem, 2.3vw, 2rem); }
+    h3 { font-size: 1rem; }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    code {
+      overflow-wrap: anywhere;
+      color: #273441;
+      font-size: 0.82rem;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      padding: 34px clamp(18px, 4vw, 58px);
+      display: grid;
+      grid-template-columns: minmax(540px, 1fr) minmax(280px, 420px);
+      gap: 22px;
+      align-items: center;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero {
+      display: grid;
+      gap: 14px;
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      width: fit-content;
+      border: 1px solid var(--line);
+      background: #f9fbfd;
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: #34414e;
+      font-size: 0.78rem;
+    }
+
+    .pill.ok {
+      color: #1f6637;
+      background: #eff8f2;
+      border-color: #b9dac4;
+    }
+
+    .pill.warn {
+      color: #7a4c00;
+      background: #fff8e9;
+      border-color: #ead2a5;
+    }
+
+    main {
+      padding: 18px clamp(12px, 2.5vw, 34px) 36px;
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 16px;
+      display: grid;
+      gap: 8px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+    }
+
+    section {
+      display: none;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: clamp(16px, 2.4vw, 28px);
+      box-shadow: var(--shadow);
+    }
+
+    section.active {
+      display: grid;
+      gap: 18px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .map {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    .node,
+    .step,
+    .agent,
+    .record {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+      min-height: 136px;
+    }
+
+    .node {
+      cursor: pointer;
+      border-top: 4px solid var(--blue);
+      transition: transform 150ms ease, border-color 150ms ease;
+    }
+
+    .node:hover,
+    .node.active {
+      transform: translateY(-2px);
+      border-color: #9ab8f3;
+    }
+
+    .node[data-group="Voice"] { border-top-color: var(--rose); }
+    .node[data-group="Orchestration"] { border-top-color: var(--teal); }
+    .node[data-group="Storage"] { border-top-color: var(--green); }
+    .node[data-group="Research"] { border-top-color: var(--amber); }
+
+    .detail {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--teal);
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.9fr) minmax(300px, 1.1fr);
+      gap: 14px;
+    }
+
+    .flow {
+      display: grid;
+      gap: 10px;
+    }
+
+    .flow .step {
+      min-height: auto;
+      border-left: 4px solid var(--teal);
+    }
+
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .matrix th,
+    .matrix td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+      color: #273441;
+    }
+
+    .matrix th {
+      background: #f3f7fb;
+      color: #1f2c38;
+    }
+
+    .comment-list {
+      display: grid;
+      gap: 10px;
+      max-height: 330px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .export {
+      min-height: 160px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1050px) {
+      header,
+      main,
+      .two,
+      .map {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="hero">
+        <span class="pill ok">Obsidian vault artifact</span>
+        <h1>Agent Studio HLD and LLD</h1>
+        <p>This is the communication and design surface for the autonomous multi-agent content studio. It is separate from the product app and lives inside the Obsidian vault so comments, decisions, and implementation tracking stay beside the project knowledge base.</p>
+        <div class="pills">
+          <span class="pill">No SQLite</span>
+          <span class="pill">Postgres + pgvector</span>
+          <span class="pill">Gemma 4 expert agents</span>
+          <span class="pill">Provider-pluggable realtime audio</span>
+          <span class="pill">Source-backed content</span>
+          <span class="pill">No project-management surface in product app</span>
+        </div>
+      </div>
+      <div class="record">
+        <h3>Review Mode</h3>
+        <p>Use the tabs, click architecture nodes, inspect flows, and leave comments. Comments are saved in browser localStorage and can be exported back into the agent loop.</p>
+      </div>
+    </header>
+
+    <main>
+      <nav aria-label="Design sections">
+        <button class="active" data-tab="hld">High-Level Design</button>
+        <button data-tab="lld">Low-Level Design</button>
+        <button data-tab="flows">End-to-End Flows</button>
+        <button data-tab="retrieval">Retrieval Intelligence</button>
+        <button data-tab="agents">Agent Responsibilities</button>
+        <button data-tab="review">Comments and Decisions</button>
+      </nav>
+
+      <div class="content">
+        <section id="hld" class="active">
+          <div class="section-head">
+            <div>
+              <h2>High-Level Design</h2>
+              <p>The system is a live conversational content studio with a separate Obsidian planning workspace. Realtime voice owns natural dialogue. Gemma 4 experts own reasoning and content work. Postgres stores state, evidence, and memories.</p>
+            </div>
+            <button data-export-section="hld">Export HLD JSON</button>
+          </div>
+          <div class="map" id="hld-map"></div>
+          <div class="detail" id="hld-detail"></div>
+        </section>
+
+        <section id="lld">
+          <div class="section-head">
+            <div>
+              <h2>Low-Level Design</h2>
+              <p>Concrete modules and contracts. This view maps user-visible features to backend routes, durable tables, orchestration modules, providers, and quality gates.</p>
+            </div>
+            <button data-export-section="lld">Export LLD JSON</button>
+          </div>
+          <div class="two">
+            <div class="flow" id="lld-modules"></div>
+            <div class="detail" id="lld-detail"></div>
+          </div>
+        </section>
+
+        <section id="flows">
+          <div class="section-head">
+            <div>
+              <h2>End-to-End Flows</h2>
+              <p>These are the run paths the app must support: natural dialogue, source-backed drafting, retrieval-grounded verification, feedback gates, and long-running resume.</p>
+            </div>
+          </div>
+          <div class="flow" id="flow-list"></div>
+        </section>
+
+        <section id="retrieval">
+          <div class="section-head">
+            <div>
+              <h2>Retrieval Intelligence Design</h2>
+              <p>This is now a first-class foundation requirement: high recall, high precision, coverage across source types, explicit FP/FN reduction, and grounded claims.</p>
+            </div>
+          </div>
+          <div class="map" id="retrieval-map"></div>
+          <table class="matrix" id="retrieval-matrix"></table>
+        </section>
+
+        <section id="agents">
+          <div class="section-head">
+            <div>
+              <h2>Agent Responsibilities</h2>
+              <p>The existing roster remains the implementation baseline. Retrieval Intelligence and Knowledge Graph Curation are design responsibilities that should become explicit agent cards in the next roster update.</p>
+            </div>
+          </div>
+          <div class="map" id="agent-map"></div>
+        </section>
+
+        <section id="review">
+          <div class="section-head">
+            <div>
+              <h2>Comments and Decisions</h2>
+              <p>Leave concrete feedback on HLD, LLD, retrieval, agents, or flows. Export the packet when you want the agents to revise the design or route implementation work.</p>
+            </div>
+            <button id="clear-comments">Clear local comments</button>
+          </div>
+          <div class="form-grid">
+            <label>
+              Target
+              <select id="comment-target">
+                <option>HLD</option>
+                <option>LLD</option>
+                <option>Flow</option>
+                <option>Retrieval</option>
+                <option>Agent roster</option>
+                <option>Product boundary</option>
+              </select>
+            </label>
+            <label>
+              Priority
+              <select id="comment-priority">
+                <option>high</option>
+                <option>medium</option>
+                <option>low</option>
+              </select>
+            </label>
+            <label>
+              Reviewer
+              <input id="comment-author" value="Saumya">
+            </label>
+            <label class="wide">
+              Comment
+              <textarea id="comment-body" placeholder="Write what should change, what is unclear, or what decision you want captured."></textarea>
+            </label>
+          </div>
+          <div class="pills">
+            <button id="save-comment">Save comment</button>
+            <button id="export-comments">Export comment packet</button>
+          </div>
+          <div class="comment-list" id="comment-list"></div>
+          <textarea class="export" id="comment-export" readonly></textarea>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script id="design-data" type="application/json">
+  {
+    "hld": [
+      {"id": "user-interface", "name": "Natural Dialogue Surface", "group": "Voice", "purpose": "Voice and text input with interruptions, turn-taking, and spoken responses.", "owns": ["browser speech capture", "provider realtime sessions", "conversation turns"], "not_owns": ["deep content reasoning", "source verification"]},
+      {"id": "orchestration", "name": "Durable Agent Orchestration", "group": "Orchestration", "purpose": "LangGraph-style state machines, checkpoints, event streams, feedback gates, and resumable worker profiles.", "owns": ["run state", "A2A task routing", "resume plans"], "not_owns": ["provider-specific voice transport"]},
+      {"id": "expert-agents", "name": "Gemma 4 Expert Layer", "group": "Orchestration", "purpose": "Gemma 4/HF experts for reasoning, writing, critique, visual analysis, long-context synthesis, and planning.", "owns": ["content strategy", "ELI5 writing", "Substack synthesis", "review"], "not_owns": ["speech-to-speech transport"]},
+      {"id": "durable-store", "name": "Postgres + pgvector", "group": "Storage", "purpose": "Local-first durability for runs, events, checkpoints, sources, claims, artifacts, feedback, memories, and vector retrieval.", "owns": ["state tables", "semantic memory", "source ledger"], "not_owns": ["SQLite fallback"]},
+      {"id": "retrieval", "name": "Retrieval Intelligence Layer", "group": "Research", "purpose": "Hybrid search, query rewriting, RRF fusion, cross-encoder reranking, graph traversal, coverage checks, and claim support.", "owns": ["precision and recall", "coverage probes", "FP/FN minimization"], "not_owns": ["unsupported final claims"]},
+      {"id": "artifact-loop", "name": "Artifact and Feedback Loop", "group": "Orchestration", "purpose": "Generate drafts, media plans, distribution packages, source ledgers, guardrail audits, and revision history with human approval gates.", "owns": ["provenance", "reviewer decisions", "revision routing"], "not_owns": ["planning workspace UI"]}
+    ],
+    "lld": [
+      {"module": "FastAPI app", "files": ["src/all_about_llms/app.py", "src/all_about_llms/main.py"], "contracts": ["REST APIs", "SSE event stream", "cockpit route"], "notes": "The product app exposes voice/text conversation, runs, sources, artifacts, feedback, and ledgers."},
+      {"module": "Durable storage", "files": ["infra/postgres/001_foundation.sql", "src/all_about_llms/storage/postgres.py"], "contracts": ["runs", "events", "checkpoints", "sources", "claims", "artifacts", "feedback", "agent_memories"], "notes": "Postgres and pgvector are v1 requirements. No SQLite fallback."},
+      {"module": "Orchestration", "files": ["src/all_about_llms/orchestration/content_workflow.py", "src/all_about_llms/orchestration/agent_worker.py", "src/all_about_llms/orchestration/run_resume.py"], "contracts": ["A2A messages", "worker profiles", "autonomous passes", "resume plans"], "notes": "Every long-running action leaves checkpoint and event evidence."},
+      {"module": "Provider boundary", "files": ["src/all_about_llms/providers/interfaces.py", "src/all_about_llms/providers/factory.py"], "contracts": ["Gemma HF", "realtime audio", "web search", "imagegen"], "notes": "Gemma is an expert model family, not the whole system."},
+      {"module": "Context engineering", "files": ["src/all_about_llms/orchestration/context_engineering.py", "src/all_about_llms/orchestration/source_ledger.py"], "contracts": ["context packets", "source evidence", "claim matrix", "memory search"], "notes": "Resumed agents get source snippets, dates, quality, freshness, and latest web research."},
+      {"module": "Obsidian planning workspace", "files": ["social_media_optimiser/00-system-design/agent-studio-hld-lld.html", "social_media_optimiser/01-work-tracking/agent-studio-work-tracker.html"], "contracts": ["design review", "comment export", "work tracking"], "notes": "This is not the product cockpit and does not contain content creation UI."}
+    ],
+    "flows": [
+      {"name": "Natural dialogue turn", "steps": ["User speaks or types", "Realtime Conversation Host captures intent", "Intent Router chooses create/revise/research/route", "A2A tasks are created for specialists", "Assistant reply is spoken or displayed", "State is persisted as events and turns"]},
+      {"name": "Source-backed content generation", "steps": ["Topic enters content workflow", "Web Research Agent gathers current sources", "Retrieval Intelligence ranks and filters evidence", "Source Ledger Agent records source records", "Writers generate post, reel, and Substack drafts", "Claim Verification and Guardrails gate the drafts"]},
+      {"name": "Retrieval and reranking", "steps": ["Rewrite query and create subqueries", "Run BM25, dense pgvector, web search, and graph traversal", "Fuse candidates with RRF", "Rerank top candidates with cross-encoder or late-interaction model", "Check coverage and contradictions", "Only supported evidence enters the drafting context"]},
+      {"name": "Human feedback gate", "steps": ["Feedback item is captured", "Forward Deployed Engineer structures it", "Target artifact/source/claim ids are attached", "Relevant specialist receives a task", "Revised artifact version is written", "Reviewer decision and gate status are recorded"]},
+      {"name": "Long-running resume", "steps": ["Checkpoint stores event cursor and state digest", "Resume plan reads events after checkpoint", "Blocked feedback, retry-exhausted tasks, source gaps, and stale research are surfaced", "Allowed runs resume worker profiles", "Replay ledger proves what changed"]}
+    ],
+    "retrieval": [
+      {"stage": "Query understanding", "method": "intent classification, query rewriting, subquery generation", "quality_goal": "Improve recall before retrieval starts"},
+      {"stage": "Hybrid candidate generation", "method": "BM25 text search, dense pgvector search, provider web search, metadata filters", "quality_goal": "Balance exact-term precision with semantic recall"},
+      {"stage": "Graph traversal", "method": "entity extraction, claim nodes, source nodes, relationship edges, local/global traversal", "quality_goal": "Cover multi-hop questions and reduce disconnected evidence"},
+      {"stage": "Rank fusion", "method": "RRF over sparse, dense, web, and graph candidate lists", "quality_goal": "Robust candidate ordering without brittle score normalization"},
+      {"stage": "Reranking", "method": "cross-encoder reranker or late-interaction retriever on top-K candidates", "quality_goal": "Cut false positives before synthesis"},
+      {"stage": "Coverage and claim support", "method": "source ledger, contradiction checks, freshness checks, unsupported labels", "quality_goal": "Reduce false negatives and block unsupported claims"}
+    ],
+    "retrievalMatrix": [
+      ["Concern", "Control", "Metric"],
+      ["False positives", "Rerank with pairwise cross-encoder, require citation support, mark weak/stale evidence", "Citation precision, unsupported claim rate"],
+      ["False negatives", "Query rewrite, multi-query expansion, graph traversal, larger candidate windows before reranking", "Recall@20, missed-source audit count"],
+      ["Coverage gaps", "Entity/source/claim graph plus source ledger matrix", "Claim coverage, source diversity, contradiction count"],
+      ["Freshness risk", "Published/retrieved dates, freshness ledger, refresh before final content", "Stale-source count, unknown-freshness count"],
+      ["Overloaded context", "Context packets with budgeted manifest and compression", "Token budget used, evidence dropped by priority"]
+    ],
+    "agents": [
+      {"name": "Realtime Conversation Host", "responsibility": "Natural dialogue, voice turn-taking, interruption handling, spoken replies."},
+      {"name": "Intent Router", "responsibility": "Turns dialogue into structured run actions and A2A tasks."},
+      {"name": "Web Research Agent", "responsibility": "Provider-backed web search with snippets, dates, and source records."},
+      {"name": "Retrieval Intelligence Agent", "responsibility": "Explicit agent for query rewriting, hybrid retrieval, RRF, reranking, FP/FN analysis, and coverage audits."},
+      {"name": "Knowledge Graph Curator Agent", "responsibility": "Explicit agent for entity extraction, source/claim graph construction, traversal strategy, and graph freshness."},
+      {"name": "Source Ledger Agent", "responsibility": "Source quality, freshness, source-to-claim matrix, and publishability evidence."},
+      {"name": "Claim Verification Agent", "responsibility": "Major claim support, contradiction checks, unsupported labels."},
+      {"name": "Content Strategist and Writers", "responsibility": "ELI5 post, reel, and Substack drafts grounded in accepted evidence."},
+      {"name": "Editor, Influencer, Platform, Outreach", "responsibility": "Hook quality, channel fit, hashtags, CTA, audience alignment, and distribution package."},
+      {"name": "Guardrails and Critic", "responsibility": "Review source coverage, model/tool boundaries, unsupported claims, and readiness gates."},
+      {"name": "Product Manager and Sprint/Progress", "responsibility": "Work plans, sync pulse, blocker tracking, and implementation status in the Obsidian tracker."},
+      {"name": "Interactive Note-Taking Agent", "responsibility": "Writes vault-native HTML notes, review packets, and revision history for this planning workspace."}
+    ]
+  }
+  </script>
+
+  <script>
+    const data = JSON.parse(document.getElementById("design-data").textContent);
+    const storageKey = "agent-studio-hld-lld-comments-v1";
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderHld() {
+      const map = document.getElementById("hld-map");
+      const detail = document.getElementById("hld-detail");
+      map.replaceChildren();
+      data.hld.forEach((node, index) => {
+        const button = document.createElement("button");
+        button.className = `node${index === 0 ? " active" : ""}`;
+        button.dataset.group = node.group;
+        button.innerHTML = `<span class="pill">${escapeHtml(node.group)}</span><h3>${escapeHtml(node.name)}</h3><p>${escapeHtml(node.purpose)}</p>`;
+        button.addEventListener("click", () => {
+          document.querySelectorAll(".node").forEach((item) => item.classList.remove("active"));
+          button.classList.add("active");
+          renderHldDetail(node);
+        });
+        map.appendChild(button);
+      });
+      renderHldDetail(data.hld[0]);
+    }
+
+    function renderHldDetail(node) {
+      document.getElementById("hld-detail").innerHTML = `
+        <span class="pill ok">${escapeHtml(node.id)}</span>
+        <h3>${escapeHtml(node.name)}</h3>
+        <p>${escapeHtml(node.purpose)}</p>
+        <code>${escapeHtml(JSON.stringify({ owns: node.owns, not_owns: node.not_owns }, null, 2))}</code>
+      `;
+    }
+
+    function renderLld() {
+      const modules = document.getElementById("lld-modules");
+      const detail = document.getElementById("lld-detail");
+      modules.replaceChildren();
+      data.lld.forEach((module, index) => {
+        const item = document.createElement("button");
+        item.className = `step${index === 0 ? " active" : ""}`;
+        item.innerHTML = `<h3>${escapeHtml(module.module)}</h3><p>${escapeHtml(module.notes)}</p>`;
+        item.addEventListener("click", () => {
+          modules.querySelectorAll(".step").forEach((step) => step.classList.remove("active"));
+          item.classList.add("active");
+          renderLldDetail(module);
+        });
+        modules.appendChild(item);
+      });
+      renderLldDetail(data.lld[0]);
+    }
+
+    function renderLldDetail(module) {
+      document.getElementById("lld-detail").innerHTML = `
+        <h3>${escapeHtml(module.module)}</h3>
+        <p>${escapeHtml(module.notes)}</p>
+        <code>${escapeHtml(JSON.stringify({
+          files: module.files,
+          contracts: module.contracts
+        }, null, 2))}</code>
+      `;
+    }
+
+    function renderFlows() {
+      const list = document.getElementById("flow-list");
+      list.replaceChildren();
+      data.flows.forEach((flow) => {
+        const item = document.createElement("article");
+        item.className = "step";
+        item.innerHTML = `
+          <h3>${escapeHtml(flow.name)}</h3>
+          <p>${escapeHtml(flow.steps.join(" -> "))}</p>
+          <code>${escapeHtml(JSON.stringify(flow.steps, null, 2))}</code>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function renderRetrieval() {
+      const map = document.getElementById("retrieval-map");
+      map.replaceChildren();
+      data.retrieval.forEach((stage) => {
+        const item = document.createElement("article");
+        item.className = "node";
+        item.dataset.group = "Research";
+        item.innerHTML = `
+          <span class="pill warn">${escapeHtml(stage.stage)}</span>
+          <h3>${escapeHtml(stage.method)}</h3>
+          <p>${escapeHtml(stage.quality_goal)}</p>
+        `;
+        map.appendChild(item);
+      });
+      const matrix = document.getElementById("retrieval-matrix");
+      matrix.innerHTML = data.retrievalMatrix.map((row, index) => {
+        const cell = index === 0 ? "th" : "td";
+        return `<tr>${row.map((value) => `<${cell}>${escapeHtml(value)}</${cell}>`).join("")}</tr>`;
+      }).join("");
+    }
+
+    function renderAgents() {
+      const map = document.getElementById("agent-map");
+      map.replaceChildren();
+      data.agents.forEach((agent) => {
+        const item = document.createElement("article");
+        item.className = "agent";
+        item.innerHTML = `<h3>${escapeHtml(agent.name)}</h3><p>${escapeHtml(agent.responsibility)}</p>`;
+        map.appendChild(item);
+      });
+    }
+
+    function comments() {
+      return JSON.parse(localStorage.getItem(storageKey) || "[]");
+    }
+
+    function saveComments(items) {
+      localStorage.setItem(storageKey, JSON.stringify(items));
+    }
+
+    function renderComments() {
+      const list = document.getElementById("comment-list");
+      const items = comments();
+      list.replaceChildren();
+      if (!items.length) {
+        const empty = document.createElement("div");
+        empty.className = "record";
+        empty.textContent = "No comments saved yet.";
+        list.appendChild(empty);
+        return;
+      }
+      items.forEach((item) => {
+        const record = document.createElement("article");
+        record.className = "record";
+        record.innerHTML = `
+          <div class="pills">
+            <span class="pill">${escapeHtml(item.target)}</span>
+            <span class="pill warn">${escapeHtml(item.priority)}</span>
+            <span class="pill">${escapeHtml(item.author)}</span>
+          </div>
+          <p>${escapeHtml(item.body)}</p>
+          <code>${escapeHtml(item.created_at)}</code>
+        `;
+        list.appendChild(record);
+      });
+    }
+
+    function exportComments() {
+      const packet = {
+        artifact: "agent-studio-hld-lld",
+        version: "2026-05-17",
+        source: "Obsidian vault interactive HTML",
+        comments: comments(),
+        requested_action: "Route comments to the right design or implementation agent."
+      };
+      document.getElementById("comment-export").value = JSON.stringify(packet, null, 2);
+    }
+
+    document.querySelectorAll("nav button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("nav button").forEach((item) => item.classList.remove("active"));
+        document.querySelectorAll("section").forEach((section) => section.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById(button.dataset.tab).classList.add("active");
+      });
+    });
+
+    document.querySelectorAll("[data-export-section]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const key = button.dataset.exportSection;
+        document.getElementById("comment-export").value = JSON.stringify({ section: key, data: data[key] }, null, 2);
+        document.querySelectorAll("nav button").forEach((item) => item.classList.remove("active"));
+        document.querySelectorAll("section").forEach((section) => section.classList.remove("active"));
+        document.querySelector('[data-tab="review"]').classList.add("active");
+        document.getElementById("review").classList.add("active");
+      });
+    });
+
+    document.getElementById("save-comment").addEventListener("click", () => {
+      const body = document.getElementById("comment-body").value.trim();
+      if (!body) return;
+      const items = comments();
+      items.push({
+        target: document.getElementById("comment-target").value,
+        priority: document.getElementById("comment-priority").value,
+        author: document.getElementById("comment-author").value || "reviewer",
+        body,
+        created_at: new Date().toISOString()
+      });
+      saveComments(items);
+      document.getElementById("comment-body").value = "";
+      renderComments();
+      exportComments();
+    });
+
+    document.getElementById("export-comments").addEventListener("click", exportComments);
+    document.getElementById("clear-comments").addEventListener("click", () => {
+      saveComments([]);
+      renderComments();
+      exportComments();
+    });
+
+    renderHld();
+    renderLld();
+    renderFlows();
+    renderRetrieval();
+    renderAgents();
+    renderComments();
+    exportComments();
+  </script>
+</body>
+</html>

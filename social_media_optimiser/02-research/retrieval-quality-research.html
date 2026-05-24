@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retrieval Quality Research</title>
+  <style>
+    :root {
+      --ink: #101418;
+      --muted: #607080;
+      --line: #d9e1e8;
+      --panel: #ffffff;
+      --paper: #f5f7fa;
+      --blue: #2f66d0;
+      --teal: #137c72;
+      --rose: #bd3f63;
+      --amber: #a76000;
+      --green: #2f7843;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header,
+    main {
+      padding: 26px clamp(16px, 4vw, 54px);
+    }
+
+    header {
+      display: grid;
+      gap: 12px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1;
+    }
+
+    p,
+    li {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--blue);
+      overflow-wrap: anywhere;
+    }
+
+    main {
+      display: grid;
+      gap: 18px;
+    }
+
+    section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+      min-height: 170px;
+    }
+
+    .card[data-kind="retrieval"] { border-top: 4px solid var(--teal); }
+    .card[data-kind="reranking"] { border-top: 4px solid var(--blue); }
+    .card[data-kind="graph"] { border-top: 4px solid var(--amber); }
+    .card[data-kind="evaluation"] { border-top: 4px solid var(--rose); }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      width: fit-content;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: #34414e;
+      background: #f9fbfd;
+      font-size: 0.78rem;
+    }
+
+    .filterbar {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .segmented {
+      display: inline-grid;
+      grid-auto-flow: column;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .segmented button {
+      border: 0;
+      border-radius: 6px;
+      min-height: 36px;
+      padding: 0 12px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .segmented button.active {
+      background: #e8f3f1;
+      color: var(--teal);
+      font-weight: 800;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f7fb;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .filterbar { grid-template-columns: 1fr; }
+      .segmented { grid-auto-flow: row; }
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="pill">Obsidian research note</span>
+    <h1>Retrieval Quality Research</h1>
+    <p>This note converts current retrieval/reranking/graph-search research into implementation requirements for the Agent Studio. The goal is high precision, high recall, broad coverage, and explicit reduction of false positives and false negatives.</p>
+    <div class="pill-row">
+      <span class="pill">Hybrid search</span>
+      <span class="pill">RRF</span>
+      <span class="pill">Cross-encoder reranking</span>
+      <span class="pill">Late interaction</span>
+      <span class="pill">Graph traversal</span>
+      <span class="pill">Coverage audits</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="filterbar" aria-label="Research area filters">
+      <div>
+        <h2>Research Areas</h2>
+        <p id="filter-summary">Showing all retrieval quality research cards.</p>
+      </div>
+      <div class="segmented" role="group" aria-label="Filter research cards">
+        <button type="button" class="active" data-filter="all">All</button>
+        <button type="button" data-filter="retrieval">Retrieval</button>
+        <button type="button" data-filter="reranking">Reranking</button>
+        <button type="button" data-filter="graph">Graph</button>
+        <button type="button" data-filter="evaluation">Evaluation</button>
+      </div>
+      <span class="pill" id="research-count">10 shown</span>
+    </section>
+
+    <section>
+      <h2>Recommended Retrieval Architecture</h2>
+      <div class="grid">
+        <article class="card" data-kind="retrieval">
+          <h3>1. Query Expansion</h3>
+          <p>Rewrite the user topic into concise retrieval queries, exact-keyword probes, entity probes, and freshness probes. Keep the rewritten queries in the run event log.</p>
+        </article>
+        <article class="card" data-kind="retrieval">
+          <h3>2. Parallel Candidate Generation</h3>
+          <p>Run BM25/full-text, dense pgvector, web search, metadata filters, and graph traversal in parallel. Do not trust a single retriever for source-backed answers.</p>
+        </article>
+        <article class="card" data-kind="reranking">
+          <h3>3. Rank Fusion</h3>
+          <p>Fuse sparse, dense, web, and graph candidates with Reciprocal Rank Fusion before expensive reranking. RRF avoids brittle score normalization across retrievers.</p>
+        </article>
+        <article class="card" data-kind="reranking">
+          <h3>4. Rerank Top Candidates</h3>
+          <p>Use cross-encoder reranking or late-interaction retrieval over the fused top-K. This is where we cut false positives before content generation.</p>
+        </article>
+        <article class="card" data-kind="graph">
+          <h3>5. Build Evidence Graph</h3>
+          <p>Extract entities, relationships, claims, sources, dates, and artifact dependencies. Traverse local neighborhoods for exact support and global communities for coverage.</p>
+        </article>
+        <article class="card" data-kind="evaluation">
+          <h3>6. Coverage Gate</h3>
+          <p>Every major claim must map to a source record, contradiction check, and freshness status. Unsupported claims stay marked unsupported and are blocked from final publishing.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Precision, Recall, and Coverage Controls</h2>
+      <table>
+        <tr><th>Risk</th><th>System Control</th><th>Metric</th></tr>
+        <tr><td>False positives</td><td>Cross-encoder/late-interaction rerank, source quality thresholds, contradiction checks, unsupported labels.</td><td>Citation precision, unsupported claim rate, contradiction count.</td></tr>
+        <tr><td>False negatives</td><td>Multi-query expansion, BM25 exact probes, graph traversal, larger rank windows before reranking.</td><td>Recall@K, missed-source audit count, coverage gap count.</td></tr>
+        <tr><td>Low coverage</td><td>Entity/source/claim graph, source diversity requirements, global and local graph traversal.</td><td>Claim coverage, entity coverage, source diversity.</td></tr>
+        <tr><td>Stale evidence</td><td>Retrieved/published timestamps, freshness ledger, refresh-before-final policy.</td><td>Stale source count, unknown freshness count.</td></tr>
+        <tr><td>Context bloat</td><td>Budgeted context packets, contextual compression, source snippets instead of full pages.</td><td>Context budget used, evidence dropped by priority.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Design Decisions</h2>
+      <div class="grid">
+        <article class="card" data-kind="retrieval">
+          <h3>Postgres + pgvector remains the local memory base</h3>
+          <p>Use pgvector for semantic memory and candidate retrieval because it keeps vectors with durable Postgres run/source/artifact state. Add HNSW indexes and metadata filters as corpus size grows.</p>
+        </article>
+        <article class="card" data-kind="reranking">
+          <h3>RRF before reranking</h3>
+          <p>Fuse retriever outputs before cross-encoder scoring. This makes the reranker see better candidates and reduces dependence on a single retrieval signal.</p>
+        </article>
+        <article class="card" data-kind="graph">
+          <h3>GraphRAG for multi-hop and corpus-level questions</h3>
+          <p>Knowledge graphs are not a replacement for vector search. They add entity/relationship traversal and global summaries when semantic search cannot connect evidence across sources.</p>
+        </article>
+        <article class="card" data-kind="evaluation">
+          <h3>Evaluation is part of the harness</h3>
+          <p>Track retrieval misses, weak sources, unsupported claims, stale evidence, and source diversity as run artifacts so agents improve over time.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Sources Used</h2>
+      <ul>
+        <li><a href="https://github.com/pgvector/pgvector">pgvector official repository</a> - Postgres vector similarity search, approximate/exact search, HNSW, vector types, and storage options.</li>
+        <li><a href="https://www.elastic.co/docs/reference/elasticsearch/rest-apis/reciprocal-rank-fusion">Elasticsearch Reciprocal Rank Fusion docs</a> - RRF combines top results from multiple retrievers without shared score semantics.</li>
+        <li><a href="https://microsoft.github.io/graphrag/">Microsoft GraphRAG docs</a> - Knowledge graph extraction, community hierarchy, and graph-augmented query processes.</li>
+        <li><a href="https://www.microsoft.com/en-us/research/project/graphrag/">Microsoft Research GraphRAG project</a> - GraphRAG, DRIFT search, LazyGraphRAG, and provenance-related research direction.</li>
+        <li><a href="https://arxiv.org/abs/2004.12832">ColBERT paper</a> - Late interaction preserves fine-grained query-document matching with faster retrieval than full cross-encoder scoring.</li>
+        <li><a href="https://www.anthropic.com/engineering/contextual-retrieval">Anthropic Contextual Retrieval</a> - Contextual embeddings, contextual BM25, hybrid retrieval, and reranking reduce failed retrievals.</li>
+        <li><a href="https://www.sbert.net/docs/package_reference/cross_encoder/model.html">Sentence Transformers CrossEncoder docs</a> - Pairwise reranking is more accurate for relevance scoring but cannot precompute document embeddings.</li>
+        <li><a href="https://developers.openai.com/api/docs/guides/retrieval">OpenAI Retrieval docs</a> - Query rewriting, vector stores, attribute filtering, and hybrid search weight controls.</li>
+      </ul>
+    </section>
+  </main>
+  <script>
+    const labels = {
+      all: "all retrieval quality",
+      retrieval: "Retrieval",
+      reranking: "Reranking",
+      graph: "Graph",
+      evaluation: "Evaluation"
+    };
+    const cards = [...document.querySelectorAll(".card[data-kind]")];
+    const count = document.getElementById("research-count");
+    const summary = document.getElementById("filter-summary");
+
+    function applyFilter(kind) {
+      let shown = 0;
+      cards.forEach((card) => {
+        const visible = kind === "all" || card.dataset.kind === kind;
+        card.classList.toggle("hidden", !visible);
+        if (visible) shown += 1;
+      });
+      count.textContent = `${shown} shown`;
+      summary.textContent = `Showing ${labels[kind]} research cards.`;
+    }
+
+    document.querySelectorAll("[data-filter]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-filter]").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        applyFilter(button.dataset.filter);
+      });
+    });
+
+    applyFilter("all");
+  </script>
+</body>
+</html>

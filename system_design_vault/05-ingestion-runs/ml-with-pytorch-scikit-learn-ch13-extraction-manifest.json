@@ -1,0 +1,22 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.ml_with_pytorch_and_scikit_learn.chapter_13_lightning_training_loop_checkpoint_experiment_structure",
+  "parent_source_id": "local_books.ml_with_pytorch_and_scikit_learn",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Machine.Learning.with.PyTorch.and.Scikit-Learn.Sebastian.Raschka.Packt.pdf",
+  "chapter": {
+    "number": 13,
+    "title": "Going Deeper – The Mechanics of PyTorch",
+    "focus_slice": "Higher-level PyTorch APIs: a short introduction to PyTorch-Lightning"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "physical_pages": "439-449",
+    "pdf_pages": "468-478"
+  },
+  "note_path": "system_design_vault/02-books/ml-with-pytorch-scikit-learn/chapters/13-lightning-training-loop-checkpoint-experiment-structure.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read slice and note target only. No raw chapter text or long excerpts stored."
+}

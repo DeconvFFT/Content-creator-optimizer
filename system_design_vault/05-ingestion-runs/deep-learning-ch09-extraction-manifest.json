@@ -1,0 +1,28 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.deep_learning_goodfellow_bengio_courville.chapter_9_convolutional_networks_core_mechanics",
+  "parent_source_id": "local_books.deep_learning_goodfellow_bengio_courville",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Deep Learning by Ian Goodfellow, Yoshua Bengio, Aaron Courville.pdf",
+  "chapter": {
+    "number": 9,
+    "title": "Convolutional Networks",
+    "focus_slice": "Printed pages 331-357, covering the convolution operator, sparse interactions, parameter sharing, translation equivariance, pooling, architectural priors, multi-channel/strided/padded convolution, and locally connected or tiled variants"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "printed_pages": "331-357",
+    "line_span": {
+      "start_line": 17303,
+      "end_line": 18922
+    }
+  },
+  "temp_extract": "/tmp/deep-learning-ch9-pages347-373.txt",
+  "note_path": "system_design_vault/02-books/deep-learning-book/chapters/9-convolutional-networks-core-mechanics.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/deep-learning-ch9-convnets-cross-check.md",
+  "asset_path": "system_design_vault/02-books/deep-learning-book/assets/ch09-convnet-prior-release-gate.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read Chapter 9 slice and corroborating note targets only. No raw chapter text or long excerpts stored."
+}

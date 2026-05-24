@@ -1,0 +1,21 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.hands_on_generative_ai_transformers_diffusion.chapter_6_language_model_fine_tuning_peft_quantization_runtime_gates",
+  "parent_source_id": "local_books.hands_on_generative_ai_transformers_diffusion",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Hands-On Generative AI with Transformers and Diffusion.pdf",
+  "chapter": {
+    "number": 6,
+    "title": "Fine-Tuning Language Models",
+    "focus_slice": "SFT versus PEFT, LoRA artifact semantics, quantization, offload, chat-template coupling, and limited-hardware runtime/release gates"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "physical_pages": "403-512"
+  },
+  "note_path": "system_design_vault/02-books/hands-on-generative-ai/chapters/6-language-model-fine-tuning-peft-quantization-runtime-gates.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read slice and note target only. No raw chapter text or long excerpts stored."
+}

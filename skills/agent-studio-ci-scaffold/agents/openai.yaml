@@ -1,0 +1,4 @@
+interface:
+  display_name: "CI Scaffold"
+  short_description: "Maintain GitHub Actions CI for backend, frontend, and opt-in Postgres."
+  default_prompt: "Use this skill when extending or repairing Agent Studio CI workflows."

@@ -1,0 +1,22 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.ml_with_pytorch_and_scikit_learn.chapter_12_raw_pytorch_dataloaders_training_loops_and_checkpoints",
+  "parent_source_id": "local_books.ml_with_pytorch_and_scikit_learn",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Machine.Learning.with.PyTorch.and.Scikit-Learn.Sebastian.Raschka.Packt.pdf",
+  "chapter": {
+    "number": 12,
+    "title": "Parallelizing Neural Network Training with PyTorch",
+    "focus_slice": "Input pipelines, raw training loops, and model persistence before Lightning"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "physical_pages": "378-381, 390-399",
+    "pdf_pages": "407-410, 419-428"
+  },
+  "note_path": "system_design_vault/02-books/ml-with-pytorch-scikit-learn/chapters/12-raw-pytorch-dataloaders-training-loops-and-checkpoints.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read slice and note target only. No raw chapter text or long excerpts stored."
+}

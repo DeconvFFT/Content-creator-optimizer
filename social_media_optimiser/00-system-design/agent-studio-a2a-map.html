@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Studio A2A Map</title>
+  <style>
+    :root {
+      --ink: #111821;
+      --muted: #5c6978;
+      --line: #d7dee8;
+      --paper: #f5f7fa;
+      --panel: #ffffff;
+      --blue: #245dc1;
+      --teal: #08735f;
+      --amber: #946200;
+      --red: #a43b30;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header,
+    main {
+      padding: 28px clamp(16px, 4vw, 56px);
+    }
+
+    header {
+      display: grid;
+      gap: 14px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 4.2rem);
+      line-height: 1;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .toolbar,
+    .surface-card,
+    .detail,
+    .export {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .toolbar {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 16px;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      min-height: 38px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #eaf0ff;
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .pill {
+      width: fit-content;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #f9fbfd;
+      color: #34414e;
+      font-size: 0.8rem;
+    }
+
+    .boundary {
+      border-color: #f0c6c0;
+      background: #fff4f2;
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .surface-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .surface-card {
+      display: grid;
+      gap: 10px;
+      min-height: 230px;
+      padding: 16px;
+      border-top: 4px solid var(--blue);
+    }
+
+    .surface-card[data-category="public"] { border-top-color: var(--red); }
+    .surface-card[data-category="messages"] { border-top-color: var(--teal); }
+    .surface-card[data-category="workers"] { border-top-color: var(--amber); }
+    .surface-card[data-category="repair"] { border-top-color: var(--red); }
+
+    .meta {
+      display: grid;
+      gap: 8px;
+      color: #34414e;
+      font-size: 0.88rem;
+    }
+
+    code {
+      color: #263747;
+      overflow-wrap: anywhere;
+    }
+
+    .side {
+      display: grid;
+      gap: 12px;
+      position: sticky;
+      top: 14px;
+    }
+
+    .detail,
+    .export {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 230px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfcfe;
+      color: #263747;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 980px) {
+      main,
+      .surface-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="pill boundary">Planning memory only</span>
+    <h1>Agent Studio A2A Map</h1>
+    <p>Inspection surface for the local A2A-style collaboration boundary: public discovery, internal durable messages, worker execution, dependency repair, collaboration graph evidence, and skill/card ownership. This is not a public protocol completion claim.</p>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="A2A map filters">
+      <button type="button" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-filter="public" aria-pressed="false">Public boundary</button>
+      <button type="button" data-filter="messages" aria-pressed="false">Messages</button>
+      <button type="button" data-filter="workers" aria-pressed="false">Workers</button>
+      <button type="button" data-filter="repair" aria-pressed="false">Repair</button>
+      <button type="button" data-filter="graph" aria-pressed="false">Graph</button>
+      <button type="button" data-filter="skills" aria-pressed="false">Skills</button>
+      <span id="surface-count" class="pill">6 surfaces</span>
+      <span id="surface-summary" class="pill">Scoped local A2A collaboration</span>
+    </section>
+
+    <section class="surface-grid" id="surface-grid" aria-label="A2A collaboration surfaces"></section>
+
+    <aside class="side">
+      <section class="detail" id="surface-detail" aria-live="polite"></section>
+      <section class="export">
+        <h2>Filtered Export</h2>
+        <p>Use this packet when reviews or syncs need exact A2A boundary context.</p>
+        <textarea id="a2a-export" readonly aria-label="A2A map export"></textarea>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const sourcePath = "social_media_optimiser/00-system-design/agent-studio-a2a-map.html";
+    const surfaces = [
+      {
+        id: "public-a2a-discovery-boundary",
+        title: "Public A2A discovery boundary",
+        category: "public",
+        status: "scoped",
+        routes: ["/.well-known/agent-card.json", "/.well-known/agent-cards.json", "/api/a2a"],
+        proof_terms: ["fullA2AProtocolServer=false", "JSON/text HTTP+JSON only", "method-aware endpoint records", "projection=public", "agent-message-public-projection-v1", "OpenAPI method/path match"],
+        public_projection: {
+          queryParameter: "projection",
+          defaultValue: "private",
+          publicValue: "public",
+          redactionPolicy: "agent-message-public-projection-v1",
+          supportedEndpoints: ["getTask", "listRunMessages", "agentInbox"],
+          unsupportedEndpoints: ["createTask", "updateMessageStatus", "retryTask", "repairDependencies"]
+        },
+        caveats: ["Not a full public JSON-RPC A2A server.", "Realtime audio and image modes remain internal extension metadata."],
+        owners: ["a2a-protocol-agent", "agent-harness-engineer", "backend-platform-engineer"]
+      },
+      {
+        id: "durable-message-lifecycle",
+        title: "Durable message lifecycle",
+        category: "messages",
+        status: "implemented",
+        routes: ["/api/a2a/messages", "/api/a2a/messages/{message_id}", "/api/a2a/messages/{message_id}/status"],
+        proof_terms: ["AgentMessage", "public projection redaction", "read-only task lookup", "status update events"],
+        caveats: ["Trusted-local raw projection stays separate from external-safe public projection."],
+        owners: ["backend-platform-engineer", "agent-harness-engineer"]
+      },
+      {
+        id: "bounded-worker-execution",
+        title: "Bounded worker execution",
+        category: "workers",
+        status: "implemented",
+        routes: ["/api/a2a/workers/run-cycle", "/api/a2a/workers/{agent_id}/run", "/api/a2a/agents/{agent_id}/inbox"],
+        proof_terms: ["bounded planned worker cycle", "message-lineage targeted continuation", "worker status updates", "run_worker_cycle"],
+        caveats: ["Provider-backed work remains subject to provider readiness and live credentials."],
+        owners: ["agent-harness-engineer", "product-manager", "sprint-progress-agent"]
+      },
+      {
+        id: "dependency-repair-and-retry",
+        title: "Dependency repair and retry",
+        category: "repair",
+        status: "implemented",
+        routes: ["/api/a2a/messages/{message_id}/retry", "/api/a2a/messages/{message_id}/dependencies/repair"],
+        proof_terms: ["a2a_graph_blocked", "dependency_cycle_message_ids", "agent_message_dependencies_repaired", "agent_message_retry_authorized"],
+        caveats: ["Repair must be targeted to exact message ids; default-roster fallback is not valid repair."],
+        owners: ["agent-harness-engineer", "observability-agent", "sprint-progress-agent"]
+      },
+      {
+        id: "collaboration-graph-evidence",
+        title: "Collaboration graph evidence",
+        category: "graph",
+        status: "implemented",
+        routes: ["/api/runs/{run_id}/a2a-collaboration-graph"],
+        proof_terms: ["a2a_collaboration_graph_built", "ready_task_ids", "retry_exhausted_task_ids", "dependency_cycles"],
+        caveats: ["Graph evidence protects local orchestration; it is not external public protocol certification."],
+        owners: ["a2a-protocol-agent", "observability-agent", "agent-harness-engineer"]
+      },
+      {
+        id: "skill-card-ownership",
+        title: "Skill and card ownership",
+        category: "skills",
+        status: "implemented",
+        routes: ["/api/skills", "/api/a2a/agents/{agent_id}/card", "/api/a2a/agents/{agent_id}/skills"],
+        proof_terms: ["nine project skills", "38 internal specialists", "agent-studio-skill-matrix", "agent-skill-source-contracts"],
+        caveats: ["Skill contracts are project-owned and source-file backed; public discovery advertises only the safe capability envelope."],
+        owners: ["principal-software-engineer", "a2a-protocol-agent", "artifact-librarian"]
+      }
+    ];
+
+    const grid = document.querySelector("#surface-grid");
+    const detail = document.querySelector("#surface-detail");
+    const count = document.querySelector("#surface-count");
+    const summary = document.querySelector("#surface-summary");
+    const exportBox = document.querySelector("#a2a-export");
+    const filterButtons = [...document.querySelectorAll("[data-filter]")];
+    let activeFilter = "all";
+    let selectedSurfaceId = surfaces[0].id;
+
+    function visibleSurfaces() {
+      return surfaces.filter((surface) => activeFilter === "all" || surface.category === activeFilter);
+    }
+
+    function listMarkup(items) {
+      return items.map((item) => `<li>${item}</li>`).join("");
+    }
+
+    function renderCards() {
+      grid.innerHTML = "";
+      surfaces.forEach((surface) => {
+        const card = document.createElement("article");
+        card.className = "surface-card";
+        card.dataset.surfaceCard = surface.id;
+        card.dataset.category = surface.category;
+        card.innerHTML = `
+          <span class="pill">${surface.status}</span>
+          <h2>${surface.title}</h2>
+          <p><code>${surface.id}</code></p>
+          <div class="meta">
+            <div><strong>Routes:</strong> <code>${surface.routes.join("</code>, <code>")}</code></div>
+            <div><strong>Proof:</strong> <code>${surface.proof_terms.slice(0, 2).join("</code>, <code>")}</code></div>
+          </div>
+        `;
+        card.addEventListener("click", () => {
+          selectedSurfaceId = surface.id;
+          render();
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function renderDetail(surface) {
+      if (!surface) {
+        detail.innerHTML = "<h2>No matching A2A surface</h2><p>Adjust the filter.</p>";
+        return;
+      }
+
+      const publicProjectionMarkup = surface.public_projection ? `
+          <div><strong>Public projection:</strong>
+            <ul>
+              <li><code>${surface.public_projection.queryParameter}=${surface.public_projection.publicValue}</code></li>
+              <li><code>${surface.public_projection.redactionPolicy}</code></li>
+              <li>Supported endpoints: <code>${surface.public_projection.supportedEndpoints.join("</code>, <code>")}</code></li>
+              <li>Unsupported mutation endpoints: <code>${surface.public_projection.unsupportedEndpoints.join("</code>, <code>")}</code></li>
+            </ul>
+          </div>` : "";
+
+      detail.innerHTML = `
+        <h2>${surface.title}</h2>
+        <p><code>${surface.id}</code> is <strong>${surface.status}</strong>.</p>
+        <div class="meta">
+          <div><strong>Routes:</strong><ul>${listMarkup(surface.routes.map((route) => `<code>${route}</code>`))}</ul></div>
+          <div><strong>Proof terms:</strong><ul>${listMarkup(surface.proof_terms.map((term) => `<code>${term}</code>`))}</ul></div>
+          ${publicProjectionMarkup}
+          <div><strong>Owners:</strong> ${surface.owners.join(", ")}</div>
+          <div><strong>Caveats:</strong><ul>${listMarkup(surface.caveats)}</ul></div>
+        </div>
+      `;
+    }
+
+    function renderExport(filteredSurfaces) {
+      const payload = {
+        artifact: "agent-studio-a2a-map",
+        source: sourcePath,
+        boundary: "planning_vault_only",
+        surfaces: filteredSurfaces.map((surface) => ({
+          id: surface.id,
+          title: surface.title,
+          category: surface.category,
+          status: surface.status,
+          routes: surface.routes,
+          proof_terms: surface.proof_terms,
+          ...(surface.public_projection ? { public_projection: surface.public_projection } : {}),
+          caveats: surface.caveats,
+          owners: surface.owners
+        }))
+      };
+      exportBox.value = JSON.stringify(payload, null, 2);
+    }
+
+    function render() {
+      const filtered = visibleSurfaces();
+      const visibleIds = new Set(filtered.map((surface) => surface.id));
+      if (!visibleIds.has(selectedSurfaceId) && filtered.length) {
+        selectedSurfaceId = filtered[0].id;
+      }
+
+      document.querySelectorAll("[data-surface-card]").forEach((card) => {
+        card.hidden = !visibleIds.has(card.dataset.surfaceCard);
+      });
+
+      const selected = surfaces.find((surface) => surface.id === selectedSurfaceId && visibleIds.has(surface.id));
+      count.textContent = `${filtered.length} ${filtered.length === 1 ? "surface" : "surfaces"}`;
+      summary.textContent = activeFilter === "all" ? "Scoped local A2A collaboration" : `${activeFilter} surface selected`;
+      renderDetail(selected);
+      renderExport(filtered);
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        filterButtons.forEach((candidate) => {
+          candidate.setAttribute("aria-pressed", String(candidate === button));
+        });
+        render();
+      });
+    });
+
+    renderCards();
+    render();
+  </script>
+</body>
+</html>

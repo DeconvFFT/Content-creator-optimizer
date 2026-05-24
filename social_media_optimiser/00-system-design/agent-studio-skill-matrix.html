@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Studio Skill Matrix</title>
+  <style>
+    :root {
+      --ink: #121820;
+      --muted: #5c6a78;
+      --line: #d7dee8;
+      --paper: #f5f7fa;
+      --panel: #ffffff;
+      --blue: #245dc1;
+      --green: #08735f;
+      --red: #a43b30;
+    }
+
+    * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header,
+    main {
+      padding: 28px clamp(16px, 4vw, 56px);
+    }
+
+    header {
+      display: grid;
+      gap: 14px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 4.2rem);
+      line-height: 1;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .toolbar,
+    .detail,
+    .export,
+    .skill-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .toolbar {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      min-height: 38px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #eaf0ff;
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    label {
+      color: #34414e;
+      font-weight: 700;
+    }
+
+    input {
+      width: min(520px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-height: 40px;
+      padding: 8px 10px;
+    }
+
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pill {
+      width: fit-content;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #f9fbfd;
+      color: #34414e;
+      font-size: 0.8rem;
+    }
+
+    .boundary {
+      border-color: #f0c6c0;
+      background: #fff4f2;
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .skill-card {
+      min-height: 240px;
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+      border-top: 4px solid var(--blue);
+    }
+
+    .skill-card[data-category="guardrails"] { border-top-color: var(--red); }
+    .skill-card[data-category="retrieval"] { border-top-color: var(--green); }
+    .skill-card[data-category="inference"] { border-top-color: #7154b8; }
+
+    .meta {
+      display: grid;
+      gap: 6px;
+      color: #34414e;
+      font-size: 0.88rem;
+    }
+
+    code {
+      color: #263747;
+      overflow-wrap: anywhere;
+    }
+
+    .detail,
+    .export {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .side {
+      display: grid;
+      gap: 12px;
+      position: sticky;
+      top: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      color: #263747;
+      background: #fbfcfe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 960px) {
+      main,
+      .skill-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="pill boundary">Planning memory only</span>
+    <h1>Agent Studio Skill Matrix</h1>
+    <p>Browser-openable inspection surface for the nine project-owned skills, their source files, agent ownership, and proof terms. This belongs to the vault and does not change the product app.</p>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="Skill matrix controls">
+      <div class="filters" aria-label="Skill area filters">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="conversation" aria-pressed="false">Realtime</button>
+        <button type="button" data-filter="retrieval" aria-pressed="false">Retrieval</button>
+        <button type="button" data-filter="content" aria-pressed="false">Content</button>
+        <button type="button" data-filter="frontend" aria-pressed="false">Frontend</button>
+        <button type="button" data-filter="inference" aria-pressed="false">Inference</button>
+        <button type="button" data-filter="guardrails" aria-pressed="false">Guardrails</button>
+      </div>
+      <div>
+        <label for="skill-search">Search skills</label>
+        <input id="skill-search" type="search" autocomplete="off" placeholder="Filter by skill, agent, source, or proof term">
+      </div>
+      <div class="status">
+        <span id="skill-count" class="pill">9 skills</span>
+        <span id="skill-summary" class="pill">All project skill cards visible</span>
+      </div>
+    </section>
+
+    <section class="skill-grid" id="skill-grid" aria-label="Project skill cards"></section>
+
+    <aside class="side">
+      <section class="detail" id="skill-detail" aria-live="polite"></section>
+      <section class="export">
+        <h2>Filtered Export</h2>
+        <p>Paste this packet into review or sync threads when skill ownership needs precise context.</p>
+        <textarea id="matrix-export" readonly aria-label="Skill matrix export"></textarea>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const sourcePath = "social_media_optimiser/00-system-design/agent-studio-skill-matrix.html";
+    const skills = [
+      {
+        id: "agent-studio-conversation-harness",
+        name: "Agent Studio Conversation Harness",
+        category: "conversation",
+        source_path: "skills/agent-studio-conversation-harness/SKILL.md",
+        agents: ["realtime-conversation-host", "intent-router", "forward-deployed-engineer", "principal-software-engineer", "backend-platform-engineer", "agent-harness-engineer", "a2a-protocol-agent", "context-engineering-agent", "audio-producer", "product-manager", "observability-agent", "interactive-note-taking-agent", "sprint-progress-agent"],
+        capabilities: ["natural_dialogue_routing", "realtime_session_briefing", "durable_intent_route_plans", "human_feedback_gates"],
+        proof_terms: ["conversation_turn", "conversation_handoff", "realtime_conversation_brief", "worker_status_updates"]
+      },
+      {
+        id: "agent-studio-research-grounding",
+        name: "Agent Studio Research Grounding",
+        category: "retrieval",
+        source_path: "skills/agent-studio-research-grounding/SKILL.md",
+        agents: ["context-engineering-agent", "web-research-agent", "retrieval-intelligence-agent", "knowledge-graph-curator-agent", "source-ledger-agent", "claim-verification-agent", "data-analyst-agent", "content-strategist", "artifact-librarian"],
+        capabilities: ["web_research", "source_ledger", "claim_extraction", "freshness_check"],
+        proof_terms: ["research_freshness_ledger", "source_evidence", "claim_source_matrix", "unsupported_claim_report"]
+      },
+      {
+        id: "agent-studio-content-production",
+        name: "Agent Studio Content Production",
+        category: "content",
+        source_path: "skills/agent-studio-content-production/SKILL.md",
+        agents: ["forward-deployed-engineer", "content-strategist", "eli5-short-form-writer", "substack-essay-writer", "script-doctor", "editor-in-chief", "influencer-strategy-agent", "platform-optimization-agent", "outreach-agent", "visual-director", "video-reel-producer", "critic-reviewer-agent"],
+        capabilities: ["eli5_writing", "social_post_drafting", "reel_scripting", "substack_writing"],
+        proof_terms: ["seed_content_artifacts", "distribution_package", "publishing_handoff", "target_artifact_ids"]
+      },
+      {
+        id: "agent-studio-retrieval-intelligence",
+        name: "Agent Studio Retrieval Intelligence",
+        category: "retrieval",
+        source_path: "skills/agent-studio-retrieval-intelligence/SKILL.md",
+        agents: ["web-research-agent", "retrieval-intelligence-agent", "knowledge-graph-curator-agent", "source-ledger-agent", "claim-verification-agent", "data-analyst-agent", "artifact-librarian"],
+        capabilities: ["query_rewriting", "hybrid_candidate_generation", "reciprocal_rank_fusion", "cross_encoder_reranking"],
+        proof_terms: ["retrieval_quality_ledger", "GraphRAG", "accepted_for_context", "weak_source_ids"]
+      },
+      {
+        id: "agent-studio-media-design",
+        name: "Agent Studio Media Design",
+        category: "content",
+        source_path: "skills/agent-studio-media-design/SKILL.md",
+        agents: ["frontend-experience-engineer", "lead-ui-ux-designer", "interactive-systems-designer", "visual-director", "image-generation-agent", "audio-producer", "video-reel-producer", "interactive-note-taking-agent", "artifact-librarian"],
+        capabilities: ["visual_direction", "storyboarding", "voice_direction", "imagegen_prompting"],
+        proof_terms: ["imagegen_prompt_pack", "reel_storyboard", "dialogue_attached_assets", "interactive_note_generated"]
+      },
+      {
+        id: "agent-studio-system-architecture",
+        name: "Agent Studio System Architecture",
+        category: "architecture",
+        source_path: "skills/agent-studio-system-architecture/SKILL.md",
+        agents: ["principal-software-engineer", "backend-platform-engineer", "scalability-reliability-engineer", "inference-systems-engineer", "agent-harness-engineer", "a2a-protocol-agent", "context-engineering-agent"],
+        capabilities: ["data_intensive_architecture", "service_boundary_design", "durable_event_contracts", "schema_evolution"],
+        proof_terms: ["Postgres + pgvector", "a2a_collaboration_graph", "foundation_audit", "No SQLite"]
+      },
+      {
+        id: "agent-studio-frontend-engineering",
+        name: "Agent Studio Frontend Engineering",
+        category: "frontend",
+        source_path: "skills/agent-studio-frontend-engineering/SKILL.md",
+        agents: ["frontend-experience-engineer", "lead-ui-ux-designer", "interactive-systems-designer"],
+        capabilities: ["conversational_cockpit_ui", "voice_control_ui", "event_stream_rendering", "source_ledger_drilldowns"],
+        proof_terms: ["browser_single_flight", "Always-on studio", "Background runner", "source-evidence-drilldown"]
+      },
+      {
+        id: "agent-studio-inference-reliability",
+        name: "Agent Studio Inference Reliability",
+        category: "inference",
+        source_path: "skills/agent-studio-inference-reliability/SKILL.md",
+        agents: ["scalability-reliability-engineer", "inference-systems-engineer", "audio-producer", "observability-agent"],
+        capabilities: ["model_routing", "latency_budgeting", "provider_readiness", "streaming_inference"],
+        proof_terms: ["voice_edge_benchmark", "realtime_voice_timing_ledger", "provider_operations_ledger", "Gemma/Kokoro"]
+      },
+      {
+        id: "agent-studio-guardrails-review",
+        name: "Agent Studio Guardrails Review",
+        category: "guardrails",
+        source_path: "skills/agent-studio-guardrails-review/SKILL.md",
+        agents: ["principal-software-engineer", "backend-platform-engineer", "scalability-reliability-engineer", "agent-harness-engineer", "claim-verification-agent", "editor-in-chief", "guardrails-agent", "product-manager", "critic-reviewer-agent", "observability-agent", "sprint-progress-agent"],
+        capabilities: ["source_coverage_review", "provenance_review", "unsupported_claim_detection", "safety_review"],
+        proof_terms: ["feedback_resolution_ledger", "held_feedback_count", "failed_task_ids", "publish_readiness_checked"]
+      }
+    ];
+
+    const grid = document.querySelector("#skill-grid");
+    const detail = document.querySelector("#skill-detail");
+    const count = document.querySelector("#skill-count");
+    const summary = document.querySelector("#skill-summary");
+    const search = document.querySelector("#skill-search");
+    const exportBox = document.querySelector("#matrix-export");
+    const filterButtons = [...document.querySelectorAll("[data-filter]")];
+    let activeFilter = "all";
+    let selectedSkillId = skills[0].id;
+
+    function searchableText(skill) {
+      return [
+        skill.id,
+        skill.name,
+        skill.category,
+        skill.source_path,
+        ...skill.agents,
+        ...skill.capabilities,
+        ...skill.proof_terms
+      ].join(" ").toLowerCase();
+    }
+
+    function visibleSkills() {
+      const query = search.value.trim().toLowerCase();
+      return skills.filter((skill) => {
+        const matchesFilter = activeFilter === "all" || skill.category === activeFilter;
+        const matchesQuery = !query || searchableText(skill).includes(query);
+        return matchesFilter && matchesQuery;
+      });
+    }
+
+    function renderCards() {
+      grid.innerHTML = "";
+      skills.forEach((skill) => {
+        const card = document.createElement("article");
+        card.className = "skill-card";
+        card.dataset.skillCard = skill.id;
+        card.dataset.category = skill.category;
+        card.innerHTML = `
+          <span class="pill">${skill.category}</span>
+          <h2>${skill.name}</h2>
+          <p>${skill.capabilities.join(", ")}</p>
+          <div class="meta">
+            <div><strong>Source:</strong> <code>${skill.source_path}</code></div>
+            <div><strong>Agents:</strong> ${skill.agents.length}</div>
+            <div><strong>Proof terms:</strong> <code>${skill.proof_terms.join("</code>, <code>")}</code></div>
+          </div>
+        `;
+        card.addEventListener("click", () => {
+          selectedSkillId = skill.id;
+          render();
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function renderDetail(skill) {
+      if (!skill) {
+        detail.innerHTML = "<h2>No matching skill</h2><p>Adjust the filter or search text.</p>";
+        return;
+      }
+
+      detail.innerHTML = `
+        <h2>${skill.name}</h2>
+        <p><code>${skill.id}</code></p>
+        <div class="meta">
+          <div><strong>Source:</strong> <code>${skill.source_path}</code></div>
+          <div><strong>Applies to:</strong> ${skill.agents.join(", ")}</div>
+          <div><strong>Capabilities:</strong> <code>${skill.capabilities.join("</code>, <code>")}</code></div>
+          <div><strong>Proof terms:</strong> <code>${skill.proof_terms.join("</code>, <code>")}</code></div>
+        </div>
+      `;
+    }
+
+    function renderExport(filteredSkills) {
+      const payload = {
+        artifact: "agent-studio-skill-matrix",
+        source: sourcePath,
+        boundary: "planning_vault_only",
+        skills: filteredSkills.map((skill) => ({
+          id: skill.id,
+          name: skill.name,
+          category: skill.category,
+          source_path: skill.source_path,
+          applies_to_agents: skill.agents,
+          capabilities: skill.capabilities,
+          proof_terms: skill.proof_terms
+        }))
+      };
+      exportBox.value = JSON.stringify(payload, null, 2);
+    }
+
+    function render() {
+      const filtered = visibleSkills();
+      const visibleIds = new Set(filtered.map((skill) => skill.id));
+      if (!visibleIds.has(selectedSkillId) && filtered.length) {
+        selectedSkillId = filtered[0].id;
+      }
+
+      document.querySelectorAll("[data-skill-card]").forEach((card) => {
+        card.hidden = !visibleIds.has(card.dataset.skillCard);
+      });
+
+      const selectedSkill = skills.find((skill) => skill.id === selectedSkillId && visibleIds.has(skill.id));
+      count.textContent = `${filtered.length} ${filtered.length === 1 ? "skill" : "skills"}`;
+      summary.textContent = activeFilter === "all" ? "All project skill cards visible" : `${activeFilter} skill cards visible`;
+      renderDetail(selectedSkill);
+      renderExport(filtered);
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        filterButtons.forEach((candidate) => {
+          candidate.setAttribute("aria-pressed", String(candidate === button));
+        });
+        render();
+      });
+    });
+
+    search.addEventListener("input", render);
+    renderCards();
+    render();
+  </script>
+</body>
+</html>

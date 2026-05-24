@@ -1,0 +1,4 @@
+interface:
+  display_name: "Retrieval Intelligence"
+  short_description: "Optimize retrieval precision, recall, reranking, and graph coverage."
+  default_prompt: "Use this skill to produce retrieval-quality ledgers, rerank decisions, graph coverage records, and FP/FN risk analysis."

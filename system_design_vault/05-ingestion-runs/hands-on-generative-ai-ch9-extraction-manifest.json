@@ -1,0 +1,21 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.hands_on_generative_ai_transformers_diffusion.chapter_9_generating_audio_route_contracts_evaluation",
+  "parent_source_id": "local_books.hands_on_generative_ai_transformers_diffusion",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Hands-On Generative AI with Transformers and Diffusion.pdf",
+  "chapter": {
+    "number": 9,
+    "title": "Generating Audio",
+    "focus_slice": "Audio representation contracts, route-family boundaries, evaluation surfaces, runtime fit, and voice/originality governance"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "physical_pages": "620-726"
+  },
+  "note_path": "system_design_vault/02-books/hands-on-generative-ai/chapters/9-generating-audio-route-contracts-evaluation.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read slice and note target only. No raw chapter text or long excerpts stored."
+}

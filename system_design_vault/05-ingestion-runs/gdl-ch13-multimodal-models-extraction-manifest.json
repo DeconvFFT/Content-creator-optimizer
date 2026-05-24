@@ -1,0 +1,24 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.generative_deep_learning.chapter_13_multimodal_models_bridge_patterns",
+  "parent_source_id": "local_books.generative_deep_learning",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Generative-Deep-Learning.pdf",
+  "chapter": {
+    "number": 13,
+    "title": "Multimodal Models",
+    "focus_slice": "CLIP shared embedding space, DALL.E 2 prior-decoder split, Imagen language-first conditioning, Stable Diffusion latent-space efficiency, and Flamingo grounded visual-language prompting"
+  },
+  "extraction": {
+    "method": "pdftotext_plus_targeted_crosscheck",
+    "physical_pages": "359-390",
+    "line_span": "14019-14750"
+  },
+  "temp_extract": "/tmp/gdl_ch13_multimodal_excerpt.txt",
+  "note_path": "system_design_vault/02-books/generative-deep-learning/chapters/ch13-multimodal-models-bridge-patterns.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/gdl-ch13-multimodal-models-cross-check.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused Chapter 13 direct-read multimodal slice and corroborating cross-check only. No raw chapter text or long excerpts are stored in the vault."
+}

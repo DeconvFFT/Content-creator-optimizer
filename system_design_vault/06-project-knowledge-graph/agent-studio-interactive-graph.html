@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Studio — Interactive Knowledge Graph</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.min.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; background: #0a0a14; }
+    canvas { display: block; }
+    #info-panel {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: rgba(10,10,20,0.85); border: 1px solid #2a2a4a; border-radius: 12px;
+      padding: 12px 24px; color: #8899bb; font-family: 'Segoe UI', sans-serif;
+      font-size: 13px; backdrop-filter: blur(8px); pointer-events: none;
+      text-align: center; white-space: nowrap; z-index: 10;
+    }
+    #info-panel span { color: #22d3ee; font-weight: 600; }
+    #info-panel em { color: #a78bfa; font-style: normal; }
+    #node-detail {
+      position: fixed; top: 24px; right: 24px;
+      background: rgba(10,10,20,0.85); border: 1px solid #2a2a4a; border-radius: 12px;
+      padding: 16px 20px; color: #cdd6f4; font-family: 'Segoe UI', sans-serif;
+      font-size: 13px; backdrop-filter: blur(8px); min-width: 200px;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 10;
+    }
+    #node-detail h3 { margin: 0 0 6px 0; font-size: 15px; }
+    #node-detail p { margin: 2px 0; color: #6c7086; font-size: 12px; }
+    #node-detail .status-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 10px; font-weight: 700; margin-top: 4px;
+    }
+    #legend {
+      position: fixed; top: 24px; left: 24px;
+      background: rgba(10,10,20,0.85); border: 1px solid #2a2a4a; border-radius: 12px;
+      padding: 12px 16px; backdrop-filter: blur(8px); z-index: 10;
+      font-family: 'Segoe UI', sans-serif; font-size: 11px;
+    }
+    .legend-row { display: flex; align-items: center; gap: 8px; margin: 3px 0; color: #8899bb; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    #title-overlay {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; pointer-events: none; z-index: 5;
+      transition: opacity 1.5s;
+    }
+    #title-overlay h1 {
+      font-family: 'Segoe UI', sans-serif; font-size: 28px; font-weight: 300;
+      color: rgba(255,255,255,0.15); letter-spacing: 6px; margin: 0;
+    }
+    #title-overlay p {
+      font-family: 'Segoe UI', sans-serif; font-size: 13px;
+      color: rgba(255,255,255,0.08); margin: 4px 0 0 0; letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div id="title-overlay">
+    <h1>AGENT STUDIO</h1>
+    <p>drag nodes · hover for details · scroll to zoom</p>
+  </div>
+  <div id="legend">
+    <div class="legend-row"><div class="legend-dot" style="background:#22d3ee"></div> Voice & Frontend</div>
+    <div class="legend-row"><div class="legend-dot" style="background:#34d399"></div> Orchestration & Backend</div>
+    <div class="legend-row"><div class="legend-dot" style="background:#a78bfa"></div> Storage & Retrieval</div>
+    <div class="legend-row"><div class="legend-dot" style="background:#cba6f7"></div> Creator</div>
+    <div class="legend-row"><div class="legend-dot" style="background:#94a3b8"></div> Agent Specialists</div>
+    <div class="legend-row"><div class="legend-dot" style="background:#fb923c"></div> Partial / Blocked</div>
+    <div class="legend-row"><div class="legend-dot" style="background:#fbbf24"></div> Obsidian Memory</div>
+  </div>
+  <div id="node-detail">
+    <h3 id="nd-title">—</h3>
+    <p id="nd-desc">hover over a node</p>
+    <div id="nd-status"></div>
+  </div>
+  <div id="info-panel">
+    <span>✦</span> Drag any node to explore connections &nbsp;·&nbsp; <em>38 agents</em> · 8 architecture layers &nbsp;·&nbsp; <span>design complete, proof blocked</span>
+  </div>
+
+  <script>
+// ═══════════════════════════════════════════════════════════════════════════
+// AGENT STUDIO — INTERACTIVE FORCE-DIRECTED KNOWLEDGE GRAPH
+// ═══════════════════════════════════════════════════════════════════════════
+
+const STATUS_COLORS = {
+  proven:    { bg: [52,211,153], label: 'proven' },
+  partial:   { bg: [251,146,60],  label: 'partial' },
+  blocked:   { bg: [239,68,68],   label: 'blocked' },
+  planned:   { bg: [148,163,184], label: 'planned' },
+};
+
+const LAYER_COLORS = {
+  creator:   [203,166,247],
+  voice:     [34,211,238],
+  frontend:  [34,211,238],
+  backend:   [52,211,153],
+  database:  [167,139,250],
+  agent:     [148,163,184],
+  memory:    [251,191,36],
+  provider:  [251,146,60],
+  product:   [34,211,238],
+};
+
+// ═══════════════════════════════ NODES ═══════════════════════════════════
+
+const NODES = [
+  // Layer 0: Creator
+  { id: 'creator',    label: 'Creator',      desc: 'Voice / Text input · Ctrl+B to record',                  layer: 'creator',  status: 'proven',  group: 0 },
+
+  // Layer 1: Realtime Voice
+  { id: 'livekit',    label: 'LiveKit',       desc: 'Media transport · Room management · WS→HTTP',             layer: 'voice',    status: 'partial', group: 1 },
+  { id: 'gemma-e4b',  label: 'Gemma 4 E4B',   desc: 'Native audio reasoning · HuggingFace cloud',              layer: 'voice',    status: 'blocked', group: 1 },
+  { id: 'kokoro',     label: 'Kokoro-82M',    desc: 'TTS waveform synthesis · Open weight',                    layer: 'voice',    status: 'partial', group: 1 },
+  { id: 'openrouter-voice', label: 'OpenRouter Live', desc: 'Text-turn live dialogue · Fallback path',          layer: 'voice',    status: 'partial', group: 1 },
+  { id: 'rust-edge',  label: 'Rust VAD Edge', desc: 'VAD · Barge-in · JSONL/HTTP bridge · Needs media bridge', layer: 'voice',    status: 'planned', group: 1 },
+
+  // Layer 2: Orchestration
+  { id: 'content-wf', label: 'Content WF',    desc: 'Durable content generation workflow',                     layer: 'backend',  status: 'proven',  group: 2 },
+  { id: 'a2a-graph',  label: 'A2A Task Graph', desc: 'Agent-to-agent message routing · Handoffs',              layer: 'backend',  status: 'proven',  group: 2 },
+  { id: 'autopass',   label: 'Autonomous Pass',desc: 'Always-on studio passes · Heartbeat',                    layer: 'backend',  status: 'proven',  group: 2 },
+  { id: 'checkpoint', label: 'Checkpoints',   desc: 'Run resume plans · A2A retry',                            layer: 'backend',  status: 'proven',  group: 2 },
+  { id: 'context-pkt', label: 'Context Pkts',  desc: 'Memory-health · Retrieval summaries · Prompt budgets',    layer: 'backend',  status: 'proven',  group: 2 },
+  { id: 'feedback',   label: 'Feedback Gates', desc: 'Human feedback routing · Revision loops',                layer: 'backend',  status: 'proven',  group: 2 },
+  { id: 'publish',    label: 'Publish Gates', desc: 'Distribution packages · Media plans · Readiness',         layer: 'backend',  status: 'partial', group: 2 },
+  { id: 'claim-rev',  label: 'Claim Revision', desc: 'Claim revision plans · A2A follow-up · Closure ledger',  layer: 'backend',  status: 'proven',  group: 2 },
+
+  // Layer 3: Retrieval Intelligence
+  { id: 'retrieval-ql', label: 'Quality Ledger', desc: 'POST /api/runs/{id}/retrieval-quality-ledger',         layer: 'database', status: 'proven',  group: 3 },
+  { id: 'evidence-accept', label: 'Evidence Accept', desc: 'Accepted retrieval evidence → source ledger',       layer: 'database', status: 'proven',  group: 3 },
+  { id: 'reranker',  label: 'Reranker',       desc: 'Rust deterministic + Python fallback',                    layer: 'database', status: 'partial', group: 3 },
+  { id: 'retrieval-intel', label: 'Retrieval Intel', desc: 'Query rewrite · Hybrid fanout · Planned agent',    layer: 'database', status: 'planned', group: 3 },
+  { id: 'knowledge-graph', label: 'Knowledge Graph', desc: 'Entity extraction · Claim-source graph · Planned', layer: 'database', status: 'planned', group: 3 },
+
+  // Layer 3b: Storage
+  { id: 'postgres',   label: 'Postgres',      desc: 'Runs · Events · A2A · Sources · Claims · pgvector',      layer: 'database', status: 'proven',  group: 3 },
+
+  // Layer 4: Expert Agents (representative selection of the 38)
+  { id: 'agent-conv', label: 'Conv & Route',  desc: 'Realtime Host · Intent Router · Fwd Deployed Eng',        layer: 'agent',    status: 'proven',  group: 4 },
+  { id: 'agent-eng',  label: 'Engineering',   desc: 'SWE · Backend · Frontend · Scalability · Inference',      layer: 'agent',    status: 'proven',  group: 4 },
+  { id: 'agent-research', label: 'Research',   desc: 'Web Research · Source Ledger · Claim Verification',        layer: 'agent',    status: 'proven',  group: 4 },
+  { id: 'agent-content', label: 'Content',     desc: 'Strategist · ELI5 · Substack · Script Doctor · Editor',   layer: 'agent',    status: 'proven',  group: 4 },
+  { id: 'agent-growth', label: 'Growth',       desc: 'Platform Opt · Influencer · Outreach',                    layer: 'agent',    status: 'proven',  group: 4 },
+  { id: 'agent-media', label: 'Media',         desc: 'UI/UX · Visual · Image Gen · Audio · Video/Reel',        layer: 'agent',    status: 'proven',  group: 4 },
+  { id: 'agent-quality', label: 'Quality',     desc: 'Guardrails · PM · Critic · Notes · Artifact Lib · Sprint',layer: 'agent',   status: 'proven',  group: 4 },
+  { id: 'agent-ri',  label: 'Retrieval Intel Agent', desc: 'Query rewrite · Hybrid search · Planned agent',    layer: 'agent',    status: 'planned', group: 4 },
+  { id: 'agent-kg',  label: 'KG Curator',     desc: 'Entity extraction · Graph coverage · Planned agent',      layer: 'agent',    status: 'planned', group: 4 },
+
+  // Layer 5: Obsidian Memory OS
+  { id: 'obsidian-raw',  label: 'raw/',       desc: 'Append-only captures · Feedback · Run exports',            layer: 'memory',   status: 'proven',  group: 5 },
+  { id: 'obsidian-wiki', label: 'wiki/',       desc: 'Durable project knowledge · Architecture decisions',      layer: 'memory',   status: 'proven',  group: 5 },
+  { id: 'obsidian-out',  label: 'output/',     desc: 'Viewers · Reports · Provider proof · Handoffs',           layer: 'memory',   status: 'proven',  group: 5 },
+
+  // Layer 6: Provider Boundary
+  { id: 'hf-gemma',  label: 'HF Gemma',      desc: 'HuggingFace cloud endpoint · Expert reasoning',            layer: 'provider', status: 'partial', group: 6 },
+  { id: 'web-search', label: 'Web Search',    desc: 'Provider-pluggable · Tavily / Firecrawl',                 layer: 'provider', status: 'proven',  group: 6 },
+  { id: 'image-gen', label: 'Image Gen',      desc: 'Provider boundary for image generation',                   layer: 'provider', status: 'proven',  group: 6 },
+
+  // Layer 7: Product App
+  { id: 'nextjs',    label: 'Next.js App',    desc: 'Composer · Draft Board · Source · Production · Voice',     layer: 'frontend', status: 'proven',  group: 7 },
+  { id: 'fastapi',   label: 'FastAPI',        desc: 'API · Orchestration · Storage · Provider calls',           layer: 'backend',  status: 'proven',  group: 7 },
+  { id: 'cockpit',   label: 'Cockpit',        desc: 'Operator debug · Provider Readiness · Walkthrough',        layer: 'backend',  status: 'proven',  group: 7 },
+];
+
+// ═══════════════════════════════ EDGES ═══════════════════════════════════
+
+const EDGES = [
+  { from: 'creator', to: 'livekit' },
+  { from: 'creator', to: 'openrouter-voice' },
+  { from: 'creator', to: 'nextjs' },
+  { from: 'livekit', to: 'gemma-e4b' },
+  { from: 'livekit', to: 'openrouter-voice' },
+  { from: 'gemma-e4b', to: 'kokoro' },
+  { from: 'openrouter-voice', to: 'kokoro' },
+  { from: 'livekit', to: 'rust-edge' },
+  { from: 'livekit', to: 'content-wf' },
+  { from: 'content-wf', to: 'a2a-graph' },
+  { from: 'a2a-graph', to: 'agent-conv' },
+  { from: 'a2a-graph', to: 'agent-eng' },
+  { from: 'a2a-graph', to: 'agent-research' },
+  { from: 'a2a-graph', to: 'agent-content' },
+  { from: 'a2a-graph', to: 'agent-growth' },
+  { from: 'a2a-graph', to: 'agent-media' },
+  { from: 'a2a-graph', to: 'agent-quality' },
+  { from: 'a2a-graph', to: 'agent-ri' },
+  { from: 'a2a-graph', to: 'agent-kg' },
+  { from: 'agent-conv', to: 'retrieval-ql' },
+  { from: 'agent-research', to: 'retrieval-ql' },
+  { from: 'agent-ri', to: 'retrieval-ql' },
+  { from: 'retrieval-ql', to: 'evidence-accept' },
+  { from: 'retrieval-ql', to: 'reranker' },
+  { from: 'retrieval-ql', to: 'retrieval-intel' },
+  { from: 'retrieval-ql', to: 'knowledge-graph' },
+  { from: 'evidence-accept', to: 'claim-rev' },
+  { from: 'agent-content', to: 'claim-rev' },
+  { from: 'agent-content', to: 'publish' },
+  { from: 'publish', to: 'claim-rev' },
+  { from: 'agent-content', to: 'feedback' },
+  { from: 'content-wf', to: 'context-pkt' },
+  { from: 'autopass', to: 'checkpoint' },
+  { from: 'autopass', to: 'context-pkt' },
+  { from: 'context-pkt', to: 'feedback' },
+  { from: 'a2a-graph', to: 'postgres' },
+  { from: 'content-wf', to: 'postgres' },
+  { from: 'checkpoint', to: 'postgres' },
+  { from: 'postgres', to: 'obsidian-raw' },
+  { from: 'obsidian-raw', to: 'obsidian-wiki' },
+  { from: 'obsidian-wiki', to: 'obsidian-out' },
+  { from: 'agent-research', to: 'web-search' },
+  { from: 'agent-content', to: 'hf-gemma' },
+  { from: 'agent-eng', to: 'image-gen' },
+  { from: 'gemma-e4b', to: 'hf-gemma' },
+  { from: 'nextjs', to: 'fastapi' },
+  { from: 'cockpit', to: 'fastapi' },
+  { from: 'fastapi', to: 'content-wf' },
+  { from: 'fastapi', to: 'postgres' },
+];
+
+// ═══════════════════════════════ P5 SKETCH ═══════════════════════════════
+
+let nodes = [], connections = [];
+let dragNode = null;
+let hoverNode = null;
+let zoom = 1.0, zoomTarget = 1.0;
+let viewOffset = { x: 0, y: 0 };
+let detailEl, detailTitle, detailDesc, detailStatus;
+let titleOverlay;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  textFont('Segoe UI');
+
+  detailEl = select('#node-detail');
+  detailTitle = select('#nd-title');
+  detailDesc = select('#nd-desc');
+  detailStatus = select('#nd-status');
+  titleOverlay = select('#title-overlay');
+
+  // Initialize node positions in a radial layout
+  const groups = {};
+  NODES.forEach(n => { if (!groups[n.group]) groups[n.group] = []; groups[n.group].push(n); });
+  const groupKeys = Object.keys(groups).sort();
+  const centerX = 0, centerY = 0;
+  const groupRadius = 160;
+  const groupAngleStep = (TWO_PI) / groupKeys.length;
+
+  groupKeys.forEach((gk, gi) => {
+    const gNodes = groups[gk];
+    const gAngle = gi * groupAngleStep - HALF_PI;
+    const gx = centerX + cos(gAngle) * groupRadius * 1.8;
+    const gy = centerY + sin(gAngle) * groupRadius * 1.8;
+    const nAngleStep = TWO_PI / gNodes.length;
+    gNodes.forEach((n, ni) => {
+      const dist = 50 + gNodes.length * 8;
+      const a = nAngleStep * ni + gAngle;
+      n.x = gx + cos(a) * dist;
+      n.y = gy + sin(a) * dist;
+      n.vx = 0; n.vy = 0;
+      n.px = n.x; n.py = n.y;
+    });
+  });
+
+  // Build edge lookup
+  const nodeMap = {};
+  NODES.forEach(n => nodeMap[n.id] = n);
+  EDGES.forEach(e => {
+    if (nodeMap[e.from] && nodeMap[e.to]) {
+      connections.push({ from: nodeMap[e.from], to: nodeMap[e.to] });
+    }
+  });
+
+  // Fade title after 3 seconds
+  setTimeout(() => {
+    titleOverlay.style('opacity', '0');
+    setTimeout(() => titleOverlay.style('display', 'none'), 1500);
+  }, 3000);
+}
+
+function draw() {
+  background(10, 10, 20);
+
+  // Smooth zoom
+  zoom = lerp(zoom, zoomTarget, 0.08);
+
+  translate(width / 2 + viewOffset.x, height / 2 + viewOffset.y);
+  scale(zoom);
+
+  // Physics tick
+  const repulsion = 8000;
+  const attraction = 0.006;
+  const damping = 0.85;
+  const edgeLength = 80;
+
+  // Repulsion between all nodes
+  for (let i = 0; i < NODES.length; i++) {
+    for (let j = i + 1; j < NODES.length; j++) {
+      const a = NODES[i], b = NODES[j];
+      let dx = b.x - a.x, dy = b.y - a.y;
+      let dist = sqrt(dx * dx + dy * dy) + 1;
+      let force = repulsion / (dist * dist);
+      let fx = (dx / dist) * force;
+      let fy = (dy / dist) * force;
+      a.vx -= fx; a.vy -= fy;
+      b.vx += fx; b.vy += fy;
+    }
+  }
+
+  // Attraction along edges
+  connections.forEach(c => {
+    let dx = c.to.x - c.from.x, dy = c.to.y - c.from.y;
+    let dist = sqrt(dx * dx + dy * dy) + 1;
+    let force = (dist - edgeLength) * attraction;
+    let fx = (dx / dist) * force;
+    let fy = (dy / dist) * force;
+    c.from.vx += fx; c.from.vy += fy;
+    c.to.vx -= fx; c.to.vy -= fy;
+  });
+
+  // Apply forces
+  NODES.forEach(n => {
+    if (n !== dragNode) {
+      n.vx *= damping;
+      n.vy *= damping;
+      n.x += n.vx;
+      n.y += n.vy;
+    }
+  });
+
+  // Draw edges
+  connections.forEach(c => {
+    const alpha = c.from.status === 'planned' || c.to.status === 'planned' ? 30 : 60;
+    stroke(108, 112, 134, alpha);
+    strokeWeight(0.8);
+    line(c.from.x, c.from.y, c.to.x, c.to.y);
+  });
+
+  // Draw nodes
+  NODES.forEach(n => {
+    const lc = LAYER_COLORS[n.layer] || [148,163,184];
+    const isHover = hoverNode === n;
+    const isConnected = connections.some(c =>
+      (c.from === n && c.to === hoverNode) || (c.to === n && c.from === hoverNode)
+    ) || n === hoverNode;
+    const size = isHover ? 28 : 22;
+
+    // Glow for hover/connected
+    if (isHover) {
+      for (let g = 3; g > 0; g--) {
+        fill(lc[0], lc[1], lc[2], 8);
+        noStroke();
+        ellipse(n.x, n.y, size + g * 18);
+      }
+    }
+    if (isConnected && !isHover) {
+      fill(lc[0], lc[1], lc[2], 6);
+      noStroke();
+      ellipse(n.x, n.y, size + 12);
+    }
+
+    // Node body with status indicator
+    const sc = STATUS_COLORS[n.status];
+    const edgeColor = sc ? sc.bg : lc;
+
+    // Outer ring = status
+    fill(lc[0], lc[1], lc[2], 30);
+    stroke(edgeColor[0], edgeColor[1], edgeColor[2], isHover ? 200 : 120);
+    strokeWeight(isHover ? 2.5 : 1.5);
+    ellipse(n.x, n.y, size + 6);
+
+    // Inner fill
+    fill(lc[0], lc[1], lc[2], isHover ? 60 : 40);
+    noStroke();
+    ellipse(n.x, n.y, size);
+
+    // Label
+    noStroke();
+    fill(205, 214, 244, isHover ? 220 : 160);
+    textAlign(CENTER, CENTER);
+    textSize(isHover ? 10 : 9);
+    text(n.label, n.x, n.y + size + 14);
+  });
+
+  // Update hover detail panel
+  if (hoverNode) {
+    const n = hoverNode;
+    const sc = STATUS_COLORS[n.status];
+    detailEl.style('opacity', '1');
+    detailTitle.html(n.label);
+    detailDesc.html(n.desc + '<br>Layer: ' + n.layer + ' · Group: ' + n.group);
+    const colorHex = sc ? rgbToHex(sc.bg[0], sc.bg[1], sc.bg[2]) : '#94a3b8';
+    detailStatus.html('<span class="status-badge" style="background:' + colorHex + '22;color:' + colorHex + ';border:1px solid ' + colorHex + '44">' + (sc ? sc.label : 'unknown') + '</span>');
+  } else {
+    detailEl.style('opacity', '0');
+  }
+}
+
+function mouseMoved() {
+  const mx = (mouseX - width / 2 - viewOffset.x) / zoom;
+  const my = (mouseY - height / 2 - viewOffset.y) / zoom;
+  hoverNode = null;
+  for (let i = NODES.length - 1; i >= 0; i--) {
+    const n = NODES[i];
+    if (dist(mx, my, n.x, n.y) < 18) {
+      hoverNode = n;
+      break;
+    }
+  }
+}
+
+function mousePressed() {
+  const mx = (mouseX - width / 2 - viewOffset.x) / zoom;
+  const my = (mouseY - height / 2 - viewOffset.y) / zoom;
+  for (let i = NODES.length - 1; i >= 0; i--) {
+    const n = NODES[i];
+    if (dist(mx, my, n.x, n.y) < 24) {
+      dragNode = n;
+      break;
+    }
+  }
+}
+
+function mouseDragged() {
+  if (dragNode) {
+    dragNode.x = (mouseX - width / 2 - viewOffset.x) / zoom;
+    dragNode.y = (mouseY - height / 2 - viewOffset.y) / zoom;
+    dragNode.vx = 0; dragNode.vy = 0;
+  } else {
+    viewOffset.x += (movedX - pmovedX) || 0;
+    viewOffset.y += (movedY - pmovedY) || 0;
+  }
+}
+
+function mouseReleased() {
+  dragNode = null;
+}
+
+function mouseWheel(event) {
+  zoomTarget *= event.delta > 0 ? 0.9 : 1.1;
+  zoomTarget = constrain(zoomTarget, 0.3, 3.0);
+  return false;
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function rgbToHex(r, g, b) {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.round(x).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  }).join('');
+}
+
+// Track real mouse movement for drag offset
+let pmovedX = 0, pmovedY = 0;
+</script>
+</body>
+</html>

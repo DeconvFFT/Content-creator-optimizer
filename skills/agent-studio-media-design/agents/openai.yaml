@@ -1,0 +1,4 @@
+interface:
+  display_name: "Media Design"
+  short_description: "Create visual, audio, reel, and planning HTML directions."
+  default_prompt: "Use this skill to plan media assets and interactive HTML planning surfaces."

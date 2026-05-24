@@ -1,0 +1,23 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.hands_on_generative_ai_transformers_diffusion.chapter_7_stable_diffusion_adaptation_dreambooth_lora_release_gates",
+  "parent_source_id": "local_books.hands_on_generative_ai_transformers_diffusion",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Hands-On Generative AI with Transformers and Diffusion.pdf",
+  "chapter": {
+    "number": 7,
+    "title": "Fine-Tuning Stable Diffusion",
+    "focus_slice": "Full diffusion fine-tuning, DreamBooth, textual inversion, LoRA/PEFT, memory-aware training, and adaptation release-gate implications"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "physical_pages": "500-592"
+  },
+  "temp_extract": "/tmp/hands_on_genai_p500_592.txt",
+  "note_path": "system_design_vault/02-books/hands-on-generative-ai/chapters/7-stable-diffusion-adaptation-dreambooth-lora-release-gates.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/stable-diffusion-adaptation-dreambooth-lora-cross-check.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused Chapter 7 direct-read adaptation slice and corroborating note targets only. No raw chapter text or long excerpts stored."
+}

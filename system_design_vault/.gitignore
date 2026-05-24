@@ -1,0 +1,6 @@
+private-extracts/
+__pycache__/
+01-sources/user-provided-pdfs/*.pdf
+01-sources/user-provided-pdfs/*.epub
+01-sources/user-provided-pdfs/*.mobi
+*.tmp

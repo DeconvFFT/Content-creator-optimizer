@@ -1,0 +1,28 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.deep_learning_goodfellow_bengio_courville.chapter_10_explicit_memory_attention_as_differentiable_addressing",
+  "parent_source_id": "local_books.deep_learning_goodfellow_bengio_courville",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Deep Learning by Ian Goodfellow, Yoshua Bengio, Aaron Courville.pdf",
+  "chapter": {
+    "number": 10,
+    "title": "Sequence Modeling: Recurrent and Recursive Nets",
+    "focus_slice": "Section 10.12 explicit memory, differentiable soft addressing, content-based versus location-based access, and attention as address selection"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "printed_pages": "416-420",
+    "line_span": {
+      "start_line": 844,
+      "end_line": 974
+    }
+  },
+  "temp_extract": "/tmp/deep_learning_ch10_7_12.txt",
+  "note_path": "system_design_vault/02-books/deep-learning-book/chapters/10-explicit-memory-attention-as-differentiable-addressing.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/deep-learning-seq2seq-attention-external-memory-cross-check.md",
+  "asset_path": "system_design_vault/02-books/deep-learning-book/assets/ch10-explicit-memory-attention-addressing.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused explicit-memory follow-through slice only. No raw chapter text or long excerpts stored."
+}

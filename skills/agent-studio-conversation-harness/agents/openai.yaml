@@ -1,0 +1,4 @@
+interface:
+  display_name: "Conversation Harness"
+  short_description: "Route live dialogue into durable agent work."
+  default_prompt: "Use this skill to route voice or text dialogue into durable multi-agent work."

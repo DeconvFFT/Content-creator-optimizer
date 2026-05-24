@@ -1,0 +1,60 @@
+{
+  "project": "tcf-canada-training",
+  "generated": "2026-05-17",
+  "source_notes": [
+    "../../raw/source-notes/2026-05-17-chatgpt-deep-research-plan.md",
+    "../../raw/source-notes/2026-05-17-official-tcf-canada-source-check.md",
+    "../../wiki/exam/TCF Canada Exam Targets.md",
+    "../../wiki/curriculum/24-week-curriculum.md"
+  ],
+  "practice_app": "tcf-training-system.html",
+  "state_key": "tcfCanadaTrainingState.v1",
+  "tracks": [
+    {
+      "baseline": "A2 or below",
+      "start_week": 1,
+      "calendar_weeks": 24,
+      "weekly_load": "18-22 hours"
+    },
+    {
+      "baseline": "B1 range",
+      "start_week": 5,
+      "calendar_weeks": 20,
+      "weekly_load": "16-18 hours"
+    },
+    {
+      "baseline": "Low B2 / unstable NCLC 7",
+      "start_week": 9,
+      "calendar_weeks": 16,
+      "weekly_load": "14-16 hours"
+    },
+    {
+      "baseline": "Stable B2 or low C1",
+      "start_week": 13,
+      "calendar_weeks": 12,
+      "weekly_load": "12-15 hours"
+    }
+  ],
+  "skill_surfaces": {
+    "listening": {
+      "seed_items": 8,
+      "policy": "one playback per active attempt; transcript after answer"
+    },
+    "reading": {
+      "seed_items": 8,
+      "policy": "original TCF-style passages with rationale and remediation tags"
+    },
+    "writing": {
+      "seed_prompts": 6,
+      "policy": "Task 1, 2, and 3 word limits with 20-point training rubric"
+    },
+    "speaking": {
+      "seed_prompts": 6,
+      "policy": "official-style timers, local recording when browser supports MediaRecorder, 20-point training rubric"
+    },
+    "mocks": {
+      "policy": "stores full mock records; comprehension scores are readiness estimates, not official FEI score conversions"
+    }
+  },
+  "verified_source_policy": "Re-check official FEI and IRCC pages before immigration-sensitive decisions."
+}

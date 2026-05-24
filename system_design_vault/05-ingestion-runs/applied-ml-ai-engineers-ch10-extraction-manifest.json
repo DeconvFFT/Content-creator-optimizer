@@ -1,0 +1,24 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.applied_ml_and_ai_for_engineers.chapter_10_image_classification_with_cnns",
+  "parent_source_id": "local_books.applied_ml_and_ai_for_engineers",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Applied-Machine-Learning-and-AI-for-Engineers.pdf",
+  "chapter": {
+    "number": 10,
+    "title": "Image Classification with Convolutional Neural Networks",
+    "focus_slice": "CNN representation pipeline, transfer learning, augmentation, global pooling, and spectrogram-based audio classification route implications"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "pdf_pages": "340-402"
+  },
+  "temp_extract": "/tmp/applied_ml_ai_engineers_ch10_image_classification.txt",
+  "note_path": "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch10-image-classification-with-cnns.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/applied-ml-image-classification-cross-check.md",
+  "mental_model_asset_path": "system_design_vault/02-books/applied-ml-ai-engineers/assets/ch10-transfer-learning-route-contract.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read chapter slice, official-open corroboration target, and local SVG mental model only. No raw chapter text or long excerpts stored."
+}

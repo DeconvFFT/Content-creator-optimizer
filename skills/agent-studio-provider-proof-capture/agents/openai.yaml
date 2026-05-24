@@ -1,0 +1,4 @@
+interface:
+  display_name: "Provider Proof Capture"
+  short_description: "Capture live provider and publication proof without leaking secrets."
+  default_prompt: "Use this skill to close voice, Gemma/HF, search, or publication proof blockers."

@@ -1,0 +1,28 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.python_nlp_cookbook.chapter_1_sentence_token_boundary_governance",
+  "parent_source_id": "local_books.python_nlp_cookbook",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Python Natural Language Processing Cookbook, 2nd Edition.pdf",
+  "chapter": {
+    "number": 1,
+    "title": "Learning NLP Basics",
+    "focus_slice": "Sentence splitting as boundary policy plus tokenization-stage tracking and boundary provenance across NLTK and spaCy"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "printed_pages": "3-12",
+    "line_span": {
+      "start_line": 624,
+      "end_line": 1067
+    }
+  },
+  "temp_extract": "/tmp/python_nlp_cookbook_ch1_boundary_slice_624_1067.txt",
+  "note_path": "system_design_vault/02-books/python-nlp-cookbook/chapters/ch01-sentence-token-boundary-governance.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/python-nlp-cookbook-ch1-boundary-governance-cross-check.md",
+  "asset_path": "system_design_vault/02-books/python-nlp-cookbook/assets/ch01-boundary-governance-contract.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused Chapter 1 sentence/token boundary slice only. No raw chapter text or long excerpts stored."
+}

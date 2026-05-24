@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Studio Vault Home</title>
+  <style>
+    :root {
+      --ink: #101418;
+      --muted: #607080;
+      --line: #d9e1e8;
+      --paper: #f6f8fb;
+      --panel: #ffffff;
+      --blue: #2f66d0;
+      --teal: #137c72;
+      --amber: #a76000;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header,
+    main {
+      padding: 30px clamp(16px, 4vw, 58px);
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 14px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 4.8rem);
+      line-height: 0.98;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    main {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(230px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 18px;
+      display: grid;
+      gap: 10px;
+      min-height: 190px;
+      border-top: 4px solid var(--blue);
+    }
+
+    .card:nth-child(2) { border-top-color: var(--teal); }
+    .card:nth-child(3) { border-top-color: var(--amber); }
+
+    a {
+      color: var(--blue);
+      overflow-wrap: anywhere;
+      font-weight: 700;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      width: fit-content;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #f9fbfd;
+      color: #34414e;
+      font-size: 0.78rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="pill">Obsidian vault control surface</span>
+    <h1>Agent Studio Vault Home</h1>
+    <p>Use this vault as the planning and communication layer for the multi-agent content studio. Architecture, tracking, research, and review packets belong here as interactive HTML artifacts. The product app remains a separate live conversational studio.</p>
+    <div class="pill-row">
+      <span class="pill">HLD</span>
+      <span class="pill">LLD</span>
+      <span class="pill">A2A map</span>
+      <span class="pill">Retrieval research</span>
+      <span class="pill">OpenRouter LiveKit voice boundary</span>
+      <span class="pill">Work tracking</span>
+      <span class="pill">Generated viewers</span>
+      <span class="pill">Skill matrix</span>
+      <span class="pill">Proof readiness</span>
+      <span class="pill">Publication boundary</span>
+      <span class="pill">Feedback loops</span>
+      <span class="pill">Feedback export</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <article class="card">
+        <h2>HLD and LLD</h2>
+        <p>Interactive system architecture, component boundaries, detailed module design, flows, retrieval layer, agent roles, and comment capture.</p>
+        <a href="00-system-design/agent-studio-hld-lld.html">Open Agent Studio HLD and LLD</a>
+      </article>
+      <article class="card">
+        <h2>A2A Map</h2>
+        <p>Vault-only inspection map for public discovery, durable message routes, worker execution, dependency repair, collaboration graphs, and skill ownership.</p>
+        <a href="00-system-design/agent-studio-a2a-map.html">Open Agent Studio A2A Map</a>
+      </article>
+      <article class="card">
+        <h2>Work Tracker</h2>
+        <p>Vault-native progress tracker for design and implementation slices. This is for our planning loop and is not part of the product app.</p>
+        <a href="01-work-tracking/agent-studio-work-tracker.html">Open Agent Studio Work Tracker</a>
+      </article>
+      <article class="card">
+        <h2>Retrieval Research</h2>
+        <p>Current strategy for reranking, search optimization, graph traversal, knowledge graph creation, precision, recall, and coverage controls.</p>
+        <a href="02-research/retrieval-quality-research.html">Open Retrieval Quality Research</a>
+      </article>
+      <article class="card">
+        <h2>OpenRouter LiveKit Voice Boundary</h2>
+        <p>Route map for the active OpenRouter DeepSeek dialogue lane, LiveKit transport, Kokoro TTS, Rust edge proof, legacy native-audio background, blocked live-provider evidence, and propagated <code>proof_plan</code> proof-plan packets including <code>proof_plan.operator_proof_packet</code> as the compact provider-proof-plan packet.</p>
+        <a href="02-research/gemma-voice-boundary-map.html">Open OpenRouter LiveKit Voice Boundary Map</a>
+      </article>
+      <article class="card">
+        <h2>Memory OS Viewer</h2>
+        <p>Generated inspection view for the raw/wiki/output memory system, Codex working loop, agent responsibilities, and implemented memory workflows.</p>
+        <a href="output/viewers/agent-studio-memory-os-viewer.html">Open Agent Studio Memory OS</a>
+      </article>
+      <article class="card">
+        <h2>System Design Viewer</h2>
+        <p>Generated inspection view for runtime components, memory layers, core flows, current blockers, and objective completion evidence.</p>
+        <a href="output/viewers/agent-studio-system-design-viewer.html">Open Agent Studio System Design Viewer</a>
+      </article>
+      <article class="card">
+        <h2>System Design Source Map</h2>
+        <p>Generated inspection view for the companion system-design source inventory, policy lists, first-slice records, source-note paths, and design implications.</p>
+        <a href="../system_design_vault/output/viewers/system-design-source-map.html">Open System Design Source Map Viewer</a>
+      </article>
+      <article class="card">
+        <h2>Skill Matrix</h2>
+        <p>Browser-openable map of project-owned skills, source files, agent ownership, and proof terms for review and vault-sync handoffs.</p>
+        <a href="00-system-design/agent-studio-skill-matrix.html">Open Agent Studio Skill Matrix</a>
+      </article>
+      <article class="card">
+        <h2>Proof Readiness</h2>
+        <p>Blocked-proof checklist for provider-backed live voice and external publication evidence required before the full objective can close, including <code>proof_plan</code> proof-plan packets and <code>proof_plan.operator_proof_packet</code> compact provider-proof-plan packet exports that match the no-secret CLI plan.</p>
+        <a href="01-work-tracking/agent-studio-proof-readiness.html">Open Agent Studio Proof Readiness</a>
+      </article>
+      <article class="card">
+        <h2>Current Proof Packets</h2>
+        <p>Generated current-state packets for the UUID proof workspace: <code>current-proof-status.md</code>, <code>current-blocker-matrix.json</code>, and <code>operator-unblocker-checklist.md</code>.</p>
+        <a href="output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md">Open Current Proof Status</a>
+        <a href="output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json">Open Current Blocker Matrix</a>
+        <a href="output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md">Open Operator Unblocker Checklist</a>
+      </article>
+      <article class="card">
+        <h2>Publication Boundary</h2>
+        <p>Route map for content gates, non-live channel smoke, credential scope, policy review, live destination proof, rollback readiness, and proof-plan packets.</p>
+        <a href="03-review-packets/agent-studio-publication-boundary-map.html">Open Agent Studio Publication Boundary Map</a>
+      </article>
+      <article class="card">
+        <h2>Feedback Loop Map</h2>
+        <p>Review map for guardrail outcomes, source-quality loops, revision closure, publish gates, and post-run planning feedback.</p>
+        <a href="03-review-packets/agent-studio-feedback-loop-map.html">Open Agent Studio Feedback Loop Map</a>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>How We Use This</h2>
+      <p>When you want to review the system, open the HLD and LLD artifact, leave comments in the review tab, export the packet, and paste it into the conversation. I will route that packet to the relevant agents and update the vault artifacts before changing product code.</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.applied_ml_and_ai_for_engineers.chapter_9_neural_networks_with_keras",
+  "parent_source_id": "local_books.applied_ml_and_ai_for_engineers",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Applied-Machine-Learning-and-AI-for-Engineers.pdf",
+  "chapter": {
+    "number": 9,
+    "title": "Neural Networks",
+    "focus_slice": "Keras/TensorFlow training-loop contract, task-type-specific output heads and loss functions, validation discipline, width/depth tradeoffs, and imbalanced-class evaluation"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "pdf_pages": "291-338"
+  },
+  "temp_extract": "/tmp/applied_ml_ai_engineers_ch09_neural_networks.txt",
+  "note_path": "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch09-neural-networks-with-keras.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/applied-ml-neural-networks-cross-check.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read chapter slice and corroborating note targets only. No raw chapter text or long excerpts stored."
+}

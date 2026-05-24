@@ -1,0 +1,23 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "deep_read_pass_1",
+  "updated": "2026-05-19",
+  "source_id": "local_books.applied_ml_and_ai_for_engineers.chapter_11_face_detection_and_recognition",
+  "parent_source_id": "local_books.applied_ml_and_ai_for_engineers",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Applied-Machine-Learning-and-AI-for-Engineers.pdf",
+  "chapter": {
+    "number": 11,
+    "title": "Face Detection and Recognition",
+    "focus_slice": "Detector-family choice, crop/alignment contract, face-specific transfer learning, open-set identity handling, and biometric-governance route implications"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "pdf_pages": "403-444"
+  },
+  "temp_extract": "/tmp/applied_ml_ai_engineers_ch11_face_detection_recognition.txt",
+  "note_path": "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch11-face-detection-and-recognition.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/applied-ml-face-detection-recognition-cross-check.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read chapter slice and corroborating note targets only. No raw chapter text or long excerpts stored."
+}

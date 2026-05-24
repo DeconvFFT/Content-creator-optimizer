@@ -1,0 +1,22 @@
+{
+  "manifest_type": "local_book_chapter_extraction_manifest",
+  "project": "agent-studio-system-design",
+  "status": "active",
+  "updated": "2026-05-19",
+  "source_id": "local_books.bishop_prml.chapter_8_graphical_models",
+  "parent_source_id": "local_books.bishop_prml",
+  "source_title": "Pattern Recognition and Machine Learning",
+  "chapter_number": "8",
+  "chapter_title": "Graphical Models",
+  "local_source_path": "/Users/saumyamehta/DS interview prep/books/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf",
+  "extraction_method": "pdftotext -layout",
+  "temporary_extraction_cache": "/private/tmp/agent_studio_ingestion/prml.txt",
+  "line_span": {
+    "start_line": 18647,
+    "end_line": 21562
+  },
+  "note_path": "system_design_vault/02-books/prml/chapters/8-graphical-models-route-evidence.md",
+  "stores_raw_source_text": false,
+  "stores_long_excerpts": false,
+  "safe_notes_strategy": "Use this manifest only to reproduce the local line-span extraction from the user-provided local PDF. Do not store raw extracted text in the vault."
+}

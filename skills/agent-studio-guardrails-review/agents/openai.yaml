@@ -1,0 +1,4 @@
+interface:
+  display_name: "Guardrails Review"
+  short_description: "Review claims, safety, provenance, policy, and readiness gates."
+  default_prompt: "Use this skill to review generated content and artifacts before approval."

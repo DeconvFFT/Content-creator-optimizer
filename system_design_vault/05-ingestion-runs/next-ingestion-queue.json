@@ -1,0 +1,132 @@
+{
+  "updated": "2026-05-21",
+  "project": "agent-studio-system-design",
+  "manifest_type": "next_ingestion_queue",
+  "record_count": 6,
+  "records": [
+    {
+      "queue_id": "queue.stanford_cs336_2026_alignment_refresh",
+      "priority": 1,
+      "title": "Stanford CS336 Spring 2026 alignment SFT/RLHF/RLVR refresh",
+      "source_class": "official_stanford_public_material_watch",
+      "current_status": "active_public_materials_increment_available",
+      "trigger_condition": "Directly ingest usable current Lecture 16 and Lecture 17 materials if the official course page exposes them, or recheck when the official CS336 row changes again.",
+      "allowed_action_now": "Use current 2026 Lecture 15 and Lecture 16 as the live direct-read SFT/RLHF/DPO/RLVR anchor set; keep Lecture 17 blocked until the official current course page visibly exposes a public material link; do not claim watched-video understanding from recording pointers or hidden/guessed artifacts.",
+      "target_note": "02-lectures/stanford/cs336-data-and-alignment.md",
+      "supporting_process_records": [
+        "05-ingestion-runs/stanford-current-availability-checks.md",
+        "05-ingestion-runs/stanford-video-source-coverage-matrix.md"
+      ],
+      "blocked_by": "lecture_17_current_material_link_not_visible",
+      "source_urls": [
+        "https://cs336.stanford.edu/",
+        "https://github.com/stanford-cs336/lectures",
+        "https://raw.githubusercontent.com/stanford-cs336/lectures/main/lecture_15.pdf",
+        "https://github.com/stanford-cs336/assignment5-alignment",
+        "https://www.youtube.com/watch?v=46f2QTDB08Q",
+        "https://www.youtube.com/watch?v=JdGFdViaOJk"
+      ],
+      "last_checked_at": "2026-05-21",
+      "last_check_result": "partially_open: official CS336 course schedule visibly exposes `lecture_16.pdf` for Lecture 16, while Lecture 17 still has no visible public material link; the only Lecture 17 candidate in page source is commented out and does not satisfy the visible-link rule.",
+      "next_check_after": "after_official_cs336_page_changes_or_next_high_value_official_source_pass"
+    },
+    {
+      "queue_id": "queue.cs25_may21_human_agency_slot",
+      "priority": 2,
+      "title": "Stanford CS25 May 21 Victoria Lin / Thinking Machines slot",
+      "source_class": "official_stanford_future_slot_watch",
+      "current_status": "future_pending_public_materials",
+      "trigger_condition": "Official CS25 page or recordings page publishes materials or a public recording after the May 21, 2026 slot, or materially expands the official row beyond the current title-and-abstract listing.",
+      "allowed_action_now": "Keep rechecking the official page after the lecture window; do not create a source note from title or abstract visibility alone.",
+      "target_note": "TBD after official title/materials exist",
+      "supporting_process_records": [
+        "05-ingestion-runs/stanford-current-availability-checks.md",
+        "05-ingestion-runs/stanford-video-source-coverage-matrix.md"
+      ],
+      "blocked_by": "future_or_placeholder_material",
+      "source_urls": [
+        "https://web.stanford.edu/class/cs25/",
+        "https://web.stanford.edu/class/cs25/recordings/"
+      ],
+      "last_checked_at": "2026-05-21",
+      "last_check_result": "still_future_pending: official CS25 page still lists May 21 as 'From Language Models to Native Multimodal Intelligence' for Victoria Lin (Thinking Machines) with a public abstract, but there are still no public materials on the row and the recordings page does not expose this slot as a selected public recording.",
+      "next_check_after": "2026-05-21 or after official CS25 page/recordings page changes"
+    },
+    {
+      "queue_id": "queue.cs25_may28_production_inference_recording_check",
+      "priority": 3,
+      "title": "Stanford CS25 May 28 production inference recording/materials check",
+      "source_class": "official_stanford_future_recording_watch",
+      "current_status": "future_pending_recording_materials",
+      "trigger_condition": "Official CS25 recordings page exposes a selected public recording or additional public materials after the May 28, 2026 slot and recording delay.",
+      "allowed_action_now": "Keep existing schedule-plus-primary-source note; recheck after lecture and expected recording delay; no video-level claim yet.",
+      "target_note": "02-lectures/stanford/cs25-production-inference.md",
+      "supporting_process_records": [
+        "05-ingestion-runs/stanford-current-availability-checks.md",
+        "05-ingestion-runs/stanford-video-source-coverage-matrix.md"
+      ],
+      "blocked_by": "future_recording_or_material_not_available",
+      "source_urls": [
+        "https://web.stanford.edu/class/cs25/",
+        "https://web.stanford.edu/class/cs25/recordings/"
+      ],
+      "last_checked_at": "2026-05-21",
+      "last_check_result": "still_future_pending_recording: official CS25 schedule still lists May 28 Serving Transformers: Lessons from the Trenches of Production Inference, speaker Charles Frye (Modal), with public description but no selected public recording on the recordings page.",
+      "next_check_after": "2026-05-28 plus expected one-to-two-week recording delay, or after official CS25 page/recordings page changes"
+    },
+    {
+      "queue_id": "queue.public_video_direct_watch_passes",
+      "priority": 4,
+      "title": "Direct full-watch passes for selected public Stanford recordings",
+      "source_class": "official_public_video_watch",
+      "current_status": "eligible_but_not_required_for_existing_canon",
+      "trigger_condition": "A concrete design question requires video-specific nuance not already captured from official notes, public slides, primary papers, and official docs.",
+      "allowed_action_now": "Watch public official video directly in full; create compact original video note without timestamp dump, transcript storage, or comment-derived substitution.",
+      "target_note": "Existing CS25/CS336/CS224N lecture notes, only when video pass materially changes Agent Studio implications.",
+      "supporting_process_records": [
+        "05-ingestion-runs/stanford-video-source-coverage-matrix.md",
+        "01-sources/official-open/youtube-playlist-worklist.md"
+      ],
+      "blocked_by": "none_but_scope_controlled",
+      "source_urls": [
+        "https://web.stanford.edu/class/cs25/recordings/",
+        "https://www.youtube.com/playlist?list=PLoROMvodv4rOY23Y0BoGoBGgQ1zmU_MT_"
+      ]
+    },
+    {
+      "queue_id": "queue.deferred_local_books_gap_driven",
+      "priority": 5,
+      "title": "Deferred local books only when they fill an Agent Studio gap",
+      "source_class": "local_book_gap_watch",
+      "current_status": "deferred_until_gap_exists",
+      "trigger_condition": "A concrete Agent Studio architecture, glossary, onboarding, or prerequisite gap is identified that is not already covered by canon-ready books, docs, or Stanford sources.",
+      "allowed_action_now": "Do not ingest broadly; promote only the smallest relevant slice with compact original synthesis and rights/provenance status preserved.",
+      "target_note": "TBD by gap; use local book manifest safe notes strategy.",
+      "supporting_process_records": [
+        "05-ingestion-runs/source-records-local-books-backfill.json",
+        "05-ingestion-runs/local-book-coverage-granularity.md"
+      ],
+      "blocked_by": "no_current_high_value_gap",
+      "source_urls": []
+    },
+    {
+      "queue_id": "queue.weekly_vault_map_audit",
+      "priority": 6,
+      "title": "Recurring vault map, manifest, and safety audit",
+      "source_class": "maintenance_audit",
+      "current_status": "active_recurring",
+      "trigger_condition": "After any new source note, chapter note, manifest update, source-map regeneration, local folder change, or official-source refresh.",
+      "allowed_action_now": "Run JSON parse, source-map path, wiki-link, raw-payload, local folder extension, and excluded-source checks; update counts in audits/status.",
+      "target_note": "05-ingestion-runs/coverage-integrity-audit.md",
+      "supporting_process_records": [
+        "05-ingestion-runs/source-records-process-audits.json",
+        "05-ingestion-runs/wiki-link-integrity-audit.md",
+        "05-ingestion-runs/raw-text-excerpt-safety-audit.md",
+        "05-ingestion-runs/source-map-path-integrity-audit.md"
+      ],
+      "blocked_by": "none",
+      "source_urls": [],
+      "last_checked_at": "2026-05-19"
+    }
+  ]
+}

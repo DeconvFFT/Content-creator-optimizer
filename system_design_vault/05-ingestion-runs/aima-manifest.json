@@ -1,0 +1,109 @@
+{
+  "title": "Artificial Intelligence: A Modern Approach",
+  "authors": "Stuart Russell, Peter Norvig",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Artificial Intelligence. A modern approach (Stuart Russell  Peter Norvig).pdf",
+  "rights_status": "user_provided_local",
+  "provenance_status": "user_confirmed_official_clean",
+  "extraction_method": "pdftotext",
+  "created_at": "2026-05-18",
+  "scope": "Bounded chapter-level extraction manifest for Agent Studio relevant Artificial Intelligence: A Modern Approach sections. Stores line spans and note paths only, not extracted source text.",
+  "chapters": [
+    {
+      "number": "2",
+      "title": "Intelligent Agents",
+      "physical_pages": "36-62",
+      "pdf_pages": "49-75",
+      "temp_extract": "/private/tmp/aima_ch2_intelligent_agents.txt",
+      "line_span": {
+        "start_line": 2117,
+        "end_line": 3484
+      },
+      "status": "canon_ready",
+      "note": "02-books/aima/chapters/2-intelligent-agents.md",
+      "stores_raw_source_text": false
+    },
+    {
+      "number": "4",
+      "title": "Search in Complex Environments",
+      "physical_pages": "110-145",
+      "pdf_pages": "123-158",
+      "temp_extract": "/private/tmp/aima_ch4_search_complex_environments.txt",
+      "line_span": {
+        "start_line": 1,
+        "end_line": 1723
+      },
+      "status": "canon_ready",
+      "note": "02-books/aima/chapters/4-search-in-complex-environments.md",
+      "stores_raw_source_text": false
+    },
+    {
+      "number": "5",
+      "title": "Adversarial Search and Games",
+      "physical_pages": "146-175",
+      "pdf_pages": "159-188",
+      "temp_extract": "/private/tmp/aima_ch5_adversarial_search_games.txt",
+      "line_span": {
+        "start_line": 1,
+        "end_line": 1300
+      },
+      "status": "canon_ready",
+      "note": "02-books/aima/chapters/5-adversarial-search-and-games.md",
+      "stores_raw_source_text": false
+    },
+    {
+      "number": "6",
+      "title": "Constraint Satisfaction Problems",
+      "physical_pages": "180-203",
+      "pdf_pages": "191-216",
+      "temp_extract": "/private/tmp/aima_ch6_constraint_satisfaction.txt",
+      "line_span": {
+        "start_line": 1,
+        "end_line": 1239
+      },
+      "status": "canon_ready",
+      "note": "02-books/aima/chapters/6-constraint-satisfaction-problems.md",
+      "stores_raw_source_text": false
+    },
+    {
+      "number": "11",
+      "title": "Automated Planning",
+      "physical_pages": "344-379",
+      "pdf_pages": "357-392",
+      "temp_extract": "/private/tmp/aima_ch11_automated_planning.txt",
+      "line_span": {
+        "start_line": 1,
+        "end_line": 1709
+      },
+      "status": "canon_ready",
+      "note": "02-books/aima/chapters/11-automated-planning.md",
+      "stores_raw_source_text": false
+    },
+    {
+      "number": "17",
+      "title": "Making Complex Decisions",
+      "physical_pages": "575-611",
+      "temp_extract": "/private/tmp/aima_ch17_making_complex_decisions.txt",
+      "line_span": {
+        "start_line": 1,
+        "end_line": 2480
+      },
+      "status": "canon_ready",
+      "note": "02-books/aima/chapters/17-making-complex-decisions.md",
+      "stores_raw_source_text": false
+    },
+    {
+      "number": "18",
+      "title": "Multiagent Decision Making",
+      "physical_pages": "612-663",
+      "temp_extract": "/private/tmp/aima_ch18_multiagent_decision_making.txt",
+      "line_span": {
+        "start_line": 1,
+        "end_line": 3086
+      },
+      "status": "canon_ready",
+      "note": "02-books/aima/chapters/18-multiagent-decision-making.md",
+      "stores_raw_source_text": false
+    }
+  ],
+  "chapter_count": 7
+}

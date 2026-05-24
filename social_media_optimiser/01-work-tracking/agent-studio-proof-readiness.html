@@ -1,0 +1,2415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Studio Proof Readiness</title>
+  <style>
+    :root {
+      --ink: #101820;
+      --muted: #5c6a78;
+      --line: #d9e1e8;
+      --paper: #f5f7fa;
+      --panel: #ffffff;
+      --blue: #245dc1;
+      --red: #a43b30;
+      --amber: #946200;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header,
+    main {
+      padding: 28px clamp(16px, 4vw, 56px);
+    }
+
+    header {
+      display: grid;
+      gap: 14px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 4.2rem);
+      line-height: 1;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .toolbar,
+    .blocker-card,
+    .detail,
+    .export {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .toolbar {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 16px;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      min-height: 38px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #eaf0ff;
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .pill {
+      width: fit-content;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #f9fbfd;
+      color: #34414e;
+      font-size: 0.8rem;
+    }
+
+    .boundary {
+      border-color: #f0c6c0;
+      background: #fff4f2;
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .blocker-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .blocker-card {
+      display: grid;
+      gap: 10px;
+      min-height: 220px;
+      padding: 16px;
+      border-top: 4px solid var(--amber);
+    }
+
+    .blocker-card[data-category="voice"] { border-top-color: var(--red); }
+
+    .meta {
+      display: grid;
+      gap: 8px;
+      color: #34414e;
+      font-size: 0.88rem;
+    }
+
+    code {
+      color: #263747;
+      overflow-wrap: anywhere;
+    }
+
+    .side {
+      display: grid;
+      gap: 12px;
+      position: sticky;
+      top: 14px;
+    }
+
+    .detail,
+    .export {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 240px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      color: #263747;
+      background: #fbfcfe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="pill boundary">Planning memory only</span>
+    <h1>Agent Studio Proof Readiness</h1>
+    <p>Compact inspection surface for the two evidence gaps that still block the full Agent Studio objective: OpenRouter DeepSeek V4 Flash over LiveKit with Kokoro output, and external publication proof. This page records what must be proven next; it does not mark either blocker complete.</p>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="Proof readiness filters">
+      <button type="button" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-filter="voice" aria-pressed="false">Live voice</button>
+      <button type="button" data-filter="publication" aria-pressed="false">Publication</button>
+      <span id="blocker-count" class="pill">2 blockers</span>
+      <span id="blocker-summary" class="pill">Full objective remains active</span>
+    </section>
+
+    <section class="blocker-grid" id="blocker-grid" aria-label="Objective proof blockers"></section>
+
+    <aside class="side">
+      <section class="detail" id="blocker-detail" aria-live="polite"></section>
+      <section class="export">
+        <h2>Filtered Export</h2>
+        <p>Use this packet when a review, sync, or implementation thread needs exact blocker evidence.</p>
+        <textarea id="readiness-export" readonly aria-label="Proof readiness export"></textarea>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const sourcePath = "social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html";
+    const blockers = [
+      {
+            "id": "provider-backed-live-voice-proof",
+            "title": "Provider-backed live voice proof",
+            "category": "voice",
+            "status": "preflight-ready",
+            "source_notes": [
+                  "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+                  "social_media_optimiser/02-research/Realtime Voice Architecture - Gemma Kokoro LiveKit Rust Python.md",
+                  "system_design_vault/03-patterns/system-design/production-agent-studio-canon.md"
+            ],
+            "missing_inputs": [],
+            "credential_snapshot": {
+                  "absent_inputs": [
+                        "LIVEKIT_URL"
+                  ],
+                  "checked_at": "2026-05-23",
+                  "configured_file_inputs": [
+                        "OPENROUTER_API_KEY_FILE",
+                        "LIVEKIT_API_KEY_FILE",
+                        "LIVEKIT_API_SECRET_FILE"
+                  ],
+                  "configured_inputs": [
+                        "OPENROUTER_LIVEKIT_URL"
+                  ],
+                  "configured_local_provider_inputs": [],
+                  "local_provider_config_loaded": false,
+                  "note": "Runtime configuration names are present but unverified; same-session OpenRouter/Kokoro/LiveKit proof is still required.",
+                  "placeholder_only_inputs": [],
+                  "secret_files_loaded": true,
+                  "secret_values_printed": false,
+                  "shell_values_loaded": true,
+                  "source": "non-secret local classifier",
+                  "state": "runtime_configuration_present_unverified"
+            },
+            "proof_acceptance_gate": {
+                  "label": "Provider-backed live voice acceptance gate",
+                  "requires_runtime_proof": true,
+                  "credential_presence_is_not_proof": true,
+                  "same_session_required": true,
+                  "accepted_evidence": [
+                        "provider-smoke ledger with execute_live_calls=true",
+                        "realtime_voice_timing_ledger with speech start, turn commit, OpenRouter start, first text or audio, and interruption evidence",
+                        "LiveKit participant presence bound to the current run/session",
+                        "OpenRouter and Kokoro endpoint identities recorded without secret values"
+                  ],
+                  "rejected_substitutes": [
+                        ".env.example placeholders",
+                        "HF router text/chat completion",
+                        "transcript rehearsal or local-only dry run",
+                        "credential existence without live calls"
+                  ]
+            },
+            "operator_proof_packet": {
+                  "closure_evidence_refs": [
+                        "closure-review-template.json",
+                        "closure-review-status.json",
+                        "blocker-state-update.json"
+                  ],
+                  "completion_evidence_ref": "completion-status.json",
+                  "current_gate": {
+                        "blocker_state_update_status": "blocked_by_closure_review_status",
+                        "closure_review_status": "blocked_by_completion_status",
+                        "closure_review_template_status": "blocked_by_completion_status",
+                        "completion_issue_codes": [
+                              "latest_proof_record_failed"
+                        ],
+                        "completion_next_action": "capture_validate_record_and_recheck",
+                        "completion_next_action_commands": [
+                              "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                              "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                              "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                              "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                              "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                        ],
+                        "completion_status": "blocked_by_latest_failed_proof_record",
+                        "goal_completion_claimed": false,
+                        "latest_failed_proofs": [
+                              "provider-backed-live-voice-proof",
+                              "external-publication-proof"
+                        ],
+                        "missing_accepted_proofs": [],
+                        "state_change_allowed": false
+                  },
+                  "current_state_packet_commands": {
+                        "current_blocker_matrix": "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                        "current_proof_status": "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                        "operator_unblocker_checklist": "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md"
+                  },
+                  "current_state_packets": {
+                        "current_blocker_matrix": "current-blocker-matrix.json",
+                        "current_proof_status": "current-proof-status.md",
+                        "operator_unblocker_checklist": "operator-unblocker-checklist.md"
+                  },
+                  "handoff_contract": "value-free-operator-proof-handoff",
+                  "label": "Provider-backed live voice proof packet",
+                  "matrix_parity_ref": "/operator_input_readiness/proofs/provider-backed-live-voice-proof",
+                  "must_capture": [
+                        "provider_smoke_ledger with execute_live_calls=true",
+                        "realtime_voice_timing_ledger JSON",
+                        "LiveKit room/session id and participant identity",
+                        "captured microphone turn with first text/audio timing",
+                        "interrupt or barge-in acknowledgement evidence"
+                  ],
+                  "next_operator_packet": "operator-unblocker-checklist.md",
+                  "next_status_packet": "current-proof-status.md",
+                  "operator_input_field_contracts": {
+                        "LIVEKIT_API_KEY_FILE": "readable local secret file path; file content is never emitted",
+                        "LIVEKIT_API_SECRET_FILE": "readable local secret file path; file content is never emitted",
+                        "OPENROUTER_API_KEY_FILE": "readable local secret file path; file content is never emitted",
+                        "OPENROUTER_LIVEKIT_URL": "ws or wss LiveKit URL for OpenRouter-backed realtime dialogue"
+                  },
+                  "operator_input_readiness": {
+                        "blocked_fields": [],
+                        "checked_at": "2026-05-23",
+                        "configured_fields": [
+                              "OPENROUTER_API_KEY_FILE",
+                              "OPENROUTER_LIVEKIT_URL",
+                              "LIVEKIT_API_KEY_FILE",
+                              "LIVEKIT_API_SECRET_FILE"
+                        ],
+                        "effective_fail_on_blocked_exit_code": 2,
+                        "evidence_ref": "operator-input-readiness.json",
+                        "exit_policy": {
+                              "default_exit_code": 0,
+                              "fail_on_blocked_exit_code": 2,
+                              "fail_on_blocked_statuses": [
+                                    "blocked_by_operator_inputs",
+                                    "invalid_operator_input_file"
+                              ],
+                              "ready_status": "ready_for_credential_snapshot_refresh"
+                        },
+                        "field_contracts": {
+                              "LIVEKIT_API_KEY_FILE": "readable local secret file path; file content is never emitted",
+                              "LIVEKIT_API_SECRET_FILE": "readable local secret file path; file content is never emitted",
+                              "OPENROUTER_API_KEY_FILE": "readable local secret file path; file content is never emitted",
+                              "OPENROUTER_LIVEKIT_URL": "ws or wss LiveKit URL for OpenRouter-backed realtime dialogue"
+                        },
+                        "field_groups": {
+                              "invalid_fields": [],
+                              "missing_fields": [],
+                              "placeholder_fields": [],
+                              "unavailable_secret_file_fields": []
+                        },
+                        "field_ownership": {
+                              "LIVEKIT_API_KEY_FILE": {
+                                    "proof_id": "provider-backed-live-voice-proof",
+                                    "proof_input_role": "transport_credential"
+                              },
+                              "LIVEKIT_API_SECRET_FILE": {
+                                    "proof_id": "provider-backed-live-voice-proof",
+                                    "proof_input_role": "transport_credential"
+                              },
+                              "OPENROUTER_API_KEY_FILE": {
+                                    "proof_id": "provider-backed-live-voice-proof",
+                                    "proof_input_role": "provider_credential"
+                              },
+                              "OPENROUTER_LIVEKIT_URL": {
+                                    "proof_id": "provider-backed-live-voice-proof",
+                                    "proof_input_role": "transport_endpoint"
+                              }
+                        },
+                        "field_statuses": {
+                              "LIVEKIT_API_KEY_FILE": {
+                                    "contract": "readable local secret file path; file content is never emitted",
+                                    "issue_code": "none",
+                                    "next_action": "refresh_credential_snapshot",
+                                    "proof_id": "provider-backed-live-voice-proof",
+                                    "proof_input_role": "transport_credential",
+                                    "state": "configured",
+                                    "value_source": "secret_file_path"
+                              },
+                              "LIVEKIT_API_SECRET_FILE": {
+                                    "contract": "readable local secret file path; file content is never emitted",
+                                    "issue_code": "none",
+                                    "next_action": "refresh_credential_snapshot",
+                                    "proof_id": "provider-backed-live-voice-proof",
+                                    "proof_input_role": "transport_credential",
+                                    "state": "configured",
+                                    "value_source": "secret_file_path"
+                              },
+                              "OPENROUTER_API_KEY_FILE": {
+                                    "contract": "readable local secret file path; file content is never emitted",
+                                    "issue_code": "none",
+                                    "next_action": "refresh_credential_snapshot",
+                                    "proof_id": "provider-backed-live-voice-proof",
+                                    "proof_input_role": "provider_credential",
+                                    "state": "configured",
+                                    "value_source": "secret_file_path"
+                              },
+                              "OPENROUTER_LIVEKIT_URL": {
+                                    "contract": "ws or wss LiveKit URL for OpenRouter-backed realtime dialogue",
+                                    "issue_code": "none",
+                                    "next_action": "refresh_credential_snapshot",
+                                    "proof_id": "provider-backed-live-voice-proof",
+                                    "proof_input_role": "transport_endpoint",
+                                    "state": "configured",
+                                    "value_source": "endpoint_url"
+                              }
+                        },
+                        "guarded_next_action_commands": [
+                              "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                              "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                              "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                              "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                              "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                              "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md"
+                        ],
+                        "issue_codes": [],
+                        "next_action": "refresh_credential_snapshot",
+                        "next_action_commands": [
+                              "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                              "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                              "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                              "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                              "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                              "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md"
+                        ],
+                        "required_evidence_after_unblock": [
+                              "operator-input-readiness status ready_for_credential_snapshot_refresh",
+                              "credential-snapshot status runtime_configuration_present_unverified",
+                              "proof-plan attempt gate ready_for_preflight_capture",
+                              "valid provider-backed live voice preflight validation",
+                              "same-run OpenRouter DeepSeek live dialogue reasoning evidence",
+                              "same-run realtime session or LiveKit room evidence",
+                              "provider smoke ledger evidence",
+                              "realtime voice timing ledger evidence",
+                              "zero failed post-capture validation checks",
+                              "passed secret-redaction check"
+                        ],
+                        "required_fields": [
+                              "OPENROUTER_API_KEY_FILE",
+                              "OPENROUTER_LIVEKIT_URL",
+                              "LIVEKIT_API_KEY_FILE",
+                              "LIVEKIT_API_SECRET_FILE"
+                        ],
+                        "state": "ready_for_credential_snapshot_refresh",
+                        "status": "ready_for_credential_snapshot_refresh",
+                        "strict_readiness_command": "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json"
+                  },
+                  "packet_schema_version": "operator-proof-packet.v1",
+                  "proof_capture_commands_after_unblock": [
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-readiness.preflight.json http://127.0.0.1:8000/api/provider-readiness",
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-runtime-readiness.preflight.json 'http://127.0.0.1:8000/api/voice-runtime-readiness?preflight_gemma=true&preflight_tts=true&preflight_livekit=true&preflight_edge=true&preflight_agent=true'",
+                        "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json",
+                        "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-agent-process.start.json http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
+                        "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                        "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                        "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                  ],
+                  "proof_capture_matrix_ref": "/proofs/provider-backed-live-voice-proof/proof_capture_commands_after_unblock",
+                  "proof_id": "provider-backed-live-voice-proof",
+                  "proof_plan_operator_packet_ref": "/proofs/provider-backed-live-voice-proof/operator_proof_packet",
+                  "proof_plan_packet": "proof-plan.json",
+                  "proof_plan_packet_command": "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                  "proof_plan_packet_ref": "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                  "proof_record_required_fields": [
+                        "run_id",
+                        "checked_at",
+                        "validation_timestamp",
+                        "proof_outcome",
+                        "workspace_validation_report_artifact_id",
+                        "preflight_validation_report_artifact_id",
+                        "product_run_preflight_artifact_id",
+                        "provider_readiness_preflight_artifact_id",
+                        "voice_runtime_readiness_preflight_artifact_id",
+                        "voice_agent_process_start_artifact_id",
+                        "runtime_health_ledger_artifact_id",
+                        "voice_edge_benchmark_status",
+                        "provider_smoke_ledger_artifact_id",
+                        "realtime_voice_timing_ledger_artifact_id",
+                        "realtime_provider",
+                        "execute_live_calls",
+                        "realtime_session_id_or_livekit_room",
+                        "participant_identity",
+                        "runtime_configuration_snapshot_id",
+                        "post_capture_validation_results",
+                        "secret_redaction_check"
+                  ],
+                  "proof_record_schema": {
+                        "allowed_outcomes": [
+                              "accepted",
+                              "failed"
+                        ],
+                        "artifact_type": "provider_backed_live_voice_proof_record",
+                        "required_fields": [
+                              "run_id",
+                              "checked_at",
+                              "validation_timestamp",
+                              "proof_outcome",
+                              "workspace_validation_report_artifact_id",
+                              "preflight_validation_report_artifact_id",
+                              "product_run_preflight_artifact_id",
+                              "provider_readiness_preflight_artifact_id",
+                              "voice_runtime_readiness_preflight_artifact_id",
+                              "voice_agent_process_start_artifact_id",
+                              "runtime_health_ledger_artifact_id",
+                              "voice_edge_benchmark_status",
+                              "provider_smoke_ledger_artifact_id",
+                              "realtime_voice_timing_ledger_artifact_id",
+                              "realtime_provider",
+                              "execute_live_calls",
+                              "realtime_session_id_or_livekit_room",
+                              "participant_identity",
+                              "runtime_configuration_snapshot_id",
+                              "post_capture_validation_results",
+                              "secret_redaction_check"
+                        ],
+                        "state_field": "provider-backed-live-voice-proof"
+                  },
+                  "secret_handling": "Do not print tokens, API keys, or secrets; record endpoint and account identifiers only.",
+                  "source_artifacts": {
+                        "current_blocker_matrix": "current-blocker-matrix.json",
+                        "operator_input_readiness": "operator-input-readiness.json",
+                        "operator_input_template": "operator-inputs.template.env",
+                        "proof_plan": "proof-plan.json"
+                  },
+                  "state_change_allowed": false,
+                  "state_change_guardrail": "no_state_change_without_accepted_proof_and_closure_review",
+                  "store_in": [
+                        "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+                        "social_media_optimiser/wiki/ops/active-codex-context.md",
+                        "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md"
+                  ]
+            },
+            "proof_plan": {
+                  "attempt_gate": {
+                        "blocked_by": [],
+                        "can_run_preflight_capture": true,
+                        "can_run_proof_commands": false,
+                        "next_action": "initialize_workspace_and_capture_preflight",
+                        "next_action_commands": [
+                              "uv run all-about-llms-admin init-provider-proof-workspace --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin validate-provider-proof-workspace --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-readiness.preflight.json http://127.0.0.1:8000/api/provider-readiness",
+                              "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-runtime-readiness.preflight.json 'http://127.0.0.1:8000/api/voice-runtime-readiness?preflight_gemma=true&preflight_tts=true&preflight_livekit=true&preflight_edge=true&preflight_agent=true'",
+                              "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json"
+                        ],
+                        "proof_commands_allowed_after": [
+                              "proof workspace initialized",
+                              "proof workspace validation status is valid_workspace",
+                              "preflight output files captured",
+                              "preflight validation report status is valid_preflight_artifacts",
+                              "proof-specific human confirmations are complete"
+                        ],
+                        "state": "ready_for_preflight_capture",
+                        "state_change_allowed": false
+                  },
+                  "blocking_reasons": [],
+                  "closeout_commands": [
+                        "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin provider-proof-closure-review-template --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin validate-provider-proof-closure-review --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-closure-review.json>",
+                        "uv run all-about-llms-admin record-provider-proof-closure-review --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-closure-review.json>",
+                        "uv run all-about-llms-admin provider-proof-closure-review-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin record-provider-proof-blocker-state-update --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "command_run_id": "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                  "commands": [
+                        "curl -sS -X POST http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
+                        "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                        "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "completion_status_commands": [
+                        "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "configured_file_inputs": [
+                        "OPENROUTER_API_KEY_FILE",
+                        "LIVEKIT_API_KEY_FILE",
+                        "LIVEKIT_API_SECRET_FILE"
+                  ],
+                  "configured_inputs": [
+                        "OPENROUTER_LIVEKIT_URL"
+                  ],
+                  "configured_local_provider_inputs": [],
+                  "credential_setup_commands": [
+                        "mkdir -p .secrets && chmod 700 .secrets",
+                        ": \"${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY first}\" && umask 077 && printf '%s\\n' \"$OPENROUTER_API_KEY\" > .secrets/openrouter_api_key && chmod 600 .secrets/openrouter_api_key",
+                        ": \"${LIVEKIT_API_KEY:?set LIVEKIT_API_KEY first}\" && umask 077 && printf '%s\\n' \"$LIVEKIT_API_KEY\" > .secrets/livekit_api_key && chmod 600 .secrets/livekit_api_key",
+                        ": \"${LIVEKIT_API_SECRET:?set LIVEKIT_API_SECRET first}\" && umask 077 && printf '%s\\n' \"$LIVEKIT_API_SECRET\" > .secrets/livekit_api_secret && chmod 600 .secrets/livekit_api_secret",
+                        ": \"${OPENROUTER_LIVEKIT_URL:?set OPENROUTER_LIVEKIT_URL first}\" && : \"${LOCAL_PROVIDER_CONFIG_FILE:=.secrets/local_provider_config.json}\" && export OPENROUTER_LIVEKIT_URL LOCAL_PROVIDER_CONFIG_FILE && umask 077 && python3 -c 'import json, os, pathlib, sys; from urllib.parse import urlparse; names = (\"OPENROUTER_LIVEKIT_URL\",); values = {name: os.environ[name].strip() for name in names}; valid = lambda name, value: (lambda parsed, schemes: parsed.scheme in schemes and parsed.netloc and not (parsed.username or parsed.password or parsed.query or parsed.fragment))(urlparse(value), ({\"ws\", \"wss\", \"http\", \"https\"} if name == \"OPENROUTER_LIVEKIT_URL\" else {\"http\", \"https\"})); bad = [name for name, value in values.items() if not valid(name, value)]; bad and sys.exit(\"Invalid local provider config values: \" + \",\".join(bad)); path = pathlib.Path(os.environ[\"LOCAL_PROVIDER_CONFIG_FILE\"]); ns = {\"json\": json, \"path\": path, \"sys\": sys}; exec(\"try:\\n existing = path.read_text(encoding=\\\"utf-8\\\") if path.exists() else \\\"{}\\\"\\n raw = json.loads(existing)\\nexcept Exception:\\n sys.exit(\\\"Invalid existing LOCAL_PROVIDER_CONFIG_FILE\\\")\", ns); raw = ns[\"raw\"]; isinstance(raw, dict) or sys.exit(\"Invalid existing LOCAL_PROVIDER_CONFIG_FILE\"); managed = set(names); merged = {k: v for k, v in raw.items() if k not in managed}; merged.update(values); path.parent.mkdir(parents=True, exist_ok=True); path.write_text(json.dumps(merged, indent=2, sort_keys=True) + \"\\n\", encoding=\"utf-8\")' && chmod 600 \"$LOCAL_PROVIDER_CONFIG_FILE\""
+                  ],
+                  "credential_setup_requirements": [
+                        "configure OPENROUTER_API_KEY_FILE or OPENROUTER_API_KEY",
+                        "configure OPENROUTER_LIVEKIT_URL",
+                        "configure LIVEKIT_API_KEY_FILE or LIVEKIT_API_KEY",
+                        "configure LIVEKIT_API_SECRET_FILE or LIVEKIT_API_SECRET"
+                  ],
+                  "credential_state": "runtime_configuration_present_unverified",
+                  "failure_recording_requirements": [
+                        "record failing run_id and checked_at without secret values",
+                        "record the failed preflight, runtime health, provider smoke, timing, managed voice-agent start, LiveKit, or participant-evidence step",
+                        "record provider endpoint/account identifiers only after redacting tokens, API keys, and secrets",
+                        "keep provider-backed-live-voice-proof blocked until a later same-session proof passes validation",
+                        "open or update the follow-up task with the failed validation check"
+                  ],
+                  "local_provider_config_loaded": false,
+                  "must_capture": [
+                        "runtime_health_ledger with voice-edge-local-benchmark status ready",
+                        "provider_smoke_ledger with execute_live_calls=true",
+                        "realtime_voice_timing_ledger JSON",
+                        "LiveKit room/session id and participant identity",
+                        "captured microphone turn with first text/audio timing",
+                        "interrupt or barge-in acknowledgement evidence"
+                  ],
+                  "operator_proof_packet": {
+                        "current_gate_recovery_authority": "open current_matrix_packet_ref at current_matrix_operator_packet_ref for current_gate, completion_next_action, and completion recovery commands",
+                        "current_matrix_operator_packet_ref": "/operator_proof_packets/provider-backed-live-voice-proof",
+                        "current_matrix_packet": "current-blocker-matrix.json",
+                        "current_matrix_packet_command": "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                        "current_matrix_packet_ref": "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                        "handoff_contract": "value-free-operator-proof-handoff",
+                        "label": "Provider-backed live voice proof packet",
+                        "must_capture": [
+                              "provider_smoke_ledger with execute_live_calls=true",
+                              "realtime_voice_timing_ledger JSON",
+                              "LiveKit room/session id and participant identity",
+                              "captured microphone turn with first text/audio timing",
+                              "interrupt or barge-in acknowledgement evidence"
+                        ],
+                        "next_operator_packet": "operator-unblocker-checklist.md",
+                        "next_status_packet": "current-proof-status.md",
+                        "operator_input_field_contracts": {
+                              "LIVEKIT_API_KEY_FILE": "readable local secret file path; file content is never emitted",
+                              "LIVEKIT_API_SECRET_FILE": "readable local secret file path; file content is never emitted",
+                              "OPENROUTER_API_KEY_FILE": "readable local secret file path; file content is never emitted",
+                              "OPENROUTER_LIVEKIT_URL": "ws or wss LiveKit URL for OpenRouter-backed realtime dialogue"
+                        },
+                        "operator_input_readiness": {
+                              "blocked_fields": [],
+                              "checked_at": "2026-05-23",
+                              "configured_fields": [
+                                    "OPENROUTER_API_KEY_FILE",
+                                    "OPENROUTER_LIVEKIT_URL",
+                                    "LIVEKIT_API_KEY_FILE",
+                                    "LIVEKIT_API_SECRET_FILE"
+                              ],
+                              "effective_fail_on_blocked_exit_code": 0,
+                              "evidence_ref": "operator-input-readiness.json",
+                              "field_contracts": {
+                                    "LIVEKIT_API_KEY_FILE": "readable local secret file path; file content is never emitted",
+                                    "LIVEKIT_API_SECRET_FILE": "readable local secret file path; file content is never emitted",
+                                    "OPENROUTER_API_KEY_FILE": "readable local secret file path; file content is never emitted",
+                                    "OPENROUTER_LIVEKIT_URL": "ws or wss LiveKit URL for OpenRouter-backed realtime dialogue"
+                              },
+                              "field_groups": {
+                                    "invalid_fields": [],
+                                    "missing_fields": [],
+                                    "placeholder_fields": [],
+                                    "unavailable_secret_file_fields": []
+                              },
+                              "field_ownership": {
+                                    "LIVEKIT_API_KEY_FILE": {
+                                          "proof_id": "provider-backed-live-voice-proof",
+                                          "proof_input_role": "transport_credential"
+                                    },
+                                    "LIVEKIT_API_SECRET_FILE": {
+                                          "proof_id": "provider-backed-live-voice-proof",
+                                          "proof_input_role": "transport_credential"
+                                    },
+                                    "OPENROUTER_API_KEY_FILE": {
+                                          "proof_id": "provider-backed-live-voice-proof",
+                                          "proof_input_role": "provider_credential"
+                                    },
+                                    "OPENROUTER_LIVEKIT_URL": {
+                                          "proof_id": "provider-backed-live-voice-proof",
+                                          "proof_input_role": "transport_endpoint"
+                                    }
+                              },
+                              "field_statuses": {
+                                    "LIVEKIT_API_KEY_FILE": {
+                                          "contract": "readable local secret file path; file content is never emitted",
+                                          "issue_code": "none",
+                                          "next_action": "refresh_credential_snapshot",
+                                          "proof_id": "provider-backed-live-voice-proof",
+                                          "proof_input_role": "transport_credential",
+                                          "state": "configured",
+                                          "value_source": "secret_file_path"
+                                    },
+                                    "LIVEKIT_API_SECRET_FILE": {
+                                          "contract": "readable local secret file path; file content is never emitted",
+                                          "issue_code": "none",
+                                          "next_action": "refresh_credential_snapshot",
+                                          "proof_id": "provider-backed-live-voice-proof",
+                                          "proof_input_role": "transport_credential",
+                                          "state": "configured",
+                                          "value_source": "secret_file_path"
+                                    },
+                                    "OPENROUTER_API_KEY_FILE": {
+                                          "contract": "readable local secret file path; file content is never emitted",
+                                          "issue_code": "none",
+                                          "next_action": "refresh_credential_snapshot",
+                                          "proof_id": "provider-backed-live-voice-proof",
+                                          "proof_input_role": "provider_credential",
+                                          "state": "configured",
+                                          "value_source": "secret_file_path"
+                                    },
+                                    "OPENROUTER_LIVEKIT_URL": {
+                                          "contract": "ws or wss LiveKit URL for OpenRouter-backed realtime dialogue",
+                                          "issue_code": "none",
+                                          "next_action": "refresh_credential_snapshot",
+                                          "proof_id": "provider-backed-live-voice-proof",
+                                          "proof_input_role": "transport_endpoint",
+                                          "state": "configured",
+                                          "value_source": "endpoint_url"
+                                    }
+                              },
+                              "guarded_next_action_commands": [
+                                    "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                                    "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                                    "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                                    "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                                    "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                                    "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md"
+                              ],
+                              "issue_codes": [],
+                              "next_action": "refresh_credential_snapshot",
+                              "next_action_commands": [
+                                    "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                                    "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                                    "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                                    "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                                    "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                                    "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md"
+                              ],
+                              "required_evidence_after_unblock": [
+                                    "operator-input-readiness status ready_for_credential_snapshot_refresh",
+                                    "credential-snapshot status runtime_configuration_present_unverified",
+                                    "proof-plan attempt gate ready_for_preflight_capture",
+                                    "valid provider-backed live voice preflight validation",
+                                    "same-run OpenRouter DeepSeek live dialogue reasoning evidence",
+                                    "same-run realtime session or LiveKit room evidence",
+                                    "provider smoke ledger evidence",
+                                    "realtime voice timing ledger evidence",
+                                    "zero failed post-capture validation checks",
+                                    "passed secret-redaction check"
+                              ],
+                              "required_fields": [
+                                    "OPENROUTER_API_KEY_FILE",
+                                    "OPENROUTER_LIVEKIT_URL",
+                                    "LIVEKIT_API_KEY_FILE",
+                                    "LIVEKIT_API_SECRET_FILE"
+                              ],
+                              "state": "ready_for_credential_snapshot_refresh",
+                              "status": "ready_for_credential_snapshot_refresh"
+                        },
+                        "packet_schema_version": "operator-proof-packet.v1",
+                        "proof_capture_commands_after_unblock": [
+                              "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-readiness.preflight.json http://127.0.0.1:8000/api/provider-readiness",
+                              "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-runtime-readiness.preflight.json 'http://127.0.0.1:8000/api/voice-runtime-readiness?preflight_gemma=true&preflight_tts=true&preflight_livekit=true&preflight_edge=true&preflight_agent=true'",
+                              "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json",
+                              "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-agent-process.start.json http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
+                              "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                              "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                              "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                        ],
+                        "proof_id": "provider-backed-live-voice-proof",
+                        "proof_record_required_fields": [
+                              "run_id",
+                              "checked_at",
+                              "validation_timestamp",
+                              "proof_outcome",
+                              "workspace_validation_report_artifact_id",
+                              "preflight_validation_report_artifact_id",
+                              "product_run_preflight_artifact_id",
+                              "provider_readiness_preflight_artifact_id",
+                              "voice_runtime_readiness_preflight_artifact_id",
+                              "voice_agent_process_start_artifact_id",
+                              "runtime_health_ledger_artifact_id",
+                              "voice_edge_benchmark_status",
+                              "provider_smoke_ledger_artifact_id",
+                              "realtime_voice_timing_ledger_artifact_id",
+                              "realtime_provider",
+                              "execute_live_calls",
+                              "realtime_session_id_or_livekit_room",
+                              "participant_identity",
+                              "runtime_configuration_snapshot_id",
+                              "post_capture_validation_results",
+                              "secret_redaction_check"
+                        ],
+                        "proof_record_schema": {
+                              "allowed_outcomes": [
+                                    "accepted",
+                                    "failed"
+                              ],
+                              "artifact_type": "provider_backed_live_voice_proof_record",
+                              "required_fields": [
+                                    "run_id",
+                                    "checked_at",
+                                    "validation_timestamp",
+                                    "proof_outcome",
+                                    "workspace_validation_report_artifact_id",
+                                    "preflight_validation_report_artifact_id",
+                                    "product_run_preflight_artifact_id",
+                                    "provider_readiness_preflight_artifact_id",
+                                    "voice_runtime_readiness_preflight_artifact_id",
+                                    "voice_agent_process_start_artifact_id",
+                                    "runtime_health_ledger_artifact_id",
+                                    "voice_edge_benchmark_status",
+                                    "provider_smoke_ledger_artifact_id",
+                                    "realtime_voice_timing_ledger_artifact_id",
+                                    "realtime_provider",
+                                    "execute_live_calls",
+                                    "realtime_session_id_or_livekit_room",
+                                    "participant_identity",
+                                    "runtime_configuration_snapshot_id",
+                                    "post_capture_validation_results",
+                                    "secret_redaction_check"
+                              ],
+                              "state_field": "provider-backed-live-voice-proof"
+                        },
+                        "secret_handling": "Do not print tokens, API keys, or secrets; record endpoint and account identifiers only.",
+                        "source_artifacts": {
+                              "current_blocker_matrix": "current-blocker-matrix.json",
+                              "proof_plan": "proof-plan.json"
+                        },
+                        "state_change_allowed": false,
+                        "state_change_guardrail": "no_state_change_without_accepted_proof_and_closure_review",
+                        "store_in": [
+                              "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+                              "social_media_optimiser/wiki/ops/active-codex-context.md",
+                              "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md"
+                        ]
+                  },
+                  "operator_sequence": [
+                        "configure credential_setup_requirements without printing secret values",
+                        "create or select durable product run UUID with product_run_bootstrap",
+                        "initialize proof workspace with workspace_commands",
+                        "validate proof workspace with workspace_validation_commands",
+                        "run preflight_checks and stop if any readiness gate fails",
+                        "execute proof commands and capture must_capture evidence",
+                        "generate, validate, and record the provider proof record",
+                        "rerun provider-proof-completion-status after both proofs are recorded",
+                        "complete closure review, then record blocker-state update only after approved review"
+                  ],
+                  "post_capture_validation_checks": [
+                        "runtime_health_ledger voice-edge benchmark is ready and records p50/p95/max latency plus false-positive, missed-speech-start, and missed-cancellation counts",
+                        "provider_smoke_ledger execute_live_calls is true",
+                        "provider_smoke_ledger realtime_provider is openrouter_livekit",
+                        "provider_smoke_ledger run_id equals realtime_voice_timing_ledger run_id and command_run_id",
+                        "realtime_session_id or LiveKit room/session id matches across smoke, timing, and participant evidence",
+                        "first text or audio timing plus interruption evidence are present",
+                        "captured proof artifacts contain no token, API key, or secret values"
+                  ],
+                  "preflight_artifact_id_fields": [
+                        "product_run_preflight_artifact_id",
+                        "provider_readiness_preflight_artifact_id",
+                        "voice_runtime_readiness_preflight_artifact_id"
+                  ],
+                  "preflight_capture_commands": [
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-readiness.preflight.json http://127.0.0.1:8000/api/provider-readiness",
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-runtime-readiness.preflight.json 'http://127.0.0.1:8000/api/voice-runtime-readiness?preflight_gemma=true&preflight_tts=true&preflight_livekit=true&preflight_edge=true&preflight_agent=true'"
+                  ],
+                  "preflight_checks": [
+                        "GET /api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "GET /api/provider-readiness",
+                        "GET /api/voice-runtime-readiness?preflight_gemma=true&preflight_tts=true&preflight_livekit=true&preflight_edge=true&preflight_agent=true",
+                        "confirm selected realtime provider is openrouter_livekit before live smoke"
+                  ],
+                  "preflight_commands": [
+                        "curl -sS http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "curl -sS http://127.0.0.1:8000/api/provider-readiness",
+                        "curl -sS 'http://127.0.0.1:8000/api/voice-runtime-readiness?preflight_gemma=true&preflight_tts=true&preflight_livekit=true&preflight_edge=true&preflight_agent=true'"
+                  ],
+                  "preflight_output_files": [
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json",
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-readiness.preflight.json",
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-runtime-readiness.preflight.json"
+                  ],
+                  "preflight_validation_capture_commands": [
+                        "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json"
+                  ],
+                  "preflight_validation_commands": [
+                        "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "preflight_validation_report_files": [
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json"
+                  ],
+                  "preflight_validation_requirements": [
+                        "product-run.preflight.json must match /api/runs/<run-id> response shape and run_id must match command_run_id",
+                        "provider-readiness.preflight.json must select ready openrouter-livekit",
+                        "voice-runtime-readiness.preflight.json must be ready for openrouter_livekit",
+                        "voice runtime preflight flags must include livekit, edge, agent, OpenRouter reasoning, and tts",
+                        "required runtime checks must be present once and ready: livekit-transport, livekit-agent-participant, voice-agent-backend-event-sink, openrouter-live-dialogue-reasoning, kokoro-tts, rust-voice-edge"
+                  ],
+                  "product_run_bootstrap": {
+                        "api_path": "POST /api/runs",
+                        "commands": [
+                              "mkdir -p social_media_optimiser/output/provider-proof/bootstrap",
+                              "curl -sS -X POST -o social_media_optimiser/output/provider-proof/bootstrap/product-run.create.json http://127.0.0.1:8000/api/runs -H 'Content-Type: application/json' --data '{\"goal\":\"Agent Studio provider proof closeout\",\"input_mode\":\"text\",\"initial_context\":{\"proof_purpose\":\"provider_proof_closeout\",\"next_step\":\"Use this run_id to initialize the provider proof workspace.\"}}'",
+                              "uv run all-about-llms-admin init-provider-proof-workspace-from-bootstrap --create-response-path social_media_optimiser/output/provider-proof/bootstrap/product-run.create.json --output-root social_media_optimiser/output/provider-proof"
+                        ],
+                        "created_run_id_field": "run_id",
+                        "next_step": "rerun provider-proof-plan with the printed run_id and initialize social_media_optimiser/output/provider-proof/<run-id>",
+                        "output_file": "social_media_optimiser/output/provider-proof/bootstrap/product-run.create.json"
+                  },
+                  "product_run_id_state": "product_run_uuid",
+                  "proof_artifact_schema": {
+                        "allowed_outcomes": [
+                              "accepted",
+                              "failed"
+                        ],
+                        "artifact_type": "provider_backed_live_voice_proof_record",
+                        "required_fields": [
+                              "run_id",
+                              "checked_at",
+                              "validation_timestamp",
+                              "proof_outcome",
+                              "workspace_validation_report_artifact_id",
+                              "preflight_validation_report_artifact_id",
+                              "product_run_preflight_artifact_id",
+                              "provider_readiness_preflight_artifact_id",
+                              "voice_runtime_readiness_preflight_artifact_id",
+                              "voice_agent_process_start_artifact_id",
+                              "runtime_health_ledger_artifact_id",
+                              "voice_edge_benchmark_status",
+                              "provider_smoke_ledger_artifact_id",
+                              "realtime_voice_timing_ledger_artifact_id",
+                              "realtime_provider",
+                              "execute_live_calls",
+                              "realtime_session_id_or_livekit_room",
+                              "participant_identity",
+                              "runtime_configuration_snapshot_id",
+                              "post_capture_validation_results",
+                              "secret_redaction_check"
+                        ],
+                        "state_field": "provider-backed-live-voice-proof"
+                  },
+                  "proof_capture_commands_after_unblock": [
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-readiness.preflight.json http://127.0.0.1:8000/api/provider-readiness",
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-runtime-readiness.preflight.json 'http://127.0.0.1:8000/api/voice-runtime-readiness?preflight_gemma=true&preflight_tts=true&preflight_livekit=true&preflight_edge=true&preflight_agent=true'",
+                        "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json",
+                        "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/voice-agent-process.start.json http://127.0.0.1:8000/api/voice-agent-process/start -H 'Content-Type: application/json' --data '{\"dev\":true,\"unregistered\":false,\"force_restart\":false}'",
+                        "uv run all-about-llms-admin build-runtime-health-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin build-provider-smoke-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --live --realtime-provider openrouter_livekit --skip-gemma --skip-web-search",
+                        "uv run all-about-llms-admin build-realtime-voice-timing-ledger --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                        "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                  ],
+                  "proof_linkage_requirements": [
+                        "same run_id across runtime_health_ledger, provider_smoke_ledger, and realtime_voice_timing_ledger",
+                        "voice_agent_process_start artifact captured before live smoke",
+                        "same realtime_session_id or LiveKit room/session id across smoke, timing, and participant evidence",
+                        "required runtime checks appear in the preflight validation report's validated_runtime_checks",
+                        "runtime configuration snapshot recorded with the same checked_at"
+                  ],
+                  "record_commands": [
+                        "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                  ],
+                  "record_proof_in": [
+                        "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+                        "social_media_optimiser/wiki/ops/active-codex-context.md",
+                        "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md"
+                  ],
+                  "rejected_substitutes": [
+                        ".env.example placeholders",
+                        "OpenRouter credential existence without a live dialogue turn",
+                        "transcript rehearsal or local-only dry run",
+                        "credential existence without live calls"
+                  ],
+                  "run_id_required_before_execution": true,
+                  "run_id_state": "concrete_run_id",
+                  "runtime_proof_required": true,
+                  "secret_files_loaded": true,
+                  "status": "ready_for_runtime_attempt",
+                  "success_recording_requirements": [
+                        "record passing run_id, checked_at, and validation timestamp",
+                        "record voice_agent_process_start, runtime_health_ledger, provider_smoke_ledger, realtime_voice_timing_ledger, LiveKit room/session id, and participant evidence artifact ids",
+                        "record every post_capture_validation_check as passed before changing blocker state",
+                        "update provider-backed-live-voice-proof status only after same-session validation passes",
+                        "close or link the follow-up task to the accepted proof record"
+                  ],
+                  "template_commands": [
+                        "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "unblock_when": [
+                        "runtime_configuration_present_unverified",
+                        "same-run runtime_health_ledger voice-edge benchmark is ready",
+                        "same-session provider smoke succeeds with live calls",
+                        "same-session realtime voice timing ledger is complete"
+                  ],
+                  "workspace_commands": [
+                        "uv run all-about-llms-admin init-provider-proof-workspace --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "workspace_expected_files": [
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.template.json",
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.template.json",
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env",
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/README.md"
+                  ],
+                  "workspace_validation_capture_commands": [
+                        "uv run all-about-llms-admin validate-provider-proof-workspace --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                  ],
+                  "workspace_validation_commands": [
+                        "uv run all-about-llms-admin validate-provider-proof-workspace --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "workspace_validation_report_files": [
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                  ]
+            },
+            "required_evidence": [
+                  "OpenRouter live-dialogue reasoning check",
+                  "LiveKit room/session evidence",
+                  "LiveKit agent participant and backend event sink evidence",
+                  "Kokoro TTS output evidence",
+                  "provider smoke and realtime timing ledgers",
+                  "Rust voice edge interruption/playback evidence",
+                  "zero failed post-capture validation checks and passed secret-redaction check"
+            ],
+            "next_actions": [
+                  "Refresh the credential snapshot from the configured OpenRouter and LiveKit input file.",
+                  "Capture LiveKit transport, agent participant, backend event sink, Kokoro TTS, and Rust edge evidence.",
+                  "Record a validated accepted live-voice proof record for the current UUID run.",
+                  "Keep the objective blocked until realtime timing has all required stages."
+            ]
+      },
+      {
+            "id": "external-publication-proof",
+            "title": "External publication proof",
+            "category": "publication",
+            "status": "blocked",
+            "source_notes": [
+                  "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+                  "system_design_vault/01-sources/official-open/social-publishing-api-governance.md",
+                  "system_design_vault/03-patterns/system-design/production-agent-studio-canon.md"
+            ],
+            "missing_inputs": [
+                  "LINKEDIN_ACCESS_TOKEN or LINKEDIN_ACCESS_TOKEN_FILE",
+                  "LinkedIn policy and account-permission acknowledgement",
+                  "durable external destination URL or platform id",
+                  "rollback or postcondition evidence"
+            ],
+            "credential_snapshot": {
+                  "absent_inputs": [],
+                  "checked_at": "2026-05-23",
+                  "configured_file_inputs": [],
+                  "configured_inputs": [],
+                  "configured_local_provider_inputs": [],
+                  "local_provider_config_loaded": false,
+                  "note": "placeholder-only .env.example entries for the requested external publication credentials.",
+                  "placeholder_only_inputs": [
+                        "INSTAGRAM_ACCESS_TOKEN",
+                        "LINKEDIN_ACCESS_TOKEN",
+                        "X_ACCESS_TOKEN",
+                        "X_API_KEY",
+                        "SUBSTACK_API_TOKEN"
+                  ],
+                  "secret_files_loaded": false,
+                  "secret_values_printed": false,
+                  "shell_values_loaded": false,
+                  "source": "non-secret local classifier",
+                  "state": "blocked_by_placeholder_only_configuration"
+            },
+            "proof_acceptance_gate": {
+                  "label": "External publication acceptance gate",
+                  "requires_runtime_proof": true,
+                  "credential_presence_is_not_proof": true,
+                  "exact_destination_required": true,
+                  "accepted_evidence": [
+                        "human-approved artifact text, media, visibility, audience, disclosure, and schedule",
+                        "platform API response proof or approved manual completion proof",
+                        "durable platform ID or URL",
+                        "postcondition monitoring record",
+                        "rollback, delete, private, or correction path"
+                  ],
+                  "rejected_substitutes": [
+                        "non-live channel smoke",
+                        "generic policy acknowledgement",
+                        "credential existence without destination proof",
+                        "local draft preview or generated artifact only"
+                  ]
+            },
+            "operator_proof_packet": {
+                  "closure_evidence_refs": [
+                        "closure-review-template.json",
+                        "closure-review-status.json",
+                        "blocker-state-update.json"
+                  ],
+                  "completion_evidence_ref": "completion-status.json",
+                  "current_gate": {
+                        "blocker_state_update_status": "blocked_by_closure_review_status",
+                        "closure_review_status": "blocked_by_completion_status",
+                        "closure_review_template_status": "blocked_by_completion_status",
+                        "completion_issue_codes": [
+                              "latest_proof_record_failed"
+                        ],
+                        "completion_next_action": "capture_validate_record_and_recheck",
+                        "completion_next_action_commands": [
+                              "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                              "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                              "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                              "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                              "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                        ],
+                        "completion_status": "blocked_by_latest_failed_proof_record",
+                        "goal_completion_claimed": false,
+                        "latest_failed_proofs": [
+                              "provider-backed-live-voice-proof",
+                              "external-publication-proof"
+                        ],
+                        "missing_accepted_proofs": [],
+                        "state_change_allowed": false
+                  },
+                  "current_state_packet_commands": {
+                        "current_blocker_matrix": "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                        "current_proof_status": "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                        "operator_unblocker_checklist": "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md"
+                  },
+                  "current_state_packets": {
+                        "current_blocker_matrix": "current-blocker-matrix.json",
+                        "current_proof_status": "current-proof-status.md",
+                        "operator_unblocker_checklist": "operator-unblocker-checklist.md"
+                  },
+                  "handoff_contract": "value-free-operator-proof-handoff",
+                  "label": "External publication proof packet",
+                  "matrix_parity_ref": "/operator_input_readiness/proofs/external-publication-proof",
+                  "must_capture": [
+                        "approved artifact snapshot with copy, media, audience, visibility, disclosure, and schedule",
+                        "platform API response proof or approved manual completion proof",
+                        "durable platform ID or URL",
+                        "postcondition monitoring record",
+                        "rollback, delete, private, or correction proof"
+                  ],
+                  "next_operator_packet": "operator-unblocker-checklist.md",
+                  "next_status_packet": "current-proof-status.md",
+                  "operator_input_field_contracts": {
+                        "LINKEDIN_ACCESS_TOKEN_FILE": "readable local secret file path; file content is never emitted",
+                        "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": "durable non-local policy acknowledgement artifact id",
+                        "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": "durable LinkedIn URL or platform id; local substitutes rejected",
+                        "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": "durable non-local rollback or postcondition artifact id"
+                  },
+                  "operator_input_readiness": {
+                        "blocked_fields": [
+                              "LINKEDIN_ACCESS_TOKEN_FILE",
+                              "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+                              "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+                              "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"
+                        ],
+                        "checked_at": "2026-05-23",
+                        "configured_fields": [],
+                        "effective_fail_on_blocked_exit_code": 2,
+                        "evidence_ref": "operator-input-readiness.json",
+                        "exit_policy": {
+                              "default_exit_code": 0,
+                              "fail_on_blocked_exit_code": 2,
+                              "fail_on_blocked_statuses": [
+                                    "blocked_by_operator_inputs",
+                                    "invalid_operator_input_file"
+                              ],
+                              "ready_status": "ready_for_credential_snapshot_refresh"
+                        },
+                        "field_contracts": {
+                              "LINKEDIN_ACCESS_TOKEN_FILE": "readable local secret file path; file content is never emitted",
+                              "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": "durable non-local policy acknowledgement artifact id",
+                              "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": "durable LinkedIn URL or platform id; local substitutes rejected",
+                              "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": "durable non-local rollback or postcondition artifact id"
+                        },
+                        "field_groups": {
+                              "invalid_fields": [],
+                              "missing_fields": [],
+                              "placeholder_fields": [
+                                    "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+                                    "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+                                    "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"
+                              ],
+                              "unavailable_secret_file_fields": [
+                                    "LINKEDIN_ACCESS_TOKEN_FILE"
+                              ]
+                        },
+                        "field_ownership": {
+                              "LINKEDIN_ACCESS_TOKEN_FILE": {
+                                    "proof_id": "external-publication-proof",
+                                    "proof_input_role": "publisher_credential"
+                              },
+                              "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": {
+                                    "proof_id": "external-publication-proof",
+                                    "proof_input_role": "publication_evidence"
+                              },
+                              "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": {
+                                    "proof_id": "external-publication-proof",
+                                    "proof_input_role": "publication_destination"
+                              },
+                              "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": {
+                                    "proof_id": "external-publication-proof",
+                                    "proof_input_role": "publication_evidence"
+                              }
+                        },
+                        "field_statuses": {
+                              "LINKEDIN_ACCESS_TOKEN_FILE": {
+                                    "contract": "readable local secret file path; file content is never emitted",
+                                    "issue_code": "operator_input_secret_file_unavailable",
+                                    "next_action": "write_readable_secret_file_and_reference_path",
+                                    "proof_id": "external-publication-proof",
+                                    "proof_input_role": "publisher_credential",
+                                    "state": "secret_file_unavailable",
+                                    "value_source": "secret_file_path"
+                              },
+                              "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": {
+                                    "contract": "durable non-local policy acknowledgement artifact id",
+                                    "issue_code": "operator_input_placeholder",
+                                    "next_action": "replace_placeholder_in_operator_input_file",
+                                    "proof_id": "external-publication-proof",
+                                    "proof_input_role": "publication_evidence",
+                                    "state": "placeholder",
+                                    "value_source": "artifact_id"
+                              },
+                              "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": {
+                                    "contract": "durable LinkedIn URL or platform id; local substitutes rejected",
+                                    "issue_code": "operator_input_placeholder",
+                                    "next_action": "replace_placeholder_in_operator_input_file",
+                                    "proof_id": "external-publication-proof",
+                                    "proof_input_role": "publication_destination",
+                                    "state": "placeholder",
+                                    "value_source": "external_destination"
+                              },
+                              "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": {
+                                    "contract": "durable non-local rollback or postcondition artifact id",
+                                    "issue_code": "operator_input_placeholder",
+                                    "next_action": "replace_placeholder_in_operator_input_file",
+                                    "proof_id": "external-publication-proof",
+                                    "proof_input_role": "publication_evidence",
+                                    "state": "placeholder",
+                                    "value_source": "artifact_id"
+                              }
+                        },
+                        "guarded_next_action_commands": [
+                              "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                              "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                              "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                              "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                              "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                              "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md"
+                        ],
+                        "issue_codes": [
+                              "operator_input_secret_file_unavailable",
+                              "operator_input_placeholder"
+                        ],
+                        "next_action": "supply_linkedin_token_policy_destination_and_rollback_evidence",
+                        "next_action_commands": [
+                              "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                              "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                              "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                              "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                              "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                              "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md"
+                        ],
+                        "required_evidence_after_unblock": [
+                              "operator-input-readiness status ready_for_credential_snapshot_refresh",
+                              "credential-snapshot status runtime_configuration_present_unverified",
+                              "proof-plan attempt gate ready_for_preflight_capture",
+                              "valid external publication preflight validation",
+                              "destination channel linked to validated linkedin readiness",
+                              "durable external destination proof",
+                              "policy acknowledgement artifact",
+                              "rollback or postcondition artifact",
+                              "zero failed post-capture validation checks",
+                              "passed secret-redaction check"
+                        ],
+                        "required_fields": [
+                              "LINKEDIN_ACCESS_TOKEN_FILE",
+                              "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+                              "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+                              "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"
+                        ],
+                        "state": "blocked_by_operator_inputs",
+                        "status": "blocked_by_operator_inputs",
+                        "strict_readiness_command": "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json"
+                  },
+                  "packet_schema_version": "operator-proof-packet.v1",
+                  "proof_capture_commands_after_unblock": [
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":true}'",
+                        "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json",
+                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                        "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                  ],
+                  "proof_capture_matrix_ref": "/proofs/external-publication-proof/proof_capture_commands_after_unblock",
+                  "proof_id": "external-publication-proof",
+                  "proof_plan_operator_packet_ref": "/proofs/external-publication-proof/operator_proof_packet",
+                  "proof_plan_packet": "proof-plan.json",
+                  "proof_plan_packet_command": "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                  "proof_plan_packet_ref": "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                  "proof_record_required_fields": [
+                        "run_id",
+                        "checked_at",
+                        "validation_timestamp",
+                        "proof_outcome",
+                        "workspace_validation_report_artifact_id",
+                        "preflight_validation_report_artifact_id",
+                        "product_run_preflight_artifact_id",
+                        "publish_readiness_preflight_artifact_id",
+                        "publish_readiness_artifact_id",
+                        "distribution_package_artifact_id",
+                        "approved_artifact_snapshot_id",
+                        "destination_channel",
+                        "durable_platform_id_or_url",
+                        "policy_acknowledgement_artifact_id",
+                        "rollback_or_postcondition_artifact_id",
+                        "post_capture_validation_results",
+                        "secret_redaction_check"
+                  ],
+                  "proof_record_schema": {
+                        "allowed_outcomes": [
+                              "accepted",
+                              "failed"
+                        ],
+                        "artifact_type": "external_publication_proof_record",
+                        "required_fields": [
+                              "run_id",
+                              "checked_at",
+                              "validation_timestamp",
+                              "proof_outcome",
+                              "workspace_validation_report_artifact_id",
+                              "preflight_validation_report_artifact_id",
+                              "product_run_preflight_artifact_id",
+                              "publish_readiness_preflight_artifact_id",
+                              "publish_readiness_artifact_id",
+                              "distribution_package_artifact_id",
+                              "approved_artifact_snapshot_id",
+                              "destination_channel",
+                              "durable_platform_id_or_url",
+                              "policy_acknowledgement_artifact_id",
+                              "rollback_or_postcondition_artifact_id",
+                              "post_capture_validation_results",
+                              "secret_redaction_check"
+                        ],
+                        "state_field": "external-publication-proof"
+                  },
+                  "secret_handling": "Do not print tokens, API keys, or secrets; record endpoint and account identifiers only.",
+                  "source_artifacts": {
+                        "current_blocker_matrix": "current-blocker-matrix.json",
+                        "operator_input_readiness": "operator-input-readiness.json",
+                        "operator_input_template": "operator-inputs.template.env",
+                        "proof_plan": "proof-plan.json"
+                  },
+                  "state_change_allowed": false,
+                  "state_change_guardrail": "no_state_change_without_accepted_proof_and_closure_review",
+                  "store_in": [
+                        "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+                        "social_media_optimiser/wiki/ops/active-codex-context.md",
+                        "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md"
+                  ]
+            },
+            "proof_plan": {
+                  "attempt_gate": {
+                        "blocked_by": [
+                              "blocked_by_placeholder_only_configuration"
+                        ],
+                        "can_run_preflight_capture": false,
+                        "can_run_proof_commands": false,
+                        "next_action": "configure_credentials",
+                        "next_action_commands": [
+                              "mkdir -p .secrets && chmod 700 .secrets",
+                              ": \"${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$INSTAGRAM_ACCESS_TOKEN\" > .secrets/instagram_access_token && chmod 600 .secrets/instagram_access_token",
+                              ": \"${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > .secrets/linkedin_access_token && chmod 600 .secrets/linkedin_access_token",
+                              "if [ -n \"${X_ACCESS_TOKEN:-}\" ]; then umask 077 && printf '%s\\n' \"$X_ACCESS_TOKEN\" > .secrets/x_access_token && chmod 600 .secrets/x_access_token; else : \"${X_API_KEY:?set X_ACCESS_TOKEN or X_API_KEY first}\" && umask 077 && printf '%s\\n' \"$X_API_KEY\" > .secrets/x_api_key && chmod 600 .secrets/x_api_key; fi",
+                              ": \"${SUBSTACK_API_TOKEN:?set SUBSTACK_API_TOKEN first}\" && umask 077 && printf '%s\\n' \"$SUBSTACK_API_TOKEN\" > .secrets/substack_api_token && chmod 600 .secrets/substack_api_token",
+                              "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                        ],
+                        "proof_commands_allowed_after": [
+                              "proof workspace initialized",
+                              "proof workspace validation status is valid_workspace",
+                              "preflight output files captured",
+                              "preflight validation report status is valid_preflight_artifacts",
+                              "proof-specific human confirmations are complete"
+                        ],
+                        "state": "blocked_by_credentials",
+                        "state_change_allowed": false
+                  },
+                  "blocking_reasons": [
+                        "blocked_by_placeholder_only_configuration"
+                  ],
+                  "closeout_commands": [
+                        "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin provider-proof-closure-review-template --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin validate-provider-proof-closure-review --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-closure-review.json>",
+                        "uv run all-about-llms-admin record-provider-proof-closure-review --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-closure-review.json>",
+                        "uv run all-about-llms-admin provider-proof-closure-review-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin record-provider-proof-blocker-state-update --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "command_run_id": "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                  "commands": [
+                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "completion_status_commands": [
+                        "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "configured_file_inputs": [],
+                  "configured_inputs": [],
+                  "configured_local_provider_inputs": [],
+                  "credential_setup_commands": [
+                        "mkdir -p .secrets && chmod 700 .secrets",
+                        ": \"${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$INSTAGRAM_ACCESS_TOKEN\" > .secrets/instagram_access_token && chmod 600 .secrets/instagram_access_token",
+                        ": \"${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > .secrets/linkedin_access_token && chmod 600 .secrets/linkedin_access_token",
+                        "if [ -n \"${X_ACCESS_TOKEN:-}\" ]; then umask 077 && printf '%s\\n' \"$X_ACCESS_TOKEN\" > .secrets/x_access_token && chmod 600 .secrets/x_access_token; else : \"${X_API_KEY:?set X_ACCESS_TOKEN or X_API_KEY first}\" && umask 077 && printf '%s\\n' \"$X_API_KEY\" > .secrets/x_api_key && chmod 600 .secrets/x_api_key; fi",
+                        ": \"${SUBSTACK_API_TOKEN:?set SUBSTACK_API_TOKEN first}\" && umask 077 && printf '%s\\n' \"$SUBSTACK_API_TOKEN\" > .secrets/substack_api_token && chmod 600 .secrets/substack_api_token"
+                  ],
+                  "credential_setup_requirements": [
+                        "configure INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN",
+                        "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
+                        "configure X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY",
+                        "configure SUBSTACK_API_TOKEN_FILE or SUBSTACK_API_TOKEN"
+                  ],
+                  "credential_state": "blocked_by_placeholder_only_configuration",
+                  "failure_recording_requirements": [
+                        "record failing run_id and checked_at without secret values",
+                        "record the failed publish-readiness, policy, approval, destination, or rollback/postcondition step",
+                        "record platform response class, destination channel, and account identifier only after redacting tokens, API keys, and secrets",
+                        "keep external-publication-proof blocked until a later exact-destination proof passes validation",
+                        "open or update the follow-up task with the failed validation check"
+                  ],
+                  "local_provider_config_loaded": false,
+                  "manual_capture_steps": [
+                        "capture the exact destination policy acknowledgement",
+                        "publish the approved artifact through the exact platform API or approved manual channel",
+                        "verify the approved artifact snapshot includes visibility, audience, disclosure, and schedule",
+                        "record the platform account identity without secret values",
+                        "store the durable platform ID or URL in the audit notes"
+                  ],
+                  "must_capture": [
+                        "approved artifact snapshot",
+                        "disclosure-bearing approved artifact snapshot",
+                        "channel policy acknowledgement",
+                        "platform API response proof",
+                        "durable platform ID or URL",
+                        "postcondition monitoring record",
+                        "rollback, delete, private, or correction proof"
+                  ],
+                  "operator_proof_packet": {
+                        "current_gate_recovery_authority": "open current_matrix_packet_ref at current_matrix_operator_packet_ref for current_gate, completion_next_action, and completion recovery commands",
+                        "current_matrix_operator_packet_ref": "/operator_proof_packets/external-publication-proof",
+                        "current_matrix_packet": "current-blocker-matrix.json",
+                        "current_matrix_packet_command": "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                        "current_matrix_packet_ref": "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                        "handoff_contract": "value-free-operator-proof-handoff",
+                        "label": "External publication proof packet",
+                        "must_capture": [
+                              "approved artifact snapshot with copy, media, audience, visibility, disclosure, and schedule",
+                              "platform API response proof or approved manual completion proof",
+                              "durable platform ID or URL",
+                              "postcondition monitoring record",
+                              "rollback, delete, private, or correction proof"
+                        ],
+                        "next_operator_packet": "operator-unblocker-checklist.md",
+                        "next_status_packet": "current-proof-status.md",
+                        "operator_input_field_contracts": {
+                              "LINKEDIN_ACCESS_TOKEN_FILE": "readable local secret file path; file content is never emitted",
+                              "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": "durable non-local policy acknowledgement artifact id",
+                              "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": "durable LinkedIn URL or platform id; local substitutes rejected",
+                              "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": "durable non-local rollback or postcondition artifact id"
+                        },
+                        "operator_input_readiness": {
+                              "blocked_fields": [
+                                    "LINKEDIN_ACCESS_TOKEN_FILE",
+                                    "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+                                    "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+                                    "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"
+                              ],
+                              "checked_at": "2026-05-23",
+                              "configured_fields": [],
+                              "effective_fail_on_blocked_exit_code": 2,
+                              "evidence_ref": "operator-input-readiness.json",
+                              "field_contracts": {
+                                    "LINKEDIN_ACCESS_TOKEN_FILE": "readable local secret file path; file content is never emitted",
+                                    "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": "durable non-local policy acknowledgement artifact id",
+                                    "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": "durable LinkedIn URL or platform id; local substitutes rejected",
+                                    "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": "durable non-local rollback or postcondition artifact id"
+                              },
+                              "field_groups": {
+                                    "invalid_fields": [],
+                                    "missing_fields": [],
+                                    "placeholder_fields": [
+                                          "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+                                          "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+                                          "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"
+                                    ],
+                                    "unavailable_secret_file_fields": [
+                                          "LINKEDIN_ACCESS_TOKEN_FILE"
+                                    ]
+                              },
+                              "field_ownership": {
+                                    "LINKEDIN_ACCESS_TOKEN_FILE": {
+                                          "proof_id": "external-publication-proof",
+                                          "proof_input_role": "publisher_credential"
+                                    },
+                                    "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": {
+                                          "proof_id": "external-publication-proof",
+                                          "proof_input_role": "publication_evidence"
+                                    },
+                                    "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": {
+                                          "proof_id": "external-publication-proof",
+                                          "proof_input_role": "publication_destination"
+                                    },
+                                    "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": {
+                                          "proof_id": "external-publication-proof",
+                                          "proof_input_role": "publication_evidence"
+                                    }
+                              },
+                              "field_statuses": {
+                                    "LINKEDIN_ACCESS_TOKEN_FILE": {
+                                          "contract": "readable local secret file path; file content is never emitted",
+                                          "issue_code": "operator_input_secret_file_unavailable",
+                                          "next_action": "write_readable_secret_file_and_reference_path",
+                                          "proof_id": "external-publication-proof",
+                                          "proof_input_role": "publisher_credential",
+                                          "state": "secret_file_unavailable",
+                                          "value_source": "secret_file_path"
+                                    },
+                                    "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": {
+                                          "contract": "durable non-local policy acknowledgement artifact id",
+                                          "issue_code": "operator_input_placeholder",
+                                          "next_action": "replace_placeholder_in_operator_input_file",
+                                          "proof_id": "external-publication-proof",
+                                          "proof_input_role": "publication_evidence",
+                                          "state": "placeholder",
+                                          "value_source": "artifact_id"
+                                    },
+                                    "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": {
+                                          "contract": "durable LinkedIn URL or platform id; local substitutes rejected",
+                                          "issue_code": "operator_input_placeholder",
+                                          "next_action": "replace_placeholder_in_operator_input_file",
+                                          "proof_id": "external-publication-proof",
+                                          "proof_input_role": "publication_destination",
+                                          "state": "placeholder",
+                                          "value_source": "external_destination"
+                                    },
+                                    "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": {
+                                          "contract": "durable non-local rollback or postcondition artifact id",
+                                          "issue_code": "operator_input_placeholder",
+                                          "next_action": "replace_placeholder_in_operator_input_file",
+                                          "proof_id": "external-publication-proof",
+                                          "proof_input_role": "publication_evidence",
+                                          "state": "placeholder",
+                                          "value_source": "artifact_id"
+                                    }
+                              },
+                              "guarded_next_action_commands": [
+                                    "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                                    "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                                    "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                                    "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                                    "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                                    "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md"
+                              ],
+                              "issue_codes": [
+                                    "operator_input_secret_file_unavailable",
+                                    "operator_input_placeholder"
+                              ],
+                              "next_action": "supply_linkedin_token_policy_destination_and_rollback_evidence",
+                              "next_action_commands": [
+                                    "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                                    "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                                    "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                                    "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                                    "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                                    "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md"
+                              ],
+                              "required_evidence_after_unblock": [
+                                    "operator-input-readiness status ready_for_credential_snapshot_refresh",
+                                    "credential-snapshot status runtime_configuration_present_unverified",
+                                    "proof-plan attempt gate ready_for_preflight_capture",
+                                    "valid external publication preflight validation",
+                                    "destination channel linked to validated linkedin readiness",
+                                    "durable external destination proof",
+                                    "policy acknowledgement artifact",
+                                    "rollback or postcondition artifact",
+                                    "zero failed post-capture validation checks",
+                                    "passed secret-redaction check"
+                              ],
+                              "required_fields": [
+                                    "LINKEDIN_ACCESS_TOKEN_FILE",
+                                    "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+                                    "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+                                    "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"
+                              ],
+                              "state": "blocked_by_operator_inputs",
+                              "status": "blocked_by_operator_inputs"
+                        },
+                        "packet_schema_version": "operator-proof-packet.v1",
+                        "proof_capture_commands_after_unblock": [
+                              "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":true}'",
+                              "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json",
+                              "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                              "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                        ],
+                        "proof_id": "external-publication-proof",
+                        "proof_record_required_fields": [
+                              "run_id",
+                              "checked_at",
+                              "validation_timestamp",
+                              "proof_outcome",
+                              "workspace_validation_report_artifact_id",
+                              "preflight_validation_report_artifact_id",
+                              "product_run_preflight_artifact_id",
+                              "publish_readiness_preflight_artifact_id",
+                              "publish_readiness_artifact_id",
+                              "distribution_package_artifact_id",
+                              "approved_artifact_snapshot_id",
+                              "destination_channel",
+                              "durable_platform_id_or_url",
+                              "policy_acknowledgement_artifact_id",
+                              "rollback_or_postcondition_artifact_id",
+                              "post_capture_validation_results",
+                              "secret_redaction_check"
+                        ],
+                        "proof_record_schema": {
+                              "allowed_outcomes": [
+                                    "accepted",
+                                    "failed"
+                              ],
+                              "artifact_type": "external_publication_proof_record",
+                              "required_fields": [
+                                    "run_id",
+                                    "checked_at",
+                                    "validation_timestamp",
+                                    "proof_outcome",
+                                    "workspace_validation_report_artifact_id",
+                                    "preflight_validation_report_artifact_id",
+                                    "product_run_preflight_artifact_id",
+                                    "publish_readiness_preflight_artifact_id",
+                                    "publish_readiness_artifact_id",
+                                    "distribution_package_artifact_id",
+                                    "approved_artifact_snapshot_id",
+                                    "destination_channel",
+                                    "durable_platform_id_or_url",
+                                    "policy_acknowledgement_artifact_id",
+                                    "rollback_or_postcondition_artifact_id",
+                                    "post_capture_validation_results",
+                                    "secret_redaction_check"
+                              ],
+                              "state_field": "external-publication-proof"
+                        },
+                        "secret_handling": "Do not print tokens, API keys, or secrets; record endpoint and account identifiers only.",
+                        "source_artifacts": {
+                              "current_blocker_matrix": "current-blocker-matrix.json",
+                              "proof_plan": "proof-plan.json"
+                        },
+                        "state_change_allowed": false,
+                        "state_change_guardrail": "no_state_change_without_accepted_proof_and_closure_review",
+                        "store_in": [
+                              "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+                              "social_media_optimiser/wiki/ops/active-codex-context.md",
+                              "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md"
+                        ]
+                  },
+                  "operator_sequence": [
+                        "configure credential_setup_requirements without printing secret values",
+                        "create or select durable product run UUID with product_run_bootstrap",
+                        "initialize proof workspace with workspace_commands",
+                        "validate proof workspace with workspace_validation_commands",
+                        "run preflight_checks and stop if any readiness gate fails",
+                        "execute proof commands and capture must_capture evidence",
+                        "generate, validate, and record the provider proof record",
+                        "rerun provider-proof-completion-status after both proofs are recorded",
+                        "complete closure review, then record blocker-state update only after approved review"
+                  ],
+                  "post_capture_validation_checks": [
+                        "publish-readiness, distribution package, approved artifact, and destination proof all reference command_run_id",
+                        "destination_channel appears in validated_publish_channels from the accepted preflight validation report",
+                        "approved artifact snapshot has disclosure, visibility, audience, and schedule",
+                        "platform API response or approved manual proof contains durable platform ID or URL",
+                        "durable platform ID or URL matches rollback or postcondition monitoring record",
+                        "captured proof artifacts contain no token, API key, or secret values"
+                  ],
+                  "preflight_artifact_id_fields": [
+                        "product_run_preflight_artifact_id",
+                        "publish_readiness_preflight_artifact_id"
+                  ],
+                  "preflight_capture_commands": [
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":false}'"
+                  ],
+                  "preflight_checks": [
+                        "GET /api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "POST /api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness",
+                        "confirm human approval and channel policy acknowledgement",
+                        "confirm disclosure-bearing artifact snapshot before destination proof"
+                  ],
+                  "preflight_commands": [
+                        "curl -sS http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "curl -sS -X POST http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":false}'"
+                  ],
+                  "preflight_output_files": [
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json",
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json"
+                  ],
+                  "preflight_validation_capture_commands": [
+                        "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json"
+                  ],
+                  "preflight_validation_commands": [
+                        "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "preflight_validation_report_files": [
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json"
+                  ],
+                  "preflight_validation_requirements": [
+                        "product-run.preflight.json must match /api/runs/<run-id> response shape and run_id must match command_run_id",
+                        "publish-readiness.preflight.json status must be ready with ready=true and no top-level or channel blocking issues, or needs_review with ready=false and only publish_channel_policy_review_required",
+                        "publish-readiness.preflight.json must include one normalized, non-empty supported publish_channel_checks entry per channel",
+                        "publish channel credentials must be configured",
+                        "publish channel policy status must be acknowledged when status is ready; policy-review handoff must include at least one needs_review channel policy, channel blockers must be empty or policy-review-only, and acknowledged channels must not carry policy-review blockers",
+                        "publish readiness must not open a feedback gate"
+                  ],
+                  "product_run_bootstrap": {
+                        "api_path": "POST /api/runs",
+                        "commands": [
+                              "mkdir -p social_media_optimiser/output/provider-proof/bootstrap",
+                              "curl -sS -X POST -o social_media_optimiser/output/provider-proof/bootstrap/product-run.create.json http://127.0.0.1:8000/api/runs -H 'Content-Type: application/json' --data '{\"goal\":\"Agent Studio provider proof closeout\",\"input_mode\":\"text\",\"initial_context\":{\"proof_purpose\":\"provider_proof_closeout\",\"next_step\":\"Use this run_id to initialize the provider proof workspace.\"}}'",
+                              "uv run all-about-llms-admin init-provider-proof-workspace-from-bootstrap --create-response-path social_media_optimiser/output/provider-proof/bootstrap/product-run.create.json --output-root social_media_optimiser/output/provider-proof"
+                        ],
+                        "created_run_id_field": "run_id",
+                        "next_step": "rerun provider-proof-plan with the printed run_id and initialize social_media_optimiser/output/provider-proof/<run-id>",
+                        "output_file": "social_media_optimiser/output/provider-proof/bootstrap/product-run.create.json"
+                  },
+                  "product_run_id_state": "product_run_uuid",
+                  "proof_artifact_schema": {
+                        "allowed_outcomes": [
+                              "accepted",
+                              "failed"
+                        ],
+                        "artifact_type": "external_publication_proof_record",
+                        "required_fields": [
+                              "run_id",
+                              "checked_at",
+                              "validation_timestamp",
+                              "proof_outcome",
+                              "workspace_validation_report_artifact_id",
+                              "preflight_validation_report_artifact_id",
+                              "product_run_preflight_artifact_id",
+                              "publish_readiness_preflight_artifact_id",
+                              "publish_readiness_artifact_id",
+                              "distribution_package_artifact_id",
+                              "approved_artifact_snapshot_id",
+                              "destination_channel",
+                              "durable_platform_id_or_url",
+                              "policy_acknowledgement_artifact_id",
+                              "rollback_or_postcondition_artifact_id",
+                              "post_capture_validation_results",
+                              "secret_redaction_check"
+                        ],
+                        "state_field": "external-publication-proof"
+                  },
+                  "proof_capture_commands_after_unblock": [
+                        "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":true}'",
+                        "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json",
+                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
+                        "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                  ],
+                  "proof_linkage_requirements": [
+                        "same run_id across publish-readiness, distribution package, approved artifact, and destination proof",
+                        "destination_channel appears in the preflight validation report's validated_publish_channels",
+                        "durable platform ID or URL matches the approved destination/channel",
+                        "rollback or postcondition monitoring record references the same platform ID or URL"
+                  ],
+                  "record_commands": [
+                        "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                  ],
+                  "record_proof_in": [
+                        "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+                        "social_media_optimiser/wiki/ops/active-codex-context.md",
+                        "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md"
+                  ],
+                  "rejected_substitutes": [
+                        "non-live channel smoke",
+                        "generic policy acknowledgement",
+                        "credential existence without destination proof",
+                        "local draft preview or generated artifact only"
+                  ],
+                  "run_id_required_before_execution": true,
+                  "run_id_state": "concrete_run_id",
+                  "runtime_proof_required": true,
+                  "secret_files_loaded": false,
+                  "status": "blocked_by_credentials",
+                  "success_recording_requirements": [
+                        "record passing run_id, checked_at, and validation timestamp",
+                        "record publish-readiness, distribution package, approved artifact, destination proof, and rollback/postcondition artifact ids",
+                        "record every post_capture_validation_check as passed before changing blocker state",
+                        "update external-publication-proof status only after exact-destination validation passes",
+                        "close or link the follow-up task to the accepted proof record"
+                  ],
+                  "template_commands": [
+                        "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "unblock_when": [
+                        "runtime_configuration_present_unverified",
+                        "human-approved artifact and policy state are captured",
+                        "exact destination proof is recorded"
+                  ],
+                  "workspace_commands": [
+                        "uv run all-about-llms-admin init-provider-proof-workspace --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "workspace_expected_files": [
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.template.json",
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.template.json",
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env",
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/README.md"
+                  ],
+                  "workspace_validation_capture_commands": [
+                        "uv run all-about-llms-admin validate-provider-proof-workspace --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                  ],
+                  "workspace_validation_commands": [
+                        "uv run all-about-llms-admin validate-provider-proof-workspace --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                  ],
+                  "workspace_validation_report_files": [
+                        "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
+                  ]
+            },
+            "required_evidence": [
+                  "valid external publication preflight validation",
+                  "destination channel linked to validated linkedin readiness",
+                  "durable external destination proof",
+                  "policy acknowledgement artifact",
+                  "rollback or postcondition artifact",
+                  "zero failed post-capture validation checks",
+                  "passed secret-redaction check"
+            ],
+            "next_actions": [
+                  "Supply LinkedIn token, policy/account-permission acknowledgement, durable destination, and rollback/postcondition evidence.",
+                  "Rerun publication preflight validation for the exact destination.",
+                  "Record a validated accepted external-publication proof record only after destination evidence is durable.",
+                  "Keep non-live credential smoke separate from actual publication proof."
+            ]
+      }
+];
+
+    const grid = document.querySelector("#blocker-grid");
+    const detail = document.querySelector("#blocker-detail");
+    const count = document.querySelector("#blocker-count");
+    const summary = document.querySelector("#blocker-summary");
+    const exportBox = document.querySelector("#readiness-export");
+    const filterButtons = [...document.querySelectorAll("[data-filter]")];
+    let activeFilter = "all";
+
+    function proofPlanOperatorPacket(packet, plan) {
+      if (!packet || !plan) return null;
+      const runId = plan.command_run_id || "<run-id>";
+      const outputDir = `social_media_optimiser/output/provider-proof/${runId}`;
+      const commandOutputDir = runId === "<run-id>" ? `'${outputDir}'` : outputDir;
+      const matrixPacketRef = `${outputDir}/current-blocker-matrix.json`;
+      const commandMatrixPacketRef = runId === "<run-id>" ? `'${matrixPacketRef}'` : matrixPacketRef;
+      const commandArg = (value) => runId === "<run-id>" ? `'${value}'` : value;
+      const inputPath = `${outputDir}/operator-inputs.template.env`;
+      const readinessPath = `${outputDir}/operator-input-readiness.json`;
+      const readiness = packet.operator_input_readiness || {};
+      const nextActionCommands = [
+        `uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id ${runId} --input-path ${commandArg(inputPath)} > ${commandArg(readinessPath)}`,
+        `uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path ${inputPath} > ${outputDir}/credential-snapshot.json`,
+        `uv run all-about-llms-admin provider-proof-plan --run-id ${runId} --operator-input-path ${inputPath} > ${outputDir}/proof-plan.json`,
+        `uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id ${runId} --output-dir ${commandOutputDir} > ${commandMatrixPacketRef}`,
+        `uv run all-about-llms-admin provider-proof-current-status --run-id ${runId} --output-dir ${commandOutputDir} > ${commandArg(`${outputDir}/current-proof-status.md`)}`,
+        `uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id ${runId} --output-dir ${commandOutputDir} > ${commandArg(`${outputDir}/operator-unblocker-checklist.md`)}`
+      ];
+      const guardedNextActionCommands = [
+        `uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id ${runId} --input-path ${commandArg(inputPath)} --fail-on-blocked > ${commandArg(readinessPath)}`,
+        ...nextActionCommands.slice(1)
+      ];
+      const compactReadiness = readiness ? {
+        status: readiness.status,
+        state: readiness.state,
+        checked_at: readiness.checked_at,
+        evidence_ref: readiness.evidence_ref,
+        next_action: readiness.next_action,
+        effective_fail_on_blocked_exit_code: readiness.effective_fail_on_blocked_exit_code,
+        issue_codes: readiness.issue_codes,
+        required_fields: readiness.required_fields,
+        configured_fields: readiness.configured_fields,
+        field_groups: readiness.field_groups,
+        field_contracts: readiness.field_contracts,
+        field_ownership: readiness.field_ownership,
+        field_statuses: readiness.field_statuses,
+        next_action_commands: nextActionCommands,
+        guarded_next_action_commands: guardedNextActionCommands,
+        blocked_fields: readiness.blocked_fields,
+        required_evidence_after_unblock: readiness.required_evidence_after_unblock
+      } : null;
+      return {
+        proof_id: packet.proof_id,
+        label: packet.label,
+        packet_schema_version: packet.packet_schema_version,
+        handoff_contract: packet.handoff_contract,
+        state_change_allowed: packet.state_change_allowed,
+        state_change_guardrail: packet.state_change_guardrail,
+        secret_handling: packet.secret_handling,
+        next_status_packet: packet.next_status_packet,
+        next_operator_packet: packet.next_operator_packet,
+        current_matrix_packet: "current-blocker-matrix.json",
+        current_matrix_packet_ref: matrixPacketRef,
+        current_matrix_packet_command: `uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id ${runId} --output-dir ${commandOutputDir} > ${commandMatrixPacketRef}`,
+        current_matrix_operator_packet_ref: `/operator_proof_packets/${packet.proof_id}`,
+        current_gate_recovery_authority: "open current_matrix_packet_ref at current_matrix_operator_packet_ref for current_gate, completion_next_action, and completion recovery commands",
+        source_artifacts: {
+          proof_plan: "proof-plan.json",
+          current_blocker_matrix: "current-blocker-matrix.json"
+        },
+        operator_input_field_contracts: packet.operator_input_field_contracts,
+        operator_input_readiness: compactReadiness,
+        must_capture: packet.must_capture,
+        store_in: packet.store_in,
+        proof_capture_commands_after_unblock: plan.proof_capture_commands_after_unblock || [],
+        proof_record_schema: packet.proof_record_schema,
+        proof_record_required_fields: packet.proof_record_required_fields
+      };
+    }
+
+    blockers.forEach((blocker) => {
+      if (blocker.proof_plan && !blocker.proof_plan.operator_proof_packet && blocker.operator_proof_packet) {
+        blocker.proof_plan.operator_proof_packet = proofPlanOperatorPacket(blocker.operator_proof_packet, blocker.proof_plan);
+      }
+    });
+
+    let selectedBlockerId = blockers[0].id;
+
+    function visibleBlockers() {
+      return blockers.filter((blocker) => activeFilter === "all" || blocker.category === activeFilter);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function listMarkup(items) {
+      return items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+    }
+
+    function codeListMarkup(items) {
+      return items
+        .map((item) => `<li><code>${escapeHtml(item)}</code></li>`)
+        .join("");
+    }
+
+    function credentialSnapshotMarkup(snapshot) {
+      if (!snapshot) {
+        return "";
+      }
+
+      const absentCopy = snapshot.absent_inputs.length
+        ? `${snapshot.absent_inputs.join(", ")} absent`
+        : "No additional absent env names in this blocker snapshot";
+
+      return `
+        <div>
+          <strong>Credential snapshot:</strong>
+          ${snapshot.state.replaceAll("_", " ")} from ${snapshot.source}.
+          <ul>
+            <li>placeholder-only: <code>${snapshot.placeholder_only_inputs.map(escapeHtml).join("</code>, <code>")}</code></li>
+            <li>${absentCopy}</li>
+            <li>${snapshot.shell_values_loaded ? "Shell values loaded" : "No shell values loaded"}</li>
+            <li>Local provider config loaded: ${snapshot.local_provider_config_loaded}</li>
+            <li>Local provider config inputs:<ul>${codeListMarkup(snapshot.configured_local_provider_inputs || [])}</ul></li>
+            <li>${snapshot.secret_values_printed ? "Secret values printed" : "No secret values printed"}</li>
+            <li>${snapshot.note}</li>
+          </ul>
+        </div>
+      `;
+    }
+
+    function proofAcceptanceGateMarkup(gate) {
+      if (!gate) {
+        return "";
+      }
+
+      const flags = [
+        gate.requires_runtime_proof ? "Runtime proof required" : "Runtime proof not required",
+        gate.credential_presence_is_not_proof ? "Credential presence is not proof" : "Credential presence may satisfy proof",
+        gate.same_session_required ? "same-session proof required" : "",
+        gate.exact_destination_required ? "exact destination required" : ""
+      ].filter(Boolean);
+
+      return `
+        <div>
+          <strong>Acceptance gate:</strong> ${gate.label}.
+          <ul>
+            <li>${flags.join("; ")}</li>
+            <li>Accepted evidence:<ul>${listMarkup(gate.accepted_evidence)}</ul></li>
+            <li>Rejected substitutes:<ul>${listMarkup(gate.rejected_substitutes)}</ul></li>
+          </ul>
+        </div>
+      `;
+    }
+
+    function operatorProofPacketMarkup(packet) {
+      if (!packet) {
+        return "";
+      }
+
+      const readiness = packet.operator_input_readiness;
+      const fieldGroups = readiness?.field_groups || {};
+      const fieldContracts = readiness?.field_contracts || packet.operator_input_field_contracts || {};
+      const fieldOwnership = readiness?.field_ownership || {};
+      const fieldStatuses = readiness?.field_statuses || {};
+      const fieldContractItems = Object.entries(fieldContracts)
+        .map(([field, contract]) => `<li><code>${escapeHtml(field)}</code>: ${escapeHtml(contract)}</li>`)
+        .join("");
+      const fieldOwnershipItems = Object.entries(fieldOwnership)
+        .map(([field, ownership]) => `
+                    <li><code>${escapeHtml(field)}</code>
+                      <ul>
+                        <li>Proof id: <code>${escapeHtml(ownership.proof_id || "")}</code></li>
+                        <li>Proof input role: <code>${escapeHtml(ownership.proof_input_role || "")}</code></li>
+                      </ul>
+                    </li>
+        `)
+        .join("");
+      const fieldStatusItems = Object.entries(fieldStatuses)
+        .map(([field, status]) => `
+                    <li><code>${escapeHtml(field)}</code>: <code>${escapeHtml(status.state || "")}</code>
+                      <ul>
+                        <li>Issue code: <code>${escapeHtml(status.issue_code || "")}</code></li>
+                        <li>Value source: <code>${escapeHtml(status.value_source || "")}</code></li>
+                        <li>Next action: <code>${escapeHtml(status.next_action || "")}</code></li>
+                        <li>Contract: ${escapeHtml(status.contract || fieldContracts[field] || "")}</li>
+                      </ul>
+                    </li>
+        `)
+        .join("");
+      const fieldContractMarkup = fieldContractItems ? `
+                <li>Field contracts:<ul>${fieldContractItems}</ul></li>
+      ` : "";
+      const fieldOwnershipMarkup = fieldOwnershipItems ? `
+                <li>Field ownership:<ul>${fieldOwnershipItems}</ul></li>
+      ` : "";
+      const fieldStatusMarkup = fieldStatusItems ? `
+                <li>Field statuses:<ul>${fieldStatusItems}</ul></li>
+      ` : "";
+      const sourceArtifacts = packet.source_artifacts || {};
+      const proofCaptureCommands = packet.proof_capture_commands_after_unblock || [];
+      const currentStatePackets = packet.current_state_packets || {};
+      const currentStatePacketCommands = packet.current_state_packet_commands || {};
+      const currentGate = packet.current_gate || {};
+      const proofRecordSchema = packet.proof_record_schema || null;
+      const proofRecordSchemaMarkup = proofRecordSchema ? `
+            <li>Proof record schema:
+              <ul>
+                <li>Artifact type: <code>${escapeHtml(proofRecordSchema.artifact_type || "")}</code></li>
+                <li>Allowed outcomes:<ul>${codeListMarkup(proofRecordSchema.allowed_outcomes || [])}</ul></li>
+                <li>State field: <code>${escapeHtml(proofRecordSchema.state_field || "")}</code></li>
+              </ul>
+            </li>
+      ` : "";
+      const readinessMarkup = readiness ? `
+            <li>Operator input readiness: <code>${escapeHtml(readiness.status)}</code>
+              <ul>
+                <li>Strict exit code: <code>${escapeHtml(String(readiness.effective_fail_on_blocked_exit_code))}</code></li>
+                <li>Readiness evidence: <code>${escapeHtml(readiness.evidence_ref || "")}</code>; checked <code>${escapeHtml(readiness.checked_at || "")}</code></li>
+                <li>Next action: <code>${escapeHtml(readiness.next_action)}</code></li>
+                <li>Issue codes:<ul>${codeListMarkup(readiness.issue_codes || [])}</ul></li>
+                <li>Exit policy:
+                  <ul>
+                    <li>Default exit code: <code>${escapeHtml(String(readiness.exit_policy?.default_exit_code ?? ""))}</code></li>
+                    <li>Fail-on-blocked exit code: <code>${escapeHtml(String(readiness.exit_policy?.fail_on_blocked_exit_code ?? ""))}</code></li>
+                    <li>Fail-on-blocked statuses:<ul>${codeListMarkup(readiness.exit_policy?.fail_on_blocked_statuses || [])}</ul></li>
+                    <li>Ready status: <code>${escapeHtml(readiness.exit_policy?.ready_status || "")}</code></li>
+                  </ul>
+                </li>
+                <li>Input required fields:<ul>${codeListMarkup(readiness.required_fields)}</ul></li>
+                <li>Blocked fields:<ul>${codeListMarkup(readiness.blocked_fields)}</ul></li>
+                <li>Configured fields:<ul>${codeListMarkup(readiness.configured_fields)}</ul></li>
+                <li>Field groups:
+                  <ul>
+                    <li>Missing fields:<ul>${codeListMarkup(fieldGroups.missing_fields || [])}</ul></li>
+                    <li>Placeholder fields:<ul>${codeListMarkup(fieldGroups.placeholder_fields || [])}</ul></li>
+                    <li>Unavailable secret-file fields:<ul>${codeListMarkup(fieldGroups.unavailable_secret_file_fields || [])}</ul></li>
+                    <li>Invalid fields:<ul>${codeListMarkup(fieldGroups.invalid_fields || [])}</ul></li>
+                  </ul>
+                </li>
+                ${fieldContractMarkup}
+                ${fieldOwnershipMarkup}
+                ${fieldStatusMarkup}
+                <li>Report-only retry sequence:<ul>${codeListMarkup(readiness.next_action_commands || [])}</ul></li>
+                <li>Guarded retry sequence:<ul>${codeListMarkup(readiness.guarded_next_action_commands || [])}</ul></li>
+                <li>Required evidence after unblock:<ul>${listMarkup(readiness.required_evidence_after_unblock)}</ul></li>
+              </ul>
+            </li>
+      ` : "";
+
+      return `
+        <div>
+          <strong>Proof packet:</strong> ${packet.label}.
+          <ul>
+            <li>Proof id: <code>${escapeHtml(packet.proof_id || "")}</code></li>
+            <li>Matrix parity ref: <code>${escapeHtml(packet.matrix_parity_ref || "")}</code></li>
+            <li>Proof capture matrix ref: <code>${escapeHtml(packet.proof_capture_matrix_ref || "")}</code></li>
+            <li>Proof plan packet: <code>${escapeHtml(packet.proof_plan_packet || "")}</code></li>
+            <li>Proof plan packet ref: <code>${escapeHtml(packet.proof_plan_packet_ref || "")}</code></li>
+            <li>Proof plan packet command: <code>${escapeHtml(packet.proof_plan_packet_command || "")}</code></li>
+            <li>Proof plan operator packet ref: <code>${escapeHtml(packet.proof_plan_operator_packet_ref || "")}</code></li>
+            <li>Proof capture commands after unblock:<ul>${codeListMarkup(proofCaptureCommands)}</ul></li>
+            <li>Packet schema: <code>${escapeHtml(packet.packet_schema_version || "")}</code></li>
+            <li>Handoff contract: <code>${escapeHtml(packet.handoff_contract || "")}</code></li>
+            <li>State change allowed: <code>${escapeHtml(String(packet.state_change_allowed))}</code></li>
+            <li>State change guardrail: <code>${escapeHtml(packet.state_change_guardrail || "")}</code></li>
+            <li>Source artifacts:
+              <ul>
+                <li>Operator input readiness: <code>${escapeHtml(sourceArtifacts.operator_input_readiness || "")}</code></li>
+                <li>Current blocker matrix: <code>${escapeHtml(sourceArtifacts.current_blocker_matrix || "")}</code></li>
+                <li>Operator input template: <code>${escapeHtml(sourceArtifacts.operator_input_template || "")}</code></li>
+                <li>Proof plan: <code>${escapeHtml(sourceArtifacts.proof_plan || "")}</code></li>
+              </ul>
+            </li>
+            <li>Completion evidence ref: <code>${escapeHtml(packet.completion_evidence_ref || "")}</code></li>
+            <li>Closure evidence refs:<ul>${codeListMarkup(packet.closure_evidence_refs || [])}</ul></li>
+            ${proofRecordSchemaMarkup}
+            <li>Proof record required fields:<ul>${codeListMarkup(packet.proof_record_required_fields || [])}</ul></li>
+            <li>Current gate:
+              <ul>
+                <li>Completion status: <code>${escapeHtml(currentGate.completion_status || "")}</code></li>
+                <li>Closure template status: <code>${escapeHtml(currentGate.closure_review_template_status || "")}</code></li>
+                <li>Closure review status: <code>${escapeHtml(currentGate.closure_review_status || "")}</code></li>
+                <li>Blocker update status: <code>${escapeHtml(currentGate.blocker_state_update_status || "")}</code></li>
+                <li>Completion next action: <code>${escapeHtml(currentGate.completion_next_action || "")}</code></li>
+                <li>Completion recovery commands:<ul>${codeListMarkup(currentGate.completion_next_action_commands || [])}</ul></li>
+                <li>state change allowed: <code>${escapeHtml(String(currentGate.state_change_allowed))}</code>; goal completion claimed: <code>${escapeHtml(String(currentGate.goal_completion_claimed))}</code></li>
+                <li>Completion issue codes:<ul>${codeListMarkup(currentGate.completion_issue_codes || [])}</ul></li>
+                <li>Latest failed proofs:<ul>${codeListMarkup(currentGate.latest_failed_proofs || [])}</ul></li>
+                <li>Missing accepted proofs:<ul>${codeListMarkup(currentGate.missing_accepted_proofs || [])}</ul></li>
+              </ul>
+            </li>
+            <li>Current state packets:
+              <ul>
+                <li>Current blocker matrix: <code>${escapeHtml(currentStatePackets.current_blocker_matrix || "")}</code></li>
+                <li>Current proof status: <code>${escapeHtml(currentStatePackets.current_proof_status || "")}</code></li>
+                <li>Operator unblocker checklist: <code>${escapeHtml(currentStatePackets.operator_unblocker_checklist || "")}</code></li>
+                <li>Next status packet: <code>${escapeHtml(packet.next_status_packet || "")}</code></li>
+                <li>Next operator packet: <code>${escapeHtml(packet.next_operator_packet || "")}</code></li>
+                <li>Regeneration commands:<ul>${codeListMarkup(Object.values(currentStatePacketCommands))}</ul></li>
+              </ul>
+            </li>
+            <li>${packet.secret_handling}</li>
+            <li>Must capture:<ul>${listMarkup(packet.must_capture)}</ul></li>
+            <li>Store in:<ul>${codeListMarkup(packet.store_in)}</ul></li>
+            ${readinessMarkup}
+          </ul>
+        </div>
+      `;
+    }
+
+    function proofArtifactSchemaMarkup(schema) {
+      if (!schema) {
+        return "";
+      }
+
+      return `
+            <li>Proof artifact schema:
+              <ul>
+                <li>Type: <code>${escapeHtml(schema.artifact_type)}</code></li>
+                <li>State field: <code>${escapeHtml(schema.state_field)}</code></li>
+                <li>Allowed outcomes:<ul>${listMarkup(schema.allowed_outcomes)}</ul></li>
+                <li>Required fields:<ul>${codeListMarkup(schema.required_fields)}</ul></li>
+              </ul>
+            </li>
+      `;
+    }
+
+    function proofPlanMarkup(plan) {
+      if (!plan) {
+        return "";
+      }
+
+      const manualSteps = plan.manual_capture_steps
+        ? `<li>Manual capture:<ul>${listMarkup(plan.manual_capture_steps)}</ul></li>`
+        : "";
+      const bootstrap = plan.product_run_bootstrap || { commands: [] };
+      const planPacket = plan.operator_proof_packet || {};
+      const planPacketSources = planPacket.source_artifacts || {};
+      const planPacketReadiness = planPacket.operator_input_readiness || {};
+      const planPacketFieldOwnership =
+        planPacketReadiness.field_ownership || {};
+      const planPacketFieldOwnershipItems = Object.entries(
+        planPacketFieldOwnership,
+      )
+        .map(
+          ([field, ownership]) => `
+            <li><code>${escapeHtml(field)}</code>
+              <ul>
+                <li>Proof id: <code>${escapeHtml(ownership.proof_id || "")}</code></li>
+                <li>Proof input role: <code>${escapeHtml(ownership.proof_input_role || "")}</code></li>
+              </ul>
+            </li>
+          `,
+        )
+        .join("");
+      const planPacketFieldOwnershipMarkup = planPacketFieldOwnershipItems
+        ? `<li>Proof-plan field ownership:<ul>${planPacketFieldOwnershipItems}</ul></li>`
+        : "";
+
+      return `
+        <div>
+          <strong>Proof plan:</strong> ${plan.status.replaceAll("_", " ")}; ${plan.credential_state.replaceAll("_", " ")}.
+          <ul>
+            <li>Run id: ${plan.run_id_state.replaceAll("_", " ")}; product run id: ${(plan.product_run_id_state || plan.run_id_state).replaceAll("_", " ")}; product run UUID required before execution: ${plan.run_id_required_before_execution}</li>
+            <li>Active blockers:<ul>${codeListMarkup(plan.blocking_reasons)}</ul></li>
+            <li>Credential setup:<ul>${codeListMarkup(plan.credential_setup_requirements)}</ul></li>
+            <li>Credential setup commands:<ul>${codeListMarkup(plan.credential_setup_commands || [])}</ul></li>
+            <li>Local provider config loaded: ${plan.local_provider_config_loaded}</li>
+            <li>Local provider config inputs:<ul>${codeListMarkup(plan.configured_local_provider_inputs || [])}</ul></li>
+            <li>Operator sequence:<ul>${listMarkup(plan.operator_sequence)}</ul></li>
+            <li>Product run bootstrap:<ul>
+              <li>API: <code>${escapeHtml(bootstrap.api_path || "")}</code></li>
+              <li>Output file: <code>${escapeHtml(bootstrap.output_file || "")}</code></li>
+              <li>Run id field: <code>${escapeHtml(bootstrap.created_run_id_field || "")}</code></li>
+              <li>Commands:<ul>${codeListMarkup(bootstrap.commands || [])}</ul></li>
+              <li>Next step: ${escapeHtml(bootstrap.next_step || "")}</li>
+            </ul></li>
+            <li>Command run id: <code>${escapeHtml(plan.command_run_id)}</code></li>
+            <li>Proof-plan operator packet:
+              <ul>
+                <li>current_matrix_packet: <code>${escapeHtml(planPacket.current_matrix_packet || "")}</code></li>
+                <li>current_matrix_packet_ref: <code>${escapeHtml(planPacket.current_matrix_packet_ref || "")}</code></li>
+                <li>current_matrix_packet_command: <code>${escapeHtml(planPacket.current_matrix_packet_command || "")}</code></li>
+                <li>current_matrix_operator_packet_ref: <code>${escapeHtml(planPacket.current_matrix_operator_packet_ref || "")}</code></li>
+                <li>Proof-plan current gate recovery authority: <code>${escapeHtml(planPacket.current_gate_recovery_authority || "")}</code></li>
+                <li>Proof-plan source artifacts:
+                  <ul>
+                    <li>Proof plan: <code>${escapeHtml(planPacketSources.proof_plan || "")}</code></li>
+                    <li>Current blocker matrix: <code>${escapeHtml(planPacketSources.current_blocker_matrix || "")}</code></li>
+                  </ul>
+                </li>
+                ${planPacketFieldOwnershipMarkup}
+              </ul>
+            </li>
+            <li>Workspace commands:<ul>${codeListMarkup(plan.workspace_commands)}</ul></li>
+            <li>Workspace validation commands:<ul>${codeListMarkup(plan.workspace_validation_commands || [])}</ul></li>
+              <li>Workspace validation report files:<ul>${codeListMarkup(plan.workspace_validation_report_files || [])}</ul></li>
+              <li>Workspace validation capture commands:<ul>${codeListMarkup(plan.workspace_validation_capture_commands || [])}</ul></li>
+            <li>Workspace files:<ul>${codeListMarkup(plan.workspace_expected_files)}</ul></li>
+            <li>Attempt gate: ${plan.attempt_gate.state.replaceAll("_", " ")}<ul>
+              <li>Can run preflight capture: ${plan.attempt_gate.can_run_preflight_capture}</li>
+              <li>Can run proof commands now: ${plan.attempt_gate.can_run_proof_commands}</li>
+              <li>Next action: ${plan.attempt_gate.next_action.replaceAll("_", " ")}</li>
+              <li>Blocked by:<ul>${codeListMarkup(plan.attempt_gate.blocked_by)}</ul></li>
+              <li>Next action commands:<ul>${codeListMarkup(plan.attempt_gate.next_action_commands)}</ul></li>
+              <li>Proof commands allowed after:<ul>${listMarkup(plan.attempt_gate.proof_commands_allowed_after)}</ul></li>
+              <li>State change allowed: ${plan.attempt_gate.state_change_allowed}</li>
+            </ul></li>
+            <li>Preflight checks:<ul>${listMarkup(plan.preflight_checks)}</ul></li>
+            <li>Preflight commands:<ul>${codeListMarkup(plan.preflight_commands)}</ul></li>
+            <li>Preflight output files:<ul>${codeListMarkup(plan.preflight_output_files)}</ul></li>
+            <li>Preflight capture commands:<ul>${codeListMarkup(plan.preflight_capture_commands)}</ul></li>
+            <li>Proof capture commands after unblock:<ul>${codeListMarkup(plan.proof_capture_commands_after_unblock || [])}</ul></li>
+            <li>Preflight artifact ID fields:<ul>${codeListMarkup(plan.preflight_artifact_id_fields)}</ul></li>
+            <li>Preflight validation commands:<ul>${codeListMarkup(plan.preflight_validation_commands)}</ul></li>
+            <li>Preflight validation report files:<ul>${codeListMarkup(plan.preflight_validation_report_files)}</ul></li>
+            <li>Preflight validation requirements:<ul>${listMarkup(plan.preflight_validation_requirements)}</ul></li>
+            <li>Preflight validation capture commands:<ul>${codeListMarkup(plan.preflight_validation_capture_commands)}</ul></li>
+            <li>Commands:<ul>${codeListMarkup(plan.commands)}</ul></li>
+            <li>Template commands:<ul>${codeListMarkup(plan.template_commands)}</ul></li>
+            <li>Record commands:<ul>${codeListMarkup(plan.record_commands)}</ul></li>
+            <li>Completion status commands:<ul>${codeListMarkup(plan.completion_status_commands)}</ul></li>
+            <li>Closeout commands:<ul>${codeListMarkup(plan.closeout_commands)}</ul></li>
+            ${manualSteps}
+            <li>Must capture:<ul>${listMarkup(plan.must_capture)}</ul></li>
+            <li>Rejected substitutes:<ul>${listMarkup(plan.rejected_substitutes)}</ul></li>
+            <li>Proof linkage:<ul>${listMarkup(plan.proof_linkage_requirements)}</ul></li>
+            <li>Post-capture validation:<ul>${listMarkup(plan.post_capture_validation_checks)}</ul></li>
+            <li>Failure recording:<ul>${listMarkup(plan.failure_recording_requirements)}</ul></li>
+            <li>Success recording:<ul>${listMarkup(plan.success_recording_requirements)}</ul></li>
+            ${proofArtifactSchemaMarkup(plan.proof_artifact_schema)}
+            <li>Record proof in:<ul>${listMarkup(plan.record_proof_in)}</ul></li>
+            <li>Unblock when:<ul>${listMarkup(plan.unblock_when)}</ul></li>
+          </ul>
+        </div>
+      `;
+    }
+
+    function renderCards() {
+      grid.innerHTML = "";
+      blockers.forEach((blocker) => {
+        const card = document.createElement("article");
+        card.className = "blocker-card";
+        card.dataset.blockerCard = blocker.id;
+        card.dataset.category = blocker.category;
+        card.innerHTML = `
+          <span class="pill">${blocker.status}</span>
+          <h2>${blocker.title}</h2>
+          <p><code>${blocker.id}</code></p>
+          <div class="meta">
+            <div><strong>Missing inputs:</strong> <code>${blocker.missing_inputs.map(escapeHtml).join("</code>, <code>")}</code></div>
+            <div><strong>Required evidence:</strong> ${blocker.required_evidence[0]}</div>
+          </div>
+        `;
+        card.addEventListener("click", () => {
+          selectedBlockerId = blocker.id;
+          render();
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function renderDetail(blocker) {
+      if (!blocker) {
+        detail.innerHTML = "<h2>No matching blocker</h2><p>Adjust the filter.</p>";
+        return;
+      }
+
+      detail.innerHTML = `
+        <h2>${blocker.title}</h2>
+        <p><code>${blocker.id}</code> is <strong>${blocker.status}</strong>.</p>
+        <div class="meta">
+          <div><strong>Missing inputs:</strong> <code>${blocker.missing_inputs.map(escapeHtml).join("</code>, <code>")}</code></div>
+          ${credentialSnapshotMarkup(blocker.credential_snapshot)}
+          ${proofAcceptanceGateMarkup(blocker.proof_acceptance_gate)}
+          ${operatorProofPacketMarkup(blocker.operator_proof_packet)}
+          ${proofPlanMarkup(blocker.proof_plan)}
+          <div><strong>Required evidence:</strong><ul>${listMarkup(blocker.required_evidence)}</ul></div>
+          <div><strong>Next actions:</strong><ul>${listMarkup(blocker.next_actions)}</ul></div>
+          <div><strong>Sources:</strong><ul>${codeListMarkup(blocker.source_notes)}</ul></div>
+        </div>
+      `;
+    }
+
+    function renderExport(filteredBlockers) {
+      const payload = {
+        artifact: "agent-studio-proof-readiness",
+        source: sourcePath,
+        boundary: "planning_vault_only",
+        status: "blocked_until_runtime_evidence",
+        blockers: filteredBlockers.map((blocker) => ({
+          id: blocker.id,
+          title: blocker.title,
+          category: blocker.category,
+          status: blocker.status,
+          missing_inputs: blocker.missing_inputs,
+          credential_snapshot: blocker.credential_snapshot,
+          proof_acceptance_gate: blocker.proof_acceptance_gate,
+          operator_proof_packet: blocker.operator_proof_packet,
+          proof_plan: blocker.proof_plan,
+          required_evidence: blocker.required_evidence,
+          next_actions: blocker.next_actions,
+          source_notes: blocker.source_notes
+        }))
+      };
+      exportBox.value = JSON.stringify(payload, null, 2);
+    }
+
+    function render() {
+      const filtered = visibleBlockers();
+      const visibleIds = new Set(filtered.map((blocker) => blocker.id));
+      if (!visibleIds.has(selectedBlockerId) && filtered.length) {
+        selectedBlockerId = filtered[0].id;
+      }
+
+      document.querySelectorAll("[data-blocker-card]").forEach((card) => {
+        card.hidden = !visibleIds.has(card.dataset.blockerCard);
+      });
+
+      const selected = blockers.find((blocker) => blocker.id === selectedBlockerId && visibleIds.has(blocker.id));
+      count.textContent = `${filtered.length} ${filtered.length === 1 ? "blocker" : "blockers"}`;
+      summary.textContent = activeFilter === "all" ? "Full objective remains active" : `${activeFilter} blocker selected`;
+      renderDetail(selected);
+      renderExport(filtered);
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        filterButtons.forEach((candidate) => {
+          candidate.setAttribute("aria-pressed", String(candidate === button));
+        });
+        render();
+      });
+    });
+
+    renderCards();
+    render();
+  </script>
+</body>
+</html>

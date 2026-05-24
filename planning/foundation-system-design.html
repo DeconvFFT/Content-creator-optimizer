@@ -1,0 +1,2482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Realtime Multi-Agent Studio Foundation</title>
+  <style>
+    :root {
+      --ink: #101418;
+      --muted: #5a6673;
+      --line: #d9e1e8;
+      --paper: #f8fafc;
+      --panel: #ffffff;
+      --teal: #137c72;
+      --blue: #2f66d0;
+      --rose: #c84b6b;
+      --amber: #b96f00;
+      --green: #3b7f39;
+      --shadow: 0 18px 45px rgba(21, 31, 44, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(19, 124, 114, 0.14), transparent 24rem),
+        radial-gradient(circle at 88% 4%, rgba(47, 102, 208, 0.12), transparent 20rem),
+        linear-gradient(180deg, #f6f8fb 0%, #edf2f7 100%);
+      min-height: 100vh;
+    }
+
+    header {
+      min-height: 82vh;
+      padding: 48px clamp(18px, 4vw, 64px) 24px;
+      display: grid;
+      grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+      gap: 36px;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: clamp(2.7rem, 6vw, 6.2rem);
+      line-height: 0.93;
+      margin: 0 0 22px;
+      letter-spacing: 0;
+      max-width: 900px;
+    }
+
+    h2 {
+      font-size: clamp(1.55rem, 2.4vw, 2.4rem);
+      margin: 0 0 14px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      font-size: 1rem;
+      margin: 0 0 8px;
+      letter-spacing: 0;
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.58;
+      margin: 0;
+    }
+
+    .hero-copy {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-copy p {
+      font-size: 1.08rem;
+      max-width: 760px;
+    }
+
+    .boundary-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: #33404c;
+      backdrop-filter: blur(12px);
+    }
+
+    .system-stage {
+      position: relative;
+      min-height: 620px;
+      border: 1px solid rgba(16, 20, 24, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .orbit {
+      position: absolute;
+      inset: 52px;
+      border: 1px dashed rgba(47, 102, 208, 0.28);
+      border-radius: 50%;
+      animation: breathe 7s ease-in-out infinite;
+    }
+
+    .orbit.two {
+      inset: 108px;
+      border-color: rgba(19, 124, 114, 0.26);
+      animation-delay: -2s;
+    }
+
+    .core-node,
+    .stage-node {
+      position: absolute;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 12px 30px rgba(16, 20, 24, 0.1);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .core-node {
+      width: min(56%, 330px);
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      border-top: 4px solid var(--teal);
+    }
+
+    .stage-node {
+      width: 168px;
+      min-height: 92px;
+      cursor: pointer;
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .stage-node:hover,
+    .stage-node.active {
+      transform: translateY(-4px);
+      border-color: var(--blue);
+      box-shadow: 0 16px 36px rgba(47, 102, 208, 0.18);
+    }
+
+    .stage-node small {
+      display: block;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .node-voice { left: 7%; top: 12%; border-top: 4px solid var(--rose); }
+    .node-gemma { right: 7%; top: 12%; border-top: 4px solid var(--blue); }
+    .node-postgres { left: 7%; bottom: 13%; border-top: 4px solid var(--green); }
+    .node-sources { right: 7%; bottom: 13%; border-top: 4px solid var(--amber); }
+
+    .pulse-line {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(47, 102, 208, 0.8), transparent);
+      transform-origin: left;
+      opacity: 0.8;
+      animation: flow 2.8s ease-in-out infinite;
+    }
+
+    .line-a { width: 34%; left: 21%; top: 29%; transform: rotate(22deg); }
+    .line-b { width: 33%; right: 20%; top: 29%; transform: rotate(158deg); animation-delay: -0.9s; }
+    .line-c { width: 35%; left: 21%; bottom: 30%; transform: rotate(-22deg); animation-delay: -1.5s; }
+    .line-d { width: 34%; right: 20%; bottom: 30%; transform: rotate(202deg); animation-delay: -2s; }
+
+    main {
+      padding: 0 clamp(18px, 4vw, 64px) 64px;
+      display: grid;
+      gap: 32px;
+    }
+
+    section {
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(16, 20, 24, 0.08);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(16, 20, 24, 0.08);
+      padding: clamp(18px, 3vw, 32px);
+    }
+
+    .section-head {
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+      align-items: end;
+      margin-bottom: 20px;
+    }
+
+    .tabs,
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font: inherit;
+      transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 122px;
+      resize: vertical;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #2d3844;
+      font-size: 0.86rem;
+      font-weight: 650;
+    }
+
+    button:hover,
+    button.active {
+      background: #eaf2ff;
+      border-color: #9bbcf5;
+      transform: translateY(-1px);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.95fr) minmax(280px, 1.05fr);
+      gap: 18px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 18px;
+      min-height: 180px;
+    }
+
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    .agent {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 150px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .agent strong { font-size: 0.96rem; }
+
+    .agent .tag {
+      width: fit-content;
+      border-radius: 999px;
+      background: #eef6f3;
+      color: #0e665e;
+      padding: 5px 9px;
+      font-size: 0.76rem;
+    }
+
+    .route-map {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 10px;
+    }
+
+    .route-step {
+      position: relative;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 150px;
+      overflow: hidden;
+    }
+
+    .route-step::after {
+      content: "";
+      position: absolute;
+      left: -40%;
+      bottom: 0;
+      width: 40%;
+      height: 3px;
+      background: var(--teal);
+      animation: scan 3.6s linear infinite;
+    }
+
+    .route-step:nth-child(2)::after { animation-delay: -0.9s; background: var(--blue); }
+    .route-step:nth-child(3)::after { animation-delay: -1.8s; background: var(--amber); }
+    .route-step:nth-child(4)::after { animation-delay: -2.7s; background: var(--rose); }
+
+    .decision-log {
+      display: grid;
+      gap: 10px;
+    }
+
+    .feedback-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .feedback-list {
+      display: grid;
+      gap: 10px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .feedback-item {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .feedback-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .progress-board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .progress-column {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      min-height: 260px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+      padding: 12px;
+    }
+
+    .progress-column.over {
+      border-color: var(--blue);
+      background: #edf4ff;
+    }
+
+    .progress-column h3 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .progress-card {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--teal);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      cursor: grab;
+    }
+
+    .progress-card:active {
+      cursor: grabbing;
+    }
+
+    .progress-card[data-priority="high"] { border-left-color: var(--rose); }
+    .progress-card[data-priority="medium"] { border-left-color: var(--amber); }
+    .progress-card[data-priority="low"] { border-left-color: var(--blue); }
+
+    .export-box {
+      min-height: 150px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 14px;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 0;
+    }
+
+    .decision:last-child { border-bottom: 0; }
+
+    .status {
+      font-size: 0.78rem;
+      color: #0e665e;
+      background: #eef6f3;
+      border-radius: 999px;
+      padding: 5px 8px;
+      width: fit-content;
+      height: fit-content;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.025); opacity: 1; }
+    }
+
+    @keyframes flow {
+      0%, 100% { opacity: 0.28; }
+      50% { opacity: 0.9; }
+    }
+
+    @keyframes scan {
+      from { left: -40%; }
+      to { left: 115%; }
+    }
+
+    @media (max-width: 980px) {
+      header,
+      .split,
+      .route-map {
+        grid-template-columns: 1fr;
+      }
+
+      .system-stage { min-height: 580px; }
+      .stage-node { width: 154px; }
+      .node-voice { left: 5%; }
+      .node-gemma { right: 5%; }
+      .node-postgres { left: 5%; }
+      .node-sources { right: 5%; }
+      .progress-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      header { padding-top: 32px; }
+      .system-stage { min-height: 680px; }
+      .core-node {
+        width: calc(100% - 48px);
+        top: 48%;
+      }
+      .stage-node {
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        bottom: auto;
+        width: calc(100% - 32px);
+        margin: 14px 16px;
+      }
+      .orbit,
+      .pulse-line { display: none; }
+      .decision { grid-template-columns: 1fr; }
+      .feedback-grid { grid-template-columns: 1fr; }
+      .progress-board { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero-copy">
+      <h1>Realtime Multi-Agent Studio Foundation</h1>
+      <p>This is the separate planning workspace for the system we are building. It describes the architecture, model boundaries, agent network, durable state, and review loops. It is not part of the product app.</p>
+      <div class="boundary-strip" aria-label="Architecture boundaries">
+        <span class="pill">Product app: live voice/text studio</span>
+        <span class="pill">Planning artifact: this HTML workspace</span>
+        <span class="pill">Durability: Postgres + pgvector</span>
+        <span class="pill">Expert layer: Gemma 4 agents</span>
+      </div>
+    </div>
+
+    <div class="system-stage" aria-label="Animated foundation map">
+      <div class="orbit"></div>
+      <div class="orbit two"></div>
+      <div class="pulse-line line-a"></div>
+      <div class="pulse-line line-b"></div>
+      <div class="pulse-line line-c"></div>
+      <div class="pulse-line line-d"></div>
+
+      <button class="stage-node node-voice active" data-focus="voice">
+        <h3>Realtime Dialogue</h3>
+        <small>Speech-to-speech turn-taking, interruption, and spoken status.</small>
+      </button>
+      <button class="stage-node node-gemma" data-focus="gemma">
+        <h3>Gemma 4 Experts</h3>
+        <small>Vision, synthesis, writing, critique, and long-context reasoning.</small>
+      </button>
+      <button class="stage-node node-postgres" data-focus="state">
+        <h3>Durable State</h3>
+        <small>Runs, events, checkpoints, sources, feedback, artifacts, memory.</small>
+      </button>
+      <button class="stage-node node-sources" data-focus="sources">
+        <h3>Grounded Content</h3>
+        <small>Web research, source ledgers, claim review, and provenance.</small>
+      </button>
+
+      <div class="core-node">
+        <h2 id="focus-title">Realtime Dialogue</h2>
+        <p id="focus-body">The conversation host gives you a natural live interface while specialist agents keep working behind the conversation.</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Agent Network</h2>
+          <p>Filter the foundation roster by responsibility. Each agent has an A2A-style card in the backend.</p>
+        </div>
+        <div class="filters" id="agent-filters"></div>
+      </div>
+      <div class="agent-grid" id="agent-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Model And Tool Routing</h2>
+          <p>Realtime audio models handle the conversation surface. Gemma 4 agents handle expert work. Tools are explicit boundaries.</p>
+        </div>
+      </div>
+      <div class="route-map">
+        <div class="route-step">
+          <h3>Live Input</h3>
+          <p>Voice or text arrives through the conversation host. The host can ask clarifying questions without blocking background work.</p>
+        </div>
+        <div class="route-step">
+          <h3>Task Routing</h3>
+          <p>The intent router turns dialogue into structured tasks and chooses the relevant expert agents.</p>
+        </div>
+        <div class="route-step">
+          <h3>Expert Work</h3>
+          <p>Gemma 4 specialists research, reason, critique, write, review visuals, and prepare platform variants.</p>
+        </div>
+        <div class="route-step">
+          <h3>Human Feedback</h3>
+          <p>The forward deployed engineer captures your feedback and sends it back into the agent loop.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Provider And Persistence Layer</h2>
+          <p>The latest implementation slice adds concrete provider adapters and durable records for grounding, artifacts, feedback, and memory.</p>
+        </div>
+      </div>
+      <div class="route-map" id="provider-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Provider Readiness Harness</h2>
+          <p>The cockpit now exposes a non-secret readiness report for Gemma 4 HF endpoints, realtime audio, web search, and the imagegen tool boundary.</p>
+        </div>
+      </div>
+      <div class="route-map" id="provider-readiness-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Model Routing Ledger</h2>
+          <p>The harness now creates a durable per-run ledger proving Gemma is an expert layer while realtime audio, web search, and imagegen stay separate provider/tool boundaries.</p>
+        </div>
+      </div>
+      <div class="route-map" id="model-routing-ledger-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Provider Operations Ledger</h2>
+          <p>The observability layer can now summarize provider usage, model/tool policy decisions, realtime sessions, fallbacks, and artifact model provenance into one durable ledger.</p>
+        </div>
+      </div>
+      <div class="route-map" id="provider-ops-ledger-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Runtime Health Ledger</h2>
+          <p>The Observability Agent can now separate static readiness from live runtime evidence for Postgres, pgvector, Docker, LangGraph checkpointing, and the no-SQLite boundary.</p>
+        </div>
+      </div>
+      <div class="route-map" id="runtime-health-ledger-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Research Freshness Ledger</h2>
+          <p>The Web Research Agent can now record query-level freshness, accepted source counts, placeholder seeds, and source risks before content reaches publish gates.</p>
+        </div>
+      </div>
+      <div class="route-map" id="research-freshness-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Foundation Audit</h2>
+          <p>The manager loop can now compare foundation requirements against static contracts and durable run evidence, then record a `foundation_audit` artifact.</p>
+        </div>
+      </div>
+      <div class="route-map" id="foundation-audit-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Foundation Reference Ledger</h2>
+          <p>Official guides mapped to the architecture decisions they inform, so agents can audit protocol, persistence, memory, realtime, and subagent assumptions.</p>
+        </div>
+      </div>
+      <div class="route-map" id="foundation-reference-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Realtime Surface</h2>
+          <p>Voice providers create client sessions, while the cockpit can auto-route final speech, speak assistant replies from durable spoken-response plans, persist interruptions, and stream run events.</p>
+        </div>
+      </div>
+      <div class="route-map" id="realtime-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Realtime Dialogue Ledger</h2>
+          <p>The Realtime Conversation Host can now audit every voice/text session for turn continuity, interruption handling, provider-neutral spoken-response plans, spoken acknowledgements, pending host follow-ups, and feedback gates.</p>
+        </div>
+      </div>
+      <div class="route-map" id="realtime-dialogue-ledger-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Feedback Resolution Ledger</h2>
+          <p>The Forward Deployed Engineer can now turn resolved feedback, routed tasks, blockers, and resume guidance into durable evidence for always-on agents.</p>
+        </div>
+      </div>
+      <div class="route-map" id="feedback-resolution-ledger-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Multimodal Intake Ledger</h2>
+          <p>User-provided images, screenshots, audio, video, and document references now become durable routed inputs before specialist agents analyze or generate from them.</p>
+        </div>
+      </div>
+      <div class="route-map" id="multimodal-intake-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Conversational Routing Loop</h2>
+          <p>A single voice/text turn can now start work, revise artifacts, create A2A tasks, persist an assistant reply, and attach a handoff packet for background specialists.</p>
+        </div>
+      </div>
+      <div class="route-map" id="conversation-routing-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>First Runnable Loop</h2>
+          <p>The content studio orchestration now turns one voice/text turn into a durable agent workflow with provider-aware search/synthesis, source, claim, post/reel/Substack artifacts, and feedback records.</p>
+        </div>
+      </div>
+      <div class="route-map" id="workflow-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Feedback Revision Loop</h2>
+          <p>User feedback is now routed back through specialist agents, produces new artifact versions, records reviewer decisions, and reopens a human approval gate.</p>
+        </div>
+      </div>
+      <div class="route-map" id="revision-loop-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Artifact Grounding Contract</h2>
+          <p>Every first-draft content artifact now stores citation dependencies, claim traces, prompt input, model/provider provenance, and an initial review state.</p>
+        </div>
+      </div>
+      <div class="route-map" id="artifact-grounding-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Feedback Routing Mesh</h2>
+          <p>Standalone feedback capture now creates a routed FeedbackItem, a specialist A2A task, and note/progress memories for future agent passes.</p>
+        </div>
+      </div>
+      <div class="route-map" id="feedback-routing-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Autonomous Work Plan</h2>
+          <p>The Sprint/Progress Agent now derives a next-pass work plan from routed feedback, pending tasks, upstream dependency waits, dependency cycles, retry-exhausted blockers, worker profile state, and quality gates.</p>
+        </div>
+      </div>
+      <div class="route-map" id="work-plan-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Multi-Agent Sync Pulse</h2>
+          <p>The Product Manager and Sprint/Progress Agent can now record a shared coordination snapshot with agent focus, dependency waits, dependency cycles, blockers, handoffs, and next actions.</p>
+        </div>
+      </div>
+      <div class="route-map" id="sync-pulse-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>A2A Collaboration Graph</h2>
+          <p>The A2A Protocol Agent can now materialize a graph of agents, tasks, dependency edges, dependency cycles, handoff-trace edges, ready work, blocked work, and retry-exhausted work.</p>
+        </div>
+      </div>
+      <div class="route-map" id="a2a-collaboration-graph-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Skill Usage Ledger</h2>
+          <p>The A2A Protocol Agent can now audit whether processed specialist tasks carried project skill-card evidence and whether skill cards still match their actual `SKILL.md` source files.</p>
+        </div>
+      </div>
+      <div class="route-map" id="skill-usage-ledger-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Durable Feedback Gates</h2>
+          <p>Human gates now have resolvable feedback records, so always-on workers can pause, inspect approval state, and resume without losing context.</p>
+        </div>
+      </div>
+      <div class="route-map" id="feedback-gate-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Guardrail Audit Loop</h2>
+          <p>Artifacts now get deterministic source and claim audits before they can move toward publishing.</p>
+        </div>
+      </div>
+      <div class="route-map" id="guardrail-audit-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Publishing Readiness Gate</h2>
+          <p>A run-level readiness decision now consolidates artifacts, sources, claims, audits, and open feedback into one publish/no-publish answer.</p>
+        </div>
+      </div>
+      <div class="route-map" id="publish-readiness-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Source Ledger Snapshot</h2>
+          <p>A consolidated source ledger snapshot now maps sources, claims, artifacts, and per-artifact claim-to-source matrix verdicts into one provenance report for review and downstream agents.</p>
+        </div>
+      </div>
+      <div class="route-map" id="source-ledger-snapshot-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Resume Harness</h2>
+          <p>Application-level checkpoints and resume plans now make long-running runs inspectable after a pause, restart, blocked task, retry-exhausted task, or human feedback gate.</p>
+        </div>
+      </div>
+      <div class="route-map" id="resume-harness-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Run Replay Ledger</h2>
+          <p>The Agent Harness Engineer can now compare a checkpoint event cursor against later timeline events and record a debug packet for resumed agents.</p>
+        </div>
+      </div>
+      <div class="route-map" id="run-replay-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Context Engineering Loop</h2>
+          <p>Agents can now request run context packets with relevant pgvector memories, retry-exhausted task risks, and the current durable working state.</p>
+        </div>
+      </div>
+      <div class="route-map" id="context-engineering-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Media Production Plan</h2>
+          <p>Source-backed drafts can now become durable imagegen prompt packs, audio briefs, and reel storyboards with source and claim provenance.</p>
+        </div>
+      </div>
+      <div class="route-map" id="media-production-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Distribution Package</h2>
+          <p>Growth specialists can now package approved drafts into platform-native hooks, captions, hashtags, keywords, and outreach angles without bypassing provenance gates.</p>
+        </div>
+      </div>
+      <div class="route-map" id="distribution-package-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Interactive Run Notes</h2>
+          <p>The Interactive Note-Taking Agent can now render run state into an HTML artifact with tabs, filters, timeline, tasks, sources, feedback, and artifacts.</p>
+        </div>
+      </div>
+      <div class="route-map" id="interactive-note-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Durable Agent Task Lifecycle</h2>
+          <p>A2A messages now act as resumable work items with atomic claim, dependency waits, durable handoff traces, attempt caps, stale-task recovery, human-authorized retry, progress, completion, failure, and blocked states.</p>
+        </div>
+      </div>
+      <div class="route-map" id="task-lifecycle-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Autonomous Worker Loop</h2>
+          <p>A local worker can recover abandoned claimed/in-progress work, block retry-exhausted tasks for human review, poll accepted tasks, atomically claim ownership, build context, run Gemma-backed specialist work, and persist results without duplicate execution.</p>
+        </div>
+      </div>
+      <div class="route-map" id="worker-loop-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Specialist Worker Executors</h2>
+          <p>The generic worker loop now branches into concrete expert behavior for research, verification, strategy, distribution packaging, guardrails, and media planning.</p>
+        </div>
+      </div>
+      <div class="route-map" id="worker-executor-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Multi-Agent Worker Cycle</h2>
+          <p>The harness can now run an ordered cycle of specialist workers once or continuously from the CLI.</p>
+        </div>
+      </div>
+      <div class="route-map" id="multi-agent-cycle-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Autonomous Studio Pass</h2>
+          <p>A bounded orchestration pass now connects checkpoints, worker cycles, media planning, source ledgers, audits, readiness, and HTML notes.</p>
+        </div>
+      </div>
+      <div class="route-map" id="autonomous-pass-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Saved Worker Profiles</h2>
+          <p>Each run can store a durable worker profile with start, stop, and heartbeat state for local always-on operation.</p>
+        </div>
+      </div>
+      <div class="route-map" id="worker-profile-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Profile Scheduler</h2>
+          <p>A lightweight local scheduler discovers active profiles whose polling interval has elapsed and heartbeats them without a profile id.</p>
+        </div>
+      </div>
+      <div class="route-map" id="profile-scheduler-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Skill Layer</h2>
+          <p>Project-owned skills now have runtime skill cards, agent mappings, API routes, and worker context metadata. Skill files use the required Codex `SKILL.md` format; planning notes remain interactive HTML.</p>
+        </div>
+      </div>
+      <div class="agent-grid" id="skill-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Planning Progress Tracker</h2>
+          <p>This separate planning surface tracks implementation slices for us. It is local to this HTML workspace and is not part of the product cockpit.</p>
+        </div>
+      </div>
+      <div class="split">
+        <div class="panel">
+          <form class="feedback-form" id="planning-progress-form">
+            <div class="feedback-grid">
+              <label>
+                <span>Title</span>
+                <input id="planning-progress-title" placeholder="Short implementation slice">
+              </label>
+              <label>
+                <span>Owner</span>
+                <select id="planning-progress-owner">
+                  <option value="principal-software-engineer">Principal Software Engineer</option>
+                  <option value="agent-harness-engineer">Agent Harness Engineer</option>
+                  <option value="context-engineering-agent">Context Engineering Agent</option>
+                  <option value="interactive-systems-designer">Interactive Systems Designer</option>
+                  <option value="lead-ui-ux-designer">Lead UI/UX Designer</option>
+                  <option value="product-manager">Product Manager</option>
+                  <option value="sprint-progress-agent">Sprint/Progress Agent</option>
+                </select>
+              </label>
+              <label>
+                <span>Priority</span>
+                <select id="planning-progress-priority">
+                  <option value="high">High</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              <span>Acceptance Signal</span>
+              <textarea id="planning-progress-acceptance" placeholder="What evidence will prove this slice is done?"></textarea>
+            </label>
+            <div class="tabs">
+              <button type="submit">Add progress item</button>
+              <button type="button" id="planning-progress-reset">Reset saved progress</button>
+            </div>
+          </form>
+        </div>
+        <div class="panel">
+          <h3>Progress Packet</h3>
+          <textarea class="export-box" id="planning-progress-export" readonly></textarea>
+        </div>
+      </div>
+      <div class="progress-board" id="planning-progress-board"></div>
+      <div class="route-map" id="planning-progress-routing-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Planning Feedback Loop</h2>
+          <p>Use this separate planning surface to capture design suggestions as structured JSON, then route them into durable FeedbackItem and A2A work when a run id is provided.</p>
+        </div>
+      </div>
+      <div class="split">
+        <div class="panel">
+          <form class="feedback-form" id="planning-feedback-form">
+            <div class="feedback-grid">
+              <label>
+                <span>Focus</span>
+                <select id="planning-feedback-focus">
+                  <option value="architecture">Architecture</option>
+                  <option value="agent-roster">Agent roster</option>
+                  <option value="realtime-audio">Realtime audio</option>
+                  <option value="source-grounding">Source grounding</option>
+                  <option value="content-output">Content output</option>
+                  <option value="planning-html">Planning HTML</option>
+                </select>
+              </label>
+              <label>
+                <span>Priority</span>
+                <select id="planning-feedback-priority">
+                  <option value="high">High</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </label>
+              <label>
+                <span>Route to</span>
+                <select id="planning-feedback-agent">
+                  <option value="forward-deployed-engineer">Forward Deployed Engineer</option>
+                  <option value="product-manager">Product Manager</option>
+                  <option value="principal-software-engineer">Principal Software Engineer</option>
+                  <option value="agent-harness-engineer">Agent Harness Engineer</option>
+                  <option value="lead-ui-ux-designer">Lead UI/UX Designer</option>
+                  <option value="interactive-systems-designer">Interactive Systems Designer</option>
+                  <option value="content-strategist">Content Strategist</option>
+                  <option value="guardrails-agent">Guardrails Agent</option>
+                </select>
+              </label>
+            </div>
+            <div class="feedback-grid">
+              <label>
+                <span>Run ID</span>
+                <input id="planning-feedback-run-id" placeholder="Paste a run_id to route suggestions durably">
+              </label>
+              <label>
+                <span>API Base</span>
+                <input id="planning-feedback-api-base" value="http://127.0.0.1:8000">
+              </label>
+            </div>
+            <label>
+              <span>Suggestion</span>
+              <textarea id="planning-feedback-text" placeholder="Describe the system change, risk, or design improvement to route into the next iteration."></textarea>
+            </label>
+            <div class="tabs">
+              <button type="submit">Save suggestion</button>
+              <button type="button" id="planning-feedback-route">Route saved suggestions</button>
+              <button type="button" id="planning-feedback-clear">Clear saved suggestions</button>
+            </div>
+            <p id="planning-feedback-status" class="feedback-meta">Saved locally until routed to `/api/planning/feedback`.</p>
+          </form>
+        </div>
+        <div class="panel">
+          <h3>Saved Suggestions</h3>
+          <div class="feedback-list" id="planning-feedback-list"></div>
+        </div>
+      </div>
+      <div class="route-map" id="planning-feedback-routing-grid"></div>
+      <label>
+        <span>Exportable Feedback Packet</span>
+        <textarea class="export-box" id="planning-feedback-export" readonly></textarea>
+      </label>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Durable Data Flow</h2>
+          <p>Postgres is the local-first system of record. pgvector stores retrieval memory in the same operational database.</p>
+        </div>
+      </div>
+      <div class="split">
+        <div class="panel">
+          <h3>Recorded State</h3>
+          <p>Runs, conversation turns, agent messages, events, sources, claims, feedback, artifacts, and agent memories are stored as durable records. LangGraph checkpoints sit beside app state instead of replacing it.</p>
+        </div>
+        <div class="panel">
+          <h3>Review Gates</h3>
+          <p>Generated content is not final until important claims are tied to source records or marked unsupported, feedback is resolved, and review agents approve the artifact provenance.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Decisions Locked In Step 1</h2>
+          <p>These are implementation boundaries for the first slice.</p>
+        </div>
+      </div>
+      <div class="decision-log" id="decision-log"></div>
+    </section>
+  </main>
+
+  <script id="foundation-data" type="application/json">
+    {
+      "focus": {
+        "voice": {
+          "title": "Realtime Dialogue",
+          "body": "The conversation host gives you a natural live interface while specialist agents keep working behind the conversation."
+        },
+        "gemma": {
+          "title": "Gemma 4 Experts",
+          "body": "Gemma 4 agents perform reasoning, vision review, source-backed synthesis, writing, critique, and context engineering."
+        },
+        "state": {
+          "title": "Durable State",
+          "body": "Postgres and pgvector hold the durable foundation: run state, event logs, source records, claim records, artifacts, feedback, and memory."
+        },
+        "sources": {
+          "title": "Grounded Content",
+          "body": "Research and verification agents keep every major content claim connected to real sources or explicitly marked unsupported."
+        }
+      },
+      "groups": ["Core", "Harness", "Research", "Content", "Growth", "Media", "Governance", "Knowledge"],
+      "agents": [
+        {"name": "Realtime Conversation Host", "group": "Core", "role": "Natural voice and text dialogue."},
+        {"name": "Intent Router", "group": "Core", "role": "Routes conversation into specialist work."},
+        {"name": "Forward Deployed Engineer", "group": "Core", "role": "Captures feedback and converts it into tasks."},
+        {"name": "Principal Software Engineer", "group": "Harness", "role": "Architecture and reliability owner."},
+        {"name": "Backend Platform Engineer", "group": "Harness", "role": "FastAPI, Postgres/pgvector, migrations, async APIs, and backend contracts."},
+        {"name": "Frontend Experience Engineer", "group": "Harness", "role": "Conversational cockpit, voice controls, event streams, and accessibility."},
+        {"name": "Scalability/Reliability Engineer", "group": "Harness", "role": "SLOs, capacity, backpressure, worker scheduling, and graceful degradation."},
+        {"name": "Inference Systems Engineer", "group": "Harness", "role": "Gemma/HF endpoints, realtime boundaries, model routing, latency, cost, and smoke proof."},
+        {"name": "Agent Harness Engineer", "group": "Harness", "role": "Durable orchestration and checkpointing."},
+        {"name": "A2A Protocol Agent", "group": "Harness", "role": "Agent cards and handoff contracts."},
+        {"name": "Context Engineering Agent", "group": "Harness", "role": "Memory, retrieval, and context policy."},
+        {"name": "Web Research Agent", "group": "Research", "role": "Searches real sources and evidence."},
+        {"name": "Retrieval Intelligence Agent", "group": "Research", "role": "Hybrid retrieval, RRF, reranking, and FP/FN risk analysis."},
+        {"name": "Knowledge Graph Curator Agent", "group": "Research", "role": "Entity, source, claim, and artifact graph coverage."},
+        {"name": "Source Ledger Agent", "group": "Research", "role": "Tracks citations and provenance."},
+        {"name": "Claim Verification Agent", "group": "Research", "role": "Maps claims to supporting sources."},
+        {"name": "Data Analyst Agent", "group": "Research", "role": "Structures real-world data."},
+        {"name": "Content Strategist", "group": "Content", "role": "Audience, angle, and narrative arc."},
+        {"name": "ELI5 Short-Form Writer", "group": "Content", "role": "Reels, posts, captions, carousels."},
+        {"name": "Substack Essay Writer", "group": "Content", "role": "Detailed long-form plus ELI5."},
+        {"name": "Script Doctor", "group": "Content", "role": "Hooks, pacing, and spoken clarity."},
+        {"name": "Editor-in-Chief", "group": "Content", "role": "Final editorial review."},
+        {"name": "Influencer Strategy Agent", "group": "Growth", "role": "Audience, keywords, and hashtags."},
+        {"name": "Platform Optimization Agent", "group": "Growth", "role": "Platform-specific variants."},
+        {"name": "Outreach Agent", "group": "Growth", "role": "Collaborations and community targets."},
+        {"name": "Lead UI/UX Designer", "group": "Media", "role": "Product UX and planning artifact critique."},
+        {"name": "Interactive Systems Designer", "group": "Media", "role": "Animated HTML planning workspace."},
+        {"name": "Visual Director", "group": "Media", "role": "Visual style and storyboards."},
+        {"name": "Image Generation Agent", "group": "Media", "role": "Raster visuals through imagegen."},
+        {"name": "Audio Producer", "group": "Media", "role": "Voice style, pacing, and audio QA."},
+        {"name": "Video/Reel Producer", "group": "Media", "role": "Storyboard, shots, subtitles."},
+        {"name": "Guardrails Agent", "group": "Governance", "role": "Risk, copyright, and unsupported claims."},
+        {"name": "Product Manager", "group": "Governance", "role": "Acceptance criteria and prioritization."},
+        {"name": "Critic/Reviewer Agent", "group": "Governance", "role": "Harsh review loop."},
+        {"name": "Observability Agent", "group": "Governance", "role": "Traces, latency, failures, and cost."},
+        {"name": "Interactive Note-Taking Agent", "group": "Knowledge", "role": "HTML decisions and feedback notes."},
+        {"name": "Artifact Librarian", "group": "Knowledge", "role": "Indexes drafts, media, and sources."},
+        {"name": "Sprint/Progress Agent", "group": "Knowledge", "role": "Timeline and decision summaries."}
+      ],
+      "skills": [
+        {"name": "agent-studio-conversation-harness", "group": "Core", "role": "Route live voice/text dialogue into durable agent work; exposed through skill cards."},
+        {"name": "agent-studio-research-grounding", "group": "Research", "role": "Create source ledgers and claim verification records; attached to research agents."},
+        {"name": "agent-studio-retrieval-intelligence", "group": "Research", "role": "Optimize query rewriting, hybrid retrieval, RRF, reranking, knowledge graph traversal, and retrieval quality ledgers."},
+        {"name": "agent-studio-content-production", "group": "Content", "role": "Draft source-backed posts, ELI5 reels, and detailed Substack content packs."},
+        {"name": "agent-studio-media-design", "group": "Media", "role": "Plan visuals, audio, reels, imagegen prompts, and planning HTML."},
+        {"name": "agent-studio-system-architecture", "group": "Harness", "role": "Apply production data-system, ML-system, A2A, durability, and reliability design patterns."},
+        {"name": "agent-studio-frontend-engineering", "group": "Harness", "role": "Build conversational cockpit UI and keep generated planning viewers separate from the product app."},
+        {"name": "agent-studio-inference-reliability", "group": "Harness", "role": "Review Gemma/HF, realtime audio, reranking, latency, cost, fallback, and provider smoke readiness."},
+        {"name": "agent-studio-guardrails-review", "group": "Governance", "role": "Review claims, provenance, safety, and approval gates; used in worker context."}
+      ],
+      "providers": [
+        {"name": "Hugging Face Gemma 4", "role": "Expert reasoning, vision, synthesis, writing, and critique through configured HF endpoints."},
+        {"name": "Realtime Audio", "role": "OpenAI Realtime, ElevenLabs signed WebSockets, and Cartesia realtime TTS descriptors."},
+        {"name": "Web Search", "role": "Tavily or SerpAPI adapters for source-backed research and freshness checks."},
+        {"name": "Imagegen Boundary", "role": "Raster visual work remains an explicit Codex imagegen tool boundary with artifact provenance."}
+      ],
+      "providerReadiness": [
+        {"name": "Non-Secret Status", "role": "`/api/provider-readiness` reports configured env names and missing env names, never key values."},
+        {"name": "Gemma Endpoint Gate", "role": "HF token plus each Gemma 4 endpoint URL must be present before provider-backed expert work is marked ready."},
+        {"name": "Realtime Choice Gate", "role": "OpenAI Realtime, ElevenLabs, and Cartesia each show independent readiness and selected/default state."},
+        {"name": "Tool Boundary", "role": "Imagegen is explicitly marked as a Codex tool boundary while media artifacts store prompt packs and provenance."}
+      ],
+      "modelRoutingLedger": [
+        {"name": "Route Contracts", "role": "`/api/runs/{run_id}/model-routing-ledger` snapshots live conversation, Gemma reasoning, multimodal review, and imagegen route contracts."},
+        {"name": "Agent Matrix", "role": "The ledger records which agents may use Gemma, which agent owns realtime audio transport, and which agent owns imagegen."},
+        {"name": "Policy Evidence", "role": "Model policy approvals/denials, Gemma completion events, realtime boundary events, and artifact model provenance become inspectable routing entries."},
+        {"name": "Boundary Checks", "role": "The ledger blocks on violations such as Gemma used as voice transport, Gemma artifacts missing Hugging Face provenance, or deterministic fallback writing presented as publishable content."},
+        {"name": "Autonomous Evidence", "role": "Autonomous passes now append `model_routing_ledger_built` before provider operations and foundation self-audit."}
+      ],
+      "providerOpsLedger": [
+        {"name": "Provider Events", "role": "`/api/runs/{run_id}/provider-ops-ledger` reads model/tool policy events, provider fallbacks, Gemma completions, and realtime events."},
+        {"name": "Realtime Sessions", "role": "Sanitized realtime session records contribute provider, status, voice, audio mode, and non-secret connection capability metadata."},
+        {"name": "Artifact Provenance", "role": "Artifacts with model provider, model id, generation mode, and usage metadata become ledger operations for audit."},
+        {"name": "Durable Audit", "role": "The Observability Agent records a `provider_operations_ledger` artifact and `provider_operations_ledger_built` event for manager review."}
+      ],
+      "runtimeHealthLedger": [
+        {"name": "Runtime Endpoint", "role": "`/api/runs/{run_id}/runtime-health-ledger` records a durable `runtime_health_ledger` artifact, `runtime_health_ledger_built` event, and live Postgres evidence event when the request is backed by PostgresStore."},
+        {"name": "Postgres And pgvector", "role": "Static checks verify the application schema, run/event/checkpoint/artifact tables, pgvector extension, and vector memory column."},
+        {"name": "Docker Boundary", "role": "The ledger inspects docker-compose service shape and healthcheck configuration but does not shell out from the API path."},
+        {"name": "LangGraph Persistence", "role": "Checkpointing checks verify `AsyncPostgresSaver`, setup wiring, and per-run checkpoint evidence when present."},
+        {"name": "No SQLite Guard", "role": "The ledger scans app and infra runtime files for SQLite adapter tokens and blocks if a fallback appears."}
+      ],
+      "researchFreshnessLedger": [
+        {"name": "Query Evidence", "role": "`/api/runs/{run_id}/research-freshness-ledger` groups sources by search query and records whether current research exists for the topic; content-studio and Web Research Agent worker provider searches emit `web_research_completed` with provider, accepted, and deduplicated result counts."},
+        {"name": "Source Acceptance", "role": "Each source is classified by quality, freshness, placeholder status, and whether it can be used for drafting; provider-backed sources persist snippets, search rank, retrieved_at, and published_at as typed source/provenance evidence."},
+        {"name": "Refresh Flags", "role": "Placeholder seeds, weak sources, stale sources, and unknown freshness produce a `needs_refresh` or `blocked` status before publishing."},
+        {"name": "Worker Integration", "role": "Provider-backed Web Research Agent runs now emit a `research_freshness_ledger` artifact and `research_freshness_ledger_built` event after source repair."}
+      ],
+      "foundationAudit": [
+        {"name": "Requirement Checks", "role": "`/api/runs/{run_id}/foundation-audit` verifies the agent roster, skills, model routing, provider contracts, references, Postgres schema, product/planning boundary, worker heartbeat evidence, and generated-artifact provenance contract."},
+        {"name": "Run Evidence", "role": "The audit inspects events, artifacts, sources, claims, feedback, realtime sessions, checkpoints, worker profiles, heartbeat context packets, realtime dialogue ledgers, feedback resolution ledgers, and worker heartbeat ledgers for exercised foundation behavior."},
+        {"name": "Remediation Routing", "role": "Every non-passing check becomes an owner-routed remediation item with priority, blocker status, missing evidence, and a recommended next action for the Sprint/Progress Agent."},
+        {"name": "Post-Audit Coordination", "role": "`post-audit-coordination-loop` verifies a prior `foundation_audit_built` record fed a refreshed work plan, Product Manager sync pulse, context packet, and `resolve_foundation_audit_finding` A2A remediation task when findings exist."},
+        {"name": "Attention Flags", "role": "Missing runtime evidence is marked `needs_attention`, while broken non-negotiable contracts such as SQLite fallback or planning data inside the product app fail the audit."},
+        {"name": "Durable Manager Record", "role": "The Product Manager records a `foundation_audit` artifact and emits `foundation_audit_built` so future sessions can resume from an explicit requirements ledger."}
+      ],
+      "foundationReferences": [
+        {"title": "Developer's Guide to AI Agent Protocols", "publisher": "Google Developers Blog", "url": "https://developers.googleblog.com/en/developers-guide-to-ai-agent-protocols/", "referenceType": "agent_protocol_guide", "appliesTo": ["a2a-protocol-agent", "intent-router", "agent-harness-engineer"], "decision": "A2A-style agent cards and durable AgentMessage handoffs are the specialist interoperability contract.", "freshness": "Refresh before changing A2A fields, handoff rules, or remote-agent boundaries."},
+        {"title": "Build Long-running AI agents that pause, resume, and never lose context with ADK", "publisher": "Google Developers Blog", "url": "https://developers.googleblog.com/build-long-running-ai-agents-that-pause-resume-and-never-lose-context-with-adk/", "referenceType": "long_running_agent_guide", "appliesTo": ["agent-harness-engineer", "context-engineering-agent", "observability-agent"], "decision": "Long-running work needs checkpoints, event cursors, human gates, worker profiles, and resumable context packets.", "freshness": "Refresh before changing resume gates, checkpoint records, or always-on profile semantics."},
+        {"title": "LangGraph persistence", "publisher": "LangChain", "url": "https://docs.langchain.com/oss/python/langgraph/persistence", "referenceType": "orchestration_persistence_guide", "appliesTo": ["agent-harness-engineer", "principal-software-engineer"], "decision": "LangGraph-style orchestration uses Postgres checkpointing beside the application event log.", "freshness": "Refresh before upgrading LangGraph, checkpoint schemas, or time-travel/debug behavior."},
+        {"title": "pgvector", "publisher": "pgvector", "url": "https://github.com/pgvector/pgvector", "referenceType": "vector_memory_reference", "appliesTo": ["context-engineering-agent", "source-ledger-agent"], "decision": "Postgres plus pgvector is the local-first durability and semantic-memory foundation; no local SQLite fallback.", "freshness": "Refresh before changing embedding dimensions, vector indexes, or memory retrieval ranking."},
+        {"title": "Gemma4 Transformers model documentation", "publisher": "Hugging Face", "url": "https://huggingface.co/docs/transformers/model_doc/gemma4", "referenceType": "model_capability_reference", "appliesTo": ["content-strategist", "eli5-short-form-writer", "substack-essay-writer", "script-doctor", "editor-in-chief", "principal-software-engineer", "visual-director", "audio-producer"], "decision": "Gemma 4 is the expert-agent layer for reasoning, synthesis, writing, critique, and multimodal work, not the voice transport.", "freshness": "Refresh before changing Gemma 4 model ids, modality assumptions, or context-window policy."},
+        {"title": "OpenAI Realtime API guide", "publisher": "OpenAI", "url": "https://platform.openai.com/docs/guides/realtime/", "referenceType": "realtime_audio_reference", "appliesTo": ["realtime-conversation-host", "audio-producer"], "decision": "Realtime providers own live speech-to-speech, interruption, and spoken output while durable state remains in Postgres.", "freshness": "Refresh before changing realtime session creation, event transport, or spoken-output policy."},
+        {"title": "ElevenLabs Text to Speech documentation", "publisher": "ElevenLabs", "url": "https://elevenlabs.io/docs/capabilities/text-to-speech", "referenceType": "tts_provider_reference", "appliesTo": ["audio-producer", "realtime-conversation-host"], "decision": "High-quality narration and TTS are pluggable provider outputs separate from Gemma reasoning.", "freshness": "Refresh before changing ElevenLabs session setup, voice metadata, or TTS QA assumptions."},
+        {"title": "Cartesia Text to Speech WebSocket API", "publisher": "Cartesia", "url": "https://docs.cartesia.ai/api-reference/tts/tts", "referenceType": "tts_websocket_reference", "appliesTo": ["audio-producer", "realtime-conversation-host"], "decision": "Low-latency TTS is a pluggable realtime audio boundary with durable provider metadata only.", "freshness": "Refresh before changing Cartesia WebSocket setup, voice ids, or latency assumptions."},
+        {"title": "Claude Code subagents", "publisher": "Anthropic", "url": "https://docs.anthropic.com/en/docs/claude-code/sub-agents", "referenceType": "subagent_context_reference", "appliesTo": ["agent-harness-engineer", "context-engineering-agent", "critic-reviewer-agent"], "decision": "Specialist agents need explicit roles, tool permissions, isolated task context, and structured returned results.", "freshness": "Refresh before changing agent skill files, allowed tool policy, or specialist context boundaries."},
+        {"title": "Designing Data-Intensive Applications", "publisher": "Martin Kleppmann", "url": "https://martin.kleppmann.com/2017/03/27/designing-data-intensive-applications.html", "referenceType": "data_system_design_reference", "appliesTo": ["principal-software-engineer", "backend-platform-engineer", "scalability-reliability-engineer"], "decision": "Reliability, scalability, maintainability, consistency, and fault tolerance are explicit architecture gates.", "freshness": "Refresh before changing event-log semantics, durability boundaries, or high-scale data flows."},
+        {"title": "Designing Machine Learning Systems", "publisher": "O'Reilly", "url": "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/", "referenceType": "ml_system_design_reference", "appliesTo": ["context-engineering-agent", "retrieval-intelligence-agent", "inference-systems-engineer"], "decision": "AI quality depends on data quality, monitoring, evaluation, feedback loops, and production constraints.", "freshness": "Refresh before changing retrieval evaluation, memory policy gates, or model monitoring."},
+        {"title": "Inference Engineering", "publisher": "Baseten", "url": "https://www.baseten.co/inference-engineering/", "referenceType": "inference_engineering_reference", "appliesTo": ["inference-systems-engineer", "audio-producer", "observability-agent"], "decision": "Inference routes need latency and cost budgets, streaming/batching/cache decisions, and fallback policy.", "freshness": "Refresh before changing model routing, batching, streaming, cache, or provider fallback."},
+        {"title": "Building effective agents", "publisher": "Anthropic", "url": "https://www.anthropic.com/engineering/building-effective-agents", "referenceType": "agent_architecture_reference", "appliesTo": ["agent-harness-engineer", "intent-router", "guardrails-agent"], "decision": "Use simple workflows and explicit routing before increasing autonomous complexity.", "freshness": "Refresh before changing orchestration patterns, reviewer loops, or autonomous criteria."},
+        {"title": "A practical guide to building agents", "publisher": "OpenAI", "url": "https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/", "referenceType": "agent_guardrails_reference", "appliesTo": ["guardrails-agent", "product-manager", "realtime-conversation-host"], "decision": "Guardrails are layered across input, tool use, model output, data privacy, and approval gates.", "freshness": "Refresh before changing guardrail gates, approval criteria, or realtime safety controls."},
+        {"title": "Machine Learning Lens - AWS Well-Architected Framework", "publisher": "AWS", "url": "https://docs.aws.amazon.com/wellarchitected/latest/machine-learning-lens/machine-learning-lens.html", "referenceType": "well_architected_ml_reference", "appliesTo": ["scalability-reliability-engineer", "backend-platform-engineer", "observability-agent"], "decision": "Production ML needs operational excellence, reliability, security, cost, and performance reviews.", "freshness": "Refresh before changing production-readiness, cost, or reliability gates."},
+        {"title": "AI and ML perspective: Reliability", "publisher": "Google Cloud", "url": "https://docs.cloud.google.com/architecture/framework/perspectives/ai-ml/reliability", "referenceType": "ai_ml_reliability_reference", "appliesTo": ["scalability-reliability-engineer", "inference-systems-engineer", "agent-harness-engineer"], "decision": "AI/ML systems should be modular, loosely coupled, observable, governed, scalable, and highly available.", "freshness": "Refresh before changing SLOs, autonomous runtime gates, or HA assumptions."},
+        {"title": "Meet Michelangelo: Uber's Machine Learning Platform", "publisher": "Uber Engineering", "url": "https://www.uber.com/ie/en/blog/michelangelo-machine-learning-platform/", "referenceType": "ml_platform_reference", "appliesTo": ["context-engineering-agent", "retrieval-intelligence-agent", "artifact-librarian"], "decision": "Shared curated data and feature-like evidence layers reduce duplicated work and improve consistency.", "freshness": "Refresh before changing shared memory, evidence stores, or provenance policy."},
+        {"title": "What is Metaflow", "publisher": "Metaflow/Netflix", "url": "https://docs.metaflow.org/introduction/what-is-metaflow", "referenceType": "workflow_platform_reference", "appliesTo": ["agent-harness-engineer", "backend-platform-engineer", "artifact-librarian"], "decision": "Workflow abstractions bridge prototype and production while preserving artifacts, data, code, and deployment traceability.", "freshness": "Refresh before changing workflow lifecycle, artifact storage, or deployment assumptions."}
+      ],
+      "realtimeSurface": [
+        {"name": "Provider Session Boundary", "role": "The API creates provider-specific realtime sessions and returns client secrets or signed WebSocket URLs without storing them in event payloads."},
+        {"name": "Session Ledger", "role": "A sanitized realtime session record stores provider, voice, audio mode, status, and non-secret metadata."},
+        {"name": "Hands-Free Turn Loop", "role": "The cockpit uses browser speech recognition final results to auto-route voice turns through the durable conversation router."},
+        {"name": "Reply And Interrupt", "role": "Assistant replies now return a durable `spoken_response` plan with provider, voice, output channel, interrupt state, and provider payload; the cockpit records immediate `realtime_session_control_recorded` interrupt events before the next voice turn resolves them."},
+        {"name": "Host Brief Follow-up", "role": "Each user realtime turn can enqueue a `realtime_turn_followup_v1` Realtime Conversation Host task so the next worker cycle records a session, interruption, voice feedback, and handoff brief."}
+      ],
+      "realtimeDialogueLedger": [
+        {"name": "Continuity Audit", "role": "`/api/runs/{run_id}/realtime-dialogue-ledger` records `realtime_dialogue_ledger` artifacts and `realtime_dialogue_ledger_built` events from sessions, conversation turns, events, feedback, and host follow-up tasks."},
+        {"name": "Turn Linking", "role": "User turns are matched to assistant `responds_to_turn_id` replies, `realtime_spoken_response_planned` events, and pending `realtime_turn_followup_v1` tasks so natural back-and-forth does not lose context."},
+        {"name": "Interruption Gate", "role": "Interrupted voice turns that lack an explicit assistant acknowledgement are marked blocked until the host resumes or stops speech cleanly."},
+        {"name": "Durable Control Events", "role": "`/api/realtime-sessions/{realtime_session_id}/control` records interrupt/resume/stop-output controls as durable events, creates Realtime Host follow-up tasks, and lets the ledger show unresolved controls."},
+        {"name": "Context Carry Forward", "role": "Context packets and resume plans now elevate the latest `realtime_dialogue_ledger`, including unresolved realtime control-event counts, as first-class voice-led resume context."},
+        {"name": "Autonomous Pass Evidence", "role": "Bounded autonomous passes now build the dialogue ledger before foundation self-audit, and the completion event carries status, artifact id, pending follow-up count, and interruption count."},
+        {"name": "Cockpit Control", "role": "The product cockpit exposes a `build-realtime-dialogue-ledger` action beside source, provider, model-routing, runtime, and foundation ledgers."}
+      ],
+      "feedbackResolutionLedger": [
+        {"name": "Resolution Evidence", "role": "`/api/runs/{run_id}/feedback-resolution-ledger` records `feedback_resolution_ledger` artifacts and `feedback_resolution_ledger_built` events from durable feedback items, linked A2A tasks, and targeted artifact/source/claim context."},
+        {"name": "Linked Task State", "role": "Feedback ids are matched against specialist, note-taking, and sprint/progress task payloads so resolved feedback still keeps pending implementation work visible."},
+        {"name": "Resume Decision", "role": "Resolving feedback without an explicit run status keeps the run `running` when feedback-linked tasks are still pending, instead of pretending the loop is complete."},
+        {"name": "Context Carry Forward", "role": "Context packets and resume summaries now carry the latest `feedback_resolution_ledger` status, blockers, and pending linked task counts for always-on agents."},
+        {"name": "Autonomous Pass Evidence", "role": "Bounded autonomous passes now build the feedback resolution ledger before foundation self-audit and include status, artifact id, open count, and pending linked task count in the completion event."},
+        {"name": "Cockpit Control", "role": "The product cockpit exposes a `build-feedback-resolution-ledger` action next to the feedback gate so the operator can inspect whether approval actually unblocked the agent loop."}
+      ],
+      "multimodalIntake": [
+        {"name": "Dialogue-Attached Assets", "role": "Natural `/api/conversation/turns` and routed realtime turns can now carry image, screenshot, audio, voice, video, reel, document, and text references into a `multimodal_intake_ledger` artifact."},
+        {"name": "Specialist Review Artifact", "role": "Screenshots, audio, video, and documents route to the right specialists, and their `review_multimodal_intake` tasks now produce `multimodal_review` artifacts with durable asset-specific decisions, Gemma output when configured, and deterministic fallback when offline."},
+        {"name": "Provider Boundaries", "role": "Gemma 4 multimodal HF endpoints handle asset-reference review and synthesis after model-policy approval, realtime providers handle speech transport, and imagegen remains raster generation/editing only."},
+        {"name": "Review Follow-up Handoffs", "role": "Completed reviews now materialize idempotent `multimodal_review_followup_v1` AgentMessage tasks for context, manager coordination, planning notes, voice context, or media-prep specialists unless human feedback is required."},
+        {"name": "Autonomous Continuation Proof", "role": "Worker cycles can now consume those follow-ups into `context_packet`, `system_plan`, and `imagegen_prompt_pack` artifacts while using the targeted `multimodal_review` as asset-reference planning input."},
+        {"name": "Timeline Proof", "role": "`multimodal_intake_recorded`, `multimodal_intake_review_recorded`, `gemma_multimodal_review_completed`, and `multimodal_review_followups_materialized` store modality counts, recommended agents, task ids, review artifact ids, model usage, follow-up ids, and the intake artifact id for resumable multimodal dialogue."}
+      ],
+      "conversationRouting": [
+        {"name": "One Turn In", "role": "`/api/conversation/turns` accepts natural voice or text with an optional existing run id."},
+        {"name": "Intent Decision", "role": "The router chooses content creation, feedback revision, A2A task routing, or record-only mode."},
+        {"name": "Targeted Revision", "role": "Conversational follow-ups can carry explicit `target_artifact_ids` or infer the target from phrases like reel, post, Substack, image, audio, or video before invoking the revision loop."},
+        {"name": "Durable Reply", "role": "Every routed turn stores an assistant response turn linked to the user turn, so voice/text sessions stay resumable."},
+        {"name": "Conversation Handoff", "role": "Route-task turns persist a `conversation_handoff` artifact with user turn, assistant reply, recent turns, run state, pending tasks, and open feedback."},
+        {"name": "Timeline Proof", "role": "`conversation_turn_routed` and `realtime_turn_routed` capture requested intent, action, response turn ids, tasks, and artifacts."}
+      ],
+      "workflow": [
+        {"name": "Voice/Text Turn", "role": "Record the user transcript, modality, optional audio URI, and run metadata."},
+        {"name": "A2A Task Plan", "role": "Emit four durable agent messages for research, claim review, content strategy, and guardrails."},
+        {"name": "Provider-Aware Work", "role": "Use web search and Gemma 4 providers when configured; record `web_research_completed`, Gemma completion, and fallback events as durable timeline proof."},
+        {"name": "Grounded Records", "role": "Create source records, claim records, and source-linked post, reel, and Substack artifacts with persisted draft content."},
+        {"name": "Feedback Gate", "role": "Leave the run waiting for human feedback so the next revision can be conversational."}
+      ],
+      "revisionLoop": [
+        {"name": "Feedback Capture", "role": "The forward deployed engineer records structured feedback and target artifact ids."},
+        {"name": "Specialist Routing", "role": "Content strategy, script doctor, editor, and guardrails agents receive explicit A2A tasks with feedback, artifact, source, and claim target context preserved."},
+        {"name": "Versioned Artifacts", "role": "Writer and script-doctor workers use targeted feedback context to revise only the implicated draft lineage while keeping parent links, source dependencies, feedback ids, and revision history."},
+        {"name": "Approval Gate", "role": "Reviewer decisions are recorded before the run waits for human approval again."}
+      ],
+      "artifactGrounding": [
+        {"name": "Citation Dependencies", "role": "Generated post, reel, and Substack artifacts include `source_citations`, source ids, citation ids, urls, publishers, and retrieval metadata."},
+        {"name": "Claim Trace", "role": "Each draft carries `claim_trace` records with claim ids, support status, source citation ids, unsupported flags, and review notes."},
+        {"name": "Prompt Provenance", "role": "Artifact provenance stores topic, transcript, requested formats, source titles, `source_evidence` snippets/dates, model provider, model id, usage, and generation mode."},
+        {"name": "Review State", "role": "First drafts persist an initial guardrails decision and emit `artifact_grounding_contract_recorded` before feedback or publishing gates; the cockpit also surfaces the latest indexed publishing handoff state."}
+      ],
+      "feedbackRouting": [
+        {"name": "Classify", "role": "`/api/feedback` accepts natural user notes and chooses an explicit or inferred specialist."},
+        {"name": "Route", "role": "The FeedbackItem is stored as routed with target agent, route reason, routing metadata, and explicit artifact/source/claim ids when the note is about publishable work."},
+        {"name": "A2A Task", "role": "The forward deployed engineer creates an `incorporate_human_feedback` message for the responsible agent with target artifact packets and source/claim ids."},
+        {"name": "Support Tasks", "role": "The interactive note-taking and sprint/progress agents now receive `feedback_routing_support_v1` A2A tasks so routed feedback becomes visible work."},
+        {"name": "Memory Notes", "role": "The specialist, note-taking agent, and sprint/progress agent each receive durable memory records."}
+      ],
+      "workPlan": [
+        {"name": "Inspect", "role": "`/api/runs/{run_id}/work-plan` reads feedback, A2A tasks, artifacts, claims, audits, and worker profiles."},
+        {"name": "Prioritize", "role": "Open gates, retry-exhausted tasks, dependency-cycle tasks, dependency-waiting tasks, blocked tasks, missing sources, claim reviews, foundation-audit remediation, and audit fixes become work items."},
+        {"name": "Assign", "role": "Each item has an owner agent, source message or feedback id, status, blocker flag, and recommended action."},
+        {"name": "Materialize", "role": "Automatic passes can create missing follow-up A2A tasks with stable signatures so duplicates are skipped."},
+        {"name": "Persist", "role": "The plan is recorded as a `system_plan` artifact and `run_work_plan_built` timeline event."}
+      ],
+      "syncPulse": [
+        {"name": "Collect", "role": "`/api/runs/{run_id}/sync-pulse` reads agents, feedback, tasks, sources, claims, audits, artifacts, profiles, and recent events."},
+        {"name": "Align", "role": "Each active specialist gets a current focus, dependency cycle state, dependency wait state, pending task ids, routed feedback ids, active profile ids, and next action."},
+        {"name": "Blockers", "role": "Open human feedback, retry-exhausted A2A tasks, dependency-cycle A2A tasks, dependency-waiting A2A tasks, blocked A2A tasks, and blocked work-plan items become a manager-visible blocker list."},
+        {"name": "Handoffs", "role": "Recommended agent ids are merged from the work plan and current pending/routed work."},
+        {"name": "Persist", "role": "The pulse is recorded as a `system_plan` artifact and `multi_agent_sync_pulse_recorded` timeline event."}
+      ],
+      "a2aCollaborationGraph": [
+        {"name": "Task Nodes", "role": "`/api/runs/{run_id}/a2a-collaboration-graph` maps every AgentMessage into a graph node with status, retry state, dependency ids, and trace health."},
+        {"name": "Agent Nodes", "role": "Sender, recipient, claimed-by, and active run agents become graph nodes with role and inbox count metadata."},
+        {"name": "Dependency Edges", "role": "`depends_on_message_ids` creates satisfied or waiting task-to-task edges so downstream work only runs when upstream tasks finish."},
+        {"name": "Cycle Detection", "role": "Circular active task dependencies are returned as `dependency_cycles` and `dependency_cycle_message_ids`, with cycle edges marked so workers do not wait forever; authorized repair removes stale edges and emits `agent_message_dependencies_repaired`."},
+        {"name": "Trace Edges", "role": "`handoff_trace` entries become audit edges from actors to tasks, preserving accepted, claimed, dependency-waiting, retry, and status transitions."},
+        {"name": "Readiness Sets", "role": "The graph returns ready task ids, dependency-waiting ids, blocked ids, retry-exhausted ids, trace gaps, dependency-cycle counts, recommended actions, an `a2a_collaboration_graph` artifact, and an `a2a_collaboration_graph_built` event."}
+      ],
+      "skillUsageLedger": [
+        {"name": "Invocation Stamp", "role": "Agent workers emit `agent_skill_invocation_recorded` with active skill ids, source paths, outputs, guardrails, task id, and context counts before specialist execution."},
+        {"name": "Result Provenance", "role": "Completed or failed AgentMessage results carry `skill_usage`, so later audits can prove the worker used the project-owned skill contract."},
+        {"name": "Source Contract Audit", "role": "The ledger validates each declared skill source path, frontmatter name, description, agents manifest, and referenced agent ids before agents rely on the skill."},
+        {"name": "Run Ledger", "role": "`/api/runs/{run_id}/skill-usage-ledger` compares result stamps with invocation events and records a `skill_usage_ledger` artifact."},
+        {"name": "Missing Evidence", "role": "Processed tasks without skill evidence become explicit `missing_skill_usage_message_ids` and recommended follow-up actions in `agent_skill_usage_ledger_built`."}
+      ],
+      "feedbackGates": [
+        {"name": "Gate Record", "role": "Manual gates create a durable FeedbackItem with open status and gate metadata."},
+        {"name": "Run-Scoped List", "role": "`/api/runs/{run_id}/feedback` exposes open, routed, resolved, or rejected feedback records."},
+        {"name": "Resolution Action", "role": "`/api/feedback/{feedback_id}/resolve` stores resolver, notes, status, and optional run status."},
+        {"name": "Resume Signal", "role": "`feedback_resolved` tells long-running agents that the human approval point changed."}
+      ],
+      "guardrailAudit": [
+        {"name": "Artifact Scan", "role": "Each artifact is checked for source dependencies and linked claim ids."},
+        {"name": "Claim Verdicts", "role": "Supported, needs-review, unsupported, and missing-source claims are counted."},
+        {"name": "Provenance Completeness", "role": "Generated artifacts now need revision history, reviewer decisions, generation provenance, and prompt/input context before approval."},
+        {"name": "Durable Audit", "role": "A guardrail audit record stores approval state, coverage, notes, and blocking issues."},
+        {"name": "Human Gate", "role": "Blocked or needs-revision audits reopen the human feedback gate."}
+      ],
+      "publishReadiness": [
+        {"name": "Run-Level Check", "role": "Inspect current publishable artifacts, provenance completeness, Gemma 4/Hugging Face writing provenance, source quality, freshness, claims, guardrail audits, and feedback."},
+        {"name": "Ready Or Blocked", "role": "Return ready, needs-review, or blocked with explicit issues and next actions."},
+        {"name": "Human Gate", "role": "When not ready, create a durable feedback item and reopen the approval gate."},
+        {"name": "Timeline Proof", "role": "`publish_readiness_checked` records the decision and evidence in the run event log."}
+      ],
+      "sourceLedgerSnapshot": [
+        {"name": "Claim Map", "role": "`/api/runs/{run_id}/source-ledger` maps each claim to source ids and citation ids."},
+        {"name": "Source Quality", "role": "Every source receives quality and freshness status, with weak, stale, and unknown-freshness ids surfaced."},
+        {"name": "Artifact Coverage", "role": "Each content artifact gets supported, needs-review, weak-source, missing-source, unsupported, or missing-claim coverage status."},
+        {"name": "Snapshot Artifact", "role": "The snapshot can be stored as a `source_ledger` artifact with provenance for future review."},
+        {"name": "Timeline Proof", "role": "`source_ledger_snapshot_built` records counts, gaps, and the snapshot artifact id."}
+      ],
+      "resumeHarness": [
+        {"name": "State Checkpoint", "role": "`/api/runs/{run_id}/checkpoints` snapshots run status, active agents, durable ids, event cursor, and state digest."},
+        {"name": "Resume Plan", "role": "`/api/runs/{run_id}/resume-plan` reports whether autonomous work can continue and why it is gated, including retry-exhausted task authorization needs, `dependency_cycle_agent_tasks`, source_evidence snippets/dates, latest_web_research, latest dialogue/feedback ledger summaries, publishing handoff state, and latest foundation-audit remediation."},
+        {"name": "Pending Work", "role": "The plan surfaces accepted, claimed, in-progress, waiting, and blocked A2A tasks with active worker profiles."},
+        {"name": "Resume Execution", "role": "`/api/runs/{run_id}/resume` gates, checkpoints, moves allowed runs back to running, and restarts worker execution."},
+        {"name": "Cursor Replay", "role": "Event reads and SSE reconnects use the event cursor before limiting so long runs can replay events past the first page."},
+        {"name": "Restart Cursor", "role": "The event_stream_after_id lets the cockpit or scheduler reconnect after the recorded resume decision."}
+      ],
+      "runReplayLedger": [
+        {"name": "Checkpoint Anchor", "role": "`/api/runs/{run_id}/replay-ledger` selects the latest checkpoint or a requested checkpoint id and starts replay after its event cursor."},
+        {"name": "Event Delta", "role": "The ledger counts event types, actors, and recent events since the checkpoint without storing full payloads unless requested."},
+        {"name": "State Delta", "role": "Run counts for events, messages, sources, claims, artifacts, audits, feedback, and worker profiles are compared against the checkpoint digest."},
+        {"name": "Durable Debug Artifact", "role": "The Agent Harness Engineer records a `run_replay_ledger` artifact and `run_replay_ledger_built` event for time-travel debugging."}
+      ],
+      "contextEngineering": [
+        {"name": "Memory Search", "role": "pgvector ranks agent memories by embedding distance with run and global scope controls."},
+        {"name": "Foundation References", "role": "Official guide references relevant to the target agent are added as `foundation_reference` manifest items before long-running synthesis."},
+        {"name": "Run Packet", "role": "Conversation turns, A2A tasks, sources, source_evidence snippets/dates/quality/linkage, claims, artifacts, audits, feedback, and memories are assembled together."},
+        {"name": "Budgeted Manifest", "role": "Each packet now includes prioritized context_manifest items, source evidence counts and latest_web_research summary, latest dialogue/feedback ledger items, publishing handoff state, foundation-audit remediation, a `latest_coordination` summary for post-audit work-plan and manager-sync coordination digests, retry-exhausted task risks, dependency-waiting task risks, context_risks, and recommended_fetches for long-running agents."},
+        {"name": "Agent Focus", "role": "The packet can be filtered for a target specialist agent before handoff or synthesis."},
+        {"name": "Trace Event", "role": "Context packet construction is recorded in the run timeline for observability."}
+      ],
+      "mediaProduction": [
+        {"name": "Source Drafts", "role": "`/api/runs/{run_id}/media-production` starts from post, reel, and Substack artifacts."},
+        {"name": "Imagegen Prompt Pack", "role": "The image artifact stores raster-generation prompts and asset requirements for the imagegen boundary."},
+        {"name": "Audio Brief", "role": "The audio artifact stores voice style, pacing, pronunciation notes, and QA criteria for realtime/TTS providers."},
+        {"name": "Reel Storyboard", "role": "The video artifact stores scenes, subtitles, timings, dependencies, and platform-safe constraints."}
+      ],
+      "distributionPackage": [
+        {"name": "Source Drafts", "role": "`/api/runs/{run_id}/distribution-package` starts from current post, reel, and Substack artifacts."},
+        {"name": "Platform Variants", "role": "Influencer and platform agents generate hooks, captions, hashtags, keywords, CTAs, and format notes per channel."},
+        {"name": "Outreach Brief", "role": "The package includes audience segments, collaboration angles, do-not-say constraints, and source-aware outreach prompts."},
+        {"name": "Gateable Artifact", "role": "The output is a `social_package` artifact with source ids, claim ids, reviewer notes, and audit/readiness eligibility."}
+      ],
+      "interactiveNotes": [
+        {"name": "Run Snapshot", "role": "`/api/runs/{run_id}/interactive-note` collects durable run state from Postgres."},
+        {"name": "Content Readiness Packet", "role": "The HTML note computes source dependency, claim traceability, unsupported claim, feedback gate, reviewer decision, and guardrail audit checks for resumed agents."},
+        {"name": "HTML Artifact", "role": "The note is written as an interactive HTML file, not Markdown, under the artifacts root."},
+        {"name": "Artifact Provenance", "role": "An `html_note` ArtifactRecord stores the URI, source state summary, and note-taking agent provenance."},
+        {"name": "Inspectable Surface", "role": "Tabs and filters let us inspect readiness, timeline, conversation, sources, tasks, feedback, artifacts, and guardrails."}
+      ],
+      "taskLifecycle": [
+        {"name": "Accepted", "role": "The intent router or specialist agent creates a durable A2A work item and starts its `handoff_trace`."},
+        {"name": "Claimed", "role": "A recipient agent uses a conditional Postgres claim so competing workers cannot process the same accepted task, then appends a claim trace entry."},
+        {"name": "Dependency Waiting", "role": "Accepted tasks with unfinished `depends_on_message_ids` remain unclaimed and append dependency-waiting trace entries; managers or harness agents can repair circular or stale edges with a `dependencies_repaired` trace entry."},
+        {"name": "Recovered", "role": "Stale claimed or in-progress tasks can return to accepted state with an `agent_message_recovered` event and trace entry after a configurable timeout."},
+        {"name": "Retry Exhausted", "role": "Accepted tasks whose attempt counter reached `max_attempts` become blocked and emit `agent_message_retry_exhausted` plus trace evidence for human review."},
+        {"name": "Retry Authorized", "role": "A manager, harness, forward-deployed, sender, or recipient agent can deliberately reopen blocked/failed/canceled work through `agent_message_retry_authorized` and a trace entry."},
+        {"name": "Policy Checked", "role": "Agent-card tool and model permissions emit approved or denied timeline events before provider or tool use."},
+        {"name": "In Progress", "role": "The task status records active work without losing the original handoff payload."},
+        {"name": "Completed Or Failed", "role": "Results, errors, and blocked states are persisted and emitted to the run timeline."}
+      ],
+      "workerLoop": [
+        {"name": "Poll Inbox", "role": "A worker selects accepted tasks for one specialist agent and one durable run."},
+        {"name": "Recover Stale Tasks", "role": "The worker requeues abandoned claimed or in-progress tasks before polling accepted work."},
+        {"name": "Block Exhausted Retries", "role": "The worker blocks poison tasks that already reached their durable retry cap instead of claiming them again."},
+        {"name": "Authorize Retry", "role": "Human-reviewed work can be reset or granted a higher retry cap before returning to accepted task polling."},
+        {"name": "Claim And Resume", "role": "The task owner and status are stored through an atomic claim before execution so interrupted workers can recover."},
+        {"name": "Build Context", "role": "The worker builds a context packet from turns, messages, sources, claims, artifacts, audits, feedback, and memories."},
+        {"name": "Execute And Persist", "role": "Gemma-backed execution is used when configured; local deterministic output records safe fallback results."}
+      ],
+      "workerExecutors": [
+        {"name": "Realtime Conversation Brief", "role": "Realtime Conversation Host worker records a `realtime_conversation_brief` artifact with session inventory, durable control-event inventory, voice turns, interruption state, feedback, and handoff recommendations."},
+        {"name": "A2A Protocol Audit", "role": "Audits agent cards, skill coverage, model/tool boundaries, and current AgentMessage handoffs into an `a2a_contract_audit` artifact."},
+        {"name": "Intent Route Plan", "role": "Intent Router worker converts live dialogue handoffs into an `intent_route_plan` artifact, then creates idempotent specialist A2A tasks for the requested topic."},
+        {"name": "Web Research", "role": "Uses configured search providers to record new SourceRecord rows, then repairs weak claim and artifact source dependencies."},
+        {"name": "Source Ledger Snapshot", "role": "Source Ledger worker refreshes source, claim, artifact, quality, freshness, and claim-to-source matrix coverage into a durable `source_ledger` artifact."},
+        {"name": "Context Engineering", "role": "Builds a durable `context_packet` artifact with prioritized manifest items, risks, recent events, and recommended fetches for resumed agents."},
+        {"name": "Harness Resume", "role": "Agent Harness worker creates checkpointed `run_resume_plan` artifacts with blockers, pending tasks, active profiles, and event cursors for restart-safe work."},
+        {"name": "Feedback Requirements", "role": "Forward Deployed Engineer worker converts human feedback into a `feedback_requirements` artifact with acceptance criteria and specialist handoff tasks."},
+        {"name": "Architecture Review", "role": "Principal Software Engineer worker records an `architecture_review` artifact across durability, worker coverage, provider boundaries, feedback gates, and next engineering actions."},
+        {"name": "Claim Verification", "role": "Reviews and persists claim support status from source coverage, quality, and freshness signals."},
+        {"name": "Data Analysis", "role": "Turns sources, claims, and artifact dependencies into a source-backed `data_brief` artifact with tables, caveats, and chart suggestions."},
+        {"name": "Content Strategy", "role": "Fans out data brief, writer, platform, influencer, and outreach tasks from one accepted strategy brief."},
+        {"name": "Specialist Writing", "role": "ELI5 and Substack workers create versioned source-backed artifacts and emit `content_writer_artifacts_created`."},
+        {"name": "Script Doctor", "role": "Turns current reel scripts into hook, timing, and retention-optimized versions with `script_doctor_artifacts_created`."},
+        {"name": "Growth Packaging", "role": "Platform, influencer, and outreach workers build or reuse one source-backed `social_package` artifact."},
+        {"name": "UX Review", "role": "Lead UI/UX Designer worker records a `ux_review` artifact across cockpit flow, planning boundary, voice controls, feedback state, and source/artifact visibility."},
+        {"name": "Planning Surface Review", "role": "Interactive Systems Designer worker records a `planning_surface_review` artifact from the standalone HTML, embedded JSON state, progress tracker, suggestion capture, and export affordances."},
+        {"name": "Visual Brief", "role": "Visual Director worker records a source-linked `visual_brief` artifact with visual system, frame plan, asset prompts, handoffs, and QA before image or reel work."},
+        {"name": "Imagegen Prompt Pack", "role": "Image Generation Agent worker records a source-linked `image` artifact with imagegen prompts, style controls, QA checks, and provenance before raster generation is invoked."},
+        {"name": "Realtime Audio Brief", "role": "Audio Producer worker records a source-linked `audio` artifact with voice style, provider plan, interruption/resume checks, pronunciation notes, and QA before realtime or TTS playback is invoked."},
+        {"name": "Reel Storyboard", "role": "Video/Reel Producer worker records a source-linked `video` artifact with scenes, timing, subtitle rules, media dependencies, and QA checks before video assembly."},
+        {"name": "Editorial Critique", "role": "Editor-in-Chief and Critic/Reviewer workers persist artifact reviewer decisions and emit `editorial_review_completed`."},
+        {"name": "Artifact Index", "role": "Artifact Librarian worker records an `artifact_index` artifact with provenance, source, claim, parent revision, review, retrieval facets, and a compact publishing handoff snapshot."},
+        {"name": "Interactive Notes", "role": "Interactive Note-Taking worker generates a standalone HTML run note from durable turns, tasks, feedback, sources, artifacts, audits, and events."},
+        {"name": "Management Sync", "role": "Product Manager worker records a multi-agent sync pulse and coordination snapshot for routed feedback and run state."},
+        {"name": "Sprint Progress", "role": "Sprint/Progress worker builds a durable next-pass `system_plan` work plan without turning the product app into a board."},
+        {"name": "Observability", "role": "Observability worker records a `run_health_report` artifact from events, task states, provider fallbacks, policy denials, feedback, guardrails, and worker profiles."},
+        {"name": "Guardrails And Media", "role": "Runs durable audits for publishing risk and produces media planning outputs."}
+      ],
+      "multiAgentCycle": [
+        {"name": "Ordered Specialists", "role": "The default cycle walks realtime conversation briefing, protocol audit, intent routing, research, source ledger, context engineering, harness resume planning, feedback requirements, architecture review, verification, strategy, data analysis, writing, growth, guardrails, UX review, planning surface review, visual direction, imagegen prompt planning, realtime audio planning, reel storyboard planning, media, editor, artifact indexing, note-taking, manager, sprint, and observability agents."},
+        {"name": "Selectable Cockpit", "role": "The product cockpit can run one chosen agent or a full worker cycle without becoming a project board, and it surfaces post-audit work-plan, manager-sync, and context refresh evidence as compact run-activity chips."},
+        {"name": "Always-On CLI", "role": "`run-agent-cycle --watch` polls repeatedly with a bounded interval for local long-running work."},
+        {"name": "Cycle Event", "role": "Each cycle records processed task count, rounds completed, and idle state in the run timeline."}
+      ],
+      "autonomousPass": [
+        {"name": "Checkpoint First", "role": "`/api/runs/{run_id}/autonomous-pass` snapshots current run state before new agent work begins."},
+        {"name": "Runtime Preflight", "role": "The pass builds a `runtime_health_ledger` after checkpointing and can block downstream autonomous work if runtime health is `blocked`."},
+        {"name": "A2A Graph Preflight", "role": "The pass builds an `a2a_collaboration_graph` before worker claims and blocks bounded work when circular dependencies or retry-exhausted tasks require human repair."},
+        {"name": "Open Feedback Gate", "role": "The pass counts unresolved open `FeedbackItem` gates and records `open_feedback_blocked`; autonomous worker, research, media, distribution, source, guardrail, and publish steps wait until the user resolves the gate."},
+        {"name": "Research Freshness Gate", "role": "The pass builds a `research_freshness_ledger` before publish-facing work, can launch one provider-backed Web Research Agent source-refresh task when evidence is blocked, then blocks only if no acceptable source evidence exists."},
+        {"name": "Bounded Workers", "role": "A finite worker cycle processes accepted A2A tasks with configured agents, task limits, and Gemma routing."},
+        {"name": "Multimodal Follow-up Cycle", "role": "When `multimodal_review_followup_v1` tasks are pending, the pass runs a second bounded continuation cycle and records `autonomous_multimodal_followups_continued`."},
+        {"name": "Review Outputs", "role": "The pass builds current media plans, source ledger snapshots, guardrail audits, readiness decisions, a refreshed artifact index with publishing handoff state, work plans, and optional HTML notes."},
+        {"name": "Evidence Ledgers", "role": "Each pass can append `agent_skill_usage_ledger_built`, `model_routing_ledger_built`, `provider_operations_ledger_built`, `realtime_dialogue_ledger_built`, and `feedback_resolution_ledger_built` artifacts so skills, Gemma/HF routing, realtime sessions, tool policy, fallbacks, voice continuity, feedback blockers, and artifact provenance stay inspectable."},
+        {"name": "Autonomous Context Packet", "role": "The pass writes an `autonomous_context_packet_v1` context artifact after operational evidence ledgers, preserving current-pass ledger status, source_evidence, the latest manifest, risks, recent events, and recommended fetches as evidence for the self-audit."},
+        {"name": "Foundation Self-Audit", "role": "The pass records `foundation_audit_built` before replay so each long-running cycle captures requirement-level evidence plus remediation counts for roster, skills, models, providers, persistence, grounding, UI boundaries, feedback, worker heartbeat ledgers, and context."},
+        {"name": "Post-Audit Work Plan", "role": "When work planning is enabled, the pass immediately rebuilds the Sprint/Progress `run_work_plan_v1` with `refresh_reason: foundation_audit_completed`, so same-pass remediation becomes routed `resolve_foundation_audit_finding` work without waiting for the next cycle."},
+        {"name": "Post-Audit Manager Sync", "role": "When sync pulses are enabled, the pass records a refreshed `run_sync_pulse_v1` with `sync_pulse_refresh_reason: foundation_audit_completed`, so the Product Manager view sees the remediation tasks created during the same pass."},
+        {"name": "Post-Audit Context Refresh", "role": "After the self-audit, the pass refreshes the returned `autonomous_context_packet_v1` artifact with `refresh_reason: foundation_audit_completed`, so resumed agents receive the latest foundation-audit remediation summary instead of the pre-audit snapshot."},
+        {"name": "Replay Debug Ledger", "role": "The pass can build a checkpoint-anchored `run_replay_ledger` before completion, capturing event counts and state deltas for long-running time-travel debugging."},
+        {"name": "Timeline Proof", "role": "`autonomous_studio_pass_started` and `autonomous_studio_pass_completed` bracket the whole pass for resume/debug traces, including `work_plan_refresh_reason`, `sync_pulse_refresh_reason`, artifact-index publishing handoff status, the returned context packet refresh reason, and latest foundation-audit remediation summary."}
+      ],
+      "workerProfiles": [
+        {"name": "Durable Config", "role": "Profiles store execution mode, agent order, task limits, rounds, memory limits, Gemma usage, and polling interval in Postgres."},
+        {"name": "Start Stop State", "role": "A profile can be paused, active, or stopped without losing its durable run configuration."},
+        {"name": "Heartbeat Lease", "role": "A heartbeat first claims a durable profile lease so the scheduler and manual cockpit cannot run the same profile concurrently."},
+        {"name": "Heartbeat Gate", "role": "A leased heartbeat builds a resume-plan gate, then executes either the configured worker cycle or the guarded autonomous studio pass while the profile is active."},
+        {"name": "Post-Cycle Context", "role": "Successful worker-cycle heartbeats refresh realtime dialogue and feedback resolution ledgers before storing a `worker_profile_context_packet_v1` artifact and compact `worker_profile_heartbeat_ledger` for the next always-on pass."},
+        {"name": "Blocked Evidence", "role": "When the resume gate blocks a heartbeat, the profile records realtime dialogue and feedback resolution ledgers plus a post-ledger `context_packet` and blocked heartbeat ledger before emitting `worker_profile_heartbeat_blocked`."},
+        {"name": "Timeline Proof", "role": "Profile creation, start, stop, gated heartbeat blocks, heartbeat-ledger records, autonomous-pass event ids, and work-plan events are written to the run event log."}
+      ],
+      "profileScheduler": [
+        {"name": "Due Profile Discovery", "role": "Postgres selects active profiles whose last heartbeat is missing or older than their poll interval."},
+        {"name": "Automatic Heartbeats", "role": "The scheduler calls the same durable heartbeat path that manual profile runs use."},
+        {"name": "Bounded Local Run", "role": "The API and `run-worker-scheduler --watch` cap each pass with max_profiles and an explicit polling interval."},
+        {"name": "Scheduler Event", "role": "`worker_scheduler_pass_completed` records checked profiles, execution modes, autonomous-pass event ids, processed tasks, idle state, work-plan artifact ids, heartbeat ledger artifact ids, and heartbeat context packet ids."}
+      ],
+      "planningProgressColumns": [
+        {"id": "planned", "name": "Planned"},
+        {"id": "active", "name": "Active"},
+        {"id": "review", "name": "Review"},
+        {"id": "complete", "name": "Complete"}
+      ],
+      "planningProgressItems": [
+        {"id": "progress-provider-readiness", "title": "Provider readiness harness", "owner": "agent-harness-engineer", "priority": "high", "stage": "complete", "acceptance": "`/api/provider-readiness` reports non-secret configuration state and cockpit renders provider status."},
+        {"id": "progress-voice-loop", "title": "Natural voice dialogue loop", "owner": "realtime-conversation-host", "priority": "high", "stage": "complete", "acceptance": "Voice turns can auto-route, persist assistant replies, return durable spoken-response plans, record interruption metadata, and enqueue realtime host brief follow-ups."},
+        {"id": "progress-planning-tracker", "title": "Separate planning progress tracker", "owner": "sprint-progress-agent", "priority": "medium", "stage": "active", "acceptance": "Planning HTML stores draggable progress items locally and exports a structured packet."},
+        {"id": "progress-source-evals", "title": "Freshness and source quality scoring", "owner": "claim-verification-agent", "priority": "medium", "stage": "complete", "acceptance": "Source records include quality/freshness signals that gate publish readiness."}
+      ],
+      "planningProgressRoutes": [
+        {"name": "Capture Slice", "role": "The Sprint/Progress Agent tracks implementation work as local structured items in the planning HTML."},
+        {"name": "Drag Between Stages", "role": "Items can move across planned, active, review, and complete states without entering the product cockpit."},
+        {"name": "Acceptance Evidence", "role": "Each item stores the proof needed before the work can be considered complete."},
+        {"name": "Export Packet", "role": "The progress state is exported as JSON for the next planning or agent handoff iteration."}
+      ],
+      "planningFeedbackRoutes": [
+        {"name": "Capture", "role": "Suggestion text is saved as local structured planning feedback with focus, priority, route target, and timestamp."},
+        {"name": "Classify", "role": "The focus field maps feedback to architecture, audio, source grounding, content output, or planning HTML work."},
+        {"name": "Route", "role": "Each item names the specialist agent that should receive the next A2A task or review request."},
+        {"name": "Durable Intake", "role": "`/api/planning/feedback` turns saved suggestions into routed FeedbackItems, specialist A2A tasks, memory notes, and a `planning_feedback_ingested` event."},
+        {"name": "Iterate", "role": "The export packet remains available for conversation handoff, while routed suggestions enter the long-running agent loop directly."}
+      ],
+      "decisions": [
+        {"status": "Locked", "title": "No SQLite", "detail": "Postgres plus pgvector is the v1 durability and memory foundation."},
+        {"status": "Locked", "title": "Separate planning artifact", "detail": "This animated HTML workspace is for system design, not the product app."},
+        {"status": "Locked", "title": "Realtime first", "detail": "The user interacts through natural voice or text, with specialist work running behind the conversation."},
+        {"status": "Locked", "title": "Gemma 4 expert layer", "detail": "Gemma 4 is used for specialist reasoning, vision, synthesis, writing, and critique."},
+        {"status": "Locked", "title": "Source-backed content", "detail": "Important claims must connect to source records or remain explicitly unsupported."}
+      ]
+    }
+  </script>
+
+  <script>
+    const data = JSON.parse(document.getElementById("foundation-data").textContent);
+    const focusTitle = document.getElementById("focus-title");
+    const focusBody = document.getElementById("focus-body");
+    const stageNodes = Array.from(document.querySelectorAll("[data-focus]"));
+
+    stageNodes.forEach((node) => {
+      node.addEventListener("click", () => {
+        stageNodes.forEach((item) => item.classList.remove("active"));
+        node.classList.add("active");
+        const selected = data.focus[node.dataset.focus];
+        focusTitle.textContent = selected.title;
+        focusBody.textContent = selected.body;
+      });
+    });
+
+    const filterMount = document.getElementById("agent-filters");
+    const grid = document.getElementById("agent-grid");
+    let activeGroup = "All";
+
+    function renderFilters() {
+      ["All", ...data.groups].forEach((group) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = group;
+        button.className = group === activeGroup ? "active" : "";
+        button.addEventListener("click", () => {
+          activeGroup = group;
+          renderFilters();
+          renderAgents();
+        });
+        filterMount.appendChild(button);
+      });
+    }
+
+    function renderAgents() {
+      grid.replaceChildren();
+      data.agents
+        .filter((agent) => activeGroup === "All" || agent.group === activeGroup)
+        .forEach((agent) => {
+          const card = document.createElement("article");
+          card.className = "agent";
+          card.innerHTML = `
+            <span class="tag">${agent.group}</span>
+            <strong>${agent.name}</strong>
+            <p>${agent.role}</p>
+          `;
+          grid.appendChild(card);
+        });
+    }
+
+    function renderDecisions() {
+      const log = document.getElementById("decision-log");
+      data.decisions.forEach((decision) => {
+        const row = document.createElement("div");
+        row.className = "decision";
+        row.innerHTML = `
+          <span class="status">${decision.status}</span>
+          <div>
+            <h3>${decision.title}</h3>
+            <p>${decision.detail}</p>
+          </div>
+        `;
+        log.appendChild(row);
+      });
+    }
+
+    function renderSkills() {
+      const skillGrid = document.getElementById("skill-grid");
+      data.skills.forEach((skill) => {
+        const card = document.createElement("article");
+        card.className = "agent";
+        card.innerHTML = `
+          <span class="tag">${skill.group}</span>
+          <strong>${skill.name}</strong>
+          <p>${skill.role}</p>
+        `;
+        skillGrid.appendChild(card);
+      });
+    }
+
+    function renderProviders() {
+      const providerGrid = document.getElementById("provider-grid");
+      data.providers.forEach((provider) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${provider.name}</h3>
+          <p>${provider.role}</p>
+        `;
+        providerGrid.appendChild(card);
+      });
+    }
+
+    function renderProviderReadiness() {
+      const readinessGrid = document.getElementById("provider-readiness-grid");
+      data.providerReadiness.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        readinessGrid.appendChild(card);
+      });
+    }
+
+    function renderProviderOpsLedger() {
+      const opsGrid = document.getElementById("provider-ops-ledger-grid");
+      data.providerOpsLedger.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        opsGrid.appendChild(card);
+      });
+    }
+
+    function renderModelRoutingLedger() {
+      const routingGrid = document.getElementById("model-routing-ledger-grid");
+      data.modelRoutingLedger.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        routingGrid.appendChild(card);
+      });
+    }
+
+    function renderRuntimeHealthLedger() {
+      const runtimeGrid = document.getElementById("runtime-health-ledger-grid");
+      data.runtimeHealthLedger.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        runtimeGrid.appendChild(card);
+      });
+    }
+
+    function renderResearchFreshnessLedger() {
+      const freshnessGrid = document.getElementById("research-freshness-grid");
+      data.researchFreshnessLedger.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        freshnessGrid.appendChild(card);
+      });
+    }
+
+    function renderFoundationAudit() {
+      const auditGrid = document.getElementById("foundation-audit-grid");
+      data.foundationAudit.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        auditGrid.appendChild(card);
+      });
+    }
+
+    function renderFoundationReferences() {
+      const referenceGrid = document.getElementById("foundation-reference-grid");
+      data.foundationReferences.forEach((reference) => {
+        const card = document.createElement("article");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${reference.publisher}</h3>
+          <p><a href="${reference.url}" target="_blank" rel="noreferrer">${reference.title}</a></p>
+          <p>${reference.decision}</p>
+          <small>${reference.referenceType} · ${reference.appliesTo.join(", ")}</small>
+        `;
+        referenceGrid.appendChild(card);
+      });
+    }
+
+    function renderRealtimeSurface() {
+      const realtimeGrid = document.getElementById("realtime-grid");
+      data.realtimeSurface.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        realtimeGrid.appendChild(card);
+      });
+    }
+
+    function renderRealtimeDialogueLedger() {
+      const ledgerGrid = document.getElementById("realtime-dialogue-ledger-grid");
+      data.realtimeDialogueLedger.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        ledgerGrid.appendChild(card);
+      });
+    }
+
+    function renderFeedbackResolutionLedger() {
+      const ledgerGrid = document.getElementById("feedback-resolution-ledger-grid");
+      data.feedbackResolutionLedger.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        ledgerGrid.appendChild(card);
+      });
+    }
+
+    function renderMultimodalIntake() {
+      const intakeGrid = document.getElementById("multimodal-intake-grid");
+      data.multimodalIntake.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        intakeGrid.appendChild(card);
+      });
+    }
+
+    function renderConversationRouting() {
+      const routingGrid = document.getElementById("conversation-routing-grid");
+      data.conversationRouting.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.role}</p>
+        `;
+        routingGrid.appendChild(card);
+      });
+    }
+
+    function renderWorkflow() {
+      const workflowGrid = document.getElementById("workflow-grid");
+      data.workflow.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        workflowGrid.appendChild(card);
+      });
+    }
+
+    function renderRevisionLoop() {
+      const revisionGrid = document.getElementById("revision-loop-grid");
+      data.revisionLoop.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        revisionGrid.appendChild(card);
+      });
+    }
+
+    function renderArtifactGrounding() {
+      const groundingGrid = document.getElementById("artifact-grounding-grid");
+      data.artifactGrounding.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        groundingGrid.appendChild(card);
+      });
+    }
+
+    function renderFeedbackGates() {
+      const gateGrid = document.getElementById("feedback-gate-grid");
+      data.feedbackGates.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        gateGrid.appendChild(card);
+      });
+    }
+
+    function renderFeedbackRouting() {
+      const routingGrid = document.getElementById("feedback-routing-grid");
+      data.feedbackRouting.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        routingGrid.appendChild(card);
+      });
+    }
+
+    function renderWorkPlan() {
+      const workPlanGrid = document.getElementById("work-plan-grid");
+      data.workPlan.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        workPlanGrid.appendChild(card);
+      });
+    }
+
+    function renderSyncPulse() {
+      const syncPulseGrid = document.getElementById("sync-pulse-grid");
+      data.syncPulse.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        syncPulseGrid.appendChild(card);
+      });
+    }
+
+    function renderA2ACollaborationGraph() {
+      const graphGrid = document.getElementById("a2a-collaboration-graph-grid");
+      data.a2aCollaborationGraph.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        graphGrid.appendChild(card);
+      });
+    }
+
+    function renderSkillUsageLedger() {
+      const skillUsageGrid = document.getElementById("skill-usage-ledger-grid");
+      data.skillUsageLedger.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        skillUsageGrid.appendChild(card);
+      });
+    }
+
+    function renderGuardrailAudit() {
+      const auditGrid = document.getElementById("guardrail-audit-grid");
+      data.guardrailAudit.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        auditGrid.appendChild(card);
+      });
+    }
+
+    function renderPublishReadiness() {
+      const readinessGrid = document.getElementById("publish-readiness-grid");
+      data.publishReadiness.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        readinessGrid.appendChild(card);
+      });
+    }
+
+    function renderSourceLedgerSnapshot() {
+      const ledgerGrid = document.getElementById("source-ledger-snapshot-grid");
+      data.sourceLedgerSnapshot.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        ledgerGrid.appendChild(card);
+      });
+    }
+
+    function renderResumeHarness() {
+      const resumeGrid = document.getElementById("resume-harness-grid");
+      data.resumeHarness.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        resumeGrid.appendChild(card);
+      });
+    }
+
+    function renderRunReplayLedger() {
+      const replayGrid = document.getElementById("run-replay-grid");
+      data.runReplayLedger.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        replayGrid.appendChild(card);
+      });
+    }
+
+    function renderContextEngineering() {
+      const contextGrid = document.getElementById("context-engineering-grid");
+      data.contextEngineering.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        contextGrid.appendChild(card);
+      });
+    }
+
+    function renderMediaProduction() {
+      const mediaGrid = document.getElementById("media-production-grid");
+      data.mediaProduction.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        mediaGrid.appendChild(card);
+      });
+    }
+
+    function renderDistributionPackage() {
+      const distributionGrid = document.getElementById("distribution-package-grid");
+      data.distributionPackage.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        distributionGrid.appendChild(card);
+      });
+    }
+
+    function renderInteractiveNotes() {
+      const noteGrid = document.getElementById("interactive-note-grid");
+      data.interactiveNotes.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        noteGrid.appendChild(card);
+      });
+    }
+
+    function renderTaskLifecycle() {
+      const taskGrid = document.getElementById("task-lifecycle-grid");
+      data.taskLifecycle.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        taskGrid.appendChild(card);
+      });
+    }
+
+    function renderWorkerLoop() {
+      const workerGrid = document.getElementById("worker-loop-grid");
+      data.workerLoop.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        workerGrid.appendChild(card);
+      });
+    }
+
+    function renderWorkerExecutors() {
+      const executorGrid = document.getElementById("worker-executor-grid");
+      data.workerExecutors.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        executorGrid.appendChild(card);
+      });
+    }
+
+    function renderMultiAgentCycle() {
+      const cycleGrid = document.getElementById("multi-agent-cycle-grid");
+      data.multiAgentCycle.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        cycleGrid.appendChild(card);
+      });
+    }
+
+    function renderAutonomousPass() {
+      const passGrid = document.getElementById("autonomous-pass-grid");
+      data.autonomousPass.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        passGrid.appendChild(card);
+      });
+    }
+
+    function renderWorkerProfiles() {
+      const profileGrid = document.getElementById("worker-profile-grid");
+      data.workerProfiles.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        profileGrid.appendChild(card);
+      });
+    }
+
+    function renderProfileScheduler() {
+      const schedulerGrid = document.getElementById("profile-scheduler-grid");
+      data.profileScheduler.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        schedulerGrid.appendChild(card);
+      });
+    }
+
+    function renderPlanningFeedbackRoutes() {
+      const feedbackGrid = document.getElementById("planning-feedback-routing-grid");
+      data.planningFeedbackRoutes.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        feedbackGrid.appendChild(card);
+      });
+    }
+
+    function renderPlanningProgressRoutes() {
+      const progressGrid = document.getElementById("planning-progress-routing-grid");
+      data.planningProgressRoutes.forEach((step) => {
+        const card = document.createElement("div");
+        card.className = "route-step";
+        card.innerHTML = `
+          <h3>${step.name}</h3>
+          <p>${step.role}</p>
+        `;
+        progressGrid.appendChild(card);
+      });
+    }
+
+    const feedbackStorageKey = "agent-studio-planning-feedback-v1";
+    const progressStorageKey = "agent-studio-planning-progress-v1";
+    const feedbackForm = document.getElementById("planning-feedback-form");
+    const feedbackFocus = document.getElementById("planning-feedback-focus");
+    const feedbackPriority = document.getElementById("planning-feedback-priority");
+    const feedbackAgent = document.getElementById("planning-feedback-agent");
+    const feedbackRunId = document.getElementById("planning-feedback-run-id");
+    const feedbackApiBase = document.getElementById("planning-feedback-api-base");
+    const feedbackText = document.getElementById("planning-feedback-text");
+    const feedbackList = document.getElementById("planning-feedback-list");
+    const feedbackExport = document.getElementById("planning-feedback-export");
+    const feedbackRoute = document.getElementById("planning-feedback-route");
+    const feedbackClear = document.getElementById("planning-feedback-clear");
+    const feedbackStatus = document.getElementById("planning-feedback-status");
+    const progressForm = document.getElementById("planning-progress-form");
+    const progressTitle = document.getElementById("planning-progress-title");
+    const progressOwner = document.getElementById("planning-progress-owner");
+    const progressPriority = document.getElementById("planning-progress-priority");
+    const progressAcceptance = document.getElementById("planning-progress-acceptance");
+    const progressBoard = document.getElementById("planning-progress-board");
+    const progressExport = document.getElementById("planning-progress-export");
+    const progressReset = document.getElementById("planning-progress-reset");
+
+    function readPlanningFeedback() {
+      try {
+        return JSON.parse(localStorage.getItem(feedbackStorageKey) || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function writePlanningFeedback(items) {
+      localStorage.setItem(feedbackStorageKey, JSON.stringify(items));
+      renderPlanningFeedback(items);
+    }
+
+    function renderPlanningFeedback(items = readPlanningFeedback()) {
+      feedbackList.replaceChildren();
+      if (!items.length) {
+        const empty = document.createElement("div");
+        empty.className = "feedback-item";
+        empty.innerHTML = `
+          <strong>No planning suggestions captured yet.</strong>
+          <p>Add feedback here, then either route it to a run or paste the exported packet back into the conversation when you want the agents to revise the design.</p>
+        `;
+        feedbackList.appendChild(empty);
+      } else {
+        items.forEach((item) => {
+          const card = document.createElement("article");
+          card.className = "feedback-item";
+          const routedLabel = item.durable_feedback_id ? "routed" : "local";
+          card.innerHTML = `
+            <div class="feedback-meta">
+              <span class="status">${item.priority}</span>
+              <span class="pill">${item.focus}</span>
+              <span class="pill">${item.route_to}</span>
+              <span class="pill">${routedLabel}</span>
+            </div>
+            <strong>${item.summary}</strong>
+            <p>${item.suggestion}</p>
+            <small>${item.created_at}</small>
+          `;
+          feedbackList.appendChild(card);
+        });
+      }
+      feedbackExport.value = JSON.stringify({
+        artifact: "planning/foundation-system-design.html",
+        feedback_kind: "planning_surface_suggestion",
+        durable_endpoint: "/api/planning/feedback",
+        run_id: feedbackRunId.value.trim() || null,
+        items
+      }, null, 2);
+    }
+
+    function readPlanningFeedbackSettings() {
+      try {
+        return JSON.parse(localStorage.getItem(`${feedbackStorageKey}-settings`) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function writePlanningFeedbackSettings() {
+      localStorage.setItem(`${feedbackStorageKey}-settings`, JSON.stringify({
+        run_id: feedbackRunId.value.trim(),
+        api_base: feedbackApiBase.value.trim()
+      }));
+      renderPlanningFeedback();
+    }
+
+    async function routePlanningFeedback() {
+      const items = readPlanningFeedback().filter((item) => !item.durable_feedback_id);
+      const runId = feedbackRunId.value.trim();
+      const apiBase = feedbackApiBase.value.trim().replace(/\/$/, "");
+      if (!runId) {
+        feedbackStatus.textContent = "Add a run_id before routing planning suggestions.";
+        feedbackRunId.focus();
+        return;
+      }
+      if (!items.length) {
+        feedbackStatus.textContent = "No unrouted planning suggestions are waiting.";
+        return;
+      }
+      feedbackStatus.textContent = "Routing saved planning suggestions...";
+      try {
+        const response = await fetch(`${apiBase}/api/planning/feedback`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            run_id: runId,
+            artifact: "planning/foundation-system-design.html",
+            items
+          })
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.detail || "Planning feedback route failed.");
+        }
+        const routedByInput = new Map(payload.routed_items.map((item) => [item.input_id, item]));
+        const updatedItems = readPlanningFeedback().map((item) => {
+          const routed = routedByInput.get(item.id);
+          return routed ? {
+            ...item,
+            durable_feedback_id: routed.feedback_id,
+            durable_task_message_id: routed.task_message_id,
+            durable_support_task_message_ids: routed.support_task_message_ids || [],
+            durable_support_task_count: (routed.support_task_message_ids || []).length,
+            durable_route_reason: routed.route_reason,
+            durable_routed_agent_id: routed.routed_agent_id,
+            routed_at: new Date().toISOString()
+          } : item;
+        });
+        writePlanningFeedback(updatedItems);
+        feedbackStatus.textContent = payload.summary;
+      } catch (error) {
+        feedbackStatus.textContent = error.message;
+      }
+    }
+
+    function defaultProgressItems() {
+      return data.planningProgressItems.map((item) => ({ ...item }));
+    }
+
+    function readPlanningProgress() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(progressStorageKey) || "null");
+        return Array.isArray(saved) ? saved : defaultProgressItems();
+      } catch {
+        return defaultProgressItems();
+      }
+    }
+
+    function writePlanningProgress(items) {
+      localStorage.setItem(progressStorageKey, JSON.stringify(items));
+      renderPlanningProgress(items);
+    }
+
+    function renderPlanningProgress(items = readPlanningProgress()) {
+      progressBoard.replaceChildren();
+      data.planningProgressColumns.forEach((column) => {
+        const columnItems = items.filter((item) => item.stage === column.id);
+        const columnEl = document.createElement("section");
+        columnEl.className = "progress-column";
+        columnEl.dataset.stage = column.id;
+        columnEl.innerHTML = `
+          <h3>${column.name}<span class="pill">${columnItems.length}</span></h3>
+        `;
+        columnEl.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          columnEl.classList.add("over");
+        });
+        columnEl.addEventListener("dragleave", () => {
+          columnEl.classList.remove("over");
+        });
+        columnEl.addEventListener("drop", (event) => {
+          event.preventDefault();
+          columnEl.classList.remove("over");
+          const itemId = event.dataTransfer.getData("text/plain");
+          const movedItems = items.map((item) => (
+            item.id === itemId ? { ...item, stage: column.id } : item
+          ));
+          writePlanningProgress(movedItems);
+        });
+        columnItems.forEach((item) => {
+          const card = document.createElement("article");
+          card.className = "progress-card";
+          card.dataset.priority = item.priority;
+          card.draggable = true;
+          card.addEventListener("dragstart", (event) => {
+            event.dataTransfer.setData("text/plain", item.id);
+            event.dataTransfer.effectAllowed = "move";
+          });
+          card.innerHTML = `
+            <div class="feedback-meta">
+              <span class="status">${item.priority}</span>
+              <span class="pill">${item.owner}</span>
+            </div>
+            <strong>${item.title}</strong>
+            <p>${item.acceptance}</p>
+          `;
+          columnEl.appendChild(card);
+        });
+        progressBoard.appendChild(columnEl);
+      });
+      progressExport.value = JSON.stringify({
+        artifact: "planning/foundation-system-design.html",
+        feedback_kind: "planning_progress_state",
+        storage_key: progressStorageKey,
+        columns: data.planningProgressColumns,
+        items
+      }, null, 2);
+    }
+
+    feedbackForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const suggestion = feedbackText.value.trim();
+      if (!suggestion) {
+        feedbackText.focus();
+        return;
+      }
+      const item = {
+        id: `planning-feedback-${Date.now()}`,
+        focus: feedbackFocus.value,
+        priority: feedbackPriority.value,
+        route_to: feedbackAgent.value,
+        summary: suggestion.length > 82 ? `${suggestion.slice(0, 79)}...` : suggestion,
+        suggestion,
+        created_at: new Date().toISOString()
+      };
+      writePlanningFeedback([item, ...readPlanningFeedback()]);
+      feedbackText.value = "";
+    });
+
+    feedbackClear.addEventListener("click", () => {
+      writePlanningFeedback([]);
+    });
+
+    feedbackRoute.addEventListener("click", routePlanningFeedback);
+    feedbackRunId.addEventListener("change", writePlanningFeedbackSettings);
+    feedbackApiBase.addEventListener("change", writePlanningFeedbackSettings);
+
+    progressForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const title = progressTitle.value.trim();
+      const acceptance = progressAcceptance.value.trim();
+      if (!title || !acceptance) {
+        (title ? progressAcceptance : progressTitle).focus();
+        return;
+      }
+      const item = {
+        id: `planning-progress-${Date.now()}`,
+        title,
+        owner: progressOwner.value,
+        priority: progressPriority.value,
+        stage: "planned",
+        acceptance,
+        created_at: new Date().toISOString()
+      };
+      writePlanningProgress([item, ...readPlanningProgress()]);
+      progressTitle.value = "";
+      progressAcceptance.value = "";
+    });
+
+    progressReset.addEventListener("click", () => {
+      writePlanningProgress(defaultProgressItems());
+    });
+
+    const savedFeedbackSettings = readPlanningFeedbackSettings();
+    if (savedFeedbackSettings.run_id) {
+      feedbackRunId.value = savedFeedbackSettings.run_id;
+    }
+    if (savedFeedbackSettings.api_base) {
+      feedbackApiBase.value = savedFeedbackSettings.api_base;
+    }
+
+    renderFilters();
+    renderAgents();
+    renderProviders();
+    renderProviderReadiness();
+    renderModelRoutingLedger();
+    renderProviderOpsLedger();
+    renderRuntimeHealthLedger();
+    renderResearchFreshnessLedger();
+    renderFoundationAudit();
+    renderFoundationReferences();
+    renderRealtimeSurface();
+    renderRealtimeDialogueLedger();
+    renderFeedbackResolutionLedger();
+    renderMultimodalIntake();
+    renderConversationRouting();
+    renderWorkflow();
+    renderRevisionLoop();
+    renderArtifactGrounding();
+    renderFeedbackRouting();
+    renderWorkPlan();
+    renderSyncPulse();
+    renderA2ACollaborationGraph();
+    renderSkillUsageLedger();
+    renderFeedbackGates();
+    renderGuardrailAudit();
+    renderPublishReadiness();
+    renderSourceLedgerSnapshot();
+    renderResumeHarness();
+    renderRunReplayLedger();
+    renderContextEngineering();
+    renderMediaProduction();
+    renderDistributionPackage();
+    renderInteractiveNotes();
+    renderTaskLifecycle();
+    renderWorkerLoop();
+    renderWorkerExecutors();
+    renderMultiAgentCycle();
+    renderAutonomousPass();
+    renderWorkerProfiles();
+    renderProfileScheduler();
+    renderPlanningProgressRoutes();
+    renderPlanningProgress();
+    renderPlanningFeedbackRoutes();
+    renderSkills();
+    renderDecisions();
+    renderPlanningFeedback();
+  </script>
+</body>
+</html>

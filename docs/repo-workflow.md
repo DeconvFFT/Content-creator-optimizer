@@ -1,0 +1,73 @@
+# Repository Workflow
+
+This repo uses a PR-first workflow. Keep `main` as the protected integration branch and do all implementation work on short-lived branches.
+
+## Branches
+
+- Features: `feature/<short-name>`
+- Bug fixes: `fix_<timestamp-or-uuid>`
+- Keep branch names specific, for example `feature/livekit-voice-proof-capture` or `fix_20260523_voice-ledger-cli`.
+- Do not work directly on `main` after the baseline commit exists.
+
+## Parallel Agent Worktrees
+
+Use worktrees for parallel Codex/Cursor agents once the baseline commit exists:
+
+```bash
+git switch main
+git pull --ff-only
+git worktree add .worktrees/<task-name> -b feature/<task-name>
+git worktree add .worktrees/fix_<timestamp-or-uuid> -b fix_<timestamp-or-uuid>
+```
+
+Each agent owns one worktree and one branch. Give every agent a disjoint file ownership scope when possible. Agents must not revert or overwrite work from other agents; they should report changed files and verification commands before integration.
+
+## Tests
+
+Put new Python tests under `tests/`. Frontend tests live under `frontend/next-app/tests/` and are run through the Next app scripts.
+
+Expected local checks before opening a PR:
+
+```bash
+uv run ruff check src/ tests/
+uv run pytest -q
+cd frontend/next-app && npm run build
+cd frontend/next-app && npm run lint
+cd frontend/next-app && npm run typecheck
+cd frontend/next-app && npm run test:race
+```
+
+When touching Rust services, also run:
+
+```bash
+cd services/retrieval-ranker && cargo fmt --all -- --check && cargo test --locked
+cd services/voice-edge && cargo fmt --all -- --check && cargo test --locked
+```
+
+## Secret And Artifact Policy
+
+Do not commit:
+
+- `.env`, `.env.*`, `.secrets/`, credentials, tokens, private keys, certificates, or local secret snapshots
+- local databases, provider proof output, voice audio captures, browser traces, screenshots, images, PDFs, generated media, or bulky scratch artifacts
+- virtualenvs, caches, local worktrees, build output, coverage output, or temporary research/course folders
+
+Commit:
+
+- source code, tests, lightweight Markdown/docs, CI config, `.env.example`, `.secrets/README.md`, `uv.lock`, package lockfiles, Cargo lockfiles, `AGENTS.md`/`agents.md`, and `CLOUD.md`/`cloud.md` when present
+
+Secrets belong in local environment variables or ignored files under `.secrets/`. Documentation may name required environment variables but must never contain real values.
+
+## PR And Auto-Merge
+
+Open PRs into `main`. The PR checklist should show the local verification commands that were run. Enable auto-merge only after required CI checks and review pass.
+
+Repository settings still need to enforce:
+
+- `main` branch protection or a GitHub ruleset
+- required status checks: branch policy, Python backend, Next.js frontend, and Rust service jobs
+- required review, preferably through CODEOWNERS
+- auto-merge enabled in repository settings
+- conversation resolution and up-to-date branch requirements if desired
+
+GitHub settings cannot be fully represented in repo files, so keep this document and the actual repository ruleset in sync.

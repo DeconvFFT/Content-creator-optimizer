@@ -1,0 +1,4 @@
+interface:
+  display_name: "System Architecture"
+  short_description: "Apply production system-design patterns to Agent Studio architecture."
+  default_prompt: "Use this skill to produce architecture decisions, service contracts, data-flow reviews, failure-mode reviews, and foundation-audit evidence."

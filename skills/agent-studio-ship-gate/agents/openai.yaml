@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ship Gate"
+  short_description: "Pre-ship GO/NO-GO checklist for automated and operator proof gates."
+  default_prompt: "Use this skill before claiming Agent Studio is ready to ship."

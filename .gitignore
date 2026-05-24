@@ -1,0 +1,91 @@
+# Local secrets and environment files.
+.env
+.env.*
+!.env.example
+.secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.csr
+*.token
+
+# Local dependency/cache state.
+.cache/
+.codex/
+.uv-cache/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.venv/
+.venv-*/
+.venv-chatterbox/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local worktrees used by parallel agents.
+.worktrees/
+worktrees/
+
+# Obsidian local plugin/theme/runtime state.
+**/.obsidian/plugins/
+**/.obsidian/themes/
+**/.obsidian/workspace*
+**/.obsidian/cache/
+**/.obsidian/trash/
+.Rhistory
+
+# Generated app/build/test output.
+artifacts/
+screenshots/
+.playwright-mcp/
+coverage/
+htmlcov/
+dist/
+build/
+*.log
+*.tmp
+
+# Generated/large media and document artifacts.
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+!frontend/next-app/app/icon.svg
+*.mp4
+*.mov
+*.m4v
+*.mp3
+*.wav
+
+# Explicitly keep lightweight coordination notes eligible for versioning.
+!AGENTS.md
+!agents.md
+!CLOUD.md
+!cloud.md
+
+# Local databases and runtime media captures.
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.pcm
+voice-audio/
+social_media_optimiser/output/provider-proof/
+social_media_optimiser/output/
+system_design_vault/output/
+
+# Scratch research/course work that is not part of the product repo.
+.tmp_cs336/
+.tmp_paper_work/
+cs336_assignment5_tmp/
+cs336_lectures_tmp/
+llm-course-hf/
+
+# macOS/editor noise.
+.DS_Store

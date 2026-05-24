@@ -1,0 +1,21 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.applied_ml_and_ai_for_engineers.chapter_14_managed_ai_services_ocr_moderation_route_contracts",
+  "parent_source_id": "local_books.applied_ml_and_ai_for_engineers",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Applied-Machine-Learning-and-AI-for-Engineers.pdf",
+  "chapter": {
+    "number": 14,
+    "title": "Azure Cognitive Services",
+    "focus_slice": "Managed AI service boundaries, OCR route choices, moderation semantics, and provider-governance contracts"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "physical_pages": "547-591"
+  },
+  "note_path": "system_design_vault/02-books/applied-ml-ai-engineers/chapters/14-managed-ai-services-ocr-moderation-route-contracts.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read slice and note target only. No raw chapter text or long excerpts stored."
+}

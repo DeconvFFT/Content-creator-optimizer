@@ -1,0 +1,21 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.hands_on_generative_ai_transformers_diffusion.appendix_c_rag_pipeline_retrieval_runtime_gates",
+  "parent_source_id": "local_books.hands_on_generative_ai_transformers_diffusion",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Hands-On Generative AI with Transformers and Diffusion.pdf",
+  "chapter": {
+    "number": "Appendix C",
+    "title": "End-to-End Retrieval-Augmented Generation",
+    "focus_slice": "Minimal RAG pipeline, chunking, embeddings, dense retrieval, prompt assembly, and production-level retrieval hardening"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "physical_pages": "798-815"
+  },
+  "note_path": "system_design_vault/02-books/hands-on-generative-ai/chapters/appendix-c-rag-pipeline-retrieval-runtime-gates.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read Appendix C slice and note target only. No raw appendix text or long excerpts stored. The note synthesizes the minimal RAG implementation into retrieval runtime gates and product-pipeline implications."
+}

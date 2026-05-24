@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Engineering"
+  short_description: "Implement conversational cockpit UI and separate planning viewers."
+  default_prompt: "Use this skill to produce frontend implementation plans, UI state contracts, accessibility notes, cockpit surface reviews, and browser smoke results."

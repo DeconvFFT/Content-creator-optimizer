@@ -1,0 +1,23 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.applied_ml_and_ai_for_engineers.chapter_8_deep_learning_foundations",
+  "parent_source_id": "local_books.applied_ml_and_ai_for_engineers",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Applied-Machine-Learning-and-AI-for-Engineers.pdf",
+  "chapter": {
+    "number": 8,
+    "title": "Deep Learning Foundations",
+    "focus_slice": "MLP structure, weights and biases, activation-driven nonlinearity, forward propagation, optimization/training difficulty, learning-rate intuition, and compute-aware neural-route foundations"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "pdf_pages": "277-290"
+  },
+  "temp_extract": "/tmp/applied_ml_ai_engineers_ch08_deep_learning_foundations.txt",
+  "note_path": "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch08-deep-learning-foundations.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/applied-ml-deep-learning-foundations-cross-check.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read chapter slice and corroborating note targets only. No raw chapter text or long excerpts stored."
+}

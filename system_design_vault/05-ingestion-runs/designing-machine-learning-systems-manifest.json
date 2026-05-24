@@ -1,0 +1,110 @@
+{
+  "title": "Designing Machine Learning Systems",
+  "authors": "Chip Huyen",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Designing machine learning systems - an iterative process.pdf",
+  "rights_status": "user_provided_local",
+  "extraction_method": "pdftotext",
+  "chapter_count": 11,
+  "created_at": "2026-05-17T19:48:16.379766+00:00",
+  "chapters": [
+    {
+      "number": "1",
+      "title": "Overview of Machine Learning Systems",
+      "start_line": 689,
+      "end_line": 1635,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/1-overview-of-machine-learning-systems.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    },
+    {
+      "number": "2",
+      "title": "Introduction to Machine Learning Systems Design",
+      "start_line": 1635,
+      "end_line": 2473,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/2-introduction-to-machine-learning-systems-design.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    },
+    {
+      "number": "3",
+      "title": "Data Engineering Fundamentals",
+      "start_line": 2473,
+      "end_line": 3741,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/3-data-engineering-fundamentals.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    },
+    {
+      "number": "4",
+      "title": "Training Data",
+      "start_line": 3741,
+      "end_line": 5291,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/4-training-data.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    },
+    {
+      "number": "5",
+      "title": "Feature Engineering",
+      "start_line": 5291,
+      "end_line": 6347,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/5-feature-engineering.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    },
+    {
+      "number": "6",
+      "title": "Model Development and Offline Evaluation",
+      "start_line": 6347,
+      "end_line": 7964,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/6-model-development-and-offline-evaluation.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    },
+    {
+      "number": "7",
+      "title": "Model Deployment and Prediction Service",
+      "start_line": 7964,
+      "end_line": 9187,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/7-model-deployment-and-prediction-service.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    },
+    {
+      "number": "8",
+      "title": "Data Distribution Shifts and Monitoring",
+      "start_line": 9187,
+      "end_line": 10727,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/8-data-distribution-shifts-and-monitoring.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    },
+    {
+      "number": "9",
+      "title": "Continual Learning and Test in Production",
+      "start_line": 10727,
+      "end_line": 11940,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/9-continual-learning-and-test-in-production.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    },
+    {
+      "number": "10",
+      "title": "Infrastructure and Tooling for MLOps",
+      "start_line": 11940,
+      "end_line": 13484,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/10-infrastructure-and-tooling-for-mlops.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    },
+    {
+      "number": "11",
+      "title": "The Human Side of Machine Learning",
+      "start_line": 13135,
+      "end_line": 14047,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/designing-machine-learning-systems/chapters/11-human-side-of-machine-learning.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md"
+    }
+  ]
+}

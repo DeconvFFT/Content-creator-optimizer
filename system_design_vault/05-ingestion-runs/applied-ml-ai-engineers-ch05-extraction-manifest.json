@@ -1,0 +1,23 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.applied_ml_and_ai_for_engineers.chapter_5_support_vector_machines",
+  "parent_source_id": "local_books.applied_ml_and_ai_for_engineers",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Applied-Machine-Learning-and-AI-for-Engineers.pdf",
+  "chapter": {
+    "number": 5,
+    "title": "Support Vector Machines",
+    "focus_slice": "Maximum-margin geometry, support vectors, kernel choice, C/gamma tuning, preprocessing/pipeline parity, multiclass strategy, and probability-calibration caveats"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "pdf_pages": "171-204"
+  },
+  "temp_extract": "/tmp/applied_ml_ai_engineers_ch05_support_vector_machines.txt",
+  "note_path": "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch05-support-vector-machines.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/applied-ml-svm-cross-check.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read chapter slice and corroborating note targets only. No raw chapter text or long excerpts stored."
+}

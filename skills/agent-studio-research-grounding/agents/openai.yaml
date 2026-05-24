@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Grounding"
+  short_description: "Ground content in real sources with source and claim ledgers."
+  default_prompt: "Use this skill to perform source-backed research and claim verification."

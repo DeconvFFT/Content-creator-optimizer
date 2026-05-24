@@ -1,0 +1,13 @@
+[package]
+name = "retrieval-ranker"
+version = "0.1.0"
+edition = "2021"
+description = "Deterministic retrieval ranking and graph traversal boundary for All About LLMs."
+license = "UNLICENSED"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+pretty_assertions = "1.4"

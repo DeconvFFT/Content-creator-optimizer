@@ -1,0 +1,1158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>All About LLMs Content Generator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --surface: #ffffff;
+      --surface-strong: #eef5f2;
+      --ink: #18191f;
+      --muted: #636975;
+      --line: #d9dee7;
+      --accent: #127c6b;
+      --accent-ink: #ffffff;
+      --warn: #b35a15;
+      --bad: #a33b3b;
+      --good: #20735f;
+      --review: #4f58b8;
+      --shadow: 0 16px 42px rgba(24, 25, 31, 0.08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, #ffffff 0, var(--bg) 260px),
+        var(--bg);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.45;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 8px;
+      min-height: 38px;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.58;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-ink);
+      font-weight: 700;
+    }
+
+    button.ghost {
+      background: transparent;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(18, 124, 107, 0.22);
+      outline-offset: 2px;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--surface-strong);
+      border: 1px solid var(--line);
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 18px;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status-strip {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #eef1f5;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pill.good {
+      color: var(--good);
+      background: #e8f4ef;
+    }
+
+    .pill.warn {
+      color: var(--warn);
+      background: #fff3e5;
+    }
+
+    .pill.bad {
+      color: var(--bad);
+      background: #fdecec;
+    }
+
+    main {
+      width: min(1520px, 100%);
+      margin: 0 auto;
+      padding: 20px 24px 32px;
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr) 360px;
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 16px 0;
+      align-items: flex-start;
+    }
+
+    .panel-head h2 {
+      font-size: 16px;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    .brief {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 10px 11px;
+      min-height: 40px;
+    }
+
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+    }
+
+    .format-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .check-tile {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px;
+      color: var(--ink);
+      background: #fbfcfd;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+    }
+
+    .check-tile input {
+      width: auto;
+      min-height: auto;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .input-stack {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .conversation {
+      display: grid;
+      gap: 12px;
+    }
+
+    .transcript {
+      padding: 16px;
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      overflow: auto;
+      max-height: 280px;
+      border-top: 1px solid var(--line);
+    }
+
+    .turn {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: #fbfcfd;
+    }
+
+    .turn.assistant {
+      background: #eef8f5;
+      border-color: #cce5dd;
+    }
+
+    .turn.user {
+      justify-self: end;
+      background: #f4f2ff;
+      border-color: #ddd8ff;
+    }
+
+    .turn strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .composer {
+      padding: 0;
+      display: grid;
+      gap: 10px;
+      background: transparent;
+    }
+
+    .composer-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      align-items: end;
+    }
+
+    .composer textarea {
+      min-height: 72px;
+    }
+
+    .draft-workspace {
+      min-height: calc(100vh - 116px);
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+    }
+
+    .draft-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 12px;
+      flex-wrap: wrap;
+    }
+
+    .draft-tabs button.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .draft-list {
+      display: grid;
+      gap: 12px;
+      padding: 0 16px 16px;
+      overflow: auto;
+    }
+
+    .draft {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #ffffff;
+      display: grid;
+      gap: 10px;
+    }
+
+    .draft h3 {
+      font-size: 16px;
+    }
+
+    .draft pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: inherit;
+      color: #252832;
+      max-height: 360px;
+      overflow: auto;
+    }
+
+    .draft-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .brief-summary {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .draft-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .source-list,
+    .feedback-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .source,
+    .feedback {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfcfd;
+      display: grid;
+      gap: 5px;
+    }
+
+    .source a {
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .source a:hover {
+      text-decoration: underline;
+    }
+
+    .feedback textarea {
+      min-height: 86px;
+    }
+
+    .empty {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      color: var(--muted);
+      background: #fbfcfd;
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      max-width: min(620px, calc(100vw - 32px));
+      background: var(--ink);
+      color: white;
+      border-radius: 8px;
+      padding: 10px 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+      z-index: 20;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    @media (max-width: 1120px) {
+      main {
+        grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+      }
+
+      .side-stack {
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        height: auto;
+        padding: 12px 14px;
+        align-items: flex-start;
+        gap: 10px;
+        flex-direction: column;
+      }
+
+      main {
+        padding: 14px;
+        grid-template-columns: 1fr;
+      }
+
+      .draft-workspace {
+        min-height: auto;
+      }
+
+      .side-stack {
+        grid-template-columns: 1fr;
+      }
+
+      .composer-row {
+        grid-template-columns: 1fr;
+      }
+
+      .format-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">A</div>
+        <div>
+          <h1>All About LLMs Content Generator</h1>
+          <p class="subtitle">Brief once, revise by voice or text, publish with sources.</p>
+        </div>
+      </div>
+      <div class="status-strip" aria-live="polite">
+        <span class="pill" id="session-status">No session</span>
+        <span class="pill" id="source-status">Sources pending</span>
+        <span class="pill" id="review-status">Review pending</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="input-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Topic and brief</h2>
+              <p class="subtitle">Frame the piece you want to make.</p>
+            </div>
+          </div>
+          <div class="panel-body brief">
+            <label>
+              Topic
+              <input id="topic" value="AI agents that turn research into social content">
+            </label>
+            <label>
+              Starting brief
+              <textarea id="brief">Create an ELI5 post, a short reel script, and a detailed but accessible Substack article. Use real sources and mark anything uncertain.</textarea>
+            </label>
+            <label>
+              Formats
+              <div class="format-grid">
+                <span class="check-tile"><input id="format-post" type="checkbox" checked> Post</span>
+                <span class="check-tile"><input id="format-reel" type="checkbox" checked> Reel</span>
+                <span class="check-tile"><input id="format-substack" type="checkbox" checked> Substack</span>
+              </div>
+            </label>
+            <div class="actions">
+              <button type="button" class="primary" id="generate">Generate drafts</button>
+              <button type="button" id="refresh">Refresh</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel conversation">
+          <div class="panel-head">
+            <div>
+              <h2>Voice or text input</h2>
+              <p class="subtitle" id="voice-status">Text mode</p>
+            </div>
+          </div>
+          <div class="panel-body composer">
+            <label>
+              Message
+              <textarea id="message" placeholder="Add context, ask for a revision, or paste a voice transcript."></textarea>
+            </label>
+            <div class="actions">
+              <button type="button" class="primary" id="send">Send</button>
+              <button type="button" id="mic">Start voice</button>
+              <button type="button" id="revise">Revise drafts</button>
+              <button type="button" id="approve">Approve open feedback</button>
+            </div>
+            <div class="composer-row">
+              <select id="tone" aria-label="Tone">
+                <option value="eli5">ELI5</option>
+                <option value="detailed">Detailed</option>
+                <option value="punchy">Punchy</option>
+              </select>
+              <select id="audience" aria-label="Audience">
+                <option value="general">General</option>
+                <option value="builders">Builders</option>
+                <option value="executives">Executives</option>
+              </select>
+            </div>
+          </div>
+          <div class="transcript" id="transcript-log">
+            <div class="empty">Start with a topic, voice note, or written brief.</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel draft-workspace">
+        <div class="panel-head">
+          <div>
+            <h2>Drafts</h2>
+            <p class="subtitle">Ready-to-edit Post, Reel, and Substack copy.</p>
+          </div>
+          <span class="pill" id="draft-count">0 drafts</span>
+        </div>
+        <div class="draft-tabs" id="draft-tabs"></div>
+        <div class="draft-list" id="drafts">
+          <div class="empty">No drafts yet</div>
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Sources</h2>
+              <p class="subtitle">Evidence attached to the current drafts.</p>
+            </div>
+          </div>
+          <div class="panel-body source-list" id="sources">
+            <div class="empty">No sources yet</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Feedback</h2>
+              <p class="subtitle">Requests that drive the next revision.</p>
+            </div>
+          </div>
+          <div class="panel-body feedback-list" id="feedback">
+            <div class="empty">No feedback yet</div>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const state = {
+      runId: "",
+      selectedType: "post",
+      artifacts: [],
+      sources: [],
+      feedback: [],
+      turns: [],
+      recognition: null,
+      listening: false,
+      busy: false
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const elements = {
+      topic: $("#topic"),
+      brief: $("#brief"),
+      message: $("#message"),
+      tone: $("#tone"),
+      audience: $("#audience"),
+      formatPost: $("#format-post"),
+      formatReel: $("#format-reel"),
+      formatSubstack: $("#format-substack"),
+      generate: $("#generate"),
+      send: $("#send"),
+      revise: $("#revise"),
+      approve: $("#approve"),
+      mic: $("#mic"),
+      refresh: $("#refresh"),
+      transcriptLog: $("#transcript-log"),
+      drafts: $("#drafts"),
+      draftTabs: $("#draft-tabs"),
+      sources: $("#sources"),
+      feedback: $("#feedback"),
+      sessionStatus: $("#session-status"),
+      sourceStatus: $("#source-status"),
+      reviewStatus: $("#review-status"),
+      draftCount: $("#draft-count"),
+      voiceStatus: $("#voice-status"),
+      toast: $("#toast")
+    };
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        headers: { "content-type": "application/json" },
+        ...options
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    }
+
+    function targetFormats() {
+      const formats = [];
+      if (elements.formatPost.checked) formats.push("post");
+      if (elements.formatReel.checked) formats.push("reel");
+      if (elements.formatSubstack.checked) formats.push("substack");
+      return formats.length ? formats : ["post"];
+    }
+
+    function enrichedPrompt(baseText) {
+      return [
+        baseText,
+        `Tone: ${elements.tone.value}.`,
+        `Audience: ${elements.audience.value}.`,
+        "Keep claims tied to sources and mark uncertainty."
+      ].filter(Boolean).join("\\n");
+    }
+
+    async function generateDrafts() {
+      const result = await api("/api/orchestrations/content-studio", {
+        method: "POST",
+        body: JSON.stringify({
+          transcript: enrichedPrompt(elements.brief.value),
+          topic: elements.topic.value || null,
+          modality: state.listening ? "voice" : "text",
+          target_formats: targetFormats(),
+          require_human_feedback: true
+        })
+      });
+      setRunId(result.run_id);
+      showToast(result.summary || "Drafts generated");
+      await refreshRun();
+    }
+
+    async function sendTurn() {
+      const text = elements.message.value.trim();
+      if (!text) {
+        showToast("Write or dictate a message first.", true);
+        return;
+      }
+      const result = await api("/api/conversation/turns", {
+        method: "POST",
+        body: JSON.stringify({
+          run_id: state.runId || null,
+          transcript: enrichedPrompt(text),
+          modality: state.listening ? "voice" : "text",
+          speaker: "user",
+          topic: elements.topic.value || null,
+          target_formats: targetFormats(),
+          intent: "auto",
+          require_human_feedback: true,
+          metadata: { surface: "content_app" }
+        })
+      });
+      setRunId(result.run_id);
+      elements.message.value = "";
+      elements.sessionStatus.textContent = "Session active";
+      elements.sessionStatus.className = "pill good";
+      showToast(result.response_text || "Message routed");
+      await refreshRun();
+    }
+
+    async function reviseDrafts() {
+      if (!state.runId) {
+        showToast("Generate drafts before revising.", true);
+        return;
+      }
+      const text = elements.message.value.trim();
+      if (!text) {
+        showToast("Write revision feedback first.", true);
+        return;
+      }
+      const selectedIds = state.artifacts
+        .filter((artifact) => artifact.artifact_type === artifactTypeForTab(state.selectedType))
+        .map((artifact) => artifact.artifact_id);
+      const result = await api(`/api/runs/${state.runId}/revision-loop`, {
+        method: "POST",
+        body: JSON.stringify({
+          feedback_text: text,
+          target_artifact_ids: selectedIds,
+          require_human_feedback: true
+        })
+      });
+      elements.message.value = "";
+      showToast(result.summary || "Revision requested");
+      await refreshRun();
+    }
+
+    async function approveOpenFeedback() {
+      if (!state.feedback.length) {
+        showToast("No feedback to approve.");
+        return;
+      }
+      const open = state.feedback.filter((item) => item.status !== "resolved");
+      if (!open.length) {
+        showToast("All feedback is already resolved.");
+        return;
+      }
+      await Promise.all(open.map((item) => resolveFeedback(item.feedback_id, false)));
+      showToast("Open feedback approved");
+      await refreshRun();
+    }
+
+    async function resolveFeedback(feedbackId, refresh = true) {
+      await api(`/api/feedback/${feedbackId}/resolve`, {
+        method: "POST",
+        body: JSON.stringify({
+          status: "resolved",
+          resolver: "user",
+          resolution_notes: "Resolved from the content app after review.",
+          run_status: null
+        })
+      });
+      if (refresh) {
+        showToast("Feedback resolved");
+        await refreshRun();
+      }
+    }
+
+    async function refreshRun() {
+      if (!state.runId) return;
+      const [turns, artifacts, sources, feedback] = await Promise.all([
+        api(`/api/runs/${state.runId}/conversation-turns`),
+        api(`/api/runs/${state.runId}/artifacts`),
+        api(`/api/runs/${state.runId}/sources`),
+        api(`/api/runs/${state.runId}/feedback`)
+      ]);
+      state.turns = turns.turns || [];
+      state.artifacts = artifacts.artifacts || [];
+      state.sources = sources.sources || [];
+      state.feedback = feedback.feedback || [];
+      render();
+    }
+
+    function render() {
+      renderTurns();
+      renderDraftTabs();
+      renderDrafts();
+      renderSources();
+      renderFeedback();
+      elements.draftCount.textContent = `${contentArtifacts().length} drafts`;
+      const sourceCount = state.sources.length;
+      elements.sourceStatus.textContent = sourceCount ? `${sourceCount} sources` : "Sources pending";
+      elements.sourceStatus.className = sourceCount ? "pill good" : "pill warn";
+      const openFeedback = state.feedback.filter((item) => item.status !== "resolved").length;
+      elements.reviewStatus.textContent = openFeedback ? `${openFeedback} review items` : "Review ready";
+      elements.reviewStatus.className = openFeedback ? "pill warn" : "pill good";
+    }
+
+    function renderTurns() {
+      elements.transcriptLog.innerHTML = "";
+      if (!state.turns.length) {
+        elements.transcriptLog.appendChild(empty("Start with a topic, voice note, or written brief."));
+        return;
+      }
+      state.turns.slice(-12).forEach((turn) => {
+        const item = document.createElement("div");
+        item.className = `turn ${turn.speaker === "assistant" ? "assistant" : "user"}`;
+        item.innerHTML = `<strong>${escapeHtml(turn.speaker)} / ${escapeHtml(turn.modality)}</strong>${escapeHtml(turn.transcript)}`;
+        elements.transcriptLog.appendChild(item);
+      });
+    }
+
+    function renderDraftTabs() {
+      const types = ["post", "reel", "substack"];
+      elements.draftTabs.innerHTML = "";
+      types.forEach((type) => {
+        const count = contentArtifacts().filter((artifact) => artifact.artifact_type === artifactTypeForTab(type)).length;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = type === state.selectedType ? "active" : "";
+        button.textContent = `${labelForTab(type)} (${count})`;
+        button.addEventListener("click", () => {
+          state.selectedType = type;
+          renderDraftTabs();
+          renderDrafts();
+        });
+        elements.draftTabs.appendChild(button);
+      });
+    }
+
+    function renderDrafts() {
+      elements.drafts.innerHTML = "";
+      const selected = contentArtifacts().filter((artifact) => artifact.artifact_type === artifactTypeForTab(state.selectedType));
+      if (!selected.length) {
+        elements.drafts.appendChild(empty("No draft for this format yet."));
+        return;
+      }
+      selected.slice(-3).reverse().forEach((artifact) => {
+        const item = document.createElement("article");
+        item.className = "draft";
+        const copy = renderArtifactContent(artifact.content || {});
+        item.innerHTML = `
+          <div class="draft-meta">
+            <h3>${escapeHtml(artifact.title)}</h3>
+            ${claimPill(artifact)}
+          </div>
+          <pre>${escapeHtml(copy)}</pre>
+          <div class="draft-actions">
+            <button type="button" data-copy-draft="${escapeAttr(artifact.artifact_id)}">Copy</button>
+            <button type="button" data-export-draft="${escapeAttr(artifact.artifact_id)}">Export .txt</button>
+            <button type="button" data-revise-draft="${escapeAttr(artifact.artifact_id)}">Revise this</button>
+          </div>
+        `;
+        elements.drafts.appendChild(item);
+      });
+      elements.drafts.querySelectorAll("[data-copy-draft]").forEach((button) => {
+        button.addEventListener("click", () => copyDraft(button.dataset.copyDraft || ""));
+      });
+      elements.drafts.querySelectorAll("[data-export-draft]").forEach((button) => {
+        button.addEventListener("click", () => exportDraft(button.dataset.exportDraft || ""));
+      });
+      elements.drafts.querySelectorAll("[data-revise-draft]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const artifact = findArtifact(button.dataset.reviseDraft || "");
+          elements.message.value = `Revise this ${labelForTab(state.selectedType)} draft: ${artifact ? artifact.title : ""}`;
+          elements.message.focus();
+        });
+      });
+    }
+
+    function renderSources() {
+      elements.sources.innerHTML = "";
+      if (!state.sources.length) {
+        elements.sources.appendChild(empty("No sources yet"));
+        return;
+      }
+      state.sources.forEach((source) => {
+        const item = document.createElement("div");
+        item.className = "source";
+        item.innerHTML = `
+          <a href="${escapeAttr(source.url)}" target="_blank" rel="noreferrer">${escapeHtml(source.citation_id)} · ${escapeHtml(source.title)}</a>
+          <span class="subtitle">${escapeHtml(source.publisher || "Source")} ${source.published_at ? `· ${escapeHtml(source.published_at.slice(0, 10))}` : ""}</span>
+          <span class="pill ${source.metadata && source.metadata.requires_web_search ? "warn" : "good"}">${source.metadata && source.metadata.requires_web_search ? "needs live source" : "recorded"}</span>
+        `;
+        elements.sources.appendChild(item);
+      });
+    }
+
+    function renderFeedback() {
+      elements.feedback.innerHTML = "";
+      if (!state.feedback.length) {
+        elements.feedback.appendChild(empty("No feedback yet"));
+        return;
+      }
+      state.feedback.slice(-6).reverse().forEach((feedback) => {
+        const item = document.createElement("div");
+        item.className = "feedback";
+        item.innerHTML = `
+          <span class="pill ${feedback.status === "resolved" ? "good" : "warn"}">${escapeHtml(feedback.status)}</span>
+          <p>${escapeHtml(feedback.feedback_text)}</p>
+          ${feedback.status === "resolved" ? "" : `<button type="button" data-resolve-feedback="${escapeAttr(feedback.feedback_id)}">Resolve after review</button>`}
+        `;
+        elements.feedback.appendChild(item);
+      });
+      elements.feedback.querySelectorAll("[data-resolve-feedback]").forEach((button) => {
+        button.addEventListener("click", () => {
+          resolveFeedback(button.dataset.resolveFeedback || "").catch((error) => showToast(error.message, true));
+        });
+      });
+    }
+
+    function contentArtifacts() {
+      return state.artifacts.filter((artifact) =>
+        ["post", "reel_script", "substack_article"].includes(artifact.artifact_type)
+      );
+    }
+
+    function artifactTypeForTab(tab) {
+      return {
+        post: "post",
+        reel: "reel_script",
+        substack: "substack_article"
+      }[tab];
+    }
+
+    function labelForTab(tab) {
+      return { post: "Post", reel: "Reel", substack: "Substack" }[tab];
+    }
+
+    function renderArtifactContent(content) {
+      if (content.draft) return content.draft;
+      const lines = [];
+      if (content.title) lines.push(content.title);
+      if (content.hook) lines.push("Hook", content.hook);
+      if (content.body) lines.push("Body", content.body);
+      if (Array.isArray(content.beats) && content.beats.length) {
+        lines.push("Reel beats", ...content.beats.map((beat, index) => `${index + 1}. ${beat}`));
+      }
+      if (Array.isArray(content.sections) && content.sections.length) {
+        lines.push("Substack outline", ...content.sections.map((section) => `- ${section}`));
+      }
+      if (content.cta) lines.push("CTA", content.cta);
+      if (Array.isArray(content.hashtags) && content.hashtags.length) lines.push(content.hashtags.join(" "));
+      return lines.filter(Boolean).join("\\n\\n") || "Draft content is still being prepared.";
+    }
+
+    function claimPill(artifact) {
+      const unsupported = ((artifact.content || {}).unsupported_claim_count || 0);
+      const review = ((artifact.content || {}).claims_needing_review_count || 0);
+      if (unsupported) return `<span class="pill bad">${unsupported} unsupported</span>`;
+      if (review) return `<span class="pill warn">${review} need review</span>`;
+      return `<span class="pill good">claims linked</span>`;
+    }
+
+    function toggleMic() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        showToast("Speech recognition is not available in this browser.", true);
+        return;
+      }
+      if (state.listening && state.recognition) {
+        state.recognition.stop();
+        return;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+      recognition.onresult = (event) => {
+        let finalText = "";
+        let interimText = "";
+        for (let index = event.resultIndex; index < event.results.length; index += 1) {
+          const text = event.results[index][0].transcript.trim();
+          if (event.results[index].isFinal) {
+            finalText = `${finalText} ${text}`.trim();
+          } else {
+            interimText = `${interimText} ${text}`.trim();
+          }
+        }
+        const text = finalText || interimText;
+        if (text) elements.message.value = text;
+      };
+      recognition.onstart = () => {
+        state.listening = true;
+        elements.mic.textContent = "Stop voice";
+        elements.voiceStatus.textContent = "Voice recording";
+      };
+      recognition.onend = () => {
+        state.listening = false;
+        elements.mic.textContent = "Start voice";
+        elements.voiceStatus.textContent = "Text mode";
+      };
+      recognition.onerror = () => showToast("Voice capture stopped.", true);
+      state.recognition = recognition;
+      recognition.start();
+    }
+
+    function setRunId(runId) {
+      state.runId = runId;
+      window.localStorage.setItem("all-about-llms-app-run-id", runId);
+      elements.sessionStatus.textContent = "Session active";
+      elements.sessionStatus.className = "pill good";
+    }
+
+    function restoreRun() {
+      const runId = window.localStorage.getItem("all-about-llms-app-run-id");
+      if (!runId) return;
+      state.runId = runId;
+      elements.sessionStatus.textContent = "Session restored";
+      elements.sessionStatus.className = "pill good";
+      refreshRun().catch(() => {
+        state.runId = "";
+        window.localStorage.removeItem("all-about-llms-app-run-id");
+        elements.sessionStatus.textContent = "No session";
+        elements.sessionStatus.className = "pill";
+      });
+    }
+
+    function empty(text) {
+      const node = document.createElement("div");
+      node.className = "empty";
+      node.textContent = text;
+      return node;
+    }
+
+    function showToast(message, error = false) {
+      elements.toast.textContent = message;
+      elements.toast.style.background = error ? "#a33b3b" : "#18191f";
+      elements.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => elements.toast.classList.remove("show"), 3200);
+    }
+
+    function findArtifact(artifactId) {
+      return state.artifacts.find((artifact) => artifact.artifact_id === artifactId);
+    }
+
+    async function copyDraft(artifactId) {
+      const artifact = findArtifact(artifactId);
+      if (!artifact) return;
+      try {
+        await navigator.clipboard.writeText(renderArtifactContent(artifact.content || {}));
+        showToast("Draft copied");
+      } catch (error) {
+        showToast("Copy is not available in this browser.", true);
+      }
+    }
+
+    function exportDraft(artifactId) {
+      const artifact = findArtifact(artifactId);
+      if (!artifact) return;
+      const blob = new Blob([renderArtifactContent(artifact.content || {})], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${labelForTab(state.selectedType).toLowerCase()}-draft.txt`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function withBusy(task) {
+      if (state.busy) return;
+      state.busy = true;
+      setBusy(true);
+      try {
+        await task();
+      } finally {
+        state.busy = false;
+        setBusy(false);
+      }
+    }
+
+    function setBusy(busy) {
+      [elements.generate, elements.send, elements.revise, elements.approve, elements.refresh].forEach((button) => {
+        button.disabled = busy;
+      });
+      if (busy) {
+        elements.sessionStatus.textContent = "Working";
+        elements.sessionStatus.className = "pill warn";
+      } else if (state.runId) {
+        elements.sessionStatus.textContent = "Session active";
+        elements.sessionStatus.className = "pill good";
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, "&#96;");
+    }
+
+    elements.generate.addEventListener("click", () => withBusy(generateDrafts).catch((error) => showToast(error.message, true)));
+    elements.send.addEventListener("click", () => withBusy(sendTurn).catch((error) => showToast(error.message, true)));
+    elements.revise.addEventListener("click", () => withBusy(reviseDrafts).catch((error) => showToast(error.message, true)));
+    elements.approve.addEventListener("click", () => withBusy(approveOpenFeedback).catch((error) => showToast(error.message, true)));
+    elements.mic.addEventListener("click", toggleMic);
+    elements.refresh.addEventListener("click", () => refreshRun().catch((error) => showToast(error.message, true)));
+    restoreRun();
+  </script>
+</body>
+</html>

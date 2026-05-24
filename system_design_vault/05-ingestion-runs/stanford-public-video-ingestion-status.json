@@ -1,0 +1,271 @@
+{
+  "updated": "2026-05-18",
+  "project": "agent-studio-system-design",
+  "manifest_type": "stanford_public_video_ingestion_status",
+  "record_count": 9,
+  "source_policy": "Official Stanford recordings page plus official public YouTube page metadata only; no downloaded video, raw transcript, raw comments, or long caption excerpt is stored.",
+  "coverage_boundary": "public_recording_visible is true for these records, but watched-video coverage remains false until a direct full-watch pass is completed. Transcripts, captions, comments, and metadata are not substitutes for watching.",
+  "records": [
+    {
+      "id": "video.cs25_overview_transformers_v6",
+      "course": "Stanford CS25 Transformers United",
+      "official_recordings_page": "https://web.stanford.edu/class/cs25/recordings/",
+      "video_url": "https://www.youtube.com/watch?v=bHSDPgZYie0",
+      "video_id": "bHSDPgZYie0",
+      "recordings_page_title": "Stanford CS25: V6 | Overview of Transformers",
+      "recordings_page_speaker": "Instructors",
+      "note_path": "02-lectures/stanford/cs25-transformer-foundations.md",
+      "public_recording_visible": true,
+      "video_or_transcript_ingested": false,
+      "raw_transcript_stored": false,
+      "checked_at": "2026-05-18",
+      "youtube_title": "Stanford CS25: Transformers United V6 I Overview of Transformers",
+      "youtube_author": "Stanford Online",
+      "duration_seconds": 4606,
+      "short_description_present": true,
+      "caption_track_count": 2,
+      "caption_languages": [
+        "en",
+        "en-US"
+      ],
+      "caption_track_kinds": [
+        "asr",
+        "manual"
+      ],
+      "video_watch_ingested": false,
+      "direct_full_watch_required": true
+    },
+    {
+      "id": "video.cs25_ssm_transformer_tradeoffs",
+      "course": "Stanford CS25 Transformers United",
+      "official_recordings_page": "https://web.stanford.edu/class/cs25/recordings/",
+      "video_url": "https://www.youtube.com/watch?v=OyimE74UMF8",
+      "video_id": "OyimE74UMF8",
+      "recordings_page_title": "On the Tradeoffs of State Space Models and Transformers",
+      "recordings_page_speaker": "Albert Gu, CMU & Cartesia AI",
+      "note_path": "02-lectures/stanford/cs25-state-space-transformer-tradeoffs.md",
+      "public_recording_visible": true,
+      "video_or_transcript_ingested": false,
+      "raw_transcript_stored": false,
+      "checked_at": "2026-05-18",
+      "youtube_title": "Stanford CS25: Transformers United V6 I On the Tradeoffs of State Space Models and Transformers",
+      "youtube_author": "Stanford Online",
+      "duration_seconds": 4627,
+      "short_description_present": true,
+      "caption_track_count": 2,
+      "caption_languages": [
+        "en",
+        "en-US"
+      ],
+      "caption_track_kinds": [
+        "asr",
+        "manual"
+      ],
+      "video_watch_ingested": false,
+      "direct_full_watch_required": true
+    },
+    {
+      "id": "video.cs25_intro_transformers",
+      "course": "Stanford CS25 Transformers United",
+      "official_recordings_page": "https://web.stanford.edu/class/cs25/recordings/",
+      "video_url": "https://www.youtube.com/watch?v=XfpMkf4rD6E",
+      "video_id": "XfpMkf4rD6E",
+      "recordings_page_title": "Introduction to Transformers",
+      "recordings_page_speaker": "Instructors & Andrej Karpathy",
+      "note_path": "02-lectures/stanford/cs25-transformer-foundations.md",
+      "public_recording_visible": true,
+      "video_or_transcript_ingested": false,
+      "raw_transcript_stored": false,
+      "checked_at": "2026-05-18",
+      "youtube_title": "Stanford CS25: V2 I Introduction to Transformers w/ Andrej Karpathy",
+      "youtube_author": "Stanford Online",
+      "duration_seconds": 4300,
+      "short_description_present": true,
+      "caption_track_count": 2,
+      "caption_languages": [
+        "en",
+        "en-US"
+      ],
+      "caption_track_kinds": [
+        "asr",
+        "manual"
+      ],
+      "video_watch_ingested": false,
+      "direct_full_watch_required": true
+    },
+    {
+      "id": "video.cs25_lm_intuition_future_ai",
+      "course": "Stanford CS25 Transformers United",
+      "official_recordings_page": "https://web.stanford.edu/class/cs25/recordings/",
+      "video_url": "https://www.youtube.com/watch?v=3gb-ZkVRemQ",
+      "video_id": "3gb-ZkVRemQ",
+      "recordings_page_title": "Intuition on LMs, Shaping the Future of AI",
+      "recordings_page_speaker": "Jason Wei & Hyung Won Chung (OpenAI)",
+      "note_path": "02-lectures/stanford/cs25-lm-intuition-future-ai.md",
+      "public_recording_visible": true,
+      "video_or_transcript_ingested": false,
+      "raw_transcript_stored": false,
+      "checked_at": "2026-05-18",
+      "youtube_title": "Stanford CS25: V4 I Jason Wei & Hyung Won Chung of OpenAI",
+      "youtube_author": "Stanford Online",
+      "duration_seconds": 4627,
+      "short_description_present": true,
+      "caption_track_count": 2,
+      "caption_languages": [
+        "en",
+        "en-US"
+      ],
+      "caption_track_kinds": [
+        "asr",
+        "manual"
+      ],
+      "video_watch_ingested": false,
+      "direct_full_watch_required": true
+    },
+    {
+      "id": "video.cs25_stop_worrying_love_transformer",
+      "course": "Stanford CS25 Transformers United",
+      "official_recordings_page": "https://web.stanford.edu/class/cs25/recordings/",
+      "video_url": "https://www.youtube.com/watch?v=1GbDTTK3aR4",
+      "video_id": "1GbDTTK3aR4",
+      "recordings_page_title": "Stop Worrying and Love the Transformer",
+      "recordings_page_speaker": "Ashish Vaswani",
+      "note_path": "02-lectures/stanford/cs25-transformer-foundations.md",
+      "public_recording_visible": true,
+      "video_or_transcript_ingested": false,
+      "raw_transcript_stored": false,
+      "checked_at": "2026-05-18",
+      "youtube_title": "Stanford CS25: V3 I How I Learned to Stop Worrying and Love the Transformer",
+      "youtube_author": "Stanford Online",
+      "duration_seconds": 4838,
+      "short_description_present": true,
+      "caption_track_count": 2,
+      "caption_languages": [
+        "en",
+        "en-US"
+      ],
+      "caption_track_kinds": [
+        "asr",
+        "manual"
+      ],
+      "video_watch_ingested": false,
+      "direct_full_watch_required": true
+    },
+    {
+      "id": "video.cs25_aligning_open_language_models",
+      "course": "Stanford CS25 Transformers United",
+      "official_recordings_page": "https://web.stanford.edu/class/cs25/recordings/",
+      "video_url": "https://www.youtube.com/watch?v=AdLgPmcrXwQ",
+      "video_id": "AdLgPmcrXwQ",
+      "recordings_page_title": "Aligning Open Language Models",
+      "recordings_page_speaker": "Nathan Lambert",
+      "note_path": "02-lectures/stanford/cs25-aligning-open-language-models.md",
+      "public_recording_visible": true,
+      "video_or_transcript_ingested": false,
+      "raw_transcript_stored": false,
+      "checked_at": "2026-05-18",
+      "youtube_title": "Stanford CS25: V4 I Aligning Open Language Models",
+      "youtube_author": "Stanford Online",
+      "duration_seconds": 4581,
+      "short_description_present": true,
+      "caption_track_count": 2,
+      "caption_languages": [
+        "en",
+        "en-US"
+      ],
+      "caption_track_kinds": [
+        "asr",
+        "manual"
+      ],
+      "video_watch_ingested": false,
+      "direct_full_watch_required": true
+    },
+    {
+      "id": "video.cs25_retrieval_augmented_language_models",
+      "course": "Stanford CS25 Transformers United",
+      "official_recordings_page": "https://web.stanford.edu/class/cs25/recordings/",
+      "video_url": "https://www.youtube.com/watch?v=mE7IDf2SmJg",
+      "video_id": "mE7IDf2SmJg",
+      "recordings_page_title": "Retrieval Augmented Language Models",
+      "recordings_page_speaker": "Douwe Kiela, Contextual AI",
+      "note_path": "02-lectures/stanford/cs25-retrieval-augmented-language-models.md",
+      "public_recording_visible": true,
+      "video_or_transcript_ingested": false,
+      "raw_transcript_stored": false,
+      "checked_at": "2026-05-18",
+      "youtube_title": "Stanford CS25: V3 I Retrieval Augmented Language Models",
+      "youtube_author": "Stanford Online",
+      "duration_seconds": 4766,
+      "short_description_present": true,
+      "caption_track_count": 2,
+      "caption_languages": [
+        "en",
+        "en-US"
+      ],
+      "caption_track_kinds": [
+        "asr",
+        "manual"
+      ],
+      "video_watch_ingested": false,
+      "direct_full_watch_required": true
+    },
+    {
+      "id": "video.cs25_generalist_agents_open_ended_worlds",
+      "course": "Stanford CS25 Transformers United",
+      "official_recordings_page": "https://web.stanford.edu/class/cs25/recordings/",
+      "video_url": "https://www.youtube.com/watch?v=wwQ1LQA3RCU",
+      "video_id": "wwQ1LQA3RCU",
+      "recordings_page_title": "Generalist Agents in Open-Ended Worlds",
+      "recordings_page_speaker": "Jim Fan, NVIDIA AI",
+      "note_path": "02-lectures/stanford/cs25-generalist-agents-open-ended-worlds.md",
+      "public_recording_visible": true,
+      "video_or_transcript_ingested": false,
+      "raw_transcript_stored": false,
+      "checked_at": "2026-05-18",
+      "youtube_title": "Stanford CS25: V3 I Generalist Agents in Open-Ended Worlds",
+      "youtube_author": "Stanford Online",
+      "duration_seconds": 2868,
+      "short_description_present": true,
+      "caption_track_count": 2,
+      "caption_languages": [
+        "en",
+        "en-US"
+      ],
+      "caption_track_kinds": [
+        "asr",
+        "manual"
+      ],
+      "video_watch_ingested": false,
+      "direct_full_watch_required": true
+    },
+    {
+      "id": "video.cs25_whole_part_hierarchies",
+      "course": "Stanford CS25 Transformers United",
+      "official_recordings_page": "https://web.stanford.edu/class/cs25/recordings/",
+      "video_url": "https://www.youtube.com/watch?v=CYaju6aCMoQ",
+      "video_id": "CYaju6aCMoQ",
+      "recordings_page_title": "Whole-Part Hierarchies in a Neural Network",
+      "recordings_page_speaker": "Geoffrey Hinton",
+      "note_path": "02-lectures/stanford/cs25-whole-part-hierarchies.md",
+      "public_recording_visible": true,
+      "video_or_transcript_ingested": false,
+      "raw_transcript_stored": false,
+      "checked_at": "2026-05-18",
+      "youtube_title": "Stanford CS25: V2 I Represent part-whole hierarchies in a neural network, Geoff Hinton",
+      "youtube_author": "Stanford Online",
+      "duration_seconds": 3168,
+      "short_description_present": true,
+      "caption_track_count": 2,
+      "caption_languages": [
+        "en",
+        "en-US"
+      ],
+      "caption_track_kinds": [
+        "asr",
+        "manual"
+      ],
+      "video_watch_ingested": false,
+      "direct_full_watch_required": true
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "title": "Practical MLOps",
+  "authors": "Noah Gift and Alfredo Deza",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Practical MLOps_ Operationalizing Machine Learning Models.pdf",
+  "rights_status": "user_provided_local",
+  "extraction_method": "pdftotext",
+  "chapter_count": 12,
+  "created_at": "2026-05-17T19:41:05.626378+00:00",
+  "chapters": [
+        {
+            "number": "1",
+            "title": "Introduction to MLOps",
+            "start_line": 630,
+            "end_line": 1352,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/1-introduction-to-mlops.md"
+        },
+        {
+            "number": "2",
+            "title": "MLOps Foundations",
+            "start_line": 1353,
+            "end_line": 2855,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/2-mlops-foundations.md"
+        },
+        {
+            "number": "3",
+            "title": "MLOps for Containers and Edge Devices",
+            "start_line": 2856,
+            "end_line": 3933,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/3-containers-and-edge-devices.md"
+        },
+        {
+            "number": "4",
+            "title": "Continuous Delivery for Machine Learning Models",
+            "start_line": 3934,
+            "end_line": 4854,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/4-continuous-delivery-for-ml-models.md"
+        },
+        {
+            "number": "5",
+            "title": "AutoML and KaizenML",
+            "start_line": 4855,
+            "end_line": 6135,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/5-automl-and-kaizenml.md"
+        },
+        {
+            "number": "6",
+            "title": "Monitoring and Logging",
+            "start_line": 6136,
+            "end_line": 7151,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/6-monitoring-and-logging.md"
+        },
+        {
+            "number": "7",
+            "title": "MLOps for AWS",
+            "start_line": 7152,
+            "end_line": 8935,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/7-mlops-for-aws.md"
+        },
+        {
+            "number": "8",
+            "title": "MLOps for Azure",
+            "start_line": 8936,
+            "end_line": 10064,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/8-mlops-for-azure.md"
+        },
+        {
+            "number": "9",
+            "title": "MLOps for GCP",
+            "start_line": 10065,
+            "end_line": 10929,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/9-mlops-for-gcp.md"
+        },
+        {
+            "number": "10",
+            "title": "Machine Learning Interoperability",
+            "start_line": 10930,
+            "end_line": 11944,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/10-machine-learning-interoperability.md"
+        },
+        {
+            "number": "11",
+            "title": "Building MLOps Command Line Tools and Microservices",
+            "start_line": 11945,
+            "end_line": 13205,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/11-command-line-tools-and-microservices.md"
+        },
+        {
+            "number": "12",
+            "title": "Machine Learning Engineering and MLOps Case Studies",
+            "start_line": 13206,
+            "end_line": 13974,
+            "status": "canon_ready",
+            "note": "02-books/practical-mlops/chapters/12-case-studies-and-design-patterns.md"
+        }
+  ]
+}

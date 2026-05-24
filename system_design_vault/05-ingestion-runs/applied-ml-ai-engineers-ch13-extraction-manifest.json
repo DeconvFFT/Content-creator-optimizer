@@ -1,0 +1,23 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-19",
+  "source_id": "local_books.applied_ml_and_ai_for_engineers.chapter_13_natural_language_processing",
+  "parent_source_id": "local_books.applied_ml_and_ai_for_engineers",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Applied-Machine-Learning-and-AI-for-Engineers.pdf",
+  "chapter": {
+    "number": 13,
+    "title": "Natural Language Processing",
+    "focus_slice": "Classical-to-deep NLP transition, tokenization and sequence contracts, embeddings, pretrained encoders, retriever-reader QA, and translation route implications"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "pdf_pages": "486-548"
+  },
+  "temp_extract": "/tmp/applied_ml_ai_engineers_ch13_nlp.txt",
+  "note_path": "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch13-natural-language-processing.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/applied-ml-nlp-cross-check.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read chapter slice and corroborating note targets only. No raw chapter text or long excerpts stored."
+}

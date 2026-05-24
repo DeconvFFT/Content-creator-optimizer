@@ -1,0 +1,17 @@
+[package]
+name = "voice-edge"
+version = "0.1.0"
+edition = "2021"
+description = "Realtime voice edge contracts for VAD, bounded buffers, and barge-in cancellation."
+license = "UNLICENSED"
+
+[dependencies]
+axum = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+silero = "0.4.0"
+tokio = { version = "1.48", features = ["macros", "net", "rt-multi-thread"] }
+
+[dev-dependencies]
+pretty_assertions = "1.4"
+tower = { version = "0.5", features = ["util"] }

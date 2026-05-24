@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TCF Canada Training System</title>
+    <link rel="stylesheet" href="./tcf-training-system.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand-row">
+            <div class="brand">
+              <h1>TCF Canada Training System</h1>
+              <p>Four-skill practice, estimated readiness, and Obsidian-first progress memory.</p>
+            </div>
+            <div class="status-strip" id="statusStrip"></div>
+          </div>
+          <nav class="tabbar" aria-label="Training sections">
+            <button type="button" data-tab="dashboard" class="active">Dashboard</button>
+            <button type="button" data-tab="today">Today</button>
+            <button type="button" data-tab="listening">Listening</button>
+            <button type="button" data-tab="reading">Reading</button>
+            <button type="button" data-tab="writing">Writing</button>
+            <button type="button" data-tab="speaking">Speaking</button>
+            <button type="button" data-tab="mocks">Mocks</button>
+            <button type="button" data-tab="vault">Vault Export</button>
+          </nav>
+        </div>
+      </header>
+
+      <main class="main">
+        <section id="dashboard" class="view active"></section>
+        <section id="today" class="view"></section>
+        <section id="listening" class="view"></section>
+        <section id="reading" class="view"></section>
+        <section id="writing" class="view"></section>
+        <section id="speaking" class="view"></section>
+        <section id="mocks" class="view"></section>
+        <section id="vault" class="view"></section>
+        <p class="footer-note">
+          Training estimates are not official TCF scores. Re-check FEI and IRCC pages before booking the real exam or making immigration decisions.
+        </p>
+      </main>
+    </div>
+    <script src="./tcf-training-system.js"></script>
+  </body>
+</html>

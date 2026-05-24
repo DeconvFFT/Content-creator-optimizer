@@ -1,0 +1,143 @@
+{
+  "updated": "2026-05-18",
+  "project": "agent-studio-system-design",
+  "manifest_type": "process_and_audit_records",
+  "record_count": 15,
+  "records": [
+    {
+      "record_id": "process.objective_coverage_audit",
+      "title": "Objective Coverage Audit",
+      "record_class": "objective_audit",
+      "path": "05-ingestion-runs/objective-coverage-audit.md",
+      "status": "active",
+      "purpose": "Maps the active datastore objective to current evidence, proven coverage, blockers, and non-completion rationale.",
+      "safe_content_policy": "Operational metadata only; no raw source text, transcripts, or long excerpts."
+    },
+    {
+      "record_id": "process.coverage_integrity_audit",
+      "title": "Coverage Integrity Audit",
+      "record_class": "integrity_audit",
+      "path": "05-ingestion-runs/coverage-integrity-audit.md",
+      "status": "active",
+      "purpose": "Checks consistency across source manifests, local chapter records, source-map viewer data, and vault artifact paths.",
+      "safe_content_policy": "Operational metadata only; no raw source text, transcripts, or long excerpts."
+    },
+    {
+      "record_id": "process.source_map_path_integrity_audit",
+      "title": "Source Map Path Integrity Audit",
+      "record_class": "integrity_audit",
+      "path": "05-ingestion-runs/source-map-path-integrity-audit.md",
+      "status": "active",
+      "purpose": "Checks source-map JSON and embedded HTML paths for vault-relative path style and target resolution.",
+      "safe_content_policy": "Operational metadata only; no raw source text, transcripts, or long excerpts."
+    },
+    {
+      "record_id": "process.wiki_link_integrity_audit",
+      "title": "Wiki Link Integrity Audit",
+      "record_class": "integrity_audit",
+      "path": "05-ingestion-runs/wiki-link-integrity-audit.md",
+      "status": "active",
+      "purpose": "Checks Obsidian wiki-link target resolution across Markdown notes.",
+      "safe_content_policy": "Navigation metadata only; not source-canon evidence."
+    },
+    {
+      "record_id": "process.raw_text_excerpt_safety_audit",
+      "title": "Raw Text And Excerpt Safety Audit",
+      "record_class": "safety_audit",
+      "path": "05-ingestion-runs/raw-text-excerpt-safety-audit.md",
+      "status": "active",
+      "purpose": "Checks for raw source payload files, quote-heavy notes, and transcript/book-dump risk signals inside the vault.",
+      "safe_content_policy": "Heuristic safety metadata only; not a legal opinion."
+    },
+    {
+      "record_id": "process.local_book_coverage_granularity",
+      "title": "Local Book Coverage Granularity",
+      "record_class": "coverage_matrix",
+      "path": "05-ingestion-runs/local-book-coverage-granularity.md",
+      "status": "active",
+      "purpose": "Separates chapter-sweep parent books from targeted book-slice notes so downstream agents do not overclaim local-book coverage.",
+      "safe_content_policy": "Coverage metadata only; no raw book text."
+    },
+    {
+      "record_id": "official_open.stanford_current_availability_checks",
+      "title": "Stanford Current Availability Checks",
+      "record_class": "availability_process_note",
+      "path": "05-ingestion-runs/stanford-current-availability-checks.md",
+      "status": "active",
+      "purpose": "Tracks official Stanford public-material availability, future slots, schedule-only entries, and gated video boundaries.",
+      "safe_content_policy": "Availability metadata only; no video transcript or protected material."
+    },
+    {
+      "record_id": "process.stanford_video_source_coverage_matrix",
+      "title": "Stanford Video Source Coverage Matrix",
+      "record_class": "video_source_coverage_matrix",
+      "path": "05-ingestion-runs/stanford-video-source-coverage-matrix.md",
+      "status": "active",
+      "purpose": "Separates public recording visibility, video-ingested status, public notes/slides, schedule-only entries, archive-year playlists, and gated recordings.",
+      "safe_content_policy": "Video-source metadata only; no transcript or timestamp dump."
+    },
+    {
+      "record_id": "official_open.youtube_playlist_worklist",
+      "title": "YouTube Playlist Worklist",
+      "record_class": "official_video_listing_process_note",
+      "path": "01-sources/official-open/youtube-playlist-worklist.md",
+      "status": "active",
+      "purpose": "Tracks official Stanford playlist pointers as navigation aids, not automatic video-understanding evidence.",
+      "safe_content_policy": "Playlist metadata only; no transcript or timestamp dump."
+    },
+    {
+      "record_id": "process.official_open_url_coverage_priority",
+      "title": "Official/Open URL Coverage Priority",
+      "record_class": "url_coverage_process_note",
+      "path": "05-ingestion-runs/official-open-url-coverage-priority.md",
+      "status": "active",
+      "purpose": "Summarizes URL-level coverage state and remaining URL-level priority gaps.",
+      "safe_content_policy": "URL coverage metadata only; no copied webpage content."
+    },
+    {
+      "record_id": "process.obsidian_ingestion_operating_model",
+      "title": "Obsidian Ingestion Operating Model",
+      "record_class": "operating_model",
+      "path": "05-ingestion-runs/obsidian-ingestion-operating-model.md",
+      "status": "active",
+      "purpose": "Defines note-building workflow and guardrails for original synthesis, source attribution, and non-duplication.",
+      "safe_content_policy": "Process guidance only."
+    },
+    {
+      "record_id": "process.next_ingestion_queue",
+      "title": "Next Ingestion Queue",
+      "record_class": "ingestion_queue",
+      "path": "05-ingestion-runs/next-ingestion-queue.md",
+      "status": "active",
+      "purpose": "Machine-readable prioritized queue for blocked, future, optional, deferred, and recurring ingestion work.",
+      "safe_content_policy": "Queue metadata only; not source-canon evidence and no copied source text."
+    },
+    {
+      "record_id": "process.agent_studio_topic_coverage_matrix",
+      "title": "Agent Studio Topic Coverage Matrix",
+      "record_class": "topic_coverage_matrix",
+      "path": "05-ingestion-runs/agent-studio-topic-coverage-matrix.md",
+      "status": "active",
+      "purpose": "Maps Agent Studio architecture domains to canon notes, source families, release gates, and concrete design uses.",
+      "safe_content_policy": "Coverage metadata only; not source-canon evidence and no copied source text."
+    },
+    {
+      "record_id": "process.deferred_local_corpus_queue",
+      "title": "Deferred Local Corpus Queue",
+      "record_class": "deferred_local_queue",
+      "path": "05-ingestion-runs/deferred-local-corpus-queue.md",
+      "status": "active",
+      "purpose": "Tracks deferred, private, and question-backlog local files with allowed actions, trigger conditions, and blocked-by-default canon policy.",
+      "safe_content_policy": "Queue metadata only; no raw local file text or excerpts."
+    },
+    {
+      "record_id": "process.stanford_public_video_ingestion_status",
+      "title": "Stanford Public Video Ingestion Status",
+      "record_class": "video_ingestion_status_manifest",
+      "path": "05-ingestion-runs/stanford-public-video-ingestion-status.md",
+      "status": "active",
+      "purpose": "Tracks official public Stanford CS25 recordings that are visible as YouTube videos, their metadata/caption availability, linked canon notes, and whether direct full-video watching has actually occurred.",
+      "safe_content_policy": "Availability and metadata only; no video download, raw transcript, comments, timestamp dump, or long excerpt. Captions/transcripts/comments are not substitutes for watched-video coverage."
+    }
+  ]
+}

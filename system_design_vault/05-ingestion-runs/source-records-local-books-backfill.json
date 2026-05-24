@@ -1,0 +1,914 @@
+{
+  "manifest_type": "source_record_backfill",
+  "project": "agent-studio-system-design",
+  "status": "active",
+  "created_at": "2026-05-17",
+  "scope": "local_book_corpus",
+  "local_folder": "/Users/saumyamehta/DS interview prep/books",
+  "source_record_contract": "system_design_vault/04-agent-studio-implications/Datastore Schema - Agent Studio Source and Route Ledger.md",
+  "policy": {
+    "stores_raw_source_text": false,
+    "stores_long_excerpts": false,
+    "allowed_file_types": [
+      "pdf",
+      "jpg",
+      "jpeg",
+      "doc",
+      "docx"
+    ],
+    "rights_default": "user_provided_local",
+    "shadow_library_rule": "Block if filename or metadata explicitly indicates Anna's Archive, LibGen, Z-Library, EBooksWorld, or another shadow-library/export origin.",
+    "notes": "This manifest backfills the current local corpus into source_record-shaped entries. It records file identity, relevance, status, safe notes strategy, and existing vault coverage only."
+  },
+  "records": [
+    {
+      "source_id": "local_books.machine_learning_for_absolute_beginners",
+      "title": "Machine Learning for Absolute Beginners",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/0812_Machine-Learning-for-Absolute-Beginners.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "low",
+      "status": "defer",
+      "safe_notes_strategy": "Use only for beginner-facing explanations if needed; not system-design canon.",
+      "filename": "0812_Machine-Learning-for-Absolute-Beginners.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/0812_Machine-Learning-for-Absolute-Beginners.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.ai_engineering",
+      "title": "AI Engineering",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/AI Engineering.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "critical",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Use as canonical AI Engineering copy; compact chapter synthesis and Agent Studio implications only.",
+      "existing_manifest": "system_design_vault/05-ingestion-runs/ai-engineering-manifest.json",
+      "existing_notes": [
+        "system_design_vault/02-books/ai-engineering/chapters/1-introduction-to-building-ai-applications-with-foundation-models.md",
+        "system_design_vault/02-books/ai-engineering/chapters/2-understanding-foundation-models.md",
+        "system_design_vault/02-books/ai-engineering/chapters/3-evaluation-methodology.md",
+        "system_design_vault/02-books/ai-engineering/chapters/4-evaluate-ai-systems.md",
+        "system_design_vault/02-books/ai-engineering/chapters/5-prompt-engineering.md",
+        "system_design_vault/02-books/ai-engineering/chapters/6-rag-and-agents.md",
+        "system_design_vault/02-books/ai-engineering/chapters/7-finetuning.md",
+        "system_design_vault/02-books/ai-engineering/chapters/8-dataset-engineering.md",
+        "system_design_vault/02-books/ai-engineering/chapters/9-inference-optimization.md",
+        "system_design_vault/02-books/ai-engineering/chapters/10-ai-engineering-architecture-and-user-feedback.md"
+      ],
+      "duplicate_policy": "Preferred over duplicate Chip Huyen AI Engineering filename unless user selects otherwise.",
+      "existing_cross_check": "system_design_vault/01-sources/official-open/ai-engineering-cross-check.md",
+      "filename": "AI Engineering.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/AI Engineering.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.applied_ml_and_ai_for_engineers",
+      "title": "Applied Machine Learning and AI for Engineers",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Applied-Machine-Learning-and-AI-for-Engineers.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book applied ML route slice. Direct-read synthesis now includes Chapter 14 deepening for managed AI services, OCR route choices, moderation semantics, container/privacy tradeoffs, provider drift, Chapter 4 deepening for sparse text vectorization contracts, Count/TF-IDF/Hashing tradeoffs, Naive Bayes versus Logistic Regression baselines, threshold semantics, sklearn persistence constraints, Chapter 8 deepening for multilayer-perceptron structure, activation-driven nonlinearity, training-versus-inference asymmetry, optimization difficulty, and compute-aware neural-route review, Chapter 9 deepening for TensorFlow/Keras workflow contracts, validation policy, width/depth tradeoffs, output-head/loss alignment, and imbalanced-class evaluation, Chapter 12 canon-ready coverage for detector-output contracts, NMS/IoU threshold and reproducibility behavior, ONNX/runtime decode ownership, and custom object-detection export constraints, Chapter 11 deepening for identity-sensitive face-pipeline design, open-set rejection, and biometric-governance release controls, and Chapter 13 deepening for tokenizer/vectorizer state, sequence-length and masking contracts, retriever-reader QA, translation generation, and pretrained-encoder economics. Store only original notes, not raw book text.",
+      "official_source_urls": [
+        "https://www.oreilly.com/library/view/applied-machine-learning/9781492098041/",
+        "http://oreilly.com/catalog/errata.csp?isbn=9781492098058",
+        "https://github.com/jeffprosise/Applied-Machine-Learning"
+      ],
+      "existing_vault_coverage": {
+        "note_path": "system_design_vault/02-books/applied-ml-ai-engineers/applied-ml-engineering-patterns.md",
+        "coverage_status": "canon_ready",
+        "coverage_summary": "Canon-ready applied ML engineering patterns plus Chapter 14 managed-AI deepening for service-boundary/versioning decisions, OCR route selection, moderation semantics, container/privacy posture, provider drift, Chapter 4 text-classification deepening for sparse vectorization contracts, Count/TF-IDF/Hashing tradeoffs, Naive Bayes versus Logistic Regression baselines, threshold semantics, and sklearn pipeline persistence, Chapter 5 SVM deepening for maximum-margin geometry, kernel choice, coupled C/gamma tuning, scaling/pipeline parity, multiclass strategy, and probability-calibration caveats, Chapter 8 deep-learning-foundation deepening for multilayer-perceptron structure, weights/biases, activation-driven nonlinearity, forward propagation, optimization difficulty, and compute-aware neural-route review, Chapter 9 neural-network workflow deepening for TensorFlow/Keras role boundaries, Sequential API topology, compile/fit/predict contracts, validation policy, output-head/loss alignment, and imbalanced-class evaluation, Chapter 12 canon-ready object-detection deepening for detector-output contracts, NMS/IoU threshold behavior, R-CNN-family versus YOLOv3 tradeoffs, ONNX/runtime decode ownership, and custom-detector export constraints, Chapter 11 face-pipeline deepening for detector choice, crop/alignment, face-specific transfer learning, open-set identity handling, and biometric-governance constraints, and Chapter 13 NLP deepening for tokenizer/vectorizer state, sequence-length and masking contracts, embedding choice, QA/translation route structure, and pretrained-encoder economics.",
+        "chapter_note_path": "system_design_vault/02-books/applied-ml-ai-engineers/chapters/14-managed-ai-services-ocr-moderation-route-contracts.md",
+        "chapter_note_paths": [
+          "system_design_vault/02-books/applied-ml-ai-engineers/chapters/14-managed-ai-services-ocr-moderation-route-contracts.md",
+          "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch11-face-detection-and-recognition.md",
+          "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch08-deep-learning-foundations.md",
+          "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch04-text-classification.md",
+          "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch05-support-vector-machines.md",
+          "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch09-neural-networks-with-keras.md",
+          "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch12-object-detection.md",
+          "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch13-natural-language-processing.md"
+        ]
+      },
+      "filename": "Applied-Machine-Learning-and-AI-for-Engineers.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Applied-Machine-Learning-and-AI-for-Engineers.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.aima",
+      "title": "Artificial Intelligence: A Modern Approach",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Artificial Intelligence. A modern approach (Stuart Russell  Peter Norvig).pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready Agent Studio slice captured Chapter 2 task-environment and agent-architecture contracts, Chapter 4 partial-observability/online-search controls, Chapter 5 adversarial-search/game-surface controls, Chapter 6 constraint-satisfaction route feasibility controls, Chapter 11 automated-planning action-schema and scheduling controls, Chapter 17 sequential decisions, and Chapter 18 multiagent decision mechanisms. Do not store raw book text.",
+      "existing_vault_coverage": [
+        "system_design_vault/02-books/aima/agent-planning-foundations.md",
+        "system_design_vault/02-books/aima/chapters/2-intelligent-agents.md",
+        "system_design_vault/02-books/aima/chapters/4-search-in-complex-environments.md",
+        "system_design_vault/02-books/aima/chapters/5-adversarial-search-and-games.md",
+        "system_design_vault/02-books/aima/chapters/6-constraint-satisfaction-problems.md",
+        "system_design_vault/02-books/aima/chapters/11-automated-planning.md",
+        "system_design_vault/02-books/aima/chapters/17-making-complex-decisions.md",
+        "system_design_vault/02-books/aima/chapters/18-multiagent-decision-making.md"
+      ],
+      "coverage_notes": "Agent/planning/search foundation note promoted to canon-ready slice; Chapter 2 adds intelligent-agent coverage; Chapter 4 adds complex-environment search coverage; Chapter 5 adds adversarial-search coverage; Chapter 6 adds constraint-satisfaction route-feasibility coverage; Chapter 11 adds automated-planning coverage for action schemas, preconditions/effects, planner-mode decisions, HTN refinements, abstract reachability, contingent branches, online execution monitoring, temporal/resource schedules, and planning release gates. Chapter 17 adds sequential decision coverage. Chapter 18 adds multiagent decision coverage. Not a full-book summary.",
+      "filename": "Artificial Intelligence. A modern approach (Stuart Russell  Peter Norvig).pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Artificial Intelligence. A modern approach (Stuart Russell  Peter Norvig).pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.bishop_prml",
+      "title": "Pattern Recognition and Machine Learning",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf",
+      "file_type": "pdf",
+      "rights_status": "official_or_open_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book probabilistic decision and graphical-model slice for Bayesian uncertainty, expected-loss decisions, reject/abstain options, conditional independence, d-separation, factor graphs, Markov blankets, graph-message traces, approximation caveats, graph-structure candidates, and graph-route release gates.",
+      "existing_vault_coverage": [
+        {
+          "note_path": "system_design_vault/02-books/prml/probabilistic-decision-graphical-models.md",
+          "coverage_status": "canon_ready",
+          "coverage_scope": "probabilistic decisions, Bayesian uncertainty, expected-loss policy, reject/abstain options, conditional independence, graph messages, failure hypotheses, and uncertainty-decision release gates"
+        },
+        {
+          "note_path": "system_design_vault/02-books/prml/chapters/8-graphical-models-route-evidence.md",
+          "coverage_status": "canon_ready",
+          "coverage_scope": "Chapter 8 graphical-model factorization, d-separation, Markov blankets, factor graphs, message passing, loopy approximation caveats, graph-structure candidates, and graph-route release gates"
+        }
+      ],
+      "official_source_urls": [
+        "https://www.microsoft.com/en-us/research/?p=231646",
+        "https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf"
+      ],
+      "filename": "Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf",
+      "file_extension": "pdf",
+      "coverage_granularity": "targeted_book_slice_with_chapter_notes",
+      "chapter_note_count": 1,
+      "chapter_notes": [
+        "system_design_vault/02-books/prml/chapters/8-graphical-models-route-evidence.md"
+      ],
+      "coverage_notes": "Chapter 8 now has chapter-level graph-semantics coverage. Broader PRML coverage remains targeted to probability, decision theory, uncertainty, and graphical-model material relevant to Agent Studio rather than a full-book sweep."
+    },
+    {
+      "source_id": "local_books.build_llm_from_scratch",
+      "title": "Build a Large Language Model From Scratch",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Build a Large Language Model (From Scratch).pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "high",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Use for tokenizer, transformer, training/inference, and implementation-intuition notes.",
+      "existing_manifest": "system_design_vault/05-ingestion-runs/build-llm-from-scratch-manifest.json",
+      "existing_notes": [
+        "system_design_vault/02-books/build-llm-from-scratch/chapters/1-understanding-large-language-models.md",
+        "system_design_vault/02-books/build-llm-from-scratch/chapters/2-working-with-text-data.md",
+        "system_design_vault/02-books/build-llm-from-scratch/chapters/3-coding-attention-mechanisms.md",
+        "system_design_vault/02-books/build-llm-from-scratch/chapters/4-implementing-a-gpt-model-from-scratch-to-generate-text.md",
+        "system_design_vault/02-books/build-llm-from-scratch/chapters/5-pretraining-on-unlabeled-data.md",
+        "system_design_vault/02-books/build-llm-from-scratch/chapters/6-fine-tuning-for-classification.md",
+        "system_design_vault/02-books/build-llm-from-scratch/chapters/7-fine-tuning-to-follow-instructions.md"
+      ],
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/build-llm-from-scratch-cross-check.md",
+      "filename": "Build a Large Language Model (From Scratch).pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Build a Large Language Model (From Scratch).pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.ai_engineering_duplicate_chip_huyen",
+      "title": "AI Engineering - Duplicate Candidate",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Chip Huyen - AI Engineering_ Building Applications with Foundation Models (2025, O'Reilly Media).pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local_duplicate",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "critical",
+      "status": "avoid_double_ingestion",
+      "safe_notes_strategy": "Do not ingest separately unless needed to resolve differences from AI Engineering.pdf.",
+      "duplicate_of_source_id": "local_books.ai_engineering",
+      "filename": "Chip Huyen - AI Engineering_ Building Applications with Foundation Models (2025, O'Reilly Media).pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Chip Huyen - AI Engineering_ Building Applications with Foundation Models (2025, O'Reilly Media).pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.recommendation_system_metrics",
+      "title": "Comprehensive Guide to Recommendation System Metrics",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Comprehensive Guide to Recommendation System Metri.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready full short-document pass over the 9-page local PDF for Precision/Recall@K, HitRate, MRR, MAP, NDCG, coverage, diversity, novelty, serendipity, online feedback, adaptive-system metrics, source coverage, ranking bias, and ranking-quality release gates.",
+      "existing_vault_coverage": {
+        "note_path": "system_design_vault/02-books/recommendation-system-metrics/ranking-and-recommendation-eval.md",
+        "coverage_status": "canon_ready",
+        "agent_studio_implications": [
+          "ranking_eval_case",
+          "relevance_judgment",
+          "ranking_list_snapshot",
+          "ranking_metric_result",
+          "source_coverage_metric",
+          "coverage_diversity_metric",
+          "ranking_bias_record",
+          "online_feedback_metric",
+          "ranking_quality_release_gate"
+        ],
+        "coverage_granularity": "full_short_document_pass",
+        "coverage_summary": "Full short-document direct-read synthesis from all 9 pages; no raw extracted text stored."
+      },
+      "official_source_urls": [
+        "https://www.tensorflow.org/ranking",
+        "https://www.tensorflow.org/recommenders/examples/listwise_ranking",
+        "https://www.microsoft.com/en-us/research/publication/evaluating-recommender-systems/"
+      ],
+      "filename": "Comprehensive Guide to Recommendation System Metri.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Comprehensive Guide to Recommendation System Metri.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.data_scientist_interview_prep",
+      "title": "Data Scientist Interview Prep V5",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Data Scientist Interview Prep_V5.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_private_notes",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "low",
+      "status": "defer_private_notes",
+      "safe_notes_strategy": "Do not treat as source canon unless user explicitly asks.",
+      "filename": "Data Scientist Interview Prep_V5.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Data Scientist Interview Prep_V5.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.deep_learning_goodfellow_bengio_courville",
+      "title": "Deep Learning",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Deep Learning by Ian Goodfellow, Yoshua Bengio, Aaron Courville.pdf",
+      "file_type": "pdf",
+      "rights_status": "official_or_open_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book foundation slice for numerical stability, capacity/generalization, validation, regularization, convolutional priors for spatial routes, sequence/memory limits, long-dependency controls, gated and explicit-memory design, attention as differentiable addressing, optimization-policy evidence, practical methodology, regularization-policy evidence, convnet-prior release-gate evidence, metric targets, baselines, bottleneck diagnosis, debug fixtures, worst-error reviews, coverage/accuracy policies, methodology release gates, optimization release gates, sequence-memory release gates, attention-memory release gates, and capacity-optimization release gates.",
+      "existing_vault_coverage": [
+        "system_design_vault/02-books/deep-learning-book/generalization-optimization-sequence-systems.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/7-regularization-for-deep-learning.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/8-optimization-for-training-deep-models.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/9-convolutional-networks-core-mechanics.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/10-sequence-modeling-long-dependency-controls.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/10-explicit-memory-attention-as-differentiable-addressing.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/11-practical-methodology.md"
+      ],
+      "official_source_urls": [
+        "https://www.deeplearningbook.org/",
+        "https://www.deeplearningbook.org/contents/TOC.html"
+      ],
+      "filename": "Deep Learning by Ian Goodfellow, Yoshua Bengio, Aaron Courville.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Deep Learning by Ian Goodfellow, Yoshua Bengio, Aaron Courville.pdf",
+      "file_extension": "pdf",
+      "coverage_granularity": "targeted_book_slice_with_chapter_notes",
+      "chapter_note_count": 6,
+      "chapter_notes": [
+        "system_design_vault/02-books/deep-learning-book/chapters/7-regularization-for-deep-learning.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/8-optimization-for-training-deep-models.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/9-convolutional-networks-core-mechanics.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/10-sequence-modeling-long-dependency-controls.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/10-explicit-memory-attention-as-differentiable-addressing.md",
+        "system_design_vault/02-books/deep-learning-book/chapters/11-practical-methodology.md"
+      ]
+    },
+    {
+      "source_id": "local_books.designing_machine_learning_systems",
+      "title": "Designing Machine Learning Systems",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Designing machine learning systems - an iterative process.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "critical",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Use for ML system framing, data/label pipelines, monitoring, drift, feedback loops, and eval discipline.",
+      "existing_manifest": "system_design_vault/05-ingestion-runs/designing-machine-learning-systems-manifest.json",
+      "existing_cross_check": "system_design_vault/01-sources/official-open/designing-machine-learning-systems-cross-check.md",
+      "filename": "Designing machine learning systems - an iterative process.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Designing machine learning systems - an iterative process.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.gans_in_action",
+      "title": "GANs in Action",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Gans-in-action-deep-learning-with-generative-adversarial-networks.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book GAN synthetic media control slice plus focused Chapter 10 adversarial-examples follow-through for gradient-based perturbations, transferability, preprocessing fragility, adversarial-training limits, and classifier-mediated visual-route robustness gates. No raw text or copied code stored.",
+      "existing_note": "system_design_vault/02-books/gans-in-action/gan-synthetic-media-controls.md",
+      "chapter_note_paths": [
+        "system_design_vault/02-books/gans-in-action/chapters/ch10-adversarial-examples-transferability-and-robustness-gates.md"
+      ],
+      "filename": "Gans-in-action-deep-learning-with-generative-adversarial-networks.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Gans-in-action-deep-learning-with-generative-adversarial-networks.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.generative_ai_and_llms_for_dummies",
+      "title": "Generative AI and LLMs for Dummies",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Generative-AI-and-LLMs-for-Dummies.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "low_medium",
+      "status": "defer",
+      "safe_notes_strategy": "Use for glossary/background only.",
+      "filename": "Generative-AI-and-LLMs-for-Dummies.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Generative-AI-and-LLMs-for-Dummies.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.generative_deep_learning",
+      "title": "Generative Deep Learning",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Generative-Deep-Learning.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "low_medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book generative model route slice. Direct-read synthesis captures generative model taxonomy, diffusion and latent-diffusion sampling controls, symbolic music tokenization contracts, multimodal bridge patterns, world-model simulation risks, music/audio representations, originality checks, and the generative_model_route_release_gate; do not store raw book text or copied code.",
+      "existing_vault_coverage": {
+        "status": "canon_ready",
+        "note_path": "system_design_vault/02-books/generative-deep-learning/generative-model-taxonomy-and-multimodal-controls.md",
+        "coverage_summary": "Canon-ready direct local-PDF synthesis covering model-family route contracts, diffusion sampling records, symbolic music tokenization contracts, multimodal bridge patterns, world-model simulation risks, music/audio representations, originality checks, and the generative_model_route_release_gate; chapter-level deepening now covers Chapters 3-4, 5, 6, 7, 8, 10, 11, 12, and 13 for VAE/GAN mechanics, autoregressive models, normalizing flows, energy-based models, diffusion, advanced GAN tokenized-media controls, symbolic music tokenization, world-model latent simulation, and multimodal bridge architectures."
+      },
+      "filename": "Generative-Deep-Learning.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Generative-Deep-Learning.pdf",
+      "file_extension": "pdf",
+      "official_source_urls": [
+        "https://www.oreilly.com/library/view/generative-deep-learning/9781098134174/"
+      ],
+      "coverage_granularity": "targeted_book_slice_with_chapter_notes",
+      "chapter_note_count": 9,
+      "chapter_notes": [
+        "system_design_vault/02-books/generative-deep-learning/chapters/3-4-vae-gan-mechanics-latent-traversal.md",
+        "system_design_vault/02-books/generative-deep-learning/chapters/ch05-autoregressive-models.md",
+        "system_design_vault/02-books/generative-deep-learning/chapters/ch06-normalizing-flows.md",
+        "system_design_vault/02-books/generative-deep-learning/chapters/ch07-energy-based-models.md",
+        "system_design_vault/02-books/generative-deep-learning/chapters/ch08-diffusion-models.md",
+        "system_design_vault/02-books/generative-deep-learning/chapters/ch10-advanced-gans-style-control-tokenized-media.md",
+        "system_design_vault/02-books/generative-deep-learning/chapters/ch11-music-tokenization-symbolic-route-controls.md",
+        "system_design_vault/02-books/generative-deep-learning/chapters/ch12-world-models-latent-simulation-release-gates.md",
+        "system_design_vault/02-books/generative-deep-learning/chapters/ch13-multimodal-models-bridge-patterns.md"
+      ]
+    },
+    {
+      "source_id": "local_books.hands_on_generative_ai_transformers_diffusion",
+      "title": "Hands-On Generative AI with Transformers and Diffusion",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Hands-On Generative AI with Transformers and Diffusion.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book generative media pipeline slice. Direct-read synthesis captures generative media pipeline contracts, Chapter 6 limited-hardware language-model adaptation and runtime-gate detail, diffusion controls, adaptation methods, Chapter 7 Stable Diffusion adaptation workflow and release-gate detail, chapter-level controllable-image-editing and audio-route deepening, video-governance and multimodal frontier coverage, Appendix C RAG retrieval-runtime deepening, Appendix A/B open-model serving runtime-fit and deployment-surface coverage, runtime fit, voice/originality governance, and the generative-media release gates; do not store raw book text or copied code.",
+      "existing_vault_coverage": {
+        "status": "canon_ready",
+        "note_path": "system_design_vault/02-books/hands-on-generative-ai/generative-media-pipelines.md",
+        "coverage_summary": "Canon-ready generative media pipeline synthesis from direct local PDF reading with official O'Reilly, companion GitHub, and Hugging Face provenance cross-check; adds pipeline trace, controls/adapters, adaptation rights, audio/voice consent, local runtime, watermark/provenance, safety/rights, fallback, and rollback controls."
+      },
+      "official_source_urls": [
+        "https://www.oreilly.com/library/view/hands-on-generative-ai/9781098149239/",
+        "https://github.com/genaibook/genaibook",
+        "https://huggingface.co/genaibook"
+      ],
+      "filename": "Hands-On Generative AI with Transformers and Diffusion.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Hands-On Generative AI with Transformers and Diffusion.pdf",
+      "file_extension": "pdf",
+      "coverage_granularity": "targeted_book_slice_with_chapter_notes",
+      "chapter_note_count": 7,
+      "chapter_notes": [
+        "system_design_vault/02-books/hands-on-generative-ai/chapters/6-language-model-fine-tuning-peft-quantization-runtime-gates.md",
+        "system_design_vault/02-books/hands-on-generative-ai/chapters/7-stable-diffusion-adaptation-dreambooth-lora-release-gates.md",
+        "system_design_vault/02-books/hands-on-generative-ai/chapters/8-controllable-image-editing-controlnet-ip-adapter-runtime-gates.md",
+        "system_design_vault/02-books/hands-on-generative-ai/chapters/9-generating-audio-route-contracts-evaluation.md",
+        "system_design_vault/02-books/hands-on-generative-ai/chapters/10-video-generation-governance-multimodal-frontier.md",
+        "system_design_vault/02-books/hands-on-generative-ai/chapters/appendix-c-rag-pipeline-retrieval-runtime-gates.md",
+        "system_design_vault/02-books/hands-on-generative-ai/chapters/appendix-a-b-open-model-serving-runtime-fit.md"
+      ]
+    },
+    {
+      "source_id": "local_books.amazon_interview_docx",
+      "title": "How to Excel During an Amazon Interview",
+      "source_class": "local_docx",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/How to excel during an Amazon interview.docx",
+      "file_type": "docx",
+      "rights_status": "user_private_notes",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "low",
+      "status": "defer_private_notes",
+      "safe_notes_strategy": "Not part of Agent Studio system-design canon unless explicitly requested.",
+      "filename": "How to excel during an Amazon interview.docx",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/How to excel during an Amazon interview.docx",
+      "file_extension": "docx"
+    },
+    {
+      "source_id": "local_books.islp",
+      "title": "Introduction to Statistical Learning",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/ISLP_website.pdf",
+      "file_type": "pdf",
+      "rights_status": "official_or_open_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book validation and classification-decision slice for model accuracy, classification thresholds, confusion matrices, class-specific metrics, ROC/AUC caveats, cross-validation, bootstrap, model-selection validation, split labeling, selection-versus-assessment separation, metric uncertainty, validation reuse, classification-decision gates, and selection-assessment release gates.",
+      "existing_vault_coverage": [
+        "system_design_vault/02-books/islp/statistical-learning-validation.md",
+        "system_design_vault/02-books/islp/chapters/4-classification-decision-thresholds.md"
+      ],
+      "official_source_urls": [
+        "https://www.statlearning.com/",
+        "https://islp.readthedocs.io/"
+      ],
+      "filename": "ISLP_website.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/ISLP_website.pdf",
+      "file_extension": "pdf",
+      "coverage_granularity": "targeted_book_slice_with_chapter_notes",
+      "chapter_note_count": 1,
+      "chapter_notes": [
+        "system_design_vault/02-books/islp/chapters/4-classification-decision-thresholds.md"
+      ]
+    },
+    {
+      "source_id": "local_books.inference_engineering",
+      "title": "Inference Engineering",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Inference Engineering.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "critical",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Use for inference runtime, serving, latency budgets, hardware/runtime/tooling split, and reliability patterns.",
+      "existing_manifest": "system_design_vault/05-ingestion-runs/inference-engineering-manifest.json",
+      "existing_cross_check": "system_design_vault/01-sources/official-open/inference-engineering-cross-check.md",
+      "existing_notes": [
+        "system_design_vault/02-books/inference-engineering/chapters/0-inference.md",
+        "system_design_vault/02-books/inference-engineering/chapters/1-prerequisites.md",
+        "system_design_vault/02-books/inference-engineering/chapters/2-models.md",
+        "system_design_vault/02-books/inference-engineering/chapters/3-hardware.md",
+        "system_design_vault/02-books/inference-engineering/chapters/4-software.md",
+        "system_design_vault/02-books/inference-engineering/chapters/5-techniques.md",
+        "system_design_vault/02-books/inference-engineering/chapters/6-modalities.md",
+        "system_design_vault/02-books/inference-engineering/chapters/7-production.md"
+      ],
+      "filename": "Inference Engineering.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Inference Engineering.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.llm_engineers_handbook",
+      "title": "LLM Engineers Handbook",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/LLM Engineers Handbook.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "critical",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Use for practical LLMOps, RAG system structure, deployment, monitoring, testing, and production handoff patterns.",
+      "existing_manifest": "system_design_vault/05-ingestion-runs/llm-engineers-handbook-manifest.json",
+      "existing_cross_check": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md",
+      "filename": "LLM Engineers Handbook.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/LLM Engineers Handbook.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.llm_questions",
+      "title": "LLM Questions",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/LLM Questions.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_private_notes",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "question_backlog_ready",
+      "safe_notes_strategy": "Converted into an LLM concept coverage and eval/review backlog only; do not use as factual source canon or answer evidence.",
+      "existing_vault_coverage": {
+        "status": "question_backlog_ready",
+        "note_path": "system_design_vault/05-ingestion-runs/question-backlogs/llm-questions-eval-backlog.md",
+        "coverage_summary": "Private local interview-question handout read directly and converted into concept coverage clusters and Agent Studio eval backlog items; no raw questions or answers stored as canon."
+      },
+      "filename": "LLM Questions.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/LLM Questions.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.probabilistic_ml",
+      "title": "Machine Learning: A Probabilistic Perspective",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/ML Machine Learning-A Probabilistic Perspective.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book adaptive-inference slice for probabilistic ML uncertainty, calibration, model evidence, online learning/regret, ranking exposure, graph authority, belief-state snapshots, candidate-diversity diagnostics, and adaptive-belief-state release gates.",
+      "existing_vault_coverage": {
+        "status": "canon_ready",
+        "note_path": "system_design_vault/02-books/probabilistic-ml/uncertainty-ranking-online-inference.md",
+        "coverage_scope": "posterior predictive uncertainty, Bayesian evidence, online learning/regret, ranking, PageRank/Markov ranking, HMM/state-space inference, particle-filter diagnostics, and adaptive-belief-state release gates"
+      },
+      "filename": "ML Machine Learning-A Probabilistic Perspective.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/ML Machine Learning-A Probabilistic Perspective.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.ml_math",
+      "title": "ML Math",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/ML Math.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local_official_free_pdf",
+      "provenance_status": "official_book_site_free_pdf_verified",
+      "relevance": "low_medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready compact original synthesis only. Captures metric policy, representation transforms, optimization objectives, route optimization steps, stochastic evidence batches, optimization constraints, convergence diagnostics, tradeoff records, uncertainty models, validation splits, latent assignments, decision margins, math_assumption_release_gate, and route_optimization_release_gate controls; do not store raw book text, proofs, formulas, or exercises.",
+      "existing_vault_coverage": [
+        {
+          "note_path": "system_design_vault/02-books/math-for-ml/math-foundations-for-agent-studio.md",
+          "coverage_status": "canon_ready",
+          "coverage_scope": "metric policy, representation transforms, optimization objectives, uncertainty models, validation splits, latent assignments, decision margins, and math-assumption gates"
+        },
+        {
+          "note_path": "system_design_vault/02-books/math-for-ml/chapters/7-continuous-optimization-route-tuning.md",
+          "coverage_status": "canon_ready",
+          "coverage_scope": "Chapter 7 continuous optimization, gradient descent, step-size policy, SGD evidence, constraints, convexity, duality, optimization tradeoffs, convergence diagnostics, and route-optimization release gates"
+        }
+      ],
+      "official_source_url": "https://mml-book.github.io/",
+      "design_implications": [
+        "metric_policy_record",
+        "representation_transform_record",
+        "optimization_objective_record",
+        "uncertainty_model_record",
+        "validation_split_record",
+        "latent_assignment_record",
+        "decision_margin_record",
+        "math_assumption_release_gate",
+        "route_optimization_run",
+        "optimization_step_record",
+        "optimization_signal_batch",
+        "optimization_constraint_record",
+        "constraint_violation_record",
+        "optimization_convergence_record",
+        "optimization_tradeoff_record",
+        "route_optimization_release_gate"
+      ],
+      "filename": "ML Math.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/ML Math.pdf",
+      "file_extension": "pdf",
+      "coverage_granularity": "targeted_book_slice_with_chapter_notes",
+      "chapter_note_count": 1,
+      "chapter_notes": [
+        "system_design_vault/02-books/math-for-ml/chapters/7-continuous-optimization-route-tuning.md"
+      ],
+      "coverage_notes": "Chapter 7 now has chapter-level route-optimization coverage. Broader ML Math coverage remains targeted to mathematical assumptions relevant to Agent Studio rather than a full-book sweep."
+    },
+    {
+      "source_id": "local_books.ml_with_pytorch_and_scikit_learn",
+      "title": "Machine Learning with PyTorch and Scikit-Learn",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Machine.Learning.with.PyTorch.and.Scikit-Learn.Sebastian.Raschka.Packt.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book implementation route slice for preprocessing pipeline discipline, classical baselines, raw PyTorch data/loop/checkpoint mechanics, Lightning-structured training traces, transformer/GNN support routes, RL-style eval environments, and the implementation_route_release_gate, now with Chapter 12 direct-read deepening for Dataset/DataLoader semantics, manual-loop and checkpoint behavior, plus Chapter 13 deepening for Lightning trainer structure, split lineage, checkpoint resume, experiment logs, and bounded reproducibility. No raw text or copied code stored.",
+      "existing_vault_coverage": [
+        "system_design_vault/02-books/ml-with-pytorch-scikit-learn/implementation-route-patterns.md",
+        "system_design_vault/02-books/ml-with-pytorch-scikit-learn/chapters/12-raw-pytorch-dataloaders-training-loops-and-checkpoints.md",
+        "system_design_vault/02-books/ml-with-pytorch-scikit-learn/chapters/13-lightning-training-loop-checkpoint-experiment-structure.md"
+      ],
+      "official_source_urls": [
+        "https://www.packtpub.com/en-us/product/machine-learning-with-pytorch-and-scikit-learn-9781801819312",
+        "https://sebastianraschka.com/books/machine-learning-with-pytorch-and-scikit-learn/"
+      ],
+      "filename": "Machine.Learning.with.PyTorch.and.Scikit-Learn.Sebastian.Raschka.Packt.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Machine.Learning.with.PyTorch.and.Scikit-Learn.Sebastian.Raschka.Packt.pdf",
+      "file_extension": "pdf",
+      "coverage_granularity": "targeted_book_slice_with_chapter_notes",
+      "chapter_note_count": 2,
+      "chapter_notes": [
+        "system_design_vault/02-books/ml-with-pytorch-scikit-learn/chapters/12-raw-pytorch-dataloaders-training-loops-and-checkpoints.md",
+        "system_design_vault/02-books/ml-with-pytorch-scikit-learn/chapters/13-lightning-training-loop-checkpoint-experiment-structure.md"
+      ]
+    },
+    {
+      "source_id": "local_books.nlp_with_transformer_models",
+      "title": "NLP with Transformer Models",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/NLP with Transformer models.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Chapters 7 and 8 now have canon-ready chapter-level synthesis for QA/RAG pipeline design, answer windows, no-answer policy, retriever/reader/pipeline evaluation, domain adaptation, generative RAG, transformer deployment benchmarking, distillation, quantization, ONNX/runtime export, pruning, and compression release gates; broader targeted source note covers task pipelines, tokenization/context, generated-text metrics, few/no-label adaptation, pretraining, and future directions. Do not store raw book text.",
+      "existing_vault_coverage": {
+        "status": "canon_ready",
+        "note_path": "system_design_vault/02-books/nlp-with-transformers/transformer-applications-production.md",
+        "coverage_summary": "Natural Language Processing with Transformers synthesis from direct local PDF reading, with Chapters 7 and 8 split into canon-ready chapter notes for QA/RAG implementation and production efficiency/serving release gates."
+      },
+      "official_source_urls": [
+        "https://www.oreilly.com/library/view/natural-language-processing/9781098136789/",
+        "https://github.com/nlp-with-transformers/notebooks"
+      ],
+      "filename": "NLP with Transformer models.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/NLP with Transformer models.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.nlpbook",
+      "title": "Speech and Language Processing",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/NLPbook.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Chapters 14, 15, 16, 20, and 23 now have canon-ready chapter-level synthesis for QA/IR/RAG, dialogue systems, ASR/TTS, information extraction over relations/events/time/templates, coreference, and entity linking. Promoted after official OpenAI, Google Cloud, spaCy, and Stanford CoreNLP cross-check. Do not store raw book text.",
+      "existing_vault_coverage": {
+        "status": "canon_ready",
+        "note_path": "system_design_vault/02-books/speech-language-processing/rag-dialogue-speech-ie.md",
+        "coverage_summary": "Speech and Language Processing synthesis from direct local PDF reading of chapters 14, 15, 16, 20, and 23, with all five targeted chapters split into canon-ready chapter notes; cross-checked against official runtime docs."
+      },
+      "official_source_urls": [
+        "https://web.stanford.edu/~jurafsky/slp3/"
+      ],
+      "filename": "NLPbook.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/NLPbook.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.pcgrad_neurips_2020",
+      "title": "Gradient Surgery for Multi-Task Learning",
+      "source_class": "local_paper_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/NeurIPS-2020-gradient-surgery-for-multi-task-learning-Paper.pdf",
+      "file_type": "pdf",
+      "rights_status": "open_paper_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "out_of_scope",
+      "status": "exclude",
+      "safe_notes_strategy": "Do not ingest for Agent Studio; out of scope per user. Keep only as local file-parity inventory.",
+      "filename": "NeurIPS-2020-gradient-surgery-for-multi-task-learning-Paper.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/NeurIPS-2020-gradient-surgery-for-multi-task-learning-Paper.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.practical_mlops",
+      "title": "Practical MLOps",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Practical MLOps_ Operationalizing Machine Learning Models.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "high",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Use for CI/CD, MLOps maturity, operational excellence, deployment, monitoring, and governance.",
+      "existing_manifest": "system_design_vault/05-ingestion-runs/practical-mlops-manifest.json",
+      "existing_cross_check": "system_design_vault/01-sources/official-open/practical-mlops-cross-check.md",
+      "filename": "Practical MLOps_ Operationalizing Machine Learning Models.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Practical MLOps_ Operationalizing Machine Learning Models.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.probabilistic_ml_advanced_topics",
+      "title": "Probabilistic Machine Learning: Advanced Topics",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Probabilistic Machine Learning Advanced Topics.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book approximation and shift slice. Direct-read synthesis now includes Chapter 20 deepening for typed shift diagnosis, OOD detection and abstention policy, cross-distribution adaptation caveats, continual-learning retention tradeoffs, adversarial threat-model evidence, and the approximation_shift_release_gate; do not store raw book text or derivation dumps.",
+      "existing_vault_coverage": {
+        "status": "canon_ready",
+        "note_path": "system_design_vault/02-books/probabilistic-ml-advanced/approximate-inference-shift-interpretability.md",
+        "coverage_summary": "Canon-ready advanced probabilistic ML synthesis from direct local PDF reading with official MIT Press and ProbML provenance cross-check; now includes Chapter 20 deepening for typed shift diagnosis, OOD detection, abstention policy, continual-learning retention tradeoffs, adversarial threat-model evidence, and approximation-shift release controls."
+      },
+      "official_source_urls": [
+        "https://mitpress.mit.edu/9780262048439/probabilistic-machine-learning/",
+        "https://probml.github.io/pml-book/book2.html"
+      ],
+      "filename": "Probabilistic Machine Learning Advanced Topics.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Probabilistic Machine Learning Advanced Topics.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.prompt_engineering_for_llms",
+      "title": "Prompt Engineering for LLMs",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Prompt Engineering for LLMs- The Art and Science of Building.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "high",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Use for prompt programs, structured outputs, tool instructions, failure modes, and evalable workflows.",
+      "existing_manifest": "system_design_vault/05-ingestion-runs/prompt-engineering-for-llms-manifest.json",
+      "existing_notes": [
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/1-introduction-to-prompt-engineering.md",
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/2-understanding-llms.md",
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/3-moving-to-chat.md",
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/4-designing-llm-applications.md",
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/5-prompt-content.md",
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/6-assembling-the-prompt.md",
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/7-taming-the-model.md",
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/8-conversational-agency.md",
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/9-llm-workflows.md",
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/10-evaluating-llm-applications.md",
+        "system_design_vault/02-books/prompt-engineering-for-llms/chapters/11-looking-ahead.md"
+      ],
+      "cross_check_note": "system_design_vault/01-sources/official-open/prompt-engineering-for-llms-cross-check.md",
+      "filename": "Prompt Engineering for LLMs- The Art and Science of Building.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Prompt Engineering for LLMs- The Art and Science of Building.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.python_nlp_cookbook",
+      "title": "Python Natural Language Processing Cookbook",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/Python Natural Language Processing Cookbook, 2nd Edition.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "medium",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Canon-ready local-book NLP ingestion adapter slices for sentence/token boundaries, normalization, lemmatization, stopword-policy governance, grammar extraction candidates, embeddings, RAG adapter surfaces, reproducible recipe runtime profiles, and the nlp_ingestion_adapter_release_gate. No raw text or copied code stored.",
+      "existing_vault_coverage": {
+        "note_path": "system_design_vault/02-books/python-nlp-cookbook/source-ingestion-nlp-recipes.md",
+        "coverage_status": "canon_ready",
+        "coverage_summary": "Canon-ready NLP ingestion adapter slice plus Chapter 1 deepening for sentence/token boundary governance, offset provenance, and MWE override policy, Chapter 1 normalization-policy deepening for contextual lemmatization, stopword-policy governance, and Unicode/lowercase-normalization boundaries, Chapter 2 dependency-based argument extraction, subtree span recovery, parser/runtime provenance, and matcher escalation boundaries, plus Chapter 3 embedding-profile compatibility and RAG retrieval-trace semantics.",
+        "chapter_note_count": 4,
+        "chapter_notes": [
+          "system_design_vault/02-books/python-nlp-cookbook/chapters/ch03-embedding-compatibility-rag-adapter-traces.md",
+          "system_design_vault/02-books/python-nlp-cookbook/chapters/ch02-dependency-subject-object-extraction.md",
+          "system_design_vault/02-books/python-nlp-cookbook/chapters/ch01-normalization-lemmatization-stopwords.md",
+          "system_design_vault/02-books/python-nlp-cookbook/chapters/ch01-sentence-token-boundary-governance.md"
+        ],
+        "cross_check_notes": [
+          "system_design_vault/01-sources/official-open/nlp-adapter-recipes-cross-check.md",
+          "system_design_vault/01-sources/official-open/python-nlp-cookbook-ch3-embedding-rag-cross-check.md",
+          "system_design_vault/01-sources/official-open/python-nlp-cookbook-ch2-dependency-extraction-cross-check.md",
+          "system_design_vault/01-sources/official-open/python-nlp-cookbook-ch1-tokenization-normalization-cross-check.md",
+          "system_design_vault/01-sources/official-open/python-nlp-cookbook-ch1-boundary-governance-cross-check.md"
+        ],
+        "asset_paths": [
+          "system_design_vault/02-books/python-nlp-cookbook/assets/ch03-embedding-rag-trace-contract.svg",
+          "system_design_vault/02-books/python-nlp-cookbook/assets/ch02-dependency-argument-candidates.svg",
+          "system_design_vault/02-books/python-nlp-cookbook/assets/ch01-normalization-policy-contract.svg",
+          "system_design_vault/02-books/python-nlp-cookbook/assets/ch01-boundary-governance-contract.svg"
+        ]
+      },
+      "existing_note": "system_design_vault/02-books/python-nlp-cookbook/source-ingestion-nlp-recipes.md",
+      "existing_manifest": "system_design_vault/05-ingestion-runs/python-nlp-cookbook-ch01-boundary-governance-extraction-manifest.json",
+      "existing_cross_check": "system_design_vault/01-sources/official-open/python-nlp-cookbook-ch1-boundary-governance-cross-check.md",
+      "filename": "Python Natural Language Processing Cookbook, 2nd Edition.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/Python Natural Language Processing Cookbook, 2nd Edition.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.building_ml_powered_applications",
+      "title": "Building Machine Learning Powered Applications",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/building-machine-learning-powered-applications-going-from-idea-to-product.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "high",
+      "status": "canon_ready",
+      "safe_notes_strategy": "Use for product-to-ML shipping discipline, first pipeline, data acquisition, iteration, deployment, and monitoring.",
+      "existing_manifest": "system_design_vault/05-ingestion-runs/building-ml-powered-applications-manifest.json",
+      "existing_cross_check": "system_design_vault/01-sources/official-open/building-ml-powered-applications-cross-check.md",
+      "filename": "building-machine-learning-powered-applications-going-from-idea-to-product.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/building-machine-learning-powered-applications-going-from-idea-to-product.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.gen_ai_for_dummies",
+      "title": "Generative AI for Dummies",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/gen ai for dummies.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "low_medium",
+      "status": "defer",
+      "safe_notes_strategy": "Use for glossary/background only.",
+      "filename": "gen ai for dummies.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/gen ai for dummies.pdf",
+      "file_extension": "pdf"
+    },
+    {
+      "source_id": "local_books.machine_learning_generic",
+      "title": "Machine Learning for Humans",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/machine_learning.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "low_medium",
+      "status": "support_ready",
+      "safe_notes_strategy": "Support-ready onboarding/prerequisite slice only. Use the linked note for compact beginner ML vocabulary and concept routing; do not use as Agent Studio architecture canon.",
+      "official_source_urls": [
+        "https://books.google.com/books/about/Machine_Learning_For_Humans.html?id=nqLGzwEACAAJ",
+        "https://cargocollective.com/samersabri/Machine-Learning-for-Humans"
+      ],
+      "filename": "machine_learning.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/machine_learning.pdf",
+      "file_extension": "pdf",
+      "note_path": "system_design_vault/02-books/machine-learning-for-humans/onboarding-prerequisite-map.md",
+      "coverage_granularity": "support_slice",
+      "coverage_caveat": "Promoted only for onboarding vocabulary and prerequisite concept routing, not architecture canon."
+    },
+    {
+      "source_id": "local_books.python_cheatsheets",
+      "title": "Python Cheatsheets",
+      "source_class": "local_book_pdf",
+      "path_or_url": "/Users/saumyamehta/DS interview prep/books/python-cheatsheets.pdf",
+      "file_type": "pdf",
+      "rights_status": "user_provided_local",
+      "provenance_status": "user_confirmed_official_clean",
+      "relevance": "low",
+      "status": "defer",
+      "safe_notes_strategy": "Utility reference only; not system-design canon.",
+      "filename": "python-cheatsheets.pdf",
+      "local_path": "/Users/saumyamehta/DS interview prep/books/python-cheatsheets.pdf",
+      "file_extension": "pdf"
+    }
+  ],
+  "summary": {
+    "record_count": 34,
+    "pdf_count": 33,
+    "docx_count": 1,
+    "critical_records": 5,
+    "high_records": 4,
+    "medium_records": 14,
+    "low_or_low_medium_records": 10,
+    "out_of_scope_records": 1,
+    "canon_ready_records": 24,
+    "partially_ingested_records": 0,
+    "pending_direct_read_records": 0,
+    "deferred_or_private_records": 6,
+    "excluded_records": 1,
+    "duplicate_records": 1,
+    "next_backfill_scope": "Machine Learning for Humans now fills one support-ready onboarding/prerequisite map. Continue remaining low-priority local background sources only when they fill a concrete Agent Studio onboarding, glossary, or prerequisite gap; keep private interview docs out of canon unless explicitly requested.",
+    "total_records": 34,
+    "status_counts": {
+      "defer": 4,
+      "canon_ready": 24,
+      "avoid_double_ingestion": 1,
+      "defer_private_notes": 2,
+      "question_backlog_ready": 1,
+      "exclude": 1,
+      "support_ready": 1
+    },
+    "question_backlog_records": 1,
+    "allowed_local_file_count": 34,
+    "allowed_local_extensions": {
+      "docx": 1,
+      "pdf": 33
+    },
+    "file_parity_status": "all_allowed_local_files_have_manifest_records",
+    "file_parity_checked_at": "2026-05-18",
+    "support_ready_records": 1
+  }
+}

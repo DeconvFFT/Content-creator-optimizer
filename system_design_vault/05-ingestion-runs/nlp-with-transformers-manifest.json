@@ -1,0 +1,43 @@
+{
+  "title": "Natural Language Processing with Transformers",
+  "authors": "Lewis Tunstall, Leandro von Werra, Thomas Wolf",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/NLP with Transformer models.pdf",
+  "rights_status": "user_provided_local",
+  "provenance_status": "user_confirmed_official_clean",
+  "official_source_urls": [
+    "https://www.oreilly.com/library/view/natural-language-processing/9781098136789/",
+    "https://github.com/nlp-with-transformers/notebooks"
+  ],
+  "extraction_method": "pdftotext",
+  "created_at": "2026-05-18",
+  "scope": "Bounded chapter-level extraction manifest for Agent Studio relevant Natural Language Processing with Transformers sections. Stores line spans and note paths only, not extracted source text.",
+  "chapters": [
+    {
+      "number": "7",
+      "title": "Question Answering",
+      "physical_pages": "189-232",
+      "temp_extract": "/private/tmp/nlp_transformers_ch7_question_answering.txt",
+      "line_span": {
+        "start_line": 1,
+        "end_line": 1710
+      },
+      "status": "canon_ready",
+      "note": "02-books/nlp-with-transformers/chapters/7-question-answering.md",
+      "stores_raw_source_text": false
+    },
+    {
+      "number": "8",
+      "title": "Making Transformers Efficient in Production",
+      "physical_pages": "233-272",
+      "temp_extract": "/private/tmp/nlp_transformers_ch8_production_efficiency.txt",
+      "line_span": {
+        "start_line": 1,
+        "end_line": 1525
+      },
+      "status": "canon_ready",
+      "note": "02-books/nlp-with-transformers/chapters/8-making-transformers-efficient-production.md",
+      "stores_raw_source_text": false
+    }
+  ],
+  "chapter_count": 2
+}

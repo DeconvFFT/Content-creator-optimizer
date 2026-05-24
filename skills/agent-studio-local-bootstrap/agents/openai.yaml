@@ -1,0 +1,4 @@
+interface:
+  display_name: "Local Bootstrap"
+  short_description: "First-time local setup, deps, Postgres, and default verification."
+  default_prompt: "Use this skill to bootstrap a fresh Agent Studio workspace and run no-secret checks."

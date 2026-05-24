@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Studio Feedback Loop Map</title>
+  <style>
+    :root {
+      --ink: #111821;
+      --muted: #5c6978;
+      --line: #d7dee8;
+      --paper: #f5f7fa;
+      --panel: #ffffff;
+      --blue: #245dc1;
+      --green: #08735f;
+      --amber: #946200;
+      --red: #a43b30;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header,
+    main {
+      padding: 28px clamp(16px, 4vw, 56px);
+    }
+
+    header {
+      display: grid;
+      gap: 14px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 4.2rem);
+      line-height: 1;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .toolbar,
+    .loop-card,
+    .detail,
+    .export {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .toolbar {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 16px;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      min-height: 38px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #eaf0ff;
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .pill {
+      width: fit-content;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #f9fbfd;
+      color: #34414e;
+      font-size: 0.8rem;
+    }
+
+    .boundary {
+      border-color: #f0c6c0;
+      background: #fff4f2;
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .loop-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .loop-card {
+      display: grid;
+      gap: 10px;
+      min-height: 230px;
+      padding: 16px;
+      border-top: 4px solid var(--blue);
+    }
+
+    .loop-card[data-category="guardrails"] { border-top-color: var(--red); }
+    .loop-card[data-category="publish"] { border-top-color: var(--amber); }
+    .loop-card[data-category="source"] { border-top-color: var(--green); }
+    .loop-card[data-category="review"] { border-top-color: var(--blue); }
+
+    .meta {
+      display: grid;
+      gap: 8px;
+      color: #34414e;
+      font-size: 0.88rem;
+    }
+
+    code {
+      color: #263747;
+      overflow-wrap: anywhere;
+    }
+
+    .side {
+      display: grid;
+      gap: 12px;
+      position: sticky;
+      top: 14px;
+    }
+
+    .detail,
+    .export {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 240px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfcfe;
+      color: #263747;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 980px) {
+      main,
+      .loop-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="pill boundary">Planning memory only</span>
+    <h1>Agent Studio Feedback Loop Map</h1>
+    <p>Inspection surface for the local guardrails and feedback loops that prevent autonomous work from treating unfinished, unsupported, or failed work as approved. Product UI remains the creator studio; this is a vault review artifact.</p>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="Feedback loop filters">
+      <button type="button" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-filter="guardrails" aria-pressed="false">Guardrails</button>
+      <button type="button" data-filter="publish" aria-pressed="false">Publish gate</button>
+      <button type="button" data-filter="source" aria-pressed="false">Source quality</button>
+      <button type="button" data-filter="revision" aria-pressed="false">Revision</button>
+      <button type="button" data-filter="planning" aria-pressed="false">Planning</button>
+      <button type="button" data-filter="review" aria-pressed="false">Review watch</button>
+      <span id="loop-count" class="pill">6 loops</span>
+      <span id="loop-summary" class="pill">Feedback loops remain review-gated</span>
+    </section>
+
+    <section class="loop-grid" id="loop-grid" aria-label="Feedback loop cards"></section>
+
+    <aside class="side">
+      <section class="detail" id="loop-detail" aria-live="polite"></section>
+      <section class="export">
+        <h2>Filtered Export</h2>
+        <p>Use this packet when review, sync, or implementation threads need exact feedback-loop context.</p>
+        <textarea id="feedback-export" readonly aria-label="Feedback loop export"></textarea>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const sourcePath = "social_media_optimiser/03-review-packets/agent-studio-feedback-loop-map.html";
+    const loops = [
+      {
+        id: "guardrails-feedback-resolution",
+        title: "Guardrails feedback resolution",
+        category: "guardrails",
+        status: "implemented",
+        evidence: ["feedback_resolution_ledger", "accepted_feedback_count", "revised_feedback_count", "held_feedback_count", "failed linked task ids"],
+        outcome_policy: "Use accepted/revised/held/rejected outcome buckets. Open, pending, blocked, failed, or canceled linked work stays held until retry or review.",
+        owners: ["guardrails-agent", "critic-reviewer-agent", "editor-in-chief", "sprint-progress-agent"],
+        next_action: "Guardrail reviewers cite the ledger outcome counts and next action for held feedback before approving publish readiness."
+      },
+      {
+        id: "publish-readiness-feedback-gate",
+        title: "Publish readiness feedback gate",
+        category: "publish",
+        status: "implemented with external proof blocked",
+        evidence: ["publish_readiness_checked", "unsupported_claims", "blocked_guardrail_audit", "latest_publish_readiness_status", "publish_channel_checks"],
+        outcome_policy: "Unsupported claims, missing accepted evidence, blocked guardrails, or open feedback keep publishing blocked; external publication proof remains blocked until real credentials and platform evidence exist.",
+        owners: ["editor-in-chief", "claim-verification-agent", "source-ledger-agent", "platform-optimization-agent"],
+        next_action: "Use non-live readiness for local checks, then require controlled live destination proof before claiming publication."
+      },
+      {
+        id: "source-quality-feedback-loop",
+        title: "Source quality feedback loop",
+        category: "source",
+        status: "implemented",
+        evidence: ["retrieval_quality_ledger", "source_quality", "accepted_for_context", "weak_source_ids", "claim_source_matrix"],
+        outcome_policy: "Weak or unsupported source evidence routes back through retrieval, source-ledger, and claim-verification work before content is approved.",
+        owners: ["retrieval-intelligence-agent", "source-ledger-agent", "claim-verification-agent", "web-research-agent"],
+        next_action: "Refresh sources, rebuild claim/source matrices, and rerun claim verification before publish-readiness approval."
+      },
+      {
+        id: "revision-loop-closure",
+        title: "Revision loop closure",
+        category: "revision",
+        status: "implemented",
+        evidence: ["feedback_revision_v1", "target_artifact_ids", "revised_feedback_count", "revision_gate_events", "deterministic ids"],
+        outcome_policy: "Targeted revisions update only implicated draft lineage; operational proof artifacts cannot become draft-revision targets.",
+        owners: ["forward-deployed-engineer", "script-doctor", "substack-essay-writer", "eli5-short-form-writer"],
+        next_action: "Keep revision targets explicit and replay-safe, then route unresolved feedback back to the work plan."
+      },
+      {
+        id: "post-run-planning-feedback",
+        title: "Post-run planning feedback",
+        category: "planning",
+        status: "implemented",
+        evidence: ["run_work_plan_built", "sync_pulse", "context_packet", "post-run next-action refresh", "bounded planned worker cycle"],
+        outcome_policy: "After a bounded worker cycle, refresh the work plan without materializing another task batch so the next action reflects actual run state.",
+        owners: ["product-manager", "sprint-progress-agent", "context-engineering-agent"],
+        next_action: "Use the refreshed plan to select the next bounded slice without turning the product app into a planning board."
+      },
+      {
+        id: "leibniz-review-watch-escalation",
+        title: "Leibniz review-watch escalation",
+        category: "review",
+        status: "active monitor",
+        evidence: ["reviewer_agent_id", "Critical/Important findings", "material findings", "severity, files, and next action", "Leibniz latest status: no Critical/Important findings"],
+        outcome_policy: "The standing reviewer 019e3899-5ab3-7171-9d3c-32e7c57bbde7 is checked before vault sync. Any material finding, blocker, explicit request, or question is surfaced to the implementation thread with severity, files, and next action.",
+        owners: ["Leibniz", "vault-sync-subagent", "sprint-progress-agent"],
+        review_watch: {
+          reviewer_agent_id: "019e3899-5ab3-7171-9d3c-32e7c57bbde7",
+          latest_status: "no Critical/Important findings",
+          escalation_contract: "surface material findings with severity, files, and next action"
+        },
+        next_action: "Keep this loop quiet when Leibniz has no material finding; escalate concise implementation input when review output changes."
+      }
+    ];
+
+    const grid = document.querySelector("#loop-grid");
+    const detail = document.querySelector("#loop-detail");
+    const count = document.querySelector("#loop-count");
+    const summary = document.querySelector("#loop-summary");
+    const exportBox = document.querySelector("#feedback-export");
+    const filterButtons = [...document.querySelectorAll("[data-filter]")];
+    let activeFilter = "all";
+    let selectedLoopId = loops[0].id;
+
+    function visibleLoops() {
+      return loops.filter((loop) => activeFilter === "all" || loop.category === activeFilter);
+    }
+
+    function listMarkup(items) {
+      return items.map((item) => `<li>${item}</li>`).join("");
+    }
+
+    function renderCards() {
+      grid.innerHTML = "";
+      loops.forEach((loop) => {
+        const card = document.createElement("article");
+        card.className = "loop-card";
+        card.dataset.loopCard = loop.id;
+        card.dataset.category = loop.category;
+        card.innerHTML = `
+          <span class="pill">${loop.status}</span>
+          <h2>${loop.title}</h2>
+          <p><code>${loop.id}</code></p>
+          <div class="meta">
+            <div><strong>Evidence:</strong> <code>${loop.evidence.slice(0, 3).join("</code>, <code>")}</code></div>
+            <div><strong>Owners:</strong> ${loop.owners.slice(0, 3).join(", ")}</div>
+          </div>
+        `;
+        card.addEventListener("click", () => {
+          selectedLoopId = loop.id;
+          render();
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function renderDetail(loop) {
+      if (!loop) {
+        detail.innerHTML = "<h2>No matching loop</h2><p>Adjust the filter.</p>";
+        return;
+      }
+
+      detail.innerHTML = `
+        <h2>${loop.title}</h2>
+        <p><code>${loop.id}</code> is <strong>${loop.status}</strong>.</p>
+        <div class="meta">
+          <div><strong>Evidence:</strong><ul>${listMarkup(loop.evidence.map((item) => `<code>${item}</code>`))}</ul></div>
+          <div><strong>Outcome policy:</strong> ${loop.outcome_policy}</div>
+          <div><strong>Owners:</strong> ${loop.owners.join(", ")}</div>
+          <div><strong>Next action:</strong> ${loop.next_action}</div>
+        </div>
+      `;
+    }
+
+    function renderExport(filteredLoops) {
+      const payload = {
+        artifact: "agent-studio-feedback-loop-map",
+        source: sourcePath,
+        boundary: "planning_vault_only",
+        loops: filteredLoops.map((loop) => ({
+          id: loop.id,
+          title: loop.title,
+          category: loop.category,
+          status: loop.status,
+          evidence: loop.evidence,
+          outcome_policy: loop.outcome_policy,
+          owners: loop.owners,
+          review_watch: loop.review_watch || null,
+          next_action: loop.next_action
+        }))
+      };
+      exportBox.value = JSON.stringify(payload, null, 2);
+    }
+
+    function render() {
+      const filtered = visibleLoops();
+      const visibleIds = new Set(filtered.map((loop) => loop.id));
+      if (!visibleIds.has(selectedLoopId) && filtered.length) {
+        selectedLoopId = filtered[0].id;
+      }
+
+      document.querySelectorAll("[data-loop-card]").forEach((card) => {
+        card.hidden = !visibleIds.has(card.dataset.loopCard);
+      });
+
+      const selected = loops.find((loop) => loop.id === selectedLoopId && visibleIds.has(loop.id));
+      count.textContent = `${filtered.length} ${filtered.length === 1 ? "loop" : "loops"}`;
+      summary.textContent = activeFilter === "all" ? "Feedback loops remain review-gated" : `${activeFilter} loop selected`;
+      renderDetail(selected);
+      renderExport(filtered);
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        filterButtons.forEach((candidate) => {
+          candidate.setAttribute("aria-pressed", String(candidate === button));
+        });
+        render();
+      });
+    });
+
+    renderCards();
+    render();
+  </script>
+</body>
+</html>

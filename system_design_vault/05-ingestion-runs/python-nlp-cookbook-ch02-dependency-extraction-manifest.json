@@ -1,0 +1,28 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.python_nlp_cookbook.chapter_2_dependency_subject_object_extraction",
+  "parent_source_id": "local_books.python_nlp_cookbook",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Python Natural Language Processing Cookbook, 2nd Edition.pdf",
+  "chapter": {
+    "number": 2,
+    "title": "Playing with Grammar",
+    "focus_slice": "Dependency-based subject, direct-object, dative, and prepositional-object extraction, plus the nearby matcher extension for declarative grammar rules"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "printed_pages": "41-48",
+    "line_span": {
+      "start_line": 3123,
+      "end_line": 3429
+    }
+  },
+  "temp_extract": "/tmp/python_nlp_cookbook_ch2_grammar_slice.txt",
+  "note_path": "system_design_vault/02-books/python-nlp-cookbook/chapters/ch02-dependency-subject-object-extraction.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/python-nlp-cookbook-ch2-dependency-extraction-cross-check.md",
+  "asset_path": "system_design_vault/02-books/python-nlp-cookbook/assets/ch02-dependency-argument-candidates.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused Chapter 2 grammar-argument extraction slice only. No raw chapter text or long excerpts stored."
+}

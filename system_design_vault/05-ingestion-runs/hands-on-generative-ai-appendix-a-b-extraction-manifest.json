@@ -1,0 +1,21 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.hands_on_generative_ai_transformers_diffusion.appendix_a_b_open_model_serving_runtime_fit",
+  "parent_source_id": "local_books.hands_on_generative_ai_transformers_diffusion",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Hands-On Generative AI with Transformers and Diffusion.pdf",
+  "chapter": {
+    "number": "Appendix A/B",
+    "title": "Open-Model Serving, Deployment Surfaces, and Runtime Fit",
+    "focus_slice": "Local inference, deployment tools, and inference-memory fit for open-model media serving"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "physical_pages": "PDF 789-795"
+  },
+  "note_path": "system_design_vault/02-books/hands-on-generative-ai/chapters/appendix-a-b-open-model-serving-runtime-fit.md",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused direct-read Appendix A/B serving slice and note target only. No raw appendix text or long excerpts stored. The note synthesizes deployment surfaces, memory-fit gates, offload policy, runtime-engine choice, and open-model media-serving implications."
+}

@@ -1,0 +1,68 @@
+{
+  "title": "Build a Large Language Model (From Scratch)",
+  "authors": "Sebastian Raschka",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Build a Large Language Model (From Scratch).pdf",
+  "rights_status": "user_provided_local",
+  "extraction_method": "pdftotext",
+  "chapter_count": 7,
+  "created_at": "2026-05-17T00:00:00-05:00",
+  "chapters": [
+    {
+      "number": "1",
+      "title": "Understanding Large Language Models",
+      "start_line": 520,
+      "end_line": 1246,
+      "status": "canon_ready",
+      "note": "02-books/build-llm-from-scratch/chapters/1-understanding-large-language-models.md"
+    },
+    {
+      "number": "2",
+      "title": "Working with Text Data",
+      "start_line": 1247,
+      "end_line": 2964,
+      "status": "canon_ready",
+      "note": "02-books/build-llm-from-scratch/chapters/2-working-with-text-data.md"
+    },
+    {
+      "number": "3",
+      "title": "Coding Attention Mechanisms",
+      "start_line": 2965,
+      "end_line": 5297,
+      "status": "canon_ready",
+      "note": "02-books/build-llm-from-scratch/chapters/3-coding-attention-mechanisms.md"
+    },
+    {
+      "number": "4",
+      "title": "Implementing a GPT Model from Scratch to Generate Text",
+      "start_line": 5298,
+      "end_line": 7195,
+      "status": "canon_ready",
+      "note": "02-books/build-llm-from-scratch/chapters/4-implementing-a-gpt-model-from-scratch-to-generate-text.md"
+    },
+    {
+      "number": "5",
+      "title": "Pretraining on Unlabeled Data",
+      "start_line": 7196,
+      "end_line": 9357,
+      "status": "canon_ready",
+      "note": "02-books/build-llm-from-scratch/chapters/5-pretraining-on-unlabeled-data.md"
+    },
+    {
+      "number": "6",
+      "title": "Fine-Tuning for Classification",
+      "start_line": 9358,
+      "end_line": 11205,
+      "status": "canon_ready",
+      "note": "02-books/build-llm-from-scratch/chapters/6-fine-tuning-for-classification.md"
+    },
+    {
+      "number": "7",
+      "title": "Fine-Tuning to Follow Instructions",
+      "start_line": 11206,
+      "end_line": 13649,
+      "status": "canon_ready",
+      "note": "02-books/build-llm-from-scratch/chapters/7-fine-tuning-to-follow-instructions.md"
+    }
+  ],
+  "cross_check_note": "01-sources/official-open/build-llm-from-scratch-cross-check.md"
+}

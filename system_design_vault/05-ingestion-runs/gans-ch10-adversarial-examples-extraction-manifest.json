@@ -1,0 +1,25 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.gans_in_action.chapter_10_adversarial_examples_transferability_and_robustness_gates",
+  "parent_source_id": "local_books.gans_in_action",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Gans-in-action-deep-learning-with-generative-adversarial-networks.pdf",
+  "chapter": {
+    "number": 10,
+    "title": "Adversarial Examples",
+    "focus_slice": "gradient-based perturbations, transferability, iterative attacks, robustness limits, and classifier-gate implications for visual routes"
+  },
+  "extraction": {
+    "method": "pdftotext_plus_targeted_crosscheck",
+    "physical_pages": "165-179",
+    "line_span": "1-771"
+  },
+  "temp_extract": "/tmp/gans_ch10_adversarial_examples_excerpt.txt",
+  "note_path": "system_design_vault/02-books/gans-in-action/chapters/ch10-adversarial-examples-transferability-and-robustness-gates.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/gan-adversarial-examples-robustness-cross-check.md",
+  "asset_path": "system_design_vault/02-books/gans-in-action/assets/ch10-adversarial-examples-robustness-gate.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused Chapter 10 direct-read adversarial-examples slice and corroborating cross-check only. No raw chapter text or long excerpts are stored in the vault."
+}

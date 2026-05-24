@@ -1,0 +1,99 @@
+{
+  "title": "Prompt Engineering for LLMs",
+  "authors": "John Berryman; Albert Ziegler",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Prompt Engineering for LLMs- The Art and Science of Building.pdf",
+  "rights_status": "user_provided_local",
+  "extraction_method": "pdftotext",
+  "chapter_count": 11,
+  "created_at": "2026-05-17T00:00:00-05:00",
+  "chapters": [
+    {
+      "number": "1",
+      "title": "Introduction to Prompt Engineering",
+      "start_line": 444,
+      "end_line": 902,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/1-introduction-to-prompt-engineering.md"
+    },
+    {
+      "number": "2",
+      "title": "Understanding LLMs",
+      "start_line": 903,
+      "end_line": 1856,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/2-understanding-llms.md"
+    },
+    {
+      "number": "3",
+      "title": "Moving to Chat",
+      "start_line": 1857,
+      "end_line": 2691,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/3-moving-to-chat.md"
+    },
+    {
+      "number": "4",
+      "title": "Designing LLM Applications",
+      "start_line": 2692,
+      "end_line": 3475,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/4-designing-llm-applications.md"
+    },
+    {
+      "number": "5",
+      "title": "Prompt Content",
+      "start_line": 3476,
+      "end_line": 4708,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/5-prompt-content.md"
+    },
+    {
+      "number": "6",
+      "title": "Assembling the Prompt",
+      "start_line": 4709,
+      "end_line": 5555,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/6-assembling-the-prompt.md"
+    },
+    {
+      "number": "7",
+      "title": "Taming the Model",
+      "start_line": 5556,
+      "end_line": 6240,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/7-taming-the-model.md"
+    },
+    {
+      "number": "8",
+      "title": "Conversational Agency",
+      "start_line": 6241,
+      "end_line": 7470,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/8-conversational-agency.md"
+    },
+    {
+      "number": "9",
+      "title": "LLM Workflows",
+      "start_line": 7471,
+      "end_line": 8367,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/9-llm-workflows.md"
+    },
+    {
+      "number": "10",
+      "title": "Evaluating LLM Applications",
+      "start_line": 8368,
+      "end_line": 9185,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/10-evaluating-llm-applications.md"
+    },
+    {
+      "number": "11",
+      "title": "Looking Ahead",
+      "start_line": 9186,
+      "end_line": 9462,
+      "status": "canon_ready",
+      "note": "02-books/prompt-engineering-for-llms/chapters/11-looking-ahead.md"
+    }
+  ]
+}

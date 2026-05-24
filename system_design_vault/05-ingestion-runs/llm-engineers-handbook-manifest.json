@@ -1,0 +1,110 @@
+{
+  "title": "LLM Engineers Handbook",
+  "authors": "",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/LLM Engineers Handbook.pdf",
+  "rights_status": "user_provided_local",
+  "extraction_method": "pdftotext",
+  "chapter_count": 11,
+  "created_at": "2026-05-17T19:41:15.900994+00:00",
+  "chapters": [
+    {
+      "number": "1",
+      "title": "Understanding the LLM Twin Concept and Architecture",
+      "start_line": 748,
+      "end_line": 1514,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/1-llm-twin-concept-and-architecture.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    },
+    {
+      "number": "2",
+      "title": "Tooling and Installation",
+      "start_line": 1547,
+      "end_line": 2445,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/2-tooling-and-installation.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    },
+    {
+      "number": "3",
+      "title": "Data Engineering",
+      "start_line": 2484,
+      "end_line": 4045,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/3-data-engineering.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    },
+    {
+      "number": "4",
+      "title": "RAG Feature Pipeline",
+      "start_line": 4046,
+      "end_line": 6844,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/4-rag-feature-pipeline.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    },
+    {
+      "number": "5",
+      "title": "Supervised Fine-Tuning",
+      "start_line": 6845,
+      "end_line": 8189,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/5-supervised-fine-tuning.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    },
+    {
+      "number": "6",
+      "title": "Fine-Tuning with Preference Alignment",
+      "start_line": 8190,
+      "end_line": 9667,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/6-fine-tuning-with-preference-alignment.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    },
+    {
+      "number": "7",
+      "title": "Evaluating LLMs",
+      "start_line": 9668,
+      "end_line": 10708,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/7-evaluating-llms.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    },
+    {
+      "number": "8",
+      "title": "Inference Optimization",
+      "start_line": 10709,
+      "end_line": 11665,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/8-inference-optimization.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    },
+    {
+      "number": "9",
+      "title": "RAG Inference Pipeline",
+      "start_line": 11666,
+      "end_line": 13003,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/9-rag-inference-pipeline.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    },
+    {
+      "number": "10",
+      "title": "Inference Pipeline Deployment",
+      "start_line": 13004,
+      "end_line": 14573,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/10-inference-pipeline-deployment.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    },
+    {
+      "number": "11",
+      "title": "MLOps and LLMOps",
+      "start_line": 14574,
+      "end_line": 16555,
+      "status": "canon_ready",
+      "note_path": "system_design_vault/02-books/llm-engineers-handbook/chapters/11-mlops-and-llmops.md",
+      "cross_check_note_path": "system_design_vault/01-sources/official-open/llm-engineers-handbook-cross-check.md"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Inference Reliability"
+  short_description: "Review Gemma/HF, realtime audio, reranking, latency, cost, and provider smoke readiness."
+  default_prompt: "Use this skill to produce inference route reviews, provider smoke plans, latency/cost budgets, fallback decisions, and provider/model routing ledgers."

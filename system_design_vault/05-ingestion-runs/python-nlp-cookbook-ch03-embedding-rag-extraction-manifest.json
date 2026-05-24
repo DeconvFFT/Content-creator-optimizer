@@ -1,0 +1,28 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.python_nlp_cookbook.chapter_3_embedding_compatibility_rag_adapter_traces",
+  "parent_source_id": "local_books.python_nlp_cookbook",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Python Natural Language Processing Cookbook, 2nd Edition.pdf",
+  "chapter": {
+    "number": 3,
+    "title": "Representing Text – Capturing Semantics",
+    "focus_slice": "BERT/OpenAI embedding adapters as non-interchangeable vector profiles plus the nearby RAG recipe for vector-record construction, retrieval traces, and context assembly"
+  },
+  "extraction": {
+    "method": "pdftotext",
+    "printed_pages": "73-79",
+    "line_span": {
+      "start_line": 4579,
+      "end_line": 4887
+    }
+  },
+  "temp_extract": "/tmp/python_nlp_cookbook_ch3_embedding_rag_slice.txt",
+  "note_path": "system_design_vault/02-books/python-nlp-cookbook/chapters/ch03-embedding-compatibility-rag-adapter-traces.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/python-nlp-cookbook-ch3-embedding-rag-cross-check.md",
+  "asset_path": "system_design_vault/02-books/python-nlp-cookbook/assets/ch03-embedding-rag-trace-contract.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused Chapter 3 embedding/RAG slice only. No raw chapter text, copied notebook code, or long excerpts stored."
+}

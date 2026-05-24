@@ -1,0 +1,25 @@
+{
+  "manifest_type": "targeted_local_book_chapter_extraction",
+  "project": "agent-studio-system-design",
+  "status": "canon_ready",
+  "updated": "2026-05-20",
+  "source_id": "local_books.generative_deep_learning.chapter_11_music_tokenization_symbolic_route_controls",
+  "parent_source_id": "local_books.generative_deep_learning",
+  "source_path": "/Users/saumyamehta/DS interview prep/books/Generative-Deep-Learning.pdf",
+  "chapter": {
+    "number": 11,
+    "title": "Music Generation",
+    "focus_slice": "polyphonic symbolic music tokenization, grid versus event-based representations, duration fidelity, irregular timing support, and symbolic-route release gates"
+  },
+  "extraction": {
+    "method": "pdftotext_plus_targeted_crosscheck",
+    "physical_pages": "313-316",
+    "line_span": "12542-12639"
+  },
+  "temp_extract": "/tmp/gdl_ch11_music_excerpt.txt",
+  "note_path": "system_design_vault/02-books/generative-deep-learning/chapters/ch11-music-tokenization-symbolic-route-controls.md",
+  "cross_check_note_path": "system_design_vault/01-sources/official-open/gdl-ch11-music-generation-routes-cross-check.md",
+  "asset_path": "system_design_vault/02-books/generative-deep-learning/assets/ch11-music-tokenization-route-controls.svg",
+  "stores_raw_source_text": false,
+  "notes": "Manifest records the focused Chapter 11 direct-read symbolic music tokenization slice and corroborating cross-check only. No raw chapter text or long excerpts are stored in the vault."
+}
