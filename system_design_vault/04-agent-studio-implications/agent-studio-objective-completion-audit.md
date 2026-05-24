@@ -663,7 +663,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 ## Memory Log UUID Status Correction - 2026-05-21
 
 - source: `social_media_optimiser/log.md`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/completion-status.json`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json`
-- architecture implication: the project memory log now matches the current proof artifacts for UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`: local LiveKit, participant, OpenRouter live-dialogue reasoning, Kokoro, Rust edge, backend event sink, and context-pruning readiness are evidenced, but accepted live voice proof still waits on proof-record capture/recheck; completion remains `blocked_by_latest_failed_proof_record`.
+- architecture implication: the project memory log now matches the current proof artifacts for UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`: local LiveKit, participant, OpenRouter live-dialogue reasoning, Kokoro, Rust edge, backend event sink, context-pruning readiness, and accepted provider-backed live voice proof are evidenced. Completion remains `blocked_by_latest_failed_proof_record` because external publication proof still needs LinkedIn credential, policy acknowledgement, durable destination, rollback/postcondition evidence, completion-status recheck, and closure review.
 - verification: the foundation vault contract first failed on the stale `blocked_by_missing_accepted_proof` and LiveKit/Kokoro-missing wording; after the log correction, the focused foundation check passed.
 - boundary: this corrects planning memory only; it does not alter generated proof state or unblock closure.
 
