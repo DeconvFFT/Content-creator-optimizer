@@ -1275,3 +1275,9 @@ This failed record is preserved as historical audit evidence from the prior nati
 - verification: the record-validation and completion-status regressions first failed by accepting bare/local evidence as `valid_accepted_record` / `required_proofs_accepted`; after the fix, the focused regressions passed, the provider-proof CLI module passed with `203 passed, 30 skipped`, and Ruff passed on the touched Python files.
 - proof implication: this improves external-publication proof integrity but does not move the gate to accepted. Current completion status still accepts only `provider-backed-live-voice-proof`; latest failed proof remains `external-publication-proof`.
 - boundary: LinkedIn credential-file evidence, policy acknowledgement artifact, durable LinkedIn destination URL/platform id, rollback/postcondition artifact, closure review, and GitHub-side PR permissions remain unfinished.
+
+## Manual PR Handoff Refresh - 2026-05-24
+
+- source: `provider-proof-pr-handoff`, GitHub Actions run `26366027364`, branch head `d176f80133fd56c906b87fbadc87ae421cf10382`, and `social_media_optimiser/wiki/ops/active-codex-context.md`
+- architecture implication: the manual PR fallback now has current branch-head evidence instead of placeholders. The compare URL is `https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1`; generated PR text preserves the active OpenRouter/LiveKit/Kokoro route, accepted live-voice proof, blocked external-publication proof, green CI, and no-secret merge boundary.
+- proof implication: this advances merge handoff only. It does not satisfy the external publication proof, and auto-merge remains unavailable until a PR exists and GitHub integration permissions allow PR mutation.

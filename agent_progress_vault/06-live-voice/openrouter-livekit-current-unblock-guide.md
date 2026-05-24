@@ -24,6 +24,14 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 - Completion status: not complete until external publication proof validates, records, and passes closure review
 - PR state: feature branch is pushed and CI is green, but PR creation may need the manual `provider-proof-pr-handoff` body until GitHub integration permissions are upgraded
 
+## Current Manual PR Handoff
+
+- Branch head: `d176f80133fd56c906b87fbadc87ae421cf10382`
+- Green CI run: <https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/26366027364>
+- Manual PR compare: <https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1>
+- Automated PR creation remains blocked by GitHub integration permission `403 Resource not accessible by integration`; use the generated `provider-proof-pr-handoff` body in a manual PR until repository app permissions are upgraded.
+- Auto-merge cannot be enabled by this session until a PR exists and repository settings permit the integration to mutate it.
+
 ## Do Next
 
 1. Fill a local no-secret operator input file from `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env`.

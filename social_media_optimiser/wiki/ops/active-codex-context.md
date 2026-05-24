@@ -1251,3 +1251,10 @@ At the end of a meaningful slice:
 - Verification: the two new regressions failed first with `valid_accepted_record` / `required_proofs_accepted`; after the fix the targeted regressions passed, the provider-proof CLI module passed with `203 passed, 30 skipped`, and Ruff passed on the touched Python files.
 - Current gate state: `provider-backed-live-voice-proof` remains accepted. `external-publication-proof` remains blocked by `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
 - Boundary: this is fail-closed proof validation only. It does not create LinkedIn credentials, policy acknowledgement, durable publication destination, rollback/postcondition evidence, closure review, or GitHub PR permissions.
+
+## Manual PR Handoff Refresh - 2026-05-24
+
+- Source: `provider-proof-pr-handoff`, GitHub Actions run `26366027364`, and pushed branch head `d176f80133fd56c906b87fbadc87ae421cf10382`.
+- Handoff: automated PR creation still returns GitHub permission `403 Resource not accessible by integration`; the current manual compare URL is `https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...feature/livekit-voice-proof-capture?expand=1`.
+- Current generated PR body preserves OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro as the active realtime path, `provider-backed-live-voice-proof` as accepted, and `external-publication-proof` as blocked by the four LinkedIn/publication operator inputs.
+- Merge boundary: CI is green for the pushed branch head, but auto-merge cannot be enabled from this session until a PR exists and GitHub integration permissions allow PR mutation.
