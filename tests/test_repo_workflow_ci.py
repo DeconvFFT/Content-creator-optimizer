@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 import subprocess
 import tomllib
@@ -159,3 +160,22 @@ def test_pull_request_template_requires_proof_gate_handoff() -> None:
 
     for term in required_terms:
         assert term in template
+
+
+def test_current_handoff_notes_avoid_exact_latest_ci_run_ids() -> None:
+    handoff_paths = [
+        ROOT / "agent_progress_vault/01-implementation-matrix/feature-implementation-status.md",
+        ROOT / "agent_progress_vault/02-remaining-work/prioritized-backlog.md",
+        ROOT / "agent_progress_vault/03-agent-activity/background-agents-registry.md",
+        ROOT / "agent_progress_vault/04-cross-vault-links/vault-sync-notes.md",
+        ROOT / "social_media_optimiser/wiki/ops/active-codex-context.md",
+        ROOT / "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md",
+    ]
+    stale_latest_claim = re.compile(r"latest branch-head[^\n`]*run `\d{8,}`")
+
+    for path in handoff_paths:
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            assert not stale_latest_claim.search(line), (
+                f"{path.relative_to(ROOT)}:{line_number} must not bake an exact "
+                "CI run id into a durable latest-branch-head claim"
+            )

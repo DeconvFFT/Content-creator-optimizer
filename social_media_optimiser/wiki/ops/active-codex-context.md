@@ -1208,7 +1208,7 @@ At the end of a meaningful slice:
 
 ## PR Proof-Gate Handoff - 2026-05-24
 
-- Source: `.github/pull_request_template.md`, `tests/test_repo_workflow_ci.py`, `docs/repo-workflow.md`, GitHub Actions run `26362067044`.
+- Source: `.github/pull_request_template.md`, `tests/test_repo_workflow_ci.py`, `docs/repo-workflow.md`, branch GitHub Actions CI.
 - Handoff: the PR template now requires every manual PR to state `provider-backed-live-voice-proof` status, `external-publication-proof` status, OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro as the current accepted path, and whether the LinkedIn operator inputs remain blocked.
-- Verification: the PR template regression failed first on the missing provider proof section, then passed after the template update. Latest branch-head CI run `26362067044` completed successfully on `ab39562`. REST PR lookup still returns no open PR for `feature/livekit-voice-proof-capture` into `main`.
+- Verification: the PR template regression failed first on the missing provider proof section, then passed after the template update. Branch-head CI was green at last live check. REST PR lookup still returns no open PR for `feature/livekit-voice-proof-capture` into `main`.
 - Boundary: this advances PR/auto-merge handoff readiness only. It does not create LinkedIn credentials or accepted external publication evidence.

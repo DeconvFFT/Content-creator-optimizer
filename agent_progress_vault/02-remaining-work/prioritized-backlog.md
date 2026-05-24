@@ -34,8 +34,8 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 
 | # | Item | Effort | Status |
 |---|------|--------|--------|
-| 1 | Install Playwright browsers | **S** | Latest branch-head remote CI run `26362067044` passed the Python backend Playwright install step on GitHub Actions |
-| 2 | CI pipeline | **M** | **Remote green on feature branch** — latest branch-head run `26362067044` passed branch policy, frontend build/lint/typecheck/tests, Python Ruff + stable pytest slice, and both Rust services on commit `ab39562`. PR creation/open PR remains blocked or absent: GitHub connector previously returned `403`, REST PR lookup returned no open PR, and branch-protection/auto-merge setup still needs GitHub-side configuration |
+| 1 | Install Playwright browsers | **S** | Branch-head remote CI passed the Python backend Playwright install step at last live check |
+| 2 | CI pipeline | **M** | **Remote green on feature branch** — last live check passed branch policy, frontend build/lint/typecheck/tests, Python Ruff + stable pytest slice, and both Rust services. PR creation/open PR remains blocked or absent: GitHub connector previously returned `403`, REST PR lookup returned no open PR, and branch-protection/auto-merge setup still needs GitHub-side configuration |
 | 3 | Four ship skills | **M** | **Done** — local-bootstrap, ship-gate, provider-proof-capture, and ci-scaffold skills exist under `skills/agent-studio-*` |
 | 4 | Ruff baseline | **S** | **Done locally** — `[tool.ruff]` exists in `pyproject.toml`; fresh `uv run ruff check src/ tests/` returned `All checks passed!` |
 | 5 | Initial git commit / branch push | **S** | **Done** — `main` is seeded and `feature/livekit-voice-proof-capture` is pushed; PR/merge/release tag remain pending |
