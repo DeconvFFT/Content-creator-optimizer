@@ -309,7 +309,7 @@ This is the system-design-vault mirror of the implementation objective audit in 
 
 ## Legacy Failed Provider Proof Record - provider-backed-live-voice-proof - 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
 
-This failed record is preserved as historical audit evidence from the prior native-Gemma proof lane. It has been superseded for current work by the OpenRouter DeepSeek V4 Flash + LiveKit + Kokoro preflight packet, which is valid but still needs accepted same-run proof-record capture/recheck.
+This failed record is preserved as historical audit evidence from the prior native-Gemma proof lane. It has been superseded for current work by the accepted OpenRouter DeepSeek V4 Flash + LiveKit + Kokoro live-voice proof. External LinkedIn publication proof remains blocked on operator-owned credential, policy, destination, and rollback/postcondition evidence.
 
 - checked_at: 2026-05-21
 - validation_timestamp: 2026-05-21T05:50:10Z
@@ -406,7 +406,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 
 - checked_at: 2026-05-21
 - source: `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/`
-- live_voice_implication: realtime architecture is locally ready through OpenRouter DeepSeek, LiveKit, Kokoro, and Rust; provider-backed live voice remains unproven only until the accepted proof record is captured and rechecked.
+- live_voice_implication: superseded 2026-05-24 by accepted OpenRouter DeepSeek, LiveKit, Kokoro, and Rust live-voice proof for the current UUID route.
 - publication_implication: content/source/guardrail groundwork is ready, but external publication remains unproven until LinkedIn credential and policy evidence produce valid preflight evidence.
 
 
@@ -471,14 +471,14 @@ This failed record is preserved as historical audit evidence from the prior nati
 - architecture implication: every new concrete proof workspace now includes a no-secret `operator-inputs.template.env`, so retry setup has a stable placeholder surface rather than a one-off UUID artifact.
 - validation implication: workspace validation now treats that template as required generated evidence, and proof plans advertise it through `workspace_expected_files`.
 - verification: full provider-proof CLI suite passed with `202 passed`.
-- boundary: this improves operator handoff repeatability; OpenRouter LiveKit live-voice record capture/recheck and external publication remain unproven until real external inputs and accepted proof records exist.
+- boundary: this improves operator handoff repeatability; OpenRouter LiveKit live voice is now accepted, while external publication remains unproven until real external inputs and accepted proof records exist.
 
 
 ## Operator Input Readiness Gate - 2026-05-21
 
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json`
 - architecture implication: the retry path now has a no-secret gate between the operator input template and credential snapshot refresh, reducing ambiguous failed retries when placeholders or missing token files remain.
-- validation implication: generated README/checklist handoff now asks operators to capture readiness before rerunning proof preflights; current UUID readiness has OpenRouter and LiveKit inputs configured, with live voice waiting on proof-record capture/recheck rather than Hugging Face or Gamma/Gemma setup.
+- validation implication: generated README/checklist handoff now asks operators to capture readiness before rerunning proof preflights; current UUID readiness has OpenRouter and LiveKit inputs configured, live voice is accepted, and remaining proof work is external LinkedIn publication evidence rather than Hugging Face or Gamma/Gemma setup.
 - verification: full provider-proof CLI suite passed with `205 passed`.
 - boundary: this is readiness classification only; accepted live-voice proof now has OpenRouter/LiveKit/Kokoro live evidence. External LinkedIn publication evidence is still required. Real Gemma/HF audio evidence is legacy/optional for the current default route.
 

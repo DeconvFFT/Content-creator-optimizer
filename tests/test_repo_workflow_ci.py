@@ -179,3 +179,27 @@ def test_current_handoff_notes_avoid_exact_latest_ci_run_ids() -> None:
                 f"{path.relative_to(ROOT)}:{line_number} must not bake an exact "
                 "CI run id into a durable latest-branch-head claim"
             )
+
+
+def test_current_handoff_notes_do_not_reopen_accepted_live_voice_proof() -> None:
+    handoff_paths = [
+        ROOT / "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md",
+        ROOT / "social_media_optimiser/wiki/ops/active-codex-context.md",
+        ROOT / "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md",
+    ]
+    stale_live_voice_phrases = [
+        "current live-voice blocker is accepted",
+        "still needs accepted same-run proof-record capture/recheck",
+        "provider-backed live voice remains unproven",
+        "live-voice record capture/recheck and external publication remain unproven",
+        "live voice waiting on proof-record capture/recheck",
+        "accepted same-session OpenRouter/LiveKit/Kokoro proof still has to be captured",
+    ]
+
+    for path in handoff_paths:
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            for phrase in stale_live_voice_phrases:
+                assert phrase not in line, (
+                    f"{path.relative_to(ROOT)}:{line_number} reopens accepted live voice "
+                    f"proof with stale phrase: {phrase}"
+                )
