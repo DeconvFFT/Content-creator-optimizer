@@ -1205,3 +1205,10 @@ At the end of a meaningful slice:
 - Handoff: root `AGENTS.md` now captures the repo operating contract for future Codex/Cursor agents: PR-style branch naming, `uv.lock` as the committed dependency lockfile, local command-log artifacts as transient output that must stay untracked, no secrets or large artifacts, OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro as the active realtime path, and no Hugging Face/Gemma4/Gamma4/MLX active realtime default.
 - Gate state: `provider-backed-live-voice-proof` remains accepted; `external-publication-proof` still requires `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
 - Verification: the handoff regression failed first because `AGENTS.md` was absent, then passed after the file was added. Branch CI was green at verification time. PR creation remains blocked by GitHub integration permission `403 Resource not accessible by integration`.
+
+## PR Proof-Gate Handoff - 2026-05-24
+
+- Source: `.github/pull_request_template.md`, `tests/test_repo_workflow_ci.py`, `docs/repo-workflow.md`, GitHub Actions run `26362067044`.
+- Handoff: the PR template now requires every manual PR to state `provider-backed-live-voice-proof` status, `external-publication-proof` status, OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro as the current accepted path, and whether the LinkedIn operator inputs remain blocked.
+- Verification: the PR template regression failed first on the missing provider proof section, then passed after the template update. Latest branch-head CI run `26362067044` completed successfully on `ab39562`. REST PR lookup still returns no open PR for `feature/livekit-voice-proof-capture` into `main`.
+- Boundary: this advances PR/auto-merge handoff readiness only. It does not create LinkedIn credentials or accepted external publication evidence.

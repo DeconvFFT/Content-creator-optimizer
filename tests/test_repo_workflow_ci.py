@@ -136,3 +136,26 @@ def test_agents_handoff_documents_pr_ci_and_proof_boundaries() -> None:
 
     assert "uv.log" not in handoff
     assert "local command-log artifacts" in handoff.lower()
+
+
+def test_pull_request_template_requires_proof_gate_handoff() -> None:
+    template_path = ROOT / ".github" / "pull_request_template.md"
+
+    assert template_path.exists(), "PR template must exist for manual handoff"
+    template = template_path.read_text(encoding="utf-8")
+
+    required_terms = [
+        "Provider Proof Gates",
+        "provider-backed-live-voice-proof",
+        "external-publication-proof",
+        "OpenRouter",
+        "deepseek/deepseek-v4-flash",
+        "LiveKit",
+        "Kokoro",
+        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "No Hugging Face, Gemma4, Gamma4, or MLX",
+        "not committed",
+    ]
+
+    for term in required_terms:
+        assert term in template

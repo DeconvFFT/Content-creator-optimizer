@@ -19,6 +19,13 @@
 - [ ] `cd frontend/next-app && npm run test:race`
 - [ ] Rust service checks run when touching `services/**`
 
+## Provider Proof Gates
+
+- [ ] `provider-backed-live-voice-proof` status is stated in the PR; current accepted path is OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro.
+- [ ] `external-publication-proof` status is stated in the PR; if still blocked, list the missing operator inputs, starting with `LINKEDIN_ACCESS_TOKEN_FILE`.
+- [ ] No Hugging Face, Gemma4, Gamma4, or MLX active realtime default was reintroduced for the current proof path.
+- [ ] Provider proof output, secret snapshots, and operator credential files are not committed.
+
 ## Safety
 
 - [ ] No `.env`, `.secrets/`, tokens, credentials, local databases, or private key files

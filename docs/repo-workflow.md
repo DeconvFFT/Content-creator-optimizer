@@ -64,7 +64,7 @@ Secrets belong in local environment variables or ignored files under `.secrets/`
 
 ## PR And Auto-Merge
 
-Open PRs into `main`. The PR checklist should show the local verification commands that were run. Enable auto-merge only after required CI checks and review pass.
+Open PRs into `main`. The PR checklist should show the local verification commands that were run, plus the current provider proof gate state. For the current Agent Studio branch, the PR must explicitly state the `provider-backed-live-voice-proof` status, the `external-publication-proof` status, and whether any operator-owned LinkedIn inputs remain blocked. Enable auto-merge only after required CI checks and review pass.
 
 Repository settings still need to enforce:
 
