@@ -721,7 +721,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `social_media_optimiser/output/viewers/agent-studio-system-design.json`, `social_media_optimiser/output/viewers/agent-studio-system-design-viewer.html`
 - architecture implication: the Objective Completion Audit route rows now expose the same after-unblock proof-capture commands as the matrix and static proof packets, so architecture-level A2A/review agents do not lose command context.
 - verification: the route parity regression first failed on missing `proof_capture_matrix_ref` and `proof_capture_commands_after_unblock`; after updating the JSON and embedded HTML viewer, focused JSON and browser checks passed.
-- boundary: this is architecture-viewer visibility only; it does not satisfy accepted OpenRouter LiveKit or publication proof requirements.
+- boundary: this is architecture-viewer visibility only; current OpenRouter LiveKit live voice is accepted, while external publication proof remains blocked on LinkedIn evidence.
 
 
 ## Operator Checklist Proof Capture Commands - 2026-05-21
@@ -729,7 +729,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md`
 - architecture implication: the compact human/operator checklist now exposes the same `proof_capture_commands_after_unblock` command chains that A2A agents see in the matrix, current status packet, static proof packets, and generated system-design viewer.
 - verification: the concrete checklist regression first failed with zero proof-capture labels; after the renderer update and UUID checklist refresh, focused checklist verification passed with `1 passed`.
-- boundary: this is handoff parity only; accepted OpenRouter/LiveKit/Kokoro live voice proof and external publication proof records remain required before closure. HF/Gemma native-audio proof is legacy/optional for this default route.
+- boundary: this is handoff parity only; OpenRouter/LiveKit/Kokoro live voice proof is accepted, while external publication proof remains required before closure. HF/Gemma native-audio proof is legacy/optional for this default route.
 
 
 ## Publication Post-Unblock Policy Acknowledgement - 2026-05-21
@@ -745,7 +745,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/README.md`
 - architecture implication: the generated proof workspace README now carries the same `proof_capture_commands_after_unblock` chains as the matrix/status/checklist/static/viewer surfaces, so the command-source handoff no longer omits post-unblock proof capture.
 - verification: focused README regressions first failed with zero proof-capture sections; after updating the generator and UUID README, focused README verification passed with `2 passed`.
-- boundary: this does not create OpenRouter/LiveKit/Kokoro live voice evidence, external publication evidence, or accepted proof records.
+- boundary: this README routing slice is superseded for live voice by the accepted OpenRouter/LiveKit/Kokoro proof; it still does not create external publication evidence or accepted publication proof records.
 
 
 ## Proof Plan Capture Chain Parity - 2026-05-21
@@ -753,7 +753,7 @@ This failed record is preserved as historical audit evidence from the prior nati
 - source: `src/all_about_llms/cli.py`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json`
 - architecture implication: `provider-proof-plan` now exposes `proof_capture_commands_after_unblock` directly in each proof row, so plan-first A2A/review agents have the same post-unblock command path as packet-first agents.
 - verification: focused proof-plan regressions first failed on missing proof-capture fields; after updating the payload and refreshing proof-plan artifacts, focused proof-plan checks passed with `2 passed`.
-- boundary: this does not satisfy current OpenRouter/LiveKit/Kokoro live proof or external publication evidence requirements.
+- boundary: this proof-plan routing slice is superseded for live voice by the accepted OpenRouter/LiveKit/Kokoro proof; external publication evidence requirements remain open.
 
 
 ## Static Proof Plan Capture Chain Parity - 2026-05-21

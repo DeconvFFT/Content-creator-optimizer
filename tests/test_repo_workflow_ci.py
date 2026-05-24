@@ -194,6 +194,10 @@ def test_current_handoff_notes_do_not_reopen_accepted_live_voice_proof() -> None
         "live-voice record capture/recheck and external publication remain unproven",
         "live voice waiting on proof-record capture/recheck",
         "accepted same-session OpenRouter/LiveKit/Kokoro proof still has to be captured",
+        "does not satisfy accepted OpenRouter LiveKit",
+        "accepted OpenRouter/LiveKit/Kokoro live voice proof and external publication proof records remain required",
+        "does not create OpenRouter/LiveKit/Kokoro live voice evidence",
+        "does not satisfy current OpenRouter/LiveKit/Kokoro live proof",
     ]
 
     for path in handoff_paths:
