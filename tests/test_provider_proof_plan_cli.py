@@ -274,6 +274,11 @@ def _accepted_provider_proof_record(
             continue
         if value == "<true-after-live-call>":
             record[field] = True
+        elif proof == "external-publication-proof" and field in {
+            "policy_acknowledgement_artifact_id",
+            "rollback_or_postcondition_artifact_id",
+        }:
+            record[field] = f"linkedin-{field.replace('_', '-')}-{run_id}"
         elif isinstance(value, str) and value.startswith("<") and value.endswith(">"):
             record[field] = f"{field}-evidence"
     if "preflight_validation_report_artifact_id" in record:
@@ -681,11 +686,11 @@ def _assert_operator_packet_input_contracts(markdown: str) -> None:
         ) in publication_block
     assert (
         "  - LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID: "
-        "`durable non-local policy acknowledgement artifact id`"
+        "`durable non-local policy acknowledgement artifact id or URL`"
     ) in publication_block
     assert (
         "  - PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID: "
-        "`durable non-local rollback or postcondition artifact id`"
+        "`durable non-local rollback or postcondition artifact id or URL`"
     ) in publication_block
 
 
@@ -4435,13 +4440,13 @@ def test_concrete_current_uuid_operator_input_readiness_is_current():
             "readable local secret file path; file content is never emitted"
         ),
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": (
-            "durable non-local policy acknowledgement artifact id"
+            "durable non-local policy acknowledgement artifact id or URL"
         ),
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": (
             "durable LinkedIn URL or platform id; local substitutes rejected"
         ),
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": (
-            "durable non-local rollback or postcondition artifact id"
+            "durable non-local rollback or postcondition artifact id or URL"
         ),
     }
     assert report["proofs"]["external-publication-proof"]["field_ownership"][
@@ -4640,12 +4645,16 @@ def test_provider_proof_operator_input_readiness_accepts_filled_no_secret_file(
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
-                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=policy-artifact-1",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "linkedin-policy-acknowledgement-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 (
                     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
                     "https://www.linkedin.com/feed/update/urn:li:activity:123"
                 ),
-                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=rollback-artifact-1",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID="
+                "linkedin-rollback-postcondition-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 "",
             ]
         ),
@@ -4727,7 +4736,7 @@ def test_provider_proof_operator_input_readiness_accepts_filled_no_secret_file(
     ] == "readable local secret file path; file content is never emitted"
     assert payload["proofs"]["external-publication-proof"]["field_contracts"][
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID"
-    ] == "durable non-local policy acknowledgement artifact id"
+    ] == "durable non-local policy acknowledgement artifact id or URL"
     assert payload["proofs"]["provider-backed-live-voice-proof"]["field_statuses"][
         "OPENROUTER_API_KEY_FILE"
     ] == {
@@ -4790,9 +4799,8 @@ def test_provider_proof_operator_input_readiness_accepts_filled_no_secret_file(
     assert str(ROOT) not in serialized
 
 
-def test_provider_proof_operator_input_readiness_cli_fail_on_blocked_allows_ready(
+def test_provider_proof_operator_input_readiness_rejects_generic_bare_publication_artifact_ids(
     tmp_path,
-    capsys,
 ):
     env_example = tmp_path / ".env.example"
     env_example.write_text("", encoding="utf-8")
@@ -4829,6 +4837,219 @@ def test_provider_proof_operator_input_readiness_cli_fail_on_blocked_allows_read
                     "https://www.linkedin.com/feed/update/urn:li:activity:123"
                 ),
                 "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=rollback-artifact-1",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    payload = provider_cli._provider_proof_operator_input_readiness_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-21",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            input_path=input_path,
+        )
+    )
+    serialized = json.dumps(payload)
+
+    assert payload["status"] == "blocked_by_operator_inputs"
+    assert "operator_input_local_artifact_substitute" in payload["issue_codes"]
+    invalid_fields = payload["proofs"]["external-publication-proof"][
+        "invalid_fields"
+    ]
+    assert "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID" in invalid_fields
+    assert "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID" in invalid_fields
+    assert payload["field_statuses"]["LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID"][
+        "issue_code"
+    ] == "operator_input_local_artifact_substitute"
+    assert payload["field_statuses"]["PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"][
+        "issue_code"
+    ] == "operator_input_local_artifact_substitute"
+    assert "policy-artifact-1" not in serialized
+    assert "rollback-artifact-1" not in serialized
+
+
+def test_provider_proof_operator_input_readiness_rejects_prefix_only_linkedin_artifact_urns(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("", encoding="utf-8")
+    secret_dir = tmp_path / ".secrets"
+    secret_dir.mkdir()
+    (secret_dir / "openrouter_api_key").write_text(
+        "openrouter_secret_token\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "livekit_api_key").write_text(
+        "livekit_key_secret\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "livekit_api_secret").write_text(
+        "livekit_secret_token\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "linkedin_access_token").write_text(
+        "linkedin_secret_token\n",
+        encoding="utf-8",
+    )
+    input_path = tmp_path / "operator-inputs.local.env"
+    input_path.write_text(
+        "\n".join(
+            [
+                "OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key",
+                "OPENROUTER_LIVEKIT_URL=wss://livekit.example.com",
+                "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
+                "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
+                "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=urn:li:activity:",
+                (
+                    "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
+                    "https://www.linkedin.com/feed/update/urn:li:activity:123"
+                ),
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=urn:li:share:",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    payload = provider_cli._provider_proof_operator_input_readiness_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-21",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            input_path=input_path,
+        )
+    )
+    serialized = json.dumps(payload)
+
+    assert payload["status"] == "blocked_by_operator_inputs"
+    assert "operator_input_local_artifact_substitute" in payload["issue_codes"]
+    invalid_fields = payload["proofs"]["external-publication-proof"][
+        "invalid_fields"
+    ]
+    assert "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID" in invalid_fields
+    assert "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID" in invalid_fields
+    assert "urn:li:activity:" not in serialized
+    assert "urn:li:share:" not in serialized
+
+
+def test_provider_proof_record_validation_rejects_generic_bare_publication_artifact_ids(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("", encoding="utf-8")
+    record = _accepted_provider_proof_record(
+        env_example,
+        "external-publication-proof",
+    )
+    record["policy_acknowledgement_artifact_id"] = "policy-artifact-1"
+    record["rollback_or_postcondition_artifact_id"] = "rollback-artifact-1"
+
+    payload = provider_cli._provider_proof_record_validation_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-21",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            proof="external-publication-proof",
+            record_path=None,
+            workspace_validation_path=Path(
+                record["workspace_validation_report_artifact_id"]
+            ),
+            preflight_validation_path=Path(
+                record["preflight_validation_report_artifact_id"]
+            ),
+        ),
+        record,
+    )
+    serialized = json.dumps(payload)
+
+    assert payload["status"] == "invalid_record"
+    assert "publication_artifact_local_substitute" in payload["issue_codes"]
+    assert "policy-artifact-1" not in serialized
+    assert "rollback-artifact-1" not in serialized
+
+
+def test_provider_proof_record_validation_rejects_prefix_only_linkedin_artifact_urns(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("", encoding="utf-8")
+    record = _accepted_provider_proof_record(
+        env_example,
+        "external-publication-proof",
+    )
+    record["policy_acknowledgement_artifact_id"] = "urn:li:activity:"
+    record["rollback_or_postcondition_artifact_id"] = "urn:li:share:"
+
+    payload = provider_cli._provider_proof_record_validation_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-21",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            proof="external-publication-proof",
+            record_path=None,
+            workspace_validation_path=Path(
+                record["workspace_validation_report_artifact_id"]
+            ),
+            preflight_validation_path=Path(
+                record["preflight_validation_report_artifact_id"]
+            ),
+        ),
+        record,
+    )
+    serialized = json.dumps(payload)
+
+    assert payload["status"] == "invalid_record"
+    assert "publication_artifact_local_substitute" in payload["issue_codes"]
+    assert "urn:li:activity:" not in serialized
+    assert "urn:li:share:" not in serialized
+
+
+def test_provider_proof_operator_input_readiness_cli_fail_on_blocked_allows_ready(
+    tmp_path,
+    capsys,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("", encoding="utf-8")
+    secret_dir = tmp_path / ".secrets"
+    secret_dir.mkdir()
+    (secret_dir / "openrouter_api_key").write_text(
+        "openrouter_secret_token\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "livekit_api_key").write_text(
+        "livekit_key_secret\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "livekit_api_secret").write_text(
+        "livekit_secret_token\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "linkedin_access_token").write_text(
+        "linkedin_secret_token\n",
+        encoding="utf-8",
+    )
+    input_path = tmp_path / "operator-inputs.local.env"
+    input_path.write_text(
+        "\n".join(
+            [
+                "OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key",
+                "OPENROUTER_LIVEKIT_URL=wss://livekit.example.com",
+                "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
+                "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
+                "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "linkedin-policy-acknowledgement-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
+                (
+                    "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
+                    "https://www.linkedin.com/feed/update/urn:li:activity:123"
+                ),
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID="
+                "linkedin-rollback-postcondition-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 "",
             ]
         ),
@@ -4884,12 +5105,16 @@ def test_provider_proof_current_blocker_matrix_preserves_filled_operator_input_p
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
-                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=policy-artifact-1",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "linkedin-policy-acknowledgement-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 (
                     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
                     "https://www.linkedin.com/feed/update/urn:li:activity:123"
                 ),
-                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=rollback-artifact-1",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID="
+                "linkedin-rollback-postcondition-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 "",
             ]
         ),
@@ -4987,9 +5212,13 @@ def test_provider_proof_operator_input_readiness_rejects_substitute_urls(
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
-                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=policy-artifact-1",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "linkedin-policy-acknowledgement-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=https://preview.local/draft",
-                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=rollback-artifact-1",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID="
+                "linkedin-rollback-postcondition-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 "",
             ]
         ),
@@ -5055,12 +5284,16 @@ def test_provider_proof_operator_input_readiness_rejects_wrong_publication_chann
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
-                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=policy-artifact-1",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "linkedin-policy-acknowledgement-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 (
                     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
                     "https://www.instagram.com/p/provider-proof"
                 ),
-                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=rollback-artifact-1",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID="
+                "linkedin-rollback-postcondition-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 "",
             ]
         ),
@@ -5189,12 +5422,16 @@ def test_provider_proof_operator_input_readiness_rejects_secret_shaped_file_path
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_secret_path",
-                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=policy-artifact-1",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "linkedin-policy-acknowledgement-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 (
                     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
                     "https://www.linkedin.com/feed/update/urn:li:activity:123"
                 ),
-                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=rollback-artifact-1",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID="
+                "linkedin-rollback-postcondition-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 "",
             ]
         ),
@@ -5254,12 +5491,16 @@ def test_blocker_credential_snapshot_consumes_operator_input_path_without_values
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
-                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=policy-artifact-1",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "linkedin-policy-acknowledgement-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 (
                     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
                     "https://www.linkedin.com/feed/update/urn:li:activity:123"
                 ),
-                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=rollback-artifact-1",
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID="
+                "linkedin-rollback-postcondition-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 "",
             ]
         ),
@@ -6667,7 +6908,9 @@ def test_provider_proof_current_status_preserves_filled_operator_input_path(
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
-                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=policy-artifact-1",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "linkedin-policy-acknowledgement-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 (
                     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
                     "https://www.linkedin.com/feed/update/urn:li:activity:123"
@@ -7264,7 +7507,9 @@ def test_provider_proof_operator_unblocker_checklist_preserves_filled_operator_i
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
-                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=policy-artifact-1",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "linkedin-policy-acknowledgement-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
                 (
                     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
                     "https://www.linkedin.com/feed/update/urn:li:activity:123"
@@ -9825,6 +10070,9 @@ def test_provider_proof_record_validation_rejects_accepted_publication_local_or_
         "internal-post-123",
         "https://linkedin.com/preview/post",
         "https://linkedin.com/draft/post",
+        "urn:li:activity:",
+        "urn:li:share:",
+        "urn:li:ugcpost:",
         "~/post.html",
         "tmp/post.html",
         "C:/Users/me/post.html",
@@ -9861,6 +10109,19 @@ def test_provider_proof_record_validation_rejects_accepted_publication_local_or_
         accepted_record,
     )
     assert accepted_payload["status"] == "valid_accepted_record"
+
+    accepted_activity_record = dict(base_record)
+    accepted_activity_record["durable_platform_id_or_url"] = "urn:li:activity:123"
+    accepted_activity_payload = _provider_proof_record_validation_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            proof="external-publication-proof",
+        ),
+        accepted_activity_record,
+    )
+    assert accepted_activity_payload["status"] == "valid_accepted_record"
 
     external_slug_record = dict(base_record)
     external_slug_record["durable_platform_id_or_url"] = (
@@ -9920,6 +10181,24 @@ def test_provider_proof_record_validation_rejects_accepted_publication_local_evi
         assert payload["status"] == "invalid_record"
         assert payload["state_change_allowed"] is False
         assert "publication_artifact_local_substitute" in payload["issue_codes"]
+
+    accepted_artifact_record = dict(base_record)
+    accepted_artifact_record["policy_acknowledgement_artifact_id"] = (
+        "compliance:linkedin-policy-acknowledgement-2026-05-24"
+    )
+    accepted_artifact_record["rollback_or_postcondition_artifact_id"] = (
+        "urn:li:activity:123"
+    )
+    accepted_artifact_payload = _provider_proof_record_validation_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-20",
+            run_id="123e4567-e89b-12d3-a456-426614174000",
+            proof="external-publication-proof",
+        ),
+        accepted_artifact_record,
+    )
+    assert accepted_artifact_payload["status"] == "valid_accepted_record"
 
 
 def test_provider_proof_record_validation_rejects_accepted_publication_cross_channel_destination(

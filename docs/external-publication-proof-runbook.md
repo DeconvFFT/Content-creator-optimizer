@@ -15,9 +15,9 @@ This is the committed no-secret handoff for closing the remaining Agent Studio p
 Fill only local file paths or durable artifact IDs in `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env`.
 
 - `LINKEDIN_ACCESS_TOKEN_FILE`: readable local secret file path. No token value belongs in Markdown, Git, PR text, shell history, or proof notes.
-- `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`: durable non-local policy acknowledgement artifact id.
+- `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`: durable non-local policy acknowledgement artifact id or URL. Generic bare values such as `policy-artifact-1` are not sufficient; LinkedIn URNs must include the platform id suffix, not only the prefix.
 - `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`: durable LinkedIn platform id or URL. Local previews, screenshots, and draft-only IDs are not enough.
-- `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`: durable non-local rollback, delete/private/correction, or postcondition monitoring artifact id.
+- `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`: durable non-local rollback, delete/private/correction, or postcondition monitoring artifact id or URL. Generic bare values such as `rollback-artifact-1` are not sufficient; LinkedIn URNs must include the platform id suffix, not only the prefix.
 
 No secret values should ever be printed by these commands. Do not commit `.secrets/`, operator input files, generated provider proof output, screenshots, PDFs, images, media, browser traces, local databases, or token-bearing logs.
 

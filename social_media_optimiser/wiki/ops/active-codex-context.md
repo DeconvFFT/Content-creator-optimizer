@@ -1264,3 +1264,9 @@ At the end of a meaningful slice:
 - Source: `provider-proof-pr-handoff`, `tests/test_repo_workflow_ci.py`, `agent_progress_vault/04-cross-vault-links/vault-sync-notes.md`, and `system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md`.
 - Handoff: the manual PR body generator now requires `--ci-url` and `--head-sha`; running it without current branch-head evidence exits with argparse error code `2` and prints no PR body. The CI URL must be a same-repo GitHub Actions run URL, and the head SHA must be a 40-character hex commit id. All committed runnable handoff commands now include `--run-id`, `--ci-url`, and `--head-sha`.
 - Boundary: this tightens merge evidence only. It does not create a GitHub PR, enable auto-merge, or satisfy the external LinkedIn publication proof.
+
+## External Publication Durable Artifact Guard - 2026-05-24
+
+- Source: `src/all_about_llms/cli.py`, `tests/test_provider_proof_plan_cli.py`, `docs/external-publication-proof-runbook.md`, and current operator-readiness proof gate output.
+- Handoff: `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID` and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID` now fail closed when filled with generic bare strings such as `policy-artifact-1` or `rollback-artifact-1`. The accepted shapes are external non-local URLs, LinkedIn URNs with an ID suffix, whitelisted namespaced durable artifact ids, or bare artifact ids carrying a UUID.
+- Boundary: this advances external-publication proof integrity only. The gate is still blocked until the operator supplies the LinkedIn token file, policy acknowledgement artifact, durable LinkedIn destination, and rollback/postcondition artifact.

@@ -84,6 +84,7 @@ Project audit and system-design mirror agree on:
 - One remaining proof blocker: external publication
 - UUID run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
 - Failed external publication record pending operator inputs and accepted destination proof
+- External publication artifact inputs must now avoid generic bare values such as `policy-artifact-1` / `rollback-artifact-1`; use an external non-local URL, LinkedIn URN with an ID suffix, whitelisted namespaced durable artifact id, or UUID-bearing artifact id.
 
 ## Agent progress vault role
 

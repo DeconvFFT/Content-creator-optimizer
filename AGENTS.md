@@ -41,6 +41,7 @@ This repo is the product/code workspace for Agent Studio. The Obsidian vaults ar
   - `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`
   - `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`
   - `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`
+- Publication artifact inputs must be durable external evidence references, not generic bare local labels.
 - After operator inputs are supplied, refresh readiness, credential snapshot, proof plan, blocker matrix, current status, unblocker checklist, completion status, closure review, and blocker-state update in that order.
 
 ## Verification Baseline

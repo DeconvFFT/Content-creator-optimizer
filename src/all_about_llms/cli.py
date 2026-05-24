@@ -2714,20 +2714,25 @@ PROVIDER_PROOF_PUBLICATION_EVIDENCE_ARTIFACT_FIELDS = (
     "policy_acknowledgement_artifact_id",
     "rollback_or_postcondition_artifact_id",
 )
-PROVIDER_PROOF_PUBLICATION_BARE_ARTIFACT_PLACEHOLDERS = {
-    "artifact",
-    "evidence",
-    "policy",
-    "policy-acknowledgement",
-    "policy-acknowledgement-artifact",
-    "proof",
-    "rollback",
-    "rollback-artifact",
-    "rollback-or-postcondition",
-    "rollback-or-postcondition-artifact",
-    "postcondition",
-    "postcondition-artifact",
-}
+PROVIDER_PROOF_LINKEDIN_URN_PREFIXES = (
+    "urn:li:activity:",
+    "urn:li:share:",
+    "urn:li:ugcpost:",
+)
+PROVIDER_PROOF_LINKEDIN_DURABLE_URN_PATTERN = re.compile(
+    r"urn:li:(?:activity|share):[0-9]+|urn:li:ugcpost:[A-Za-z0-9][A-Za-z0-9_.:-]*",
+    re.IGNORECASE,
+)
+PROVIDER_PROOF_PUBLICATION_ARTIFACT_UUID_PATTERN = re.compile(
+    r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    re.IGNORECASE,
+)
+PROVIDER_PROOF_PUBLICATION_DURABLE_ARTIFACT_ID_PATTERN = re.compile(
+    r"(?:github|github-issue|gitlab|jira|linear|notion|gdrive|google-drive|"
+    r"linkedin|external-audit|compliance|policy-acknowledgement|"
+    r"rollback-evidence):[A-Za-z0-9][A-Za-z0-9_.:/@-]{5,}",
+    re.IGNORECASE,
+)
 PROVIDER_PROOF_OPERATOR_INPUT_FIELD_CONTRACTS = {
     "OPENROUTER_API_KEY_FILE": (
         "readable local secret file path; file content is never emitted"
@@ -2745,13 +2750,13 @@ PROVIDER_PROOF_OPERATOR_INPUT_FIELD_CONTRACTS = {
         "readable local secret file path; file content is never emitted"
     ),
     "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": (
-        "durable non-local policy acknowledgement artifact id"
+        "durable non-local policy acknowledgement artifact id or URL"
     ),
     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": (
         "durable LinkedIn URL or platform id; local substitutes rejected"
     ),
     "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": (
-        "durable non-local rollback or postcondition artifact id"
+        "durable non-local rollback or postcondition artifact id or URL"
     ),
 }
 PROVIDER_PROOF_OPERATOR_INPUT_FIELD_PROOF_IDS = {
@@ -5980,6 +5985,15 @@ def _provider_proof_record_template_placeholder(value: object) -> bool:
     )
 
 
+def _provider_proof_publication_linkedin_urn_is_durable(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    return (
+        PROVIDER_PROOF_LINKEDIN_DURABLE_URN_PATTERN.fullmatch(value.strip())
+        is not None
+    )
+
+
 def _provider_proof_publication_destination_is_local_substitute(value: object) -> bool:
     if not isinstance(value, str):
         return True
@@ -5997,7 +6011,7 @@ def _provider_proof_publication_destination_is_local_substitute(value: object) -
         return True
     parsed = urlparse(destination)
     if parsed.scheme and parsed.scheme not in {"http", "https", "ws", "wss"}:
-        return not lowered.startswith("urn:li:share:")
+        return not _provider_proof_publication_linkedin_urn_is_durable(destination)
     if not parsed.scheme:
         if "/" in destination:
             return True
@@ -6040,12 +6054,25 @@ def _provider_proof_publication_destination_is_local_substitute(value: object) -
 
 
 def _provider_proof_publication_artifact_is_local_substitute(value: object) -> bool:
-    if _provider_proof_publication_destination_is_local_substitute(value):
-        return True
     if not isinstance(value, str):
         return True
-    normalized = re.sub(r"[^a-z0-9]+", "-", value.strip().lower()).strip("-")
-    return normalized in PROVIDER_PROOF_PUBLICATION_BARE_ARTIFACT_PLACEHOLDERS
+    artifact = value.strip()
+    if not artifact:
+        return True
+    lowered = artifact.lower()
+    parsed = urlparse(artifact)
+    if parsed.scheme in {"http", "https"}:
+        return _provider_proof_publication_destination_is_local_substitute(artifact)
+    if lowered.startswith(PROVIDER_PROOF_LINKEDIN_URN_PREFIXES):
+        return not _provider_proof_publication_linkedin_urn_is_durable(artifact)
+    if PROVIDER_PROOF_PUBLICATION_DURABLE_ARTIFACT_ID_PATTERN.fullmatch(artifact):
+        return False
+    if _provider_proof_publication_destination_is_local_substitute(artifact):
+        return True
+    normalized = re.sub(r"[^a-z0-9]+", "-", lowered).strip("-")
+    if PROVIDER_PROOF_PUBLICATION_ARTIFACT_UUID_PATTERN.search(normalized):
+        return False
+    return True
 
 
 def _provider_proof_openrouter_livekit_url_is_placeholder(value: object) -> bool:
@@ -6062,7 +6089,7 @@ def _provider_proof_publication_destination_platform(value: object) -> str | Non
     if not isinstance(value, str):
         return None
     destination = value.strip().lower()
-    if destination.startswith("urn:li:share:"):
+    if _provider_proof_publication_linkedin_urn_is_durable(destination):
         return "linkedin"
     parsed = urlparse(destination)
     host = (parsed.hostname or "").lower()
