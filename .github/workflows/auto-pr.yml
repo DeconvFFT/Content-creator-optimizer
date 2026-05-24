@@ -24,19 +24,19 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref_name != 'main' && (startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.ref, 'refs/heads/fix_')) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Wait for matching CI success
         id: ci
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -120,7 +120,7 @@ jobs:
             > "$RUNNER_TEMP/pr-body.md"
 
       - name: Create or update draft PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           PR_BODY_PATH: ${{ runner.temp }}/pr-body.md
         with:

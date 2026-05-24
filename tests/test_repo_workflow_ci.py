@@ -87,6 +87,35 @@ def test_github_actions_workflows_opt_into_node24_action_runtime() -> None:
         )
 
 
+def test_github_actions_workflows_pin_node24_native_action_versions() -> None:
+    workflow_text = "\n".join(
+        [
+            (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8"),
+            (ROOT / ".github/workflows/auto-pr.yml").read_text(encoding="utf-8"),
+        ]
+    )
+
+    expected_pins = [
+        "actions/checkout@v6",
+        "actions/setup-python@v6",
+        "actions/setup-node@v6",
+        "actions/github-script@v8",
+        "astral-sh/setup-uv@v8.1.0",
+    ]
+    for pin in expected_pins:
+        assert pin in workflow_text
+
+    deprecated_pins = [
+        "actions/checkout@v4",
+        "actions/setup-python@v5",
+        "actions/setup-node@v4",
+        "actions/github-script@v7",
+        "astral-sh/setup-uv@v5",
+    ]
+    for pin in deprecated_pins:
+        assert pin not in workflow_text
+
+
 def test_gitignore_excludes_local_scratch_course_checkouts() -> None:
     gitignore_lines = {
         line.strip()

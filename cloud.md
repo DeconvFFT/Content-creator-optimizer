@@ -20,7 +20,8 @@ In repository settings, configure GitHub Actions workflow permissions:
 - Select `Read and write permissions`.
 - Enable `Allow GitHub Actions to create and approve pull requests`.
 - Keep `.github/workflows/auto-pr.yml` limited to the built-in `GITHUB_TOKEN`; do not add custom repository secrets for PR creation.
-- Keep `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` in both CI workflows so JavaScript actions use the Node 24 runtime before GitHub's June 2026 default switch.
+- Keep the Node 24-native action pins in both CI workflows: `actions/checkout@v6`, `actions/setup-python@v6`, `actions/setup-node@v6`, `actions/github-script@v8`, and `astral-sh/setup-uv@v8.1.0`.
+- Keep `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` in both CI workflows as a compatibility guard before GitHub's June 2026 default switch.
 
 Configure `main branch protection` or a ruleset:
 

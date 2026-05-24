@@ -91,6 +91,7 @@ Project audit and system-design mirror agree on:
 - External publication artifact inputs must now avoid generic bare values such as `policy-artifact-1` / `rollback-artifact-1`; use an external non-local URL, LinkedIn URN with an ID suffix, whitelisted namespaced durable artifact id, or UUID-bearing artifact id.
 - Reserved documentation domains such as `docs.example.com`, `example.com`, `example.org`, and `example.net` are now treated as placeholder evidence and must not clear policy acknowledgement or rollback/postcondition readiness.
 - Accepted proof packet rendering now suppresses proof-specific retry/capture/credential-snapshot details for `provider-backed-live-voice-proof`; future agents should treat only `external-publication-proof` as actionable unless completion status changes.
+- CI/CD mirrors now include the Node 24-native action pin follow-up: `actions/checkout@v6`, `actions/setup-python@v6`, `actions/setup-node@v6`, `actions/github-script@v8`, and `astral-sh/setup-uv@v8.1.0`, plus the existing `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` guard and `uv.lock` dependency-lock boundary.
 
 ## Agent progress vault role
 

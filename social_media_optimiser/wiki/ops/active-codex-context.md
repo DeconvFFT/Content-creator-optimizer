@@ -1333,4 +1333,5 @@ At the end of a meaningful slice:
 
 - Source: GitHub Actions check-run annotations for Auto PR run `26375041710`, `.github/workflows/ci.yml`, `.github/workflows/auto-pr.yml`, `docs/repo-workflow.md`, `cloud.md`, and `tests/test_repo_workflow_ci.py`.
 - Update: both CI workflows now set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` at workflow scope to opt into the Node 24 JavaScript action runtime before GitHub's June 2026 default switch. Auto PR's temporary external-publication placeholders now match the committed no-secret example form with `-or-url` suffixes.
+- Follow-up: after checking official action metadata, the workflows now pin Node 24-native action releases: `actions/checkout@v6`, `actions/setup-python@v6`, `actions/setup-node@v6`, `actions/github-script@v8`, and `astral-sh/setup-uv@v8.1.0`. `tests/test_repo_workflow_ci.py` now fails if those workflows drift back to the deprecated Node 20 action majors.
 - Boundary: this hardens CI/CD compatibility only. It does not create the GitHub PR, change repository Actions permissions, reopen the accepted OpenRouter/LiveKit/Kokoro live-voice proof, or clear the external-publication proof gate.
