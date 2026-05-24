@@ -1201,7 +1201,7 @@ At the end of a meaningful slice:
 
 ## Root Agent Operating Contract - 2026-05-24
 
-- Source: `AGENTS.md`, `tests/test_repo_workflow_ci.py`, GitHub Actions run `26361620797`.
+- Source: `AGENTS.md`, `tests/test_repo_workflow_ci.py`, branch GitHub Actions CI.
 - Handoff: root `AGENTS.md` now captures the repo operating contract for future Codex/Cursor agents: PR-style branch naming, `uv.lock` as the committed dependency lockfile, `uv.log` as local output only, no secrets or large artifacts, OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro as the active realtime path, and no Hugging Face/Gemma4/Gamma4/MLX active realtime default.
 - Gate state: `provider-backed-live-voice-proof` remains accepted; `external-publication-proof` still requires `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
-- Verification: the handoff regression failed first because `AGENTS.md` was absent, then passed after the file was added. Remote CI for the branch-head parser fix is green. PR creation remains blocked by GitHub integration permission `403 Resource not accessible by integration`.
+- Verification: the handoff regression failed first because `AGENTS.md` was absent, then passed after the file was added. Branch CI was green at verification time. PR creation remains blocked by GitHub integration permission `403 Resource not accessible by integration`.
