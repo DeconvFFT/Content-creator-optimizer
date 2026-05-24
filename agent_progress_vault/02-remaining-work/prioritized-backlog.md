@@ -34,11 +34,11 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 
 | # | Item | Effort | Status |
 |---|------|--------|--------|
-| 1 | Install Playwright browsers | **S** | Pending — `uv run playwright install` |
-| 2 | CI pipeline | **M** | **Scaffolded on feature branch** — `.github/workflows/ci.yml` and `scripts/ci-python-stable-tests.sh`; verify before merge |
-| 3 | Four ship skills | **M** | **Pending** — local-bootstrap, ship-gate, provider-proof-capture, ci-scaffold |
-| 4 | Ruff baseline | **S** | **Pending** — add to `pyproject.toml`, run on `src/` |
-| 5 | Initial git commit | **S** | Pending user approval |
+| 1 | Install Playwright browsers | **S** | Local browser-dependent viewer check passes (`tests/test_system_design_viewer_browser.py`: `2 passed`); clean-env `playwright install --with-deps chromium` proof still needs remote CI or a fresh runner |
+| 2 | CI pipeline | **M** | **Scaffolded and pushed on feature branch** — `.github/workflows/ci.yml`, `scripts/ci-python-stable-tests.sh`, and `tests/test_repo_workflow_ci.py`; PR creation is blocked by GitHub connector `403`, so remote run/branch-protection proof is still pending |
+| 3 | Four ship skills | **M** | **Done** — local-bootstrap, ship-gate, provider-proof-capture, and ci-scaffold skills exist under `skills/agent-studio-*` |
+| 4 | Ruff baseline | **S** | **Done locally** — `[tool.ruff]` exists in `pyproject.toml`; fresh `uv run ruff check src/ tests/` returned `All checks passed!` |
+| 5 | Initial git commit / branch push | **S** | **Done** — `main` is seeded and `feature/livekit-voice-proof-capture` is pushed; PR/merge/release tag remain pending |
 | 6 | Production auth + disable secret-write in prod | **L** | Not started |
 | 7 | Closure review (after proofs) | **M** | Blocked on Phase 0 |
 
@@ -57,7 +57,7 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 | 2 | Rate limiting | slowapi on LLM/expensive routes |
 | 3 | Live Postgres in CI | `LIVE_POSTGRES=1 uv run pytest tests/test_live_postgres.py` |
 | 4 | Non-credential product hardening | Per [[../social_media_optimiser/01-work-tracking/Agent Studio Kanban]] — next bounded slice (browser single-flight, source-refresh boundaries) |
-| 5 | Refresh stale sprint `## Next` | [[../social_media_optimiser/01-work-tracking/Current Sprint#Next]] contradicts UUID workspace state |
+| 5 | Keep sprint `## Next` fresh | [[../social_media_optimiser/01-work-tracking/Current Sprint#Next]] now points at publication proof, closure review, remote CI/branch-protection, Playwright proof, and demo feedback; refresh again after any proof-state change |
 | 6 | Direct LiveKit Rust media bridge | Sprint backlog item |
 | 7 | Repo cleanup | `.tmp_paper_work/`, `cs336_*_tmp/`, `tcf_canada_training/` |
 
@@ -76,7 +76,7 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 2. **Execute external-publication UUID proof capture chain** — run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` post-unblock commands after explicit approval
 3. **Closure review** — only after both required proofs are accepted and completion status reports `all_required_proofs_accepted: true`
 4. **Non-credential product hardening** — Kanban next bounded slice
-5. **Finish branch integration** — CI verification, skills/ruff follow-up decisions, clean commit/PR path
+5. **Finish branch integration** — remote CI/branch-protection proof, clean-env Playwright proof, manual PR path, merge/release decision
 
 ## Do not
 

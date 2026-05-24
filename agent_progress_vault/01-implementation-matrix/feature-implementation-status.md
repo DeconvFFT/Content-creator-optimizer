@@ -1,7 +1,7 @@
 ---
 type: implementation-matrix
-updated: 2026-05-23
-source: vault-audit-c74873d8 + synthesis-59e319d8
+updated: 2026-05-24
+source: vault-audit-c74873d8 + synthesis-59e319d8 + codex-ci-vault-refresh
 ---
 
 # Feature Implementation Status
@@ -22,12 +22,12 @@ Vault claim vs code evidence. Percentages are honest estimates, not marketing.
 | **Provider-backed live voice** | **Accepted** | OpenRouter/LiveKit/Kokoro preflight, smoke, timing, and accepted proof record captured for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` | **90 infra / accepted proof** | Future work is concurrency/load hardening, not proof unblock |
 | **External publication proof** | **Blocked** — objective incomplete | Publish-readiness + local fixture; failed record | **15 infra / 0 proof** | LinkedIn creds + policy/destination artifacts |
 | Provider-proof CLI & handoff | Extensive machinery done | `test_provider_proof_plan_cli.py` (223 pass); UUID workspace artifacts | **95** | Operator must run capture chain |
-| Agent skills (8 existing) | Done | `skills/agent-studio-*/SKILL.md` | **90** | 4 recommended ship skills **not yet created** (c75e2d04 stalled) |
-| Test coverage | Foundation + provider-proof + browser | 31 test modules; 808 collected; 766 pass without Playwright browsers | **Strong locally** | 32 browser tests need `playwright install`; no CI |
-| CI/CD | Scaffolded on feature branch | `.github/workflows/ci.yml` and `scripts/ci-python-stable-tests.sh` exist; Python sync uses `uv sync --locked`; `tests/test_repo_workflow_ci.py` guards lockfile use; `uv.lock` tracked; local command logs ignored | **65** | Needs PR/remote branch protection and CI run confirmation |
-| Python lint (ruff) | Scaffolded | `[tool.ruff]` in `pyproject.toml`; local ruff checks pass on touched proof/CI files | **60** | Needs full-repo ruff CI confirmation |
+| Agent skills (13 existing) | Done | `skills/agent-studio-local-bootstrap`, `skills/agent-studio-ship-gate`, `skills/agent-studio-provider-proof-capture`, `skills/agent-studio-ci-scaffold`, plus existing `agent-studio-*` skills | **95** | Keep skill docs current with proof/CI contract changes |
+| Test coverage | Foundation + provider-proof + browser | Fresh focused checks: foundation `23 passed`, system-design viewer browser `2 passed`, repo workflow CI `3 passed`; prior full Python suite passed with skips | **Strong locally** | Clean-env Playwright install proof and remote CI run still pending |
+| CI/CD | Scaffolded and pushed on feature branch | `.github/workflows/ci.yml` and `scripts/ci-python-stable-tests.sh` exist; Python sync uses `uv sync --locked`; CI installs Playwright Chromium; `tests/test_repo_workflow_ci.py` guards lockfile use; `uv.lock` tracked; local command logs ignored | **75** | PR creation is blocked by GitHub connector `403`; needs remote CI/branch-protection proof |
+| Python lint (ruff) | Baseline verified locally | `[tool.ruff]` in `pyproject.toml`; fresh `uv run ruff check src/ tests/` returned `All checks passed!` | **80** | Needs remote CI confirmation |
 | Production auth/security | Localhost-only acceptable | No auth, no CORS, secret-write routes | **15** | Required before any non-localhost deploy |
-| Git / release discipline | Not started | Zero commits on `main` | **0** | Initial commit + tagged releases pending |
+| Git / release discipline | Feature branch pushed | `main` is seeded at `f45c0a3`; `feature/livekit-voice-proof-capture` is pushed at `e8c88f9` | **45** | Manual PR/merge, branch protection, and tagged release still pending |
 | System-design ingestion | Nightly automation; ingestion lane clear | `system_design_vault/05-ingestion-runs/`; `urgent-blockers.json` status=clear | **70** | CS336 L17, Practical MLOps deepening |
 
 ## Overall objective
