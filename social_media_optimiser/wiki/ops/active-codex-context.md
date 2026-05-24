@@ -1212,3 +1212,11 @@ At the end of a meaningful slice:
 - Handoff: the PR template now requires every manual PR to state `provider-backed-live-voice-proof` status, `external-publication-proof` status, OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro as the current accepted path, and whether the LinkedIn operator inputs remain blocked.
 - Verification: the PR template regression failed first on the missing provider proof section, then passed after the template update. Branch-head CI was green at last live check. REST PR lookup still returns no open PR for `feature/livekit-voice-proof-capture` into `main`.
 - Boundary: this advances PR/auto-merge handoff readiness only. It does not create LinkedIn credentials or accepted external publication evidence.
+
+## Manual PR Handoff CLI - 2026-05-24
+
+- Source: `src/all_about_llms/cli.py`, `tests/test_repo_workflow_ci.py`, `docs/repo-workflow.md`, branch GitHub Actions CI.
+- Handoff: `uv run all-about-llms-admin provider-proof-pr-handoff --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env` emits a no-secret manual PR body from the current completion and operator-input gates. It names the accepted OpenRouter/LiveKit/Kokoro live-voice proof, the failed external-publication proof, the four LinkedIn/publication blocked fields, and current CI evidence.
+- Review finding fixed: Leibniz found that `--output-dir` could summarize one proof workspace while printing the default operator input path. The command now derives `operator-inputs.template.env` from `--output-dir` when no explicit `--operator-input-path` is supplied, and the verification command carries the same `--output-dir`.
+- Verification: repo workflow regression passed with `10 passed`; stable Python CI slice passed with `236 passed, 30 skipped`; branch-head remote CI was green for the current pushed head at last live check. Connector PR creation still returns GitHub `403 Resource not accessible by integration`, and REST lookup still shows no open PR.
+- Boundary: this advances the PR fallback path only. External publication remains blocked by `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.

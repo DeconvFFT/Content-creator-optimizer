@@ -66,6 +66,16 @@ Secrets belong in local environment variables or ignored files under `.secrets/`
 
 Open PRs into `main`. The PR checklist should show the local verification commands that were run, plus the current provider proof gate state. For the current Agent Studio branch, the PR must explicitly state the `provider-backed-live-voice-proof` status, the `external-publication-proof` status, and whether any operator-owned LinkedIn inputs remain blocked. Enable auto-merge only after required CI checks and review pass.
 
+If GitHub integration permissions prevent creating the PR automatically, generate a no-secret manual PR body from the current proof gates:
+
+```bash
+uv run all-about-llms-admin provider-proof-pr-handoff \
+  --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
+  --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env
+```
+
+The generated handoff must keep `provider-backed-live-voice-proof`, `external-publication-proof`, `LINKEDIN_ACCESS_TOKEN_FILE`, the OpenRouter/LiveKit/Kokoro route, CI evidence, and the no secret values boundary visible in the manual PR description.
+
 Repository settings still need to enforce:
 
 - `main` branch protection or a GitHub ruleset

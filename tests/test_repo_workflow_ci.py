@@ -162,6 +162,23 @@ def test_pull_request_template_requires_proof_gate_handoff() -> None:
         assert term in template
 
 
+def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
+    workflow_doc = (ROOT / "docs/repo-workflow.md").read_text(encoding="utf-8")
+
+    required_terms = [
+        "provider-proof-pr-handoff",
+        "manual PR",
+        "no secret values",
+        "provider-backed-live-voice-proof",
+        "external-publication-proof",
+        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "uv.lock",
+    ]
+
+    for term in required_terms:
+        assert term in workflow_doc
+
+
 def test_current_handoff_notes_avoid_exact_latest_ci_run_ids() -> None:
     handoff_paths = [
         ROOT / "agent_progress_vault/01-implementation-matrix/feature-implementation-status.md",
