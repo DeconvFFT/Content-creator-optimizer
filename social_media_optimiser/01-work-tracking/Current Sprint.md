@@ -1348,7 +1348,7 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 - Done: added `.github/workflows/auto-pr.yml` as the repo-owned PR fallback for `feature/**` and `fix_*` pushes after local token-backed PR creation and the GitHub connector path were unavailable.
 - Done: the workflow waits for matching branch CI success, synthesizes a temporary no-secret PR input file that keeps accepted live-voice fields configured while leaving publication placeholders blocked, generates a no-secret `provider-proof-pr-handoff` body, and creates or updates a draft PR with the Actions `GITHUB_TOKEN`.
 - Done: added an explicit 403 failure message and docs for the repository setting `Allow GitHub Actions to create and approve pull requests`, because workflow-level `pull-requests: write` is not sufficient when repository Actions permissions disallow PR creation.
-- Done: after the first pushed Auto PR run hit that repository-settings 403, changed the 403 path to emit an `Auto PR skipped` warning and step summary instead of making the branch red. Real CI failures and non-permission workflow errors still fail.
+- Superseded: after the first pushed Auto PR run hit that repository-settings 403, the workflow briefly used a warning-only step summary instead of making the branch red. That behavior is no longer current; see `2026-05-25 Auto PR Permission Denial Fail-Fast`.
 - Boundary: this only advances PR mechanics and clean-runner automation. It does not supply external publication operator evidence or complete the objective.
 
 ## 2026-05-24 Production Admin Auth Hardening
@@ -1378,9 +1378,18 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 
 - Done: pushed the default-routing and production-auth hardening branch head, then rechecked the remote workflows instead of relying on stale local assumptions.
 - Verified: branch CI completed green at the pushed head. The backend job included `Check uv.lock is current`, locked dependency sync, Ruff, Playwright install, and the stable Python test slice; frontend build/lint/typecheck/race tests and both Rust service jobs passed; Live Postgres remained skipped because it is main/manual only.
-- Auto PR: the Auto PR workflow waited for that CI success, generated the no-secret provider proof PR body, then hit GitHub repository-settings permission `403` on draft PR create/update. The workflow emitted `Auto PR skipped` and stayed green by design.
+- Auto PR: the Auto PR workflow waited for that CI success, generated the no-secret provider proof PR body, then hit GitHub repository-settings permission `403` on draft PR create/update. This was a historical pre-fix run where the workflow used warning-only green behavior; that behavior is superseded by the `2026-05-25 Auto PR Permission Denial Fail-Fast` fix.
 - PR state: read-only GitHub REST lookup returned no PR for `DeconvFFT:feature/livekit-voice-proof-capture`; use the manual `provider-proof-pr-handoff` command with fresh `--ci-url` and `--head-sha` when opening the PR, or enable the Actions PR-create setting documented in `cloud.md`.
 - Boundary: this confirms the CI/CD handoff state only. It does not create LinkedIn publication evidence, enable branch protection, enable auto-merge, or mark the objective complete.
+
+## 2026-05-25 Auto PR Permission Denial Fail-Fast
+
+- Done: changed `.github/workflows/auto-pr.yml` so GitHub repository-settings `403` during draft PR create/update writes `Auto PR failed` to the step summary and calls `core.setFailed(message)`. A denied PR mutation must not appear as a green PR-creation gate.
+- Done: updated `AGENTS.md`, `docs/repo-workflow.md`, and `cloud.md` to match the fail-fast contract.
+- Verified locally: the regression first failed against the old warning-only workflow, then passed after the change; full repo-workflow guard passed with `37 passed`; scoped whitespace and secret-pattern checks passed; `Leibniz` reported no Critical/Important findings.
+- Remote state: commit `c995e386e7bde9a2580ea22c99d3903b3dbcf8c0` was pushed and GitHub runs started, but current Codex network polling could not reach GitHub to verify final run conclusions. A follow-up handoff-sync commit is local only until GitHub connectivity recovers. Treat the remote CI/Auto PR conclusion as needing a fresh check.
+- Fresh proof recheck: 2026-05-25 local proof commands run with `UV_CACHE_DIR=/private/tmp/all-about-llms-uv-cache` still report accepted live voice, `external-publication-proof` as latest failed, and strict operator-input readiness blocked on the same four publication fields. This confirms no runtime/process restart is needed for the current blocker.
+- Boundary: this fixes the CI/CD signal contract only. It does not create the PR, enable repository Actions permissions, supply external publication evidence, or complete the objective.
 
 ## 2026-05-24 CI/CD Node Runtime Hardening
 
