@@ -2,7 +2,7 @@
 type: concept
 project: agent-studio
 status: active
-updated: 2026-05-17
+updated: 2026-05-24
 owners:
   - principal-software-engineer
   - backend-platform-engineer
@@ -22,7 +22,7 @@ related:
 
 ## Summary
 
-Agent Studio should be designed as a durable AI product platform, not a pile of prompts or HTML pages. The foundation is Postgres + pgvector durability, explicit A2A-style agent contracts, realtime provider boundaries, Gemma/HF expert reasoning, retrieval-quality gates, layered guardrails, Obsidian-first planning memory, and observable long-running orchestration.
+Agent Studio should be designed as a durable AI product platform, not a pile of prompts or HTML pages. The foundation is Postgres + pgvector durability, explicit A2A-style agent contracts, realtime provider boundaries, OpenRouter/LiveKit/Kokoro live dialogue, retrieval-quality gates, layered guardrails, Obsidian-first planning memory, and observable long-running orchestration.
 
 ## Design Patterns To Apply
 
@@ -40,11 +40,12 @@ Agent Studio should be designed as a durable AI product platform, not a pile of 
 - Track precision, recall, false positives, false negatives, source coverage, freshness, and drift in retrieval and memory ledgers.
 - Use feedback loops to improve routing, drafting, review, retrieval, and guardrails.
 - Keep offline evaluation and live operator feedback connected through durable artifacts and labeled relevance fields.
+- For any future RL, preference-tuned, or learned agent route, record the reward functions, reward weights, aggregation mode, normalization mode, loss normalizer, train/eval split seed, cache policy, and checkpoint-to-release provenance before promotion. This is a future training/evaluation governance rule only; it does not reopen the accepted OpenRouter/LiveKit/Kokoro live-voice proof or the current external-publication blocker.
 
 ### Inference Engineering Patterns
 
 - Start each route with latency, cost, quality, modality, context-window, and reliability requirements.
-- Separate realtime speech transport from expert reasoning. Gemma does not own voice turn-taking.
+- Separate realtime speech transport from expert reasoning. The current default route is OpenRouter `deepseek/deepseek-v4-flash` over LiveKit with Kokoro spoken output; native Gemma/HF audio work is historical experiment context, not the active proof blocker.
 - Record provider readiness, fallback behavior, model provenance, provider smoke evidence, timeouts, and retries.
 - Treat streaming, batching, caching, warm starts, and model routing as production design decisions.
 
