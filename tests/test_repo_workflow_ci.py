@@ -368,11 +368,12 @@ def test_auto_pr_workflow_creates_draft_pr_after_matching_branch_ci_success() ->
     assert "draft: true" in workflow_text
     assert "maintainer_can_modify: true" in workflow_text
     assert "error.status === 403" in workflow_text
-    assert "core.warning(" in workflow_text
-    assert "Auto PR skipped" in workflow_text
+    assert "core.setFailed(message)" in workflow_text
+    assert "Auto PR failed" in workflow_text
     assert "GITHUB_STEP_SUMMARY" in workflow_text
     assert "Allow GitHub Actions to create and approve pull requests" in workflow_text
-    assert "GitHub denied Auto PR create/update with 403" not in workflow_text
+    assert "Auto PR skipped" not in workflow_text
+    assert "core.warning(message)" not in workflow_text
 
     uv_log_artifact = "uv" + ".log"
     forbidden_terms = [
