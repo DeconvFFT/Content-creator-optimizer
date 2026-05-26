@@ -10,6 +10,16 @@ This is the committed no-secret handoff for closing the remaining Agent Studio p
 - Remaining proof: `external-publication-proof`
 - Current status: blocked until the LinkedIn token-file path, policy acknowledgement artifact, durable destination, and rollback or postcondition artifact are supplied and validated.
 
+## Minimal Operator Path
+
+Use this as the short route. The full commands remain below for copy/paste.
+
+1. Copy the four keys from `docs/external-publication-operator-inputs.example.env` into the ignored UUID operator input file.
+2. Replace every placeholder with real local or durable evidence: a readable LinkedIn token file path, policy acknowledgement artifact, durable LinkedIn destination, and rollback or postcondition artifact.
+3. Run the strict readiness command. If it reports `blocked_by_operator_inputs`, stop and fix the named fields.
+4. After strict readiness passes, refresh the proof packets, capture the publication preflight evidence, validate the proof record, and record it.
+5. Recheck completion status, then run closure review and blocker-state update. Do not claim completion before those checks pass.
+
 ## Required Operator Inputs
 
 Fill only local file paths or durable artifact IDs in `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env`. Use `docs/external-publication-operator-inputs.example.env` as the committed no-secret key list, then copy only the keys and local replacements into the ignored operator input file.

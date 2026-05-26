@@ -1352,3 +1352,11 @@ At the end of a meaningful slice:
 - PR state: REST lookup still returns no open PR for `DeconvFFT:feature/livekit-voice-proof-capture`; `provider-proof-pr-create` returned `manual_required` / `github_token_unavailable` with no secret values printed; public branch metadata reports `main.protected=false`, while the protection endpoint requires authenticated repo-admin access.
 - Proof state: `provider-backed-live-voice-proof` remains accepted. `external-publication-proof` remains latest failed and strict operator readiness still blocks on `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
 - Boundary: this is a fresh coordination snapshot only. It does not mutate GitHub repo settings, create a PR, restart shared processes, supply LinkedIn publication evidence, or mark the objective complete.
+
+## Fresh Local Proof/View Verification - 2026-05-26
+
+- Source: existing tests `tests/test_proof_readiness_browser.py`, `tests/test_openrouter_livekit_voice_boundary_browser.py`, `tests/test_publication_boundary_browser.py`, `tests/test_system_design_viewer_browser.py`, `tests/test_repo_workflow_ci.py`, plus `provider-proof-completion-status` and `provider-proof-operator-input-readiness`.
+- Verification: the focused proof/view and repo workflow slice passed locally with `47 passed`. The first sandboxed Playwright launch failed on macOS Mach-port permission, then the same command passed outside the sandbox; no code or test expansion was required.
+- Proof state: `provider-proof-completion-status` reports accepted proofs `provider-backed-live-voice-proof`, `all_required_proofs_accepted=false`, status `blocked_by_latest_failed_proof_record`, and latest failed proof `external-publication-proof`.
+- Operator-readiness state: strict readiness exits `2` with `LINKEDIN_ACCESS_TOKEN_FILE` unavailable and `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID` still placeholders.
+- Boundary: this is evidence refresh only. It does not add new smoke coverage, reopen live voice, touch shared runtime processes, supply publication credentials, create a PR, or complete the objective.
