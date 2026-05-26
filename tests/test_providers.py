@@ -439,7 +439,7 @@ def test_cartesia_realtime_tts_returns_websocket_descriptor_without_network():
     assert response.metadata["voice_id"] == "voice-123"
 
 
-def test_gemma4_realtime_provider_encodes_transport_pruning_and_barge_in_contract():
+def test_openrouter_livekit_provider_encodes_transport_pruning_and_barge_in_contract():
     provider = Gemma4RealtimeVoiceProvider(
         transport_framework="livekit",
         livekit_url="ws://127.0.0.1:7880",
@@ -447,8 +447,8 @@ def test_gemma4_realtime_provider_encodes_transport_pruning_and_barge_in_contrac
         livekit_api_secret=None,
         livekit_token_ttl_seconds=3600,
         websocket_url=None,
-        audio_input_model="google/gemma-4-E4B-it",
-        reasoning_model="google/gemma-4-E4B-it",
+        audio_input_model="deepseek/deepseek-v4-flash",
+        reasoning_model="deepseek/deepseek-v4-flash",
         audio_output_model="hexgrad/Kokoro-82M",
         audio_format="pcm_s16le",
         sample_rate=16000,
@@ -469,19 +469,19 @@ def test_gemma4_realtime_provider_encodes_transport_pruning_and_barge_in_contrac
         )
     )
 
-    assert response.provider == "gemma4_realtime"
+    assert response.provider == "openrouter_livekit"
     assert response.websocket_url is None
     assert response.transport is not None
     assert response.transport["framework"] == "livekit"
     assert response.transport["room_name"] == "agent-studio-run-123"
-    assert response.transport["agent_identity"] == "gemma4-kokoro-agent-run-123"
+    assert response.transport["agent_identity"] == "openrouter-livekit-agent-run-123"
     assert response.transport["has_token"] is False
     assert response.transport["token_persisted"] is False
     assert response.metadata["transport_framework"] == "livekit"
     assert response.metadata["room_name"] == "agent-studio-run-123"
     assert response.metadata["raw_websocket_production_allowed"] is False
-    assert response.metadata["audio_input_model"] == "google/gemma-4-E4B-it"
-    assert response.metadata["reasoning_model"] == "google/gemma-4-E4B-it"
+    assert response.metadata["audio_input_model"] == "deepseek/deepseek-v4-flash"
+    assert response.metadata["reasoning_model"] == "deepseek/deepseek-v4-flash"
     assert response.metadata["audio_output_model"] == "hexgrad/Kokoro-82M"
     assert response.metadata["gemma_streaming"]["enabled"] is True
     assert response.metadata["gemma_streaming"]["protocol"] == (
@@ -573,6 +573,18 @@ def test_gemma4_realtime_provider_mints_livekit_join_token_without_persisting_it
     assert decoded_payload["video"]["roomJoin"] is True
     assert decoded_payload["video"]["canPublish"] is True
     assert decoded_payload["video"]["canSubscribe"] is True
+    dispatched_agent = decoded_payload["roomConfig"]["agents"][0]
+    assert dispatched_agent["agentName"] == "openrouter-kokoro-agent"
+    dispatch_metadata = json.loads(dispatched_agent["metadata"])
+    assert dispatch_metadata["run_id"] == "run-token"
+    assert (
+        dispatch_metadata["realtime_session_id"]
+        == "11111111-1111-4111-8111-111111111111"
+    )
+    assert dispatch_metadata["room_name"] == "agent-studio-token-room"
+    assert dispatch_metadata["participant_identity"] == "creator-token"
+    assert dispatch_metadata["agent_participant_identity"] == "gemma4-kokoro-agent-token"
+    assert "control_binding_token" not in dispatch_metadata
     assert response.transport["has_token"] is True
     assert response.transport["token_persisted"] is False
     control_binding_token = response.transport["metadata"]["control_binding_token"]

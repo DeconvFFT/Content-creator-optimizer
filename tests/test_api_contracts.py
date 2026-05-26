@@ -71,6 +71,7 @@ from all_about_llms.contracts import (
     ReviewDecisionStatus,
     RevisionRequest,
     RunEvent,
+    RunResumeRequest,
     RunResumePlanRequest,
     RunState,
     RunStatus,
@@ -80,8 +81,10 @@ from all_about_llms.contracts import (
     VoiceAgentProcessStatus,
     VoiceAgentProcessStatusResult,
     WorkerProfile,
+    WorkerProfileCreate,
     WorkerProfileExecutionMode,
     WorkerProfileStatus,
+    AutopilotLaunchRequest,
     WorkerSchedulerProcessStatusResult,
 )
 from all_about_llms.providers.readiness import build_provider_readiness
@@ -132,7 +135,19 @@ from all_about_llms.voice_agent.control_binding import (
 
 def test_provider_smoke_defaults_defer_to_configured_kokoro_voice():
     assert ProviderSmokeRunRequest().voice is None
+    assert ProviderSmokeRunRequest().include_gemma is False
     assert AutonomousStudioPassRequest().provider_smoke_voice is None
+
+
+def test_worker_requests_default_to_non_gemma_provider_path():
+    run_id = uuid4()
+    assert AgentWorkerRunRequest(run_id=run_id).use_gemma is False
+    assert AgentWorkerCycleRequest(run_id=run_id).use_gemma is False
+    assert RunResumeRequest().use_gemma is False
+    assert AutonomousStudioPassRequest().use_gemma is False
+    assert WorkerProfile(run_id=run_id, name="Default worker").use_gemma is False
+    assert WorkerProfileCreate(name="Default worker").use_gemma is False
+    assert AutopilotLaunchRequest().use_gemma is False
 
 
 def _contains_string_value_prefix(value, prefix: str) -> bool:
@@ -6704,6 +6719,64 @@ def test_settings_defaults_to_project_local_secret_files(monkeypatch):
     )
 
 
+def test_settings_prefers_openrouter_realtime_model_env_names(monkeypatch):
+    monkeypatch.setenv("REALTIME_TRANSPORT_FRAMEWORK", "livekit-current")
+    monkeypatch.setenv("REALTIME_LIVEKIT_TOKEN_TTL_SECONDS", "7200")
+    monkeypatch.setenv("REALTIME_AUDIO_OUTPUT_MODEL", "hexgrad/Kokoro-82M-current")
+    monkeypatch.setenv("REALTIME_AUDIO_FORMAT", "pcm_f32le")
+    monkeypatch.setenv("REALTIME_SAMPLE_RATE", "24000")
+    monkeypatch.setenv("REALTIME_CONTEXT_WINDOW_TURNS", "6")
+    monkeypatch.setenv("REALTIME_CONTEXT_PRUNE_AFTER_TURNS", "5")
+    monkeypatch.setenv("REALTIME_MAX_AUDIO_SECONDS_PER_TURN", "45")
+    monkeypatch.setenv("REALTIME_TTS_FLUSH_CHARS", "240")
+    monkeypatch.setenv("REALTIME_DEFAULT_VOICE", "af_current")
+    monkeypatch.setenv("REALTIME_RUST_VAD_MODEL", "silero-current")
+    monkeypatch.setenv("OPENROUTER_REALTIME_AUDIO_INPUT_MODEL", "deepseek/audio")
+    monkeypatch.setenv("OPENROUTER_REALTIME_REASONING_MODEL", "deepseek/reasoning")
+    monkeypatch.setenv("GEMMA4_REALTIME_TRANSPORT_FRAMEWORK", "legacy-transport")
+    monkeypatch.setenv("GEMMA4_REALTIME_LIVEKIT_TOKEN_TTL_SECONDS", "1800")
+    monkeypatch.setenv("GEMMA4_REALTIME_AUDIO_INPUT_MODEL", "legacy/audio")
+    monkeypatch.setenv("GEMMA4_REALTIME_REASONING_MODEL", "legacy/reasoning")
+    monkeypatch.setenv("GEMMA4_REALTIME_AUDIO_OUTPUT_MODEL", "legacy-output")
+    monkeypatch.setenv("GEMMA4_REALTIME_AUDIO_FORMAT", "legacy-format")
+    monkeypatch.setenv("GEMMA4_REALTIME_SAMPLE_RATE", "8000")
+    monkeypatch.setenv("GEMMA4_REALTIME_CONTEXT_WINDOW_TURNS", "2")
+    monkeypatch.setenv("GEMMA4_REALTIME_CONTEXT_PRUNE_AFTER_TURNS", "1")
+    monkeypatch.setenv("GEMMA4_REALTIME_MAX_AUDIO_SECONDS_PER_TURN", "15")
+    monkeypatch.setenv("GEMMA4_REALTIME_TTS_FLUSH_CHARS", "90")
+    monkeypatch.setenv("GEMMA4_REALTIME_DEFAULT_VOICE", "legacy_voice")
+    monkeypatch.setenv("GEMMA4_REALTIME_RUST_VAD_MODEL", "legacy-vad")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.realtime_transport_framework == "livekit-current"
+    assert settings.realtime_livekit_token_ttl_seconds == 7200
+    assert settings.openrouter_realtime_audio_input_model == "deepseek/audio"
+    assert settings.openrouter_realtime_reasoning_model == "deepseek/reasoning"
+    assert settings.realtime_audio_output_model == "hexgrad/Kokoro-82M-current"
+    assert settings.realtime_audio_format == "pcm_f32le"
+    assert settings.realtime_sample_rate == 24000
+    assert settings.realtime_context_window_turns == 6
+    assert settings.realtime_context_prune_after_turns == 5
+    assert settings.realtime_max_audio_seconds_per_turn == 45
+    assert settings.realtime_tts_flush_chars == 240
+    assert settings.realtime_default_voice == "af_current"
+    assert settings.realtime_rust_vad_model == "silero-current"
+    assert settings.gemma4_realtime_transport_framework == "livekit-current"
+    assert settings.gemma4_realtime_livekit_token_ttl_seconds == 7200
+    assert settings.gemma4_realtime_audio_input_model == "deepseek/audio"
+    assert settings.gemma4_realtime_reasoning_model == "deepseek/reasoning"
+    assert settings.gemma4_realtime_audio_output_model == "hexgrad/Kokoro-82M-current"
+    assert settings.gemma4_realtime_audio_format == "pcm_f32le"
+    assert settings.gemma4_realtime_sample_rate == 24000
+    assert settings.gemma4_realtime_context_window_turns == 6
+    assert settings.gemma4_realtime_context_prune_after_turns == 5
+    assert settings.gemma4_realtime_max_audio_seconds_per_turn == 45
+    assert settings.gemma4_realtime_tts_flush_chars == 240
+    assert settings.gemma4_realtime_default_voice == "af_current"
+    assert settings.gemma4_realtime_rust_vad_model == "silero-current"
+
+
 def test_local_secret_file_endpoint_writes_hf_token_without_echoing_value(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
@@ -7014,6 +7087,68 @@ def test_local_secret_file_endpoint_preserves_existing_custom_parent_permissions
 def test_local_secret_file_endpoint_rejects_non_local_environments(tmp_path: Path):
     settings = Settings(
         environment="production",
+        admin_api_token="prod-admin-token",
+        hf_token_file=tmp_path / "hf_token",
+    )
+
+    app.dependency_overrides[get_settings] = lambda: settings
+    try:
+        response = TestClient(app).post(
+            "/api/local-secret-files",
+            headers={"Authorization": "Bearer prod-admin-token"},
+            json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
+        )
+        assert response.status_code == 403
+        assert not (tmp_path / "hf_token").exists()
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_production_mutation_requests_require_configured_admin_bearer_token(
+    tmp_path: Path,
+):
+    settings = Settings(
+        environment="production",
+        admin_api_token="prod-admin-token",
+        hf_token_file=tmp_path / "hf_token",
+    )
+
+    app.dependency_overrides[get_settings] = lambda: settings
+    try:
+        client = TestClient(app)
+        missing = client.post(
+            "/api/local-secret-files",
+            json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
+        )
+        wrong = client.post(
+            "/api/local-secret-files",
+            headers={"Authorization": "Bearer wrong-token"},
+            json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
+        )
+        allowed_to_endpoint = client.post(
+            "/api/local-secret-files",
+            headers={"Authorization": "Bearer prod-admin-token"},
+            json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
+        )
+
+        assert missing.status_code == 401
+        assert wrong.status_code == 401
+        assert "prod-admin-token" not in json.dumps(missing.json())
+        assert "wrong-token" not in json.dumps(wrong.json())
+        assert allowed_to_endpoint.status_code == 403
+        assert "local/dev/test environments" in allowed_to_endpoint.json()["detail"]
+        assert not (tmp_path / "hf_token").exists()
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_production_mutation_requests_fail_closed_when_admin_token_missing(
+    tmp_path: Path,
+):
+    settings = Settings(
+        environment="production",
+        admin_api_token=None,
+        admin_api_token_file=None,
         hf_token_file=tmp_path / "hf_token",
     )
 
@@ -7023,7 +7158,37 @@ def test_local_secret_file_endpoint_rejects_non_local_environments(tmp_path: Pat
             "/api/local-secret-files",
             json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
         )
-        assert response.status_code == 403
+
+        assert response.status_code == 503
+        assert response.json()["detail"] == (
+            "Production admin token is not configured."
+        )
+        assert not (tmp_path / "hf_token").exists()
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_production_mutation_auth_rejects_non_ascii_bearer_without_echo(
+    tmp_path: Path,
+):
+    settings = Settings(
+        environment="production",
+        admin_api_token="prod-admin-token",
+        hf_token_file=tmp_path / "hf_token",
+    )
+
+    app.dependency_overrides[get_settings] = lambda: settings
+    try:
+        response = TestClient(app, raise_server_exceptions=False).post(
+            "/api/local-secret-files",
+            headers={
+                b"authorization": "Bearer päss-token".encode("utf-8"),
+            },
+            json={"env_name": "HF_TOKEN", "secret_value": "secret-hf-token"},
+        )
+
+        assert response.status_code == 401
+        assert "päss-token" not in response.text
         assert not (tmp_path / "hf_token").exists()
     finally:
         app.dependency_overrides.clear()
@@ -7346,6 +7511,7 @@ def test_local_provider_config_endpoint_rejects_non_local_and_malformed_values(
     config_file = tmp_path / "local_provider_config.json"
     production_settings = Settings(
         environment="production",
+        admin_api_token="prod-admin-token",
         local_provider_config_file=config_file,
     )
 
@@ -7353,6 +7519,7 @@ def test_local_provider_config_endpoint_rejects_non_local_and_malformed_values(
     try:
         production_response = TestClient(app).post(
             "/api/local-provider-config",
+            headers={"Authorization": "Bearer prod-admin-token"},
             json={
                 "env_name": "GEMMA4_MULTIMODAL_ENDPOINT_URL",
                 "config_value": "https://hf.test/gemma-e4b",
@@ -7647,13 +7814,17 @@ def test_local_livekit_dev_config_rejects_non_local_and_pathless_setup(
 ):
     production_settings = Settings(
         environment="production",
+        admin_api_token="prod-admin-token",
         local_provider_config_file=tmp_path / "local_provider_config.json",
         livekit_api_key_file=tmp_path / "livekit_api_key",
         livekit_api_secret_file=tmp_path / "livekit_api_secret",
     )
     app.dependency_overrides[get_settings] = lambda: production_settings
     try:
-        production_response = TestClient(app).post("/api/local-livekit-dev-config")
+        production_response = TestClient(app).post(
+            "/api/local-livekit-dev-config",
+            headers={"Authorization": "Bearer prod-admin-token"},
+        )
         assert production_response.status_code == 403
         assert not production_settings.local_provider_config_file.exists()
     finally:
@@ -9317,9 +9488,6 @@ def test_realtime_dialogue_ledger_tracks_turns_interruptions_and_followups():
 def test_provider_operations_ledger_summarizes_model_tool_realtime_and_fallbacks():
     store = FakeStore()
 
-    async def override_store():
-        return store
-
     asyncio.run(
         store.record_realtime_session(
             RealtimeSessionRecord(
@@ -9523,14 +9691,19 @@ def test_provider_smoke_blocks_missing_live_config_and_records_local_proof(
     def override_settings():
         return Settings(
             _env_file=None,
+            local_provider_config_file=None,
             hf_token=None,
             hf_token_file=None,
             gemma4_primary_endpoint_url=None,
             gemma4_multimodal_endpoint_url=None,
+            openrouter_api_key=None,
+            openrouter_api_key_file=None,
             openrouter_livekit_url=None,
             gemma4_realtime_livekit_url=None,
             livekit_api_key=None,
+            livekit_api_key_file=None,
             livekit_api_secret=None,
+            livekit_api_secret_file=None,
             tavily_api_key=None,
             tavily_api_key_file=None,
             kokoro_tts_endpoint_url=None,
@@ -9542,7 +9715,11 @@ def test_provider_smoke_blocks_missing_live_config_and_records_local_proof(
         client = TestClient(app)
         response = client.post(
             f"/api/runs/{store.run.run_id}/provider-smoke",
-            json={"record_artifact": True, "execute_live_calls": False},
+            json={
+                "record_artifact": True,
+                "execute_live_calls": False,
+                "include_gemma": True,
+            },
         )
 
         assert response.status_code == 200
@@ -9575,8 +9752,8 @@ def test_provider_smoke_blocks_missing_live_config_and_records_local_proof(
         assert streaming_details["kokoro_transport"] == "missing"
         assert streaming_details["kokoro_endpoint_configured"] is False
         assert streaming_details["kokoro_local_package_available"] is False
-        assert streaming_details["gemma_streaming_enabled"] is True
-        assert streaming_details["hf_token_configured"] is False
+        assert streaming_details["reasoning_streaming_enabled"] is True
+        assert streaming_details["openrouter_api_key_configured"] is False
         assert steps["selected-web-search-smoke"]["status"] == "blocked"
         assert "TAVILY_API_KEY" in " ".join(
             steps["selected-web-search-smoke"]["blockers"]
@@ -9617,13 +9794,19 @@ def test_provider_smoke_routes_missing_config_to_inference_specialist_once(
     def override_settings():
         return Settings(
             _env_file=None,
+            local_provider_config_file=None,
             hf_token=secret_value,
             hf_token_file=hf_secret_file,
             gemma4_primary_endpoint_url=None,
             gemma4_multimodal_endpoint_url=None,
+            openrouter_api_key=None,
+            openrouter_api_key_file=None,
+            openrouter_livekit_url=None,
             gemma4_realtime_livekit_url=None,
             livekit_api_key=None,
+            livekit_api_key_file=None,
             livekit_api_secret=None,
+            livekit_api_secret_file=None,
             tavily_api_key=None,
             tavily_api_key_file=tavily_secret_file,
             kokoro_tts_endpoint_url=None,
@@ -9901,7 +10084,7 @@ def test_provider_smoke_followup_replay_converges_after_artifact_write_failure(
         app.dependency_overrides.clear()
 
 
-def test_provider_smoke_voice_streaming_requires_multimodal_endpoint_not_primary(
+def test_provider_smoke_voice_streaming_uses_openrouter_without_gemma_audio_endpoint(
     monkeypatch,
 ):
     store = FakeStore()
@@ -9917,12 +10100,15 @@ def test_provider_smoke_voice_streaming_requires_multimodal_endpoint_not_primary
     def override_settings():
         return Settings(
             _env_file=None,
-            hf_token="secret-hf-token",
+            local_provider_config_file=None,
+            hf_token=None,
             hf_token_file=None,
             gemma4_primary_endpoint_url="https://hf.test/gemma-primary",
             gemma4_multimodal_endpoint_url=None,
+            openrouter_api_key="secret-openrouter-key",
+            openrouter_livekit_url="ws://127.0.0.1:7880",
             kokoro_tts_endpoint_url="https://hf.test/kokoro",
-            realtime_default_provider="gemma4_realtime",
+            realtime_default_provider="openrouter_livekit",
         )
 
     app.dependency_overrides[get_store] = override_store
@@ -9938,7 +10124,7 @@ def test_provider_smoke_voice_streaming_requires_multimodal_endpoint_not_primary
                 "include_web_search": False,
                 "include_reranker": False,
                 "include_imagegen_boundary": False,
-                "realtime_provider": "gemma4_realtime",
+                "realtime_provider": "openrouter_livekit",
             },
         )
 
@@ -9946,28 +10132,21 @@ def test_provider_smoke_voice_streaming_requires_multimodal_endpoint_not_primary
         payload = response.json()
         steps = {step["step_id"]: step for step in payload["steps"]}
         streaming_step = steps["gemma-kokoro-voice-streaming-smoke"]
-        assert streaming_step["status"] == "blocked"
+        assert streaming_step["status"] == "not_run"
         streaming_blockers = " ".join(streaming_step["blockers"])
-        assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" in streaming_blockers
-        assert "GEMMA4_PRIMARY_ENDPOINT_URL" in streaming_blockers
+        assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" not in streaming_blockers
+        assert "GEMMA4_PRIMARY_ENDPOINT_URL" not in streaming_blockers
         assert "HF_TOKEN" not in streaming_blockers
         assert "KOKORO_TTS_ENDPOINT_URL or the local Kokoro package" not in (
             streaming_blockers
         )
-        assert streaming_step["details"]["hf_token_configured"] is True
-        assert streaming_step["details"]["gemma_primary_endpoint_configured"] is True
-        assert streaming_step["details"]["gemma_audio_endpoint_configured"] is False
-        assert (
-            streaming_step["details"]["gemma_primary_endpoint_usable_for_audio"]
-            is False
-        )
-        assert streaming_step["details"]["kokoro_endpoint_configured"] is True
-        assert "secret-hf-token" not in str(payload)
+        assert streaming_step["smoke_proof_status"] == "ready_not_executed"
+        assert "secret-openrouter-key" not in str(payload)
     finally:
         app.dependency_overrides.clear()
 
 
-def test_provider_smoke_voice_streaming_blocks_malformed_multimodal_endpoint(
+def test_provider_smoke_voice_streaming_ignores_malformed_gemma_endpoint_for_openrouter(
     monkeypatch,
 ):
     store = FakeStore()
@@ -9983,11 +10162,14 @@ def test_provider_smoke_voice_streaming_blocks_malformed_multimodal_endpoint(
     def override_settings():
         return Settings(
             _env_file=None,
-            hf_token="secret-hf-token",
+            local_provider_config_file=None,
+            hf_token=None,
             hf_token_file=None,
             gemma4_multimodal_endpoint_url="not-a-url",
+            openrouter_api_key="secret-openrouter-key",
+            openrouter_livekit_url="ws://127.0.0.1:7880",
             kokoro_tts_endpoint_url="https://hf.test/kokoro",
-            realtime_default_provider="gemma4_realtime",
+            realtime_default_provider="openrouter_livekit",
         )
 
     app.dependency_overrides[get_store] = override_store
@@ -10003,7 +10185,7 @@ def test_provider_smoke_voice_streaming_blocks_malformed_multimodal_endpoint(
                 "include_web_search": False,
                 "include_reranker": False,
                 "include_imagegen_boundary": False,
-                "realtime_provider": "gemma4_realtime",
+                "realtime_provider": "openrouter_livekit",
             },
         )
 
@@ -10011,19 +10193,16 @@ def test_provider_smoke_voice_streaming_blocks_malformed_multimodal_endpoint(
         payload = response.json()
         steps = {step["step_id"]: step for step in payload["steps"]}
         streaming_step = steps["gemma-kokoro-voice-streaming-smoke"]
-        assert streaming_step["status"] == "blocked"
+        assert streaming_step["status"] == "not_run"
         streaming_blockers = " ".join(streaming_step["blockers"])
-        assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" in streaming_blockers
-        assert "valid HTTP(S)" in streaming_blockers
+        assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" not in streaming_blockers
+        assert "valid HTTP(S)" not in streaming_blockers
         assert "HF_TOKEN" not in streaming_blockers
         assert "KOKORO_TTS_ENDPOINT_URL or the local Kokoro package" not in (
             streaming_blockers
         )
-        assert streaming_step["details"]["gemma_multimodal_endpoint_configured"] is True
-        assert streaming_step["details"]["gemma_audio_endpoint_configured"] is False
-        assert streaming_step["details"]["gemma_audio_endpoint_error"] == "invalid_url"
-        assert streaming_step["details"]["kokoro_endpoint_configured"] is True
-        assert "secret-hf-token" not in str(payload)
+        assert streaming_step["smoke_proof_status"] == "ready_not_executed"
+        assert "secret-openrouter-key" not in str(payload)
     finally:
         app.dependency_overrides.clear()
 
@@ -11578,6 +11757,7 @@ def test_provider_smoke_live_fake_providers_records_sources_and_realtime_session
                 "execute_live_calls": True,
                 "topic": "Gemma 4 context engineering",
                 "realtime_provider": "openai_realtime",
+                "include_gemma": True,
             },
         )
 
@@ -14287,7 +14467,15 @@ def test_autonomous_pass_continues_pending_multimodal_followups(tmp_path):
         return store
 
     async def override_settings():
-        return Settings(artifacts_root=tmp_path)
+        return Settings(
+            artifacts_root=tmp_path,
+            local_provider_config_file=None,
+            hf_token_file=None,
+            openrouter_api_key_file=None,
+            livekit_api_key_file=None,
+            livekit_api_secret_file=None,
+            tavily_api_key_file=None,
+        )
 
     app.dependency_overrides[get_store] = override_store
     app.dependency_overrides[get_settings] = override_settings
@@ -17001,7 +17189,14 @@ def test_interactive_note_endpoint_generates_html_artifact(tmp_path):
         return store
 
     async def override_settings():
-        return Settings(artifacts_root=tmp_path)
+        return Settings(
+            artifacts_root=tmp_path,
+            hf_token_file=None,
+            openrouter_api_key_file=None,
+            livekit_api_key_file=None,
+            livekit_api_secret_file=None,
+            tavily_api_key_file=None,
+        )
 
     app.dependency_overrides[get_store] = override_store
     app.dependency_overrides[get_settings] = override_settings
@@ -17124,7 +17319,15 @@ def test_interactive_note_redacts_sensitive_embedded_state(tmp_path):
         return store
 
     async def override_settings():
-        return Settings(artifacts_root=tmp_path)
+        return Settings(
+            artifacts_root=tmp_path,
+            local_provider_config_file=None,
+            hf_token_file=None,
+            openrouter_api_key_file=None,
+            livekit_api_key_file=None,
+            livekit_api_secret_file=None,
+            tavily_api_key_file=None,
+        )
 
     app.dependency_overrides[get_store] = override_store
     app.dependency_overrides[get_settings] = override_settings
@@ -17658,7 +17861,23 @@ def test_growth_package_does_not_reuse_stale_same_source_package(tmp_path):
         return store
 
     async def override_settings():
-        return Settings(artifacts_root=tmp_path)
+        return Settings(
+            _env_file=None,
+            artifacts_root=tmp_path,
+            local_provider_config_file=None,
+            hf_token=None,
+            hf_token_file=None,
+            openrouter_api_key=None,
+            openrouter_api_key_file=None,
+            openrouter_livekit_url=None,
+            livekit_api_key=None,
+            livekit_api_key_file=None,
+            livekit_api_secret=None,
+            livekit_api_secret_file=None,
+            tavily_api_key=None,
+            tavily_api_key_file=None,
+            kokoro_tts_endpoint_url=None,
+        )
 
     app.dependency_overrides[get_store] = override_store
     app.dependency_overrides[get_settings] = override_settings
@@ -17836,7 +18055,23 @@ def test_autonomous_studio_pass_runs_bounded_multi_agent_review_loop(tmp_path):
         return store
 
     async def override_settings():
-        return Settings(artifacts_root=tmp_path)
+        return Settings(
+            _env_file=None,
+            artifacts_root=tmp_path,
+            local_provider_config_file=None,
+            hf_token=None,
+            hf_token_file=None,
+            openrouter_api_key=None,
+            openrouter_api_key_file=None,
+            openrouter_livekit_url=None,
+            livekit_api_key=None,
+            livekit_api_key_file=None,
+            livekit_api_secret=None,
+            livekit_api_secret_file=None,
+            tavily_api_key=None,
+            tavily_api_key_file=None,
+            kokoro_tts_endpoint_url=None,
+        )
 
     app.dependency_overrides[get_store] = override_store
     app.dependency_overrides[get_settings] = override_settings
@@ -21280,7 +21515,11 @@ def test_agent_worker_processes_accepted_task_with_context_and_gemma_provider():
     worker_result = asyncio.run(
         worker.run(
             "web-research-agent",
-            AgentWorkerRunRequest(run_id=content_result.run_id, max_tasks=1),
+            AgentWorkerRunRequest(
+                run_id=content_result.run_id,
+                max_tasks=1,
+                use_gemma=True,
+            ),
         )
     )
 

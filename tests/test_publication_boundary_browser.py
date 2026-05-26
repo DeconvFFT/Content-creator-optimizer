@@ -32,16 +32,16 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
                 "external-publication-proof"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
-                "POST /api/runs/<run-id>/publish-readiness"
+                "POST /api/runs/"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
-                "build-distribution-package --run-id <run-id>"
+                "/publish-readiness"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
-                "record-provider-proof-blocker-state-update --run-id <run-id>"
+                "build-distribution-package --run-id"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
-                "run_id_not_concrete"
+                "record-provider-proof-blocker-state-update --run-id"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
                 "blocked_by_placeholder_only_configuration"
@@ -51,9 +51,6 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
             )
             expect(page.locator("#publication-detail")).to_contain_text(
                 "Operator sequence"
-            )
-            expect(page.locator("#publication-detail")).to_contain_text(
-                "init-provider-proof-workspace --run-id <run-id>"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
                 "external-publication-proof.template.json"
@@ -80,10 +77,7 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
                 "external publication proof remains blocked"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
-                "INSTAGRAM_ACCESS_TOKEN"
-            )
-            expect(page.locator("#publication-detail")).to_contain_text(
-                "SUBSTACK_API_TOKEN"
+                "LINKEDIN_ACCESS_TOKEN"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
                 "Credential snapshot"
@@ -95,6 +89,14 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
                 "No secret values printed"
             )
             publication_detail = page.locator("#publication-detail").inner_text()
+            credential_setup_block = publication_detail.split(
+                "Credential setup",
+                1,
+            )[1].split("Operator sequence", 1)[0]
+            assert "LINKEDIN_ACCESS_TOKEN" in credential_setup_block
+            assert "INSTAGRAM_ACCESS_TOKEN" not in credential_setup_block
+            assert "X_ACCESS_TOKEN" not in credential_setup_block
+            assert "SUBSTACK_API_TOKEN" not in credential_setup_block
             assert publication_detail.count("Proof capture commands after unblock") == 2
             expect(page.locator("#publication-detail")).to_contain_text(
                 "Proof record schema"
@@ -137,17 +139,11 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
             )
             assert export_payload["routes"][0]["proof_plan"][
                 "blocking_reasons"
-            ] == [
-                "run_id_not_concrete",
-                "blocked_by_placeholder_only_configuration",
-            ]
+            ] == ["blocked_by_placeholder_only_configuration"]
             assert export_payload["routes"][0]["proof_plan"][
                 "credential_setup_requirements"
             ] == [
-                "configure INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN",
                 "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
-                "configure X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY",
-                "configure SUBSTACK_API_TOKEN_FILE or SUBSTACK_API_TOKEN",
             ]
             assert (
                 "run preflight_checks and stop if any readiness gate fails"
@@ -158,48 +154,85 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
             ]
             assert bootstrap["api_path"] == "POST /api/runs"
             assert "product-run.create.json" in bootstrap["commands"][2]
-            assert export_payload["routes"][0]["proof_plan"][
+            workspace_commands = export_payload["routes"][0]["proof_plan"][
                 "workspace_commands"
-            ] == [
-                (
-                    "uv run all-about-llms-admin init-provider-proof-workspace "
-                    "--run-id <run-id> --output-dir "
-                    "social_media_optimiser/output/provider-proof/<run-id>"
-                )
             ]
+            assert len(workspace_commands) == 1
+            assert workspace_commands[0].startswith(
+                "uv run all-about-llms-admin init-provider-proof-workspace --run-id "
+            )
+            assert (
+                "--output-dir social_media_optimiser/output/provider-proof/"
+                in workspace_commands[0]
+            )
             assert export_payload["routes"][0]["proof_plan"][
                 "workspace_expected_files"
             ][1].endswith("external-publication-proof.template.json")
-            assert export_payload["routes"][0]["proof_plan"][
+            preflight_commands = export_payload["routes"][0]["proof_plan"][
                 "preflight_commands"
-            ] == [
-                "curl -sS 'http://127.0.0.1:8000/api/runs/<run-id>'",
-                (
-                    "curl -sS -X POST "
-                    "'http://127.0.0.1:8000/api/runs/<run-id>/publish-readiness' "
-                    "-H 'Content-Type: application/json' "
-                    "--data "
-                    "'{\"open_feedback_gate\":false,"
-                    "\"mark_run_completed_if_ready\":false,"
-                    "\"check_publish_channel_readiness\":true,"
-                    "\"acknowledge_publish_channel_policy\":false}'"
-                )
             ]
-            assert export_payload["routes"][0]["proof_plan"][
+            assert preflight_commands[0].startswith(
+                "curl -sS http://127.0.0.1:8000/api/runs/"
+            )
+            assert "/publish-readiness" in preflight_commands[1]
+            assert '"acknowledge_publish_channel_policy":false' in preflight_commands[1]
+            preflight_output_files = export_payload["routes"][0]["proof_plan"][
                 "preflight_output_files"
-            ] == [
-                (
-                    "social_media_optimiser/output/provider-proof/<run-id>/"
-                    "product-run.preflight.json"
-                ),
-                (
-                    "social_media_optimiser/output/provider-proof/<run-id>/"
-                    "publish-readiness.preflight.json"
-                )
             ]
+            assert preflight_output_files[0].endswith("product-run.preflight.json")
+            assert preflight_output_files[1].endswith(
+                "publish-readiness.preflight.json"
+            )
             assert export_payload["routes"][0]["proof_plan"][
                 "preflight_capture_commands"
             ][1].startswith("curl -sS -X POST -o ")
+            run_id = export_payload["routes"][0]["proof_plan"]["command_run_id"]
+            distribution_capture_command = (
+                "uv run all-about-llms-admin build-distribution-package "
+                f"--run-id {run_id} > social_media_optimiser/output/provider-proof/"
+                f"{run_id}/distribution-package.json"
+            )
+            assert distribution_capture_command in export_payload["routes"][0][
+                "proof_plan"
+            ]["proof_capture_commands_after_unblock"]
+            assert distribution_capture_command in publication_packet[
+                "proof_capture_commands_after_unblock"
+            ]
+            current_gate = publication_packet["current_gate"]
+            assert current_gate["latest_failed_proofs"] == [
+                "external-publication-proof"
+            ]
+            assert all(
+                "provider-backed-live-voice-proof" not in command
+                for command in current_gate["completion_next_action_commands"]
+            )
+            assert any(
+                "provider-proof-operator-input-readiness" in command
+                and "--fail-on-blocked" in command
+                for command in current_gate["completion_next_action_commands"]
+            )
+            assert all(
+                "/publish-readiness" not in command
+                for command in current_gate["completion_next_action_commands"]
+            )
+            gate_commands = current_gate["completion_next_action_commands"]
+            assert gate_commands[-1] == (
+                "uv run all-about-llms-admin provider-proof-completion-status "
+                f"--run-id {run_id} --output-dir "
+                f"social_media_optimiser/output/provider-proof/{run_id}"
+            )
+            strict_gate_index = next(
+                index
+                for index, command in enumerate(gate_commands)
+                if "provider-proof-operator-input-readiness" in command
+                and "--fail-on-blocked" in command
+            )
+            snapshot_index = next(
+                index
+                for index, command in enumerate(gate_commands)
+                if "blocker-credential-snapshot" in command
+            )
+            assert strict_gate_index < snapshot_index
             assert "API response proof or manual-completion proof" in json.dumps(
                 export_payload["routes"][0]
             )
@@ -212,14 +245,11 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
             assert "rollback proof" in json.dumps(export_payload["routes"][0])
             snapshot = export_payload["routes"][0]["credential_snapshot"]
             assert snapshot["source"] == "agent-studio-proof-readiness"
+            assert snapshot["source_snapshot"] == "non-secret local classifier"
             assert snapshot["shell_values_loaded"] is False
             assert snapshot["secret_values_printed"] is False
             assert snapshot["placeholder_only_inputs"] == [
-                "INSTAGRAM_ACCESS_TOKEN",
                 "LINKEDIN_ACCESS_TOKEN",
-                "X_ACCESS_TOKEN",
-                "X_API_KEY",
-                "SUBSTACK_API_TOKEN",
             ]
         finally:
             browser.close()

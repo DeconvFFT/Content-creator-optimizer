@@ -6,10 +6,12 @@ import json
 import os
 import re
 import shlex
+from urllib import error as urlerror
+from urllib import request as urlrequest
 from collections.abc import Mapping, Sequence
 from datetime import date, datetime, timezone
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
 from pydantic import ValidationError
@@ -100,6 +102,10 @@ PROVIDER_PROOF_RECORD_TARGETS = [
     ),
 ]
 
+PROVIDER_PROOF_OPERATOR_INPUT_EXAMPLE_PATH = (
+    PROJECT_ROOT / "docs/external-publication-operator-inputs.example.env"
+)
+
 PROVIDER_PROOF_CREDENTIAL_SETUP_REQUIREMENTS = {
     "provider-backed-live-voice-proof": [
         "configure OPENROUTER_API_KEY_FILE or OPENROUTER_API_KEY",
@@ -108,13 +114,7 @@ PROVIDER_PROOF_CREDENTIAL_SETUP_REQUIREMENTS = {
         "configure LIVEKIT_API_SECRET_FILE or LIVEKIT_API_SECRET",
     ],
     "external-publication-proof": [
-        "configure INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN",
         "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
-        (
-            "configure X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or "
-            "X_API_KEY_FILE or X_API_KEY"
-        ),
-        "configure SUBSTACK_API_TOKEN_FILE or SUBSTACK_API_TOKEN",
     ],
 }
 
@@ -177,32 +177,10 @@ PROVIDER_PROOF_CREDENTIAL_SETUP_COMMANDS = {
     "external-publication-proof": [
         "mkdir -p .secrets && chmod 700 .secrets",
         (
-            ': "${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}" && '
-            "umask 077 && printf '%s\\n' \"$INSTAGRAM_ACCESS_TOKEN\" > "
-            ".secrets/instagram_access_token && "
-            "chmod 600 .secrets/instagram_access_token"
-        ),
-        (
             ': "${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}" && '
             "umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > "
             ".secrets/linkedin_access_token && "
             "chmod 600 .secrets/linkedin_access_token"
-        ),
-        (
-            'if [ -n "${X_ACCESS_TOKEN:-}" ]; then '
-            "umask 077 && printf '%s\\n' \"$X_ACCESS_TOKEN\" > "
-            ".secrets/x_access_token && "
-            "chmod 600 .secrets/x_access_token; "
-            "else "
-            ': "${X_API_KEY:?set X_ACCESS_TOKEN or X_API_KEY first}" && '
-            "umask 077 && printf '%s\\n' \"$X_API_KEY\" > .secrets/x_api_key && "
-            "chmod 600 .secrets/x_api_key; "
-            "fi"
-        ),
-        (
-            ': "${SUBSTACK_API_TOKEN:?set SUBSTACK_API_TOKEN first}" && '
-            "umask 077 && printf '%s\\n' \"$SUBSTACK_API_TOKEN\" > "
-            ".secrets/substack_api_token && chmod 600 .secrets/substack_api_token"
         ),
     ],
 }
@@ -508,6 +486,12 @@ def _provider_proof_publish_channel_summary_entries(
     )
 
 
+def _provider_proof_external_publication_channels_are_linkedin_only(
+    channels: Sequence[str],
+) -> bool:
+    return list(channels) == ["linkedin"]
+
+
 def _provider_proof_publish_channels_from_preflight(
     parsed: Mapping[str, object],
 ) -> list[str]:
@@ -566,6 +550,47 @@ def _project_relative_path(value: str | Path) -> Path:
     if path.is_absolute():
         return path
     return PROJECT_ROOT / path
+
+
+def _github_actions_run_url(value: str) -> str:
+    parsed = urlparse(value)
+    if (
+        parsed.scheme != "https"
+        or parsed.netloc != "github.com"
+        or parsed.params
+        or parsed.query
+        or parsed.fragment
+        or not re.fullmatch(
+            r"/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]+/?",
+            parsed.path,
+        )
+    ):
+        raise argparse.ArgumentTypeError(
+            "must be a GitHub Actions run URL like "
+            "https://github.com/OWNER/REPO/actions/runs/123456789"
+        )
+    return value
+
+
+def _git_commit_sha(value: str) -> str:
+    if not re.fullmatch(r"[0-9a-fA-F]{40}", value):
+        raise argparse.ArgumentTypeError("must be a 40-character hex commit SHA")
+    return value.lower()
+
+
+def _github_actions_run_repo(value: str) -> str:
+    path_parts = urlparse(value).path.strip("/").split("/")
+    return "/".join(path_parts[:2])
+
+
+def _validate_provider_proof_pr_handoff_evidence(
+    args: argparse.Namespace,
+) -> None:
+    ci_repo = _github_actions_run_repo(args.ci_url)
+    if ci_repo.lower() != args.repo.lower():
+        raise argparse.ArgumentTypeError(
+            f"--ci-url repository {ci_repo} must match --repo {args.repo}"
+        )
 
 
 def _env_example_items(path: Path) -> dict[str, str]:
@@ -908,13 +933,39 @@ def _proof_record_template_commands(proof_name: str, run_id: str) -> list[str]:
     ]
 
 
-def _proof_completion_status_commands(run_id: str) -> list[str]:
-    return [
-        (
-            "uv run all-about-llms-admin provider-proof-completion-status "
-            f"--run-id {run_id}"
+def _proof_completion_status_commands(
+    run_id: str,
+    *,
+    output_dir: Path | None = None,
+) -> list[str]:
+    command = (
+        "uv run all-about-llms-admin provider-proof-completion-status "
+        f"--run-id {run_id}"
+    )
+    if output_dir is not None:
+        output_dir_text = _provider_proof_command_path_text(output_dir)
+        command = f"{command} --output-dir {_proof_command_arg(output_dir_text)}"
+    return [command]
+
+
+def _proof_completion_status_command_with_output_dir(
+    command: str,
+    output_dir: Path,
+) -> str:
+    if " provider-proof-completion-status " not in command:
+        return command
+    if " --output-dir " in command:
+        return command
+    redirect_marker = " > "
+    if redirect_marker in command:
+        before_redirect, after_redirect = command.split(redirect_marker, 1)
+        output_dir_text = _provider_proof_command_path_text(output_dir)
+        return (
+            f"{before_redirect} --output-dir {_proof_command_arg(output_dir_text)}"
+            f"{redirect_marker}{after_redirect}"
         )
-    ]
+    output_dir_text = _provider_proof_command_path_text(output_dir)
+    return f"{command} --output-dir {_proof_command_arg(output_dir_text)}"
 
 
 def _proof_plan_recheck_commands(run_id: str) -> list[str]:
@@ -1556,6 +1607,76 @@ def _provider_proof_operator_input_command_path(
     return output_dir / "operator-inputs.template.env"
 
 
+def _provider_proof_operator_input_blocks_proof(
+    proof_name: str,
+    operator_input_readiness: Mapping[str, object],
+) -> bool:
+    blocked_statuses = {
+        "blocked_by_operator_inputs",
+        "invalid_operator_input_file",
+    }
+    proofs = operator_input_readiness.get("proofs")
+    if isinstance(proofs, Mapping):
+        proof_payload = proofs.get(proof_name)
+        if isinstance(proof_payload, Mapping):
+            proof_state = proof_payload.get("state") or proof_payload.get("status")
+            if str(proof_state) in blocked_statuses:
+                return True
+            blocked_fields = proof_payload.get("blocked_fields", [])
+            if isinstance(blocked_fields, list):
+                return any(str(field).strip() for field in blocked_fields)
+            return False
+
+    global_status = str(operator_input_readiness.get("status", ""))
+    if global_status == "invalid_operator_input_file":
+        return True
+    if global_status != "blocked_by_operator_inputs":
+        return False
+    required_fields = {
+        str(field)
+        for field in PROVIDER_PROOF_OPERATOR_INPUT_FIELDS.get(proof_name, [])
+    }
+    blocked_fields = operator_input_readiness.get("blocked_fields", [])
+    if not isinstance(blocked_fields, list):
+        return False
+    return any(str(field) in required_fields for field in blocked_fields)
+
+
+def _provider_proof_operator_input_gate_commands_for_proof(
+    proof_name: str,
+    run_id: str,
+    output_dir: Path,
+    operator_input_readiness: Mapping[str, object] | None = None,
+) -> list[str]:
+    readiness = operator_input_readiness
+    if readiness is None:
+        readiness = _provider_proof_json_object(
+            output_dir / "operator-input-readiness.json"
+        )
+    if not readiness or not _provider_proof_operator_input_blocks_proof(
+        proof_name,
+        readiness,
+    ):
+        return []
+
+    guarded_commands = readiness.get("guarded_next_action_commands")
+    if isinstance(guarded_commands, list):
+        commands = [
+            str(command)
+            for command in guarded_commands
+            if isinstance(command, str) and command
+        ]
+        if commands:
+            return commands
+
+    input_path = _provider_proof_operator_input_command_path(readiness, output_dir)
+    return _proof_operator_input_retry_commands_for_input(
+        run_id,
+        input_path,
+        fail_on_blocked=True,
+    )
+
+
 def _runtime_health_ledger_commands(run_id: str) -> list[str]:
     return [
         (
@@ -1585,12 +1706,43 @@ def _proof_execution_capture_commands_for_output(
             _voice_agent_process_start_command(
                 output_path=output_dir / "voice-agent-process.start.json"
             ),
-            *_live_voice_evidence_commands(run_id),
+            *_live_voice_evidence_commands(run_id, output_dir=output_dir),
+        ]
+    if proof_name == "external-publication-proof":
+        return [
+            (
+                "uv run all-about-llms-admin "
+                f"build-distribution-package --run-id {run_id} "
+                f"> {_proof_command_arg(output_dir / 'distribution-package.json')}"
+            )
         ]
     return _proof_execution_commands(proof_name, run_id)
 
 
-def _live_voice_evidence_commands(run_id: str) -> list[str]:
+def _livekit_voice_timing_capture_command(
+    run_id: str,
+    *,
+    output_path: Path | None = None,
+) -> str:
+    command = (
+        "uv run all-about-llms-admin "
+        f"capture-livekit-voice-timing-proof --run-id {run_id}"
+    )
+    if output_path is None:
+        return command
+    return f"{command} > {_proof_command_arg(output_path)}"
+
+
+def _live_voice_evidence_commands(
+    run_id: str,
+    *,
+    output_dir: Path | None = None,
+) -> list[str]:
+    capture_output_path = (
+        output_dir / "livekit-voice-timing-capture.json"
+        if output_dir is not None
+        else None
+    )
     return [
         *_runtime_health_ledger_commands(run_id),
         (
@@ -1599,6 +1751,10 @@ def _live_voice_evidence_commands(run_id: str) -> list[str]:
             f"--run-id {run_id} --live "
             "--realtime-provider openrouter_livekit "
             "--skip-gemma --skip-web-search"
+        ),
+        _livekit_voice_timing_capture_command(
+            run_id,
+            output_path=capture_output_path,
         ),
         (
             "uv run all-about-llms-admin "
@@ -1758,12 +1914,12 @@ def _voice_proof_linkage_requirements() -> list[str]:
     return [
         (
             "same run_id across runtime_health_ledger, provider_smoke_ledger, "
-            "and realtime_voice_timing_ledger"
+            "livekit_voice_timing_capture, and realtime_voice_timing_ledger"
         ),
         "voice_agent_process_start artifact captured before live smoke",
         (
             "same realtime_session_id or LiveKit room/session id across "
-            "smoke, timing, and participant evidence"
+            "smoke, headless capture, timing, and participant evidence"
         ),
         (
             "required runtime checks appear in the preflight validation "
@@ -1780,8 +1936,8 @@ def _publication_proof_linkage_requirements() -> list[str]:
             "approved artifact, and destination proof"
         ),
         (
-            "destination_channel appears in the preflight validation report's "
-            "validated_publish_channels"
+            "destination_channel is linkedin and the preflight validation "
+            "report's validated_publish_channels is exactly linkedin"
         ),
         "durable platform ID or URL matches the approved destination/channel",
         (
@@ -1820,8 +1976,9 @@ def _publication_post_capture_validation_checks() -> list[str]:
             "destination proof all reference command_run_id"
         ),
         (
-            "destination_channel appears in validated_publish_channels from "
-            "the accepted preflight validation report"
+            "destination_channel is linkedin and the preflight validation "
+            "report's validated_publish_channels is exactly linkedin; durable "
+            "URL is a LinkedIn destination"
         ),
         (
             "approved artifact snapshot has disclosure, visibility, audience, "
@@ -1844,7 +2001,7 @@ def _voice_failure_recording_requirements() -> list[str]:
         "record failing run_id and checked_at without secret values",
         (
             "record the failed preflight, runtime health, provider smoke, "
-            "timing, managed voice-agent start, LiveKit, or "
+            "headless LiveKit capture, timing, managed voice-agent start, LiveKit, or "
             "participant-evidence step"
         ),
         (
@@ -1883,8 +2040,9 @@ def _voice_success_recording_requirements() -> list[str]:
         "record passing run_id, checked_at, and validation timestamp",
         (
             "record voice_agent_process_start, runtime_health_ledger, "
-            "provider_smoke_ledger, realtime_voice_timing_ledger, LiveKit "
-            "room/session id, and participant evidence artifact ids"
+            "provider_smoke_ledger, livekit_voice_timing_capture, "
+            "realtime_voice_timing_ledger, LiveKit room/session id, and "
+            "participant evidence artifact ids"
         ),
         (
             "record every post_capture_validation_check as passed before "
@@ -1936,6 +2094,7 @@ def _voice_proof_artifact_schema() -> dict[str, object]:
             "runtime_health_ledger_artifact_id",
             "voice_edge_benchmark_status",
             "provider_smoke_ledger_artifact_id",
+            "livekit_voice_timing_capture_artifact_id",
             "realtime_voice_timing_ledger_artifact_id",
             "realtime_provider",
             "execute_live_calls",
@@ -2201,6 +2360,7 @@ def _provider_proof_plan_payload(
                 "must_capture": [
                     "runtime_health_ledger with voice-edge-local-benchmark status ready",
                     "provider_smoke_ledger with execute_live_calls=true",
+                    "livekit_voice_timing_capture JSON",
                     "realtime_voice_timing_ledger JSON",
                     "LiveKit room/session id and participant identity",
                     "captured microphone turn with first text/audio timing",
@@ -2498,7 +2658,7 @@ def _provider_proof_operator_inputs_template() -> str:
                 "provider responses."
             ),
             "",
-            "# Provider-backed live voice proof blockers.",
+            "# Provider-backed live voice proof default inputs.",
             *input_lines("OPENROUTER_API_KEY_FILE", ".secrets/openrouter_api_key"),
             *input_lines("OPENROUTER_LIVEKIT_URL", "ws://127.0.0.1:7880"),
             *input_lines("LIVEKIT_API_KEY_FILE", ".secrets/livekit_api_key"),
@@ -2556,6 +2716,29 @@ PROVIDER_PROOF_OPERATOR_INPUT_ARTIFACT_FIELDS = {
     "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
     "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
 }
+PROVIDER_PROOF_PUBLICATION_EVIDENCE_ARTIFACT_FIELDS = (
+    "policy_acknowledgement_artifact_id",
+    "rollback_or_postcondition_artifact_id",
+)
+PROVIDER_PROOF_LINKEDIN_URN_PREFIXES = (
+    "urn:li:activity:",
+    "urn:li:share:",
+    "urn:li:ugcpost:",
+)
+PROVIDER_PROOF_LINKEDIN_DURABLE_URN_PATTERN = re.compile(
+    r"urn:li:(?:activity|share):[0-9]+|urn:li:ugcpost:[A-Za-z0-9][A-Za-z0-9_.:-]*",
+    re.IGNORECASE,
+)
+PROVIDER_PROOF_PUBLICATION_ARTIFACT_UUID_PATTERN = re.compile(
+    r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    re.IGNORECASE,
+)
+PROVIDER_PROOF_PUBLICATION_DURABLE_ARTIFACT_ID_PATTERN = re.compile(
+    r"(?:github|github-issue|gitlab|jira|linear|notion|gdrive|google-drive|"
+    r"linkedin|external-audit|compliance|policy-acknowledgement|"
+    r"rollback-evidence):[A-Za-z0-9][A-Za-z0-9_.:/@-]{5,}",
+    re.IGNORECASE,
+)
 PROVIDER_PROOF_OPERATOR_INPUT_FIELD_CONTRACTS = {
     "OPENROUTER_API_KEY_FILE": (
         "readable local secret file path; file content is never emitted"
@@ -2573,13 +2756,13 @@ PROVIDER_PROOF_OPERATOR_INPUT_FIELD_CONTRACTS = {
         "readable local secret file path; file content is never emitted"
     ),
     "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": (
-        "durable non-local policy acknowledgement artifact id"
+        "durable non-local policy acknowledgement artifact id or URL"
     ),
     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": (
         "durable LinkedIn URL or platform id; local substitutes rejected"
     ),
     "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": (
-        "durable non-local rollback or postcondition artifact id"
+        "durable non-local rollback or postcondition artifact id or URL"
     ),
 }
 PROVIDER_PROOF_OPERATOR_INPUT_FIELD_PROOF_IDS = {
@@ -2777,7 +2960,7 @@ def _provider_proof_operator_input_required_evidence(
         return [
             *shared,
             "valid external publication preflight validation",
-            "destination channel linked to validated linkedin readiness",
+            "destination channel and durable URL linked to validated linkedin readiness",
             "durable external destination proof",
             "policy acknowledgement artifact",
             "rollback or postcondition artifact",
@@ -3053,7 +3236,7 @@ def _provider_proof_operator_input_readiness_payload(
                     continue
             if (
                 field in PROVIDER_PROOF_OPERATOR_INPUT_ARTIFACT_FIELDS
-                and _provider_proof_publication_destination_is_local_substitute(
+                and _provider_proof_publication_artifact_is_local_substitute(
                     raw_value
                 )
             ):
@@ -4745,6 +4928,26 @@ def _provider_proof_record_validation_payload(
                         "realtime_provider",
                     )
             elif proof_name == "external-publication-proof":
+                destination_channel = record.get("destination_channel")
+                normalized_destination_channel = (
+                    _provider_proof_normalized_publish_channel_platform(
+                        destination_channel
+                    )
+                    if isinstance(destination_channel, str)
+                    else ""
+                )
+                if normalized_destination_channel != "linkedin":
+                    add_issue("destination_channel_not_linkedin", "destination_channel")
+                if (
+                    _provider_proof_publication_destination_platform(
+                        record.get("durable_platform_id_or_url")
+                    )
+                    != "linkedin"
+                ):
+                    add_issue(
+                        "durable_destination_not_linkedin",
+                        "durable_platform_id_or_url",
+                    )
                 if _provider_proof_publication_destination_is_local_substitute(
                     record.get("durable_platform_id_or_url")
                 ):
@@ -4760,6 +4963,17 @@ def _provider_proof_record_validation_payload(
                         "destination_channel_mismatch",
                         "durable_platform_id_or_url",
                     )
+                publication_artifact_fields = (
+                    PROVIDER_PROOF_PUBLICATION_EVIDENCE_ARTIFACT_FIELDS
+                )
+                for artifact_field in publication_artifact_fields:
+                    if _provider_proof_publication_artifact_is_local_substitute(
+                        record.get(artifact_field)
+                    ):
+                        add_issue(
+                            "publication_artifact_local_substitute",
+                            artifact_field,
+                        )
         elif not validation_results:
             add_issue(
                 "missing_validation_results",
@@ -5065,6 +5279,13 @@ def _provider_proof_record_preflight_validation_report(
             ):
                 add_report_issue(
                     "preflight_validation_report_publish_channels_not_canonical",
+                    "preflight_validation_path",
+                )
+            if not _provider_proof_external_publication_channels_are_linkedin_only(
+                validated_channels
+            ):
+                add_report_issue(
+                    "preflight_validation_report_publish_channels_not_linkedin_only",
                     "preflight_validation_path",
                 )
             destination_channel = record.get("destination_channel")
@@ -5770,6 +5991,21 @@ def _provider_proof_record_template_placeholder(value: object) -> bool:
     )
 
 
+def _provider_proof_publication_linkedin_urn_is_durable(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    return (
+        PROVIDER_PROOF_LINKEDIN_DURABLE_URN_PATTERN.fullmatch(value.strip())
+        is not None
+    )
+
+
+def _provider_proof_host_is_reserved_example_domain(host: str) -> bool:
+    return host in {"example.com", "example.org", "example.net"} or host.endswith(
+        (".example.com", ".example.org", ".example.net")
+    )
+
+
 def _provider_proof_publication_destination_is_local_substitute(value: object) -> bool:
     if not isinstance(value, str):
         return True
@@ -5787,7 +6023,7 @@ def _provider_proof_publication_destination_is_local_substitute(value: object) -
         return True
     parsed = urlparse(destination)
     if parsed.scheme and parsed.scheme not in {"http", "https", "ws", "wss"}:
-        return not lowered.startswith("urn:li:share:")
+        return not _provider_proof_publication_linkedin_urn_is_durable(destination)
     if not parsed.scheme:
         if "/" in destination:
             return True
@@ -5813,6 +6049,8 @@ def _provider_proof_publication_destination_is_local_substitute(value: object) -
             (".internal", ".lan", ".test", ".invalid", ".example")
         ):
             return True
+        if _provider_proof_host_is_reserved_example_domain(host):
+            return True
         try:
             if not ipaddress.ip_address(host).is_global:
                 return True
@@ -5829,6 +6067,28 @@ def _provider_proof_publication_destination_is_local_substitute(value: object) -
     return False
 
 
+def _provider_proof_publication_artifact_is_local_substitute(value: object) -> bool:
+    if not isinstance(value, str):
+        return True
+    artifact = value.strip()
+    if not artifact:
+        return True
+    lowered = artifact.lower()
+    parsed = urlparse(artifact)
+    if parsed.scheme in {"http", "https"}:
+        return _provider_proof_publication_destination_is_local_substitute(artifact)
+    if lowered.startswith(PROVIDER_PROOF_LINKEDIN_URN_PREFIXES):
+        return not _provider_proof_publication_linkedin_urn_is_durable(artifact)
+    if PROVIDER_PROOF_PUBLICATION_DURABLE_ARTIFACT_ID_PATTERN.fullmatch(artifact):
+        return False
+    if _provider_proof_publication_destination_is_local_substitute(artifact):
+        return True
+    normalized = re.sub(r"[^a-z0-9]+", "-", lowered).strip("-")
+    if PROVIDER_PROOF_PUBLICATION_ARTIFACT_UUID_PATTERN.search(normalized):
+        return False
+    return True
+
+
 def _provider_proof_openrouter_livekit_url_is_placeholder(value: object) -> bool:
     if not isinstance(value, str):
         return True
@@ -5843,7 +6103,7 @@ def _provider_proof_publication_destination_platform(value: object) -> str | Non
     if not isinstance(value, str):
         return None
     destination = value.strip().lower()
-    if destination.startswith("urn:li:share:"):
+    if _provider_proof_publication_linkedin_urn_is_durable(destination):
         return "linkedin"
     parsed = urlparse(destination)
     host = (parsed.hostname or "").lower()
@@ -6327,6 +6587,13 @@ def _provider_proof_completion_status_payload(
     else:
         status = "required_proofs_accepted"
 
+    output_dir_arg = getattr(args, "output_dir", None)
+    output_dir = output_dir_arg
+    if output_dir is None:
+        output_dir = Path(
+            f"social_media_optimiser/output/provider-proof/{command_run_id}"
+        )
+    completion_status_output_dir = output_dir_arg
     next_action = _provider_proof_completion_status_next_action(status)
     proof_payloads = {
         proof_name: {
@@ -6339,6 +6606,8 @@ def _provider_proof_completion_status_payload(
                 invalid_sources[proof_name],
                 missing_sources_by_proof[proof_name],
                 proof_plan["proofs"][proof_name],
+                output_dir=output_dir,
+                completion_status_output_dir=completion_status_output_dir,
             ),
             "accepted_record_found": bool(accepted_sources[proof_name]),
             "source_targets": accepted_sources[proof_name],
@@ -6359,6 +6628,8 @@ def _provider_proof_completion_status_payload(
         next_action_commands = _provider_proof_completion_recovery_commands(
             proof_payloads,
             command_run_id,
+            output_dir,
+            completion_status_output_dir=completion_status_output_dir,
         )
     return {
         **base_payload,
@@ -6406,10 +6677,28 @@ def _provider_proof_completion_status_next_action(status: str) -> str:
 def _provider_proof_completion_recovery_commands(
     proof_payloads: Mapping[str, Mapping[str, object]],
     command_run_id: str,
+    output_dir: Path,
+    *,
+    completion_status_output_dir: Path | None = None,
 ) -> list[str]:
     commands: list[str] = []
-    for proof_payload in proof_payloads.values():
+    for proof_name, proof_payload in proof_payloads.items():
         if proof_payload.get("next_action") != "capture_validate_record_and_recheck":
+            continue
+        if proof_payload.get("status") == "latest_record_failed":
+            gate_commands = _provider_proof_operator_input_gate_commands_for_proof(
+                proof_name,
+                command_run_id,
+                output_dir,
+            )
+            commands.extend(
+                gate_commands
+                or _provider_proof_capture_commands_after_unblock(
+                    proof_name,
+                    command_run_id,
+                    output_dir,
+                )
+            )
             continue
         raw_commands = proof_payload.get("next_action_commands")
         if not isinstance(raw_commands, list):
@@ -6421,7 +6710,12 @@ def _provider_proof_completion_recovery_commands(
                 continue
             commands.append(command)
     if commands:
-        commands.extend(_proof_completion_status_commands(command_run_id))
+        commands.extend(
+            _proof_completion_status_commands(
+                command_run_id,
+                output_dir=completion_status_output_dir,
+            )
+        )
     return commands
 
 
@@ -7360,7 +7654,7 @@ def _provider_proof_publication_blocker(
         ],
         "required_evidence_after_unblock": [
             "valid external publication preflight validation",
-            f"destination channel linked to validated {platform} readiness",
+            f"destination channel and durable URL linked to validated {platform} readiness",
             "durable external destination proof",
             "policy acknowledgement artifact",
             "rollback or postcondition artifact",
@@ -7407,6 +7701,61 @@ def _provider_proof_capture_commands_after_unblock(
             workspace_validation_path=workspace_validation_path,
         ),
     ]
+
+
+def _provider_proof_current_gate_completion_commands(
+    *,
+    completion_next_action: str,
+    base_commands: list[str],
+    latest_failed_proofs: list[object],
+    run_id: str,
+    output_dir: Path,
+    operator_input_readiness: Mapping[str, object] | None = None,
+) -> list[str]:
+    if completion_next_action != "capture_validate_record_and_recheck":
+        return base_commands
+    proof_names: list[str] = []
+    for raw_proof_name in latest_failed_proofs:
+        proof_name = str(raw_proof_name)
+        if proof_name and proof_name not in proof_names:
+            proof_names.append(proof_name)
+    if not proof_names:
+        return base_commands
+
+    commands: list[str] = []
+    for proof_name in proof_names:
+        gate_commands = _provider_proof_operator_input_gate_commands_for_proof(
+            proof_name,
+            run_id,
+            output_dir,
+            operator_input_readiness=operator_input_readiness,
+        )
+        commands.extend(
+            gate_commands
+            or _provider_proof_capture_commands_after_unblock(
+                proof_name,
+                run_id,
+                output_dir,
+            )
+        )
+
+    completion_status_commands = [
+        _proof_completion_status_command_with_output_dir(command, output_dir)
+        for command in base_commands
+        if " provider-proof-completion-status " in command
+    ]
+    if not completion_status_commands:
+        completion_status_commands = _proof_completion_status_commands(
+            run_id,
+            output_dir=output_dir,
+        )
+    commands.extend(completion_status_commands)
+
+    deduped_commands: list[str] = []
+    for command in commands:
+        if command not in deduped_commands:
+            deduped_commands.append(command)
+    return deduped_commands
 
 
 def _provider_proof_current_blocker_matrix_payload(
@@ -7481,6 +7830,14 @@ def _provider_proof_current_blocker_matrix_payload(
         ]
         if isinstance(raw_completion_next_action_commands, list)
         else []
+    )
+    completion_next_action_commands = _provider_proof_current_gate_completion_commands(
+        completion_next_action=completion_next_action,
+        base_commands=completion_next_action_commands,
+        latest_failed_proofs=latest_failed_proofs,
+        run_id=str(args.run_id),
+        output_dir=output_dir,
+        operator_input_readiness=operator_input_readiness,
     )
 
     accepted_proofs = completion.get("accepted_proofs", [])
@@ -8294,6 +8651,7 @@ def _provider_proof_operator_packet_must_capture(proof_name: str) -> list[str]:
     if proof_name == "provider-backed-live-voice-proof":
         return [
             "provider_smoke_ledger with execute_live_calls=true",
+            "livekit_voice_timing_capture JSON",
             "realtime_voice_timing_ledger JSON",
             "LiveKit room/session id and participant identity",
             "captured microphone turn with first text/audio timing",
@@ -8829,6 +9187,13 @@ def _provider_proof_operator_packet_markdown_section(packet: object) -> list[str
     ]
 
 
+def _provider_proof_accepted_record_available(proof: Mapping[str, object]) -> bool:
+    return (
+        proof.get("latest_record_outcome") == "accepted"
+        and proof.get("accepted_record_available") is True
+    )
+
+
 def _provider_proof_current_status_markdown(
     args: argparse.Namespace,
     *,
@@ -8934,6 +9299,7 @@ def _provider_proof_current_status_markdown(
     def proof_lines(proof_id: str, title: str) -> list[str]:
         raw_proof = proofs.get(proof_id, {})
         proof = raw_proof if isinstance(raw_proof, Mapping) else {}
+        accepted_record_available = _provider_proof_accepted_record_available(proof)
         blockers = proof.get("remaining_blockers")
         blocker_lines: list[str] = []
         if isinstance(blockers, list) and blockers:
@@ -8993,6 +9359,24 @@ def _provider_proof_current_status_markdown(
             *bullet_values(proof_packet.get("proof_record_required_fields")),
             "",
         ]
+        if accepted_record_available:
+            proof_handoff_lines = [
+                "Accepted proof handoff:",
+                "",
+                "- Accepted proof record is available.",
+                (
+                    "- Proof-level operator retry and capture packets are "
+                    "suppressed for this proof."
+                ),
+                "",
+            ]
+        else:
+            proof_handoff_lines = [
+                *_provider_proof_operator_packet_markdown_section(proof_packet),
+                *proof_schema_lines,
+                *proof_required_field_lines,
+                *proof_capture_command_lines,
+            ]
 
         return [
             f"## {title}",
@@ -9016,10 +9400,7 @@ def _provider_proof_current_status_markdown(
             "",
             *bullet_values(proof.get("evidence_refs")),
             "",
-            *_provider_proof_operator_packet_markdown_section(proof_packet),
-            *proof_schema_lines,
-            *proof_required_field_lines,
-            *proof_capture_command_lines,
+            *proof_handoff_lines,
         ]
 
     raw_operator_proofs = operator_input_readiness.get("proofs")
@@ -9031,6 +9412,22 @@ def _provider_proof_current_status_markdown(
         ]:
             raw_proof = raw_operator_proofs.get(proof_id)
             if not isinstance(raw_proof, Mapping):
+                continue
+            raw_matrix_proof = proofs.get(proof_id)
+            matrix_proof = (
+                raw_matrix_proof if isinstance(raw_matrix_proof, Mapping) else {}
+            )
+            if _provider_proof_accepted_record_available(matrix_proof):
+                operator_proof_lines.extend(
+                    [
+                        f"- `{proof_id}`: `accepted_proof_record_available`",
+                        "  - next_action: `none`",
+                        (
+                            "  - accepted proof record already available; "
+                            "operator-input retry commands are suppressed for this proof."
+                        ),
+                    ]
+                )
                 continue
             raw_field_groups = raw_proof.get("field_groups")
             field_group_lines: list[str] = []
@@ -9318,14 +9715,16 @@ def _provider_proof_operator_unblocker_checklist_markdown(
         publication = {}
     voice_blockers = voice.get("remaining_blockers")
     publication_blockers = publication.get("remaining_blockers")
-    voice_accepted = (
-        voice.get("latest_record_outcome") == "accepted"
-        and voice.get("accepted_record_available") is True
-    )
-    publication_accepted = (
-        publication.get("latest_record_outcome") == "accepted"
-        and publication.get("accepted_record_available") is True
-    )
+    voice_accepted = _provider_proof_accepted_record_available(voice)
+    publication_accepted = _provider_proof_accepted_record_available(publication)
+    accepted_proof_names = {
+        proof_name
+        for proof_name, proof in {
+            "provider-backed-live-voice-proof": voice,
+            "external-publication-proof": publication,
+        }.items()
+        if _provider_proof_accepted_record_available(proof)
+    }
     voice_blocker = (
         voice_blockers[0]
         if isinstance(voice_blockers, list)
@@ -9591,6 +9990,8 @@ def _provider_proof_operator_unblocker_checklist_markdown(
             "provider-backed-live-voice-proof",
             "external-publication-proof",
         ]:
+            if proof_name in accepted_proof_names:
+                continue
             raw_snapshot = raw_snapshots.get(proof_name)
             if not isinstance(raw_snapshot, Mapping):
                 continue
@@ -9606,6 +10007,17 @@ def _provider_proof_operator_unblocker_checklist_markdown(
                 "",
             ]
 
+    expected_snapshot_state_lines: list[str] = []
+    if not voice_accepted:
+        expected_snapshot_state_lines.append(
+            "- `provider-backed-live-voice-proof`: "
+            "`runtime_configuration_present_unverified`"
+        )
+    if not publication_accepted:
+        expected_snapshot_state_lines.append(
+            "- `external-publication-proof`: "
+            "`runtime_configuration_present_unverified`"
+        )
     credential_snapshot_section = (
         [
             "## Credential Snapshot",
@@ -9617,14 +10029,7 @@ def _provider_proof_operator_unblocker_checklist_markdown(
             "",
             "Expected snapshot state before retrying preflight:",
             "",
-            (
-                "- `provider-backed-live-voice-proof`: "
-                "`runtime_configuration_present_unverified`"
-            ),
-            (
-                "- `external-publication-proof`: "
-                "`runtime_configuration_present_unverified`"
-            ),
+            *expected_snapshot_state_lines,
             "",
             *current_credential_snapshot_lines,
             "",
@@ -9749,6 +10154,19 @@ def _provider_proof_operator_unblocker_checklist_markdown(
                         continue
                     raw_state = raw_proof.get("state")
                     proof_state = raw_state if isinstance(raw_state, str) else "unknown"
+                    if proof_name in accepted_proof_names:
+                        current_operator_input_lines.extend(
+                            [
+                                f"  - `{proof_name}`: `accepted_proof_record_available`",
+                                f"    - {proof_name} next action: `none`",
+                                (
+                                    "    - accepted proof record already available; "
+                                    "operator-input retry commands are suppressed for "
+                                    "this proof."
+                                ),
+                            ]
+                        )
+                        continue
 
                     def proof_fields(field_name: str) -> list[str]:
                         raw_fields = raw_proof.get(field_name, [])
@@ -10258,8 +10676,8 @@ def _provider_proof_operator_unblocker_checklist_markdown(
         ),
         "",
         (
-            "This checklist is the compact handoff for the two proof records "
-            "still blocking completion. The generated `README.md` remains the "
+                "This checklist is the compact handoff for the proof records still "
+                "blocking completion. The generated `README.md` remains the "
             "command source of truth; this file only narrows the next operator "
             "actions for the current UUID workspace."
             if proof_level_blockers_remain
@@ -10374,6 +10792,8 @@ def _provider_proof_completion_proof_payload(
     missing_source_targets: list[str],
     proof_plan: Mapping[str, object],
     status_override: str | None = None,
+    output_dir: Path | None = None,
+    completion_status_output_dir: Path | None = None,
 ) -> dict[str, object]:
     status = status_override
     if status is None:
@@ -10390,26 +10810,50 @@ def _provider_proof_completion_proof_payload(
         "capture_validate_record_and_recheck",
         "replace_run_id_and_recheck",
     }:
-        preflight_report_files = proof_plan.get(
-            "preflight_validation_report_files"
-        )
-        preflight_validation_path: object = "<preflight-validation.json>"
-        if isinstance(preflight_report_files, list) and preflight_report_files:
-            preflight_validation_path = preflight_report_files[0]
-        workspace_report_files = proof_plan.get("workspace_validation_report_files")
-        workspace_validation_path: object = "<workspace-validation.json>"
-        if isinstance(workspace_report_files, list) and workspace_report_files:
-            workspace_validation_path = workspace_report_files[0]
-        next_action_commands = [
-            *_proof_record_template_commands(proof_name, command_run_id),
-            *_proof_record_next_commands(
+        if status == "latest_record_failed" and output_dir is not None:
+            gate_commands = _provider_proof_operator_input_gate_commands_for_proof(
                 proof_name,
                 command_run_id,
-                preflight_validation_path=preflight_validation_path,
-                workspace_validation_path=workspace_validation_path,
-            ),
-            *_proof_completion_status_commands(command_run_id),
-        ]
+                output_dir,
+            )
+            next_action_commands = [
+                *(
+                    gate_commands
+                    or _provider_proof_capture_commands_after_unblock(
+                        proof_name,
+                        command_run_id,
+                        output_dir,
+                    )
+                ),
+                *_proof_completion_status_commands(
+                    command_run_id,
+                    output_dir=completion_status_output_dir,
+                ),
+            ]
+        else:
+            preflight_report_files = proof_plan.get(
+                "preflight_validation_report_files"
+            )
+            preflight_validation_path: object = "<preflight-validation.json>"
+            if isinstance(preflight_report_files, list) and preflight_report_files:
+                preflight_validation_path = preflight_report_files[0]
+            workspace_report_files = proof_plan.get("workspace_validation_report_files")
+            workspace_validation_path: object = "<workspace-validation.json>"
+            if isinstance(workspace_report_files, list) and workspace_report_files:
+                workspace_validation_path = workspace_report_files[0]
+            next_action_commands = [
+                *_proof_record_template_commands(proof_name, command_run_id),
+                *_proof_record_next_commands(
+                    proof_name,
+                    command_run_id,
+                    preflight_validation_path=preflight_validation_path,
+                    workspace_validation_path=workspace_validation_path,
+                ),
+                *_proof_completion_status_commands(
+                    command_run_id,
+                    output_dir=completion_status_output_dir,
+                ),
+            ]
     record_proof_in = proof_plan.get("record_proof_in")
     if not isinstance(record_proof_in, list):
         record_proof_in = []
@@ -10460,7 +10904,7 @@ def _provider_proof_latest_audit_record_status(
 ) -> str | None:
     block_pattern = re.compile(
         rf"^## Provider Proof Record - {re.escape(proof_name)} - "
-        rf"{re.escape(run_id)}\n(?P<body>.*?)(?=^## Provider Proof Record - |\Z)",
+        rf"{re.escape(run_id)}\n(?P<body>.*?)(?=^## |\Z)",
         re.MULTILINE | re.DOTALL,
     )
     latest_status: str | None = None
@@ -10753,14 +11197,27 @@ def _provider_proof_audit_note_has_invalid_accepted_fields(
         )
         if not publish_channel_summary_is_canonical:
             return True
+        if not _provider_proof_external_publication_channels_are_linkedin_only(
+            validated_channels
+        ):
+            return True
         destination_channel = fields.get("destination_channel")
         normalized_destination_channel = (
             _provider_proof_normalized_publish_channel_platform(destination_channel)
             if isinstance(destination_channel, str)
             else ""
         )
+        if normalized_destination_channel != "linkedin":
+            return True
+        if _provider_proof_publication_destination_platform(destination) != "linkedin":
+            return True
         if normalized_destination_channel not in validated_channels:
             return True
+        for artifact_field in PROVIDER_PROOF_PUBLICATION_EVIDENCE_ARTIFACT_FIELDS:
+            if _provider_proof_publication_artifact_is_local_substitute(
+                fields.get(artifact_field)
+            ):
+                return True
         return not _provider_proof_publication_channel_matches_destination(
             destination_channel,
             destination,
@@ -11149,8 +11606,16 @@ def _provider_proof_record_audit_value(value: object) -> str:
         return "true" if value else "false"
     if value is None:
         return "n/a"
+    if isinstance(value, Path):
+        value = str(value)
     if not isinstance(value, str):
-        value = json.dumps(value, sort_keys=True)
+        value = json.dumps(value, sort_keys=True, default=str)
+    for root_text in {
+        str(PROJECT_ROOT),
+        str(PROJECT_ROOT.resolve()),
+    }:
+        if root_text:
+            value = value.replace(root_text, "<workspace-root>")
     if PROVIDER_PROOF_SECRET_VALUE_PATTERN.search(value):
         return "<redacted>"
     return " ".join(value.split())
@@ -11429,6 +11894,443 @@ def _print_provider_proof_completion_status(args: argparse.Namespace) -> None:
     print(json.dumps(payload, indent=2, sort_keys=True))
 
 
+def _provider_proof_pr_handoff_operator_input_path(args: argparse.Namespace) -> Path:
+    operator_input_path = getattr(args, "operator_input_path", None)
+    if operator_input_path is not None:
+        return Path(operator_input_path)
+    output_dir = getattr(args, "output_dir", None)
+    if output_dir is not None:
+        return Path(output_dir) / "operator-inputs.template.env"
+    return (
+        PROJECT_ROOT
+        / "social_media_optimiser/output/provider-proof"
+        / str(args.run_id)
+        / "operator-inputs.template.env"
+    )
+
+
+def _provider_proof_pr_handoff_input_path_text(path: Path) -> str:
+    try:
+        path.resolve().relative_to(PROJECT_ROOT.resolve())
+    except (OSError, RuntimeError, ValueError):
+        return "<filled-ignored-operator-input-file>"
+    return _provider_proof_portable_path_text(path)
+
+
+def _provider_proof_pr_handoff_output_dir_text(path: Path) -> str:
+    try:
+        path.resolve().relative_to(PROJECT_ROOT.resolve())
+    except (OSError, RuntimeError, ValueError):
+        return "<provider-proof-output-dir>"
+    return _provider_proof_portable_path_text(path)
+
+
+def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
+    operator_input_path = _provider_proof_pr_handoff_operator_input_path(args)
+    operator_input_path_text = _provider_proof_pr_handoff_input_path_text(
+        operator_input_path,
+    )
+    completion_args = argparse.Namespace(
+        env_example_path=args.env_example_path,
+        checked_at=args.checked_at,
+        run_id=args.run_id,
+        output_dir=args.output_dir,
+        audit_target=args.audit_target,
+        operator_input_path=operator_input_path,
+    )
+    readiness_args = argparse.Namespace(
+        env_example_path=args.env_example_path,
+        checked_at=args.checked_at,
+        run_id=args.run_id,
+        input_path=operator_input_path,
+    )
+    completion = _provider_proof_completion_status_payload(completion_args)
+    readiness = _provider_proof_operator_input_readiness_payload(readiness_args)
+    proofs = completion.get("proofs")
+    if not isinstance(proofs, Mapping):
+        proofs = {}
+
+    def bullet_values(values: object) -> list[str]:
+        if not isinstance(values, list) or not values:
+            return ["  - none"]
+        return [f"  - `{value}`" for value in values]
+
+    proof_lines: list[str] = []
+    for proof_name in completion.get("required_proofs", []):
+        proof = proofs.get(str(proof_name))
+        if not isinstance(proof, Mapping):
+            continue
+        proof_lines.extend(
+            [
+                f"- `{proof_name}`: `{proof.get('status', 'unknown')}`",
+                f"  - accepted_record_found: `{proof.get('accepted_record_found', False)}`",
+                f"  - next_action: `{proof.get('next_action', 'unknown')}`",
+            ]
+        )
+
+    compare_url = (
+        f"https://github.com/{args.repo}/compare/{args.base}...{args.branch}?expand=1"
+    )
+    ci_url = args.ci_url
+    head_sha = args.head_sha
+    completion_status_command = (
+        "uv run all-about-llms-admin provider-proof-completion-status "
+        f"--run-id {args.run_id}"
+    )
+    if args.output_dir is not None:
+        completion_status_command = (
+            f"{completion_status_command} --output-dir "
+            f"{_provider_proof_pr_handoff_output_dir_text(Path(args.output_dir))}"
+        )
+
+    return [
+        "# Agent Studio PR Handoff",
+        "",
+        "## Branch",
+        f"- repo: `{args.repo}`",
+        f"- base: `{args.base}`",
+        f"- branch: `{args.branch}`",
+        f"- compare: {compare_url}",
+        f"- head_sha: `{head_sha}`",
+        f"- ci: {ci_url}",
+        "",
+        "## Active Realtime Path",
+        "- OpenRouter model: `deepseek/deepseek-v4-flash`",
+        "- Transport/runtime: `LiveKit`",
+        "- Voice: `Kokoro`",
+        "- No Hugging Face, Gemma4, Gamma4, or MLX active realtime default.",
+        "",
+        "## Provider Proof Gates",
+        f"- completion_status: `{completion.get('status', 'unknown')}`",
+        f"- all_required_proofs_accepted: `{completion.get('all_required_proofs_accepted', False)}`",
+        "- accepted_proofs:",
+        *bullet_values(completion.get("accepted_proofs")),
+        "- latest_failed_proofs:",
+        *bullet_values(completion.get("latest_failed_proofs")),
+        *proof_lines,
+        "",
+        "## Operator Input Gate",
+        f"- readiness_status: `{readiness.get('status', 'unknown')}`",
+        f"- input_path: `{operator_input_path_text}`",
+        (
+            "- operator_input_example: "
+            f"`{_provider_proof_portable_path_text(PROVIDER_PROOF_OPERATOR_INPUT_EXAMPLE_PATH)}`"
+        ),
+        "- blocked_fields:",
+        *bullet_values(readiness.get("blocked_fields")),
+        "",
+        "## Verification Commands",
+        f"- `{completion_status_command}`",
+        (
+            "- `uv run all-about-llms-admin provider-proof-operator-input-readiness "
+            f"--run-id {args.run_id} --input-path "
+            f"{operator_input_path_text} "
+            "--fail-on-blocked`"
+        ),
+        "- CI must be green on the latest branch head before merge.",
+        "",
+        "## Repository Settings",
+        "- GitHub Actions workflow permissions: `Read and write permissions`.",
+        "- Enable `Allow GitHub Actions to create and approve pull requests`.",
+        "- Configure `main branch protection` or an equivalent ruleset.",
+        "- Require `required status checks` for branch policy, Python backend, Next.js frontend, and affected Rust services.",
+        "- Require `CODEOWNERS review` before merge.",
+        "- Enable `auto-merge` only after required checks and reviews are enforced.",
+        "",
+        "## Merge And Safety",
+        (
+            "- GitHub PR creation may be manual if the integration cannot create "
+            "the PR; paste this body into the PR description."
+        ),
+        "- Branch protection and auto-merge should require the GitHub Actions checks.",
+        (
+            "- External publication remains blocked until operator-owned LinkedIn "
+            "and durable publication artifacts are supplied and accepted."
+        ),
+        (
+            "- Provider proof output, secret snapshots, and operator credential "
+            "files are not committed."
+        ),
+        "- Dependency changes include `uv.lock`; local command logs stay untracked.",
+        "- This handoff has no secret values printed.",
+    ]
+
+
+def _print_provider_proof_pr_handoff(args: argparse.Namespace) -> None:
+    print("\n".join(_provider_proof_pr_handoff_lines(args)))
+
+
+GITHUB_PR_TOKEN_ENV_CANDIDATES = ("GITHUB_TOKEN", "GH_TOKEN")
+
+
+def _github_pull_request_api_url(repo: str) -> str:
+    return f"https://api.github.com/repos/{repo}/pulls"
+
+
+def _github_pull_request_list_api_url(repo: str, base: str, branch: str) -> str:
+    owner = repo.split("/", 1)[0]
+    query = urlencode(
+        {
+            "state": "open",
+            "base": base,
+            "head": f"{owner}:{branch}",
+        }
+    )
+    return f"{_github_pull_request_api_url(repo)}?{query}"
+
+
+def _github_pull_request_update_api_url(repo: str, pull_number: int) -> str:
+    return f"{_github_pull_request_api_url(repo)}/{pull_number}"
+
+
+def _github_compare_url(repo: str, base: str, branch: str) -> str:
+    return f"https://github.com/{repo}/compare/{base}...{branch}?expand=1"
+
+
+def _provider_proof_cli_arg_path_text(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(PROJECT_ROOT.resolve()).as_posix()
+    except ValueError:
+        return _provider_proof_portable_path_text(path)
+
+
+def _provider_proof_pr_handoff_command(args: argparse.Namespace) -> str:
+    parts = [
+        "uv",
+        "run",
+        "all-about-llms-admin",
+        "provider-proof-pr-handoff",
+        "--run-id",
+        args.run_id,
+    ]
+    if args.operator_input_path is not None:
+        parts.extend(
+            [
+                "--operator-input-path",
+                _provider_proof_cli_arg_path_text(args.operator_input_path),
+            ]
+        )
+    if args.output_dir is not None:
+        parts.extend(
+            ["--output-dir", _provider_proof_cli_arg_path_text(args.output_dir)]
+        )
+    parts.extend(["--ci-url", args.ci_url, "--head-sha", args.head_sha])
+    return " ".join(shlex.quote(part) for part in parts)
+
+
+def _provider_proof_pr_create_request_body(
+    args: argparse.Namespace,
+) -> dict[str, object]:
+    body = "\n".join(_provider_proof_pr_handoff_lines(args))
+    return {
+        "title": args.title,
+        "head": args.branch,
+        "base": args.base,
+        "body": body,
+        "draft": bool(args.draft),
+        "maintainer_can_modify": True,
+    }
+
+
+def _provider_proof_pr_create_result(
+    args: argparse.Namespace,
+    *,
+    env: Mapping[str, str] | None = None,
+    opener: object = urlrequest.urlopen,
+) -> dict[str, object]:
+    effective_env = os.environ if env is None else env
+    token = next(
+        (
+            effective_env[name].strip()
+            for name in GITHUB_PR_TOKEN_ENV_CANDIDATES
+            if effective_env.get(name, "").strip()
+        ),
+        None,
+    )
+    post_url = _github_pull_request_api_url(args.repo)
+    compare_url = _github_compare_url(args.repo, args.base, args.branch)
+    request_body = _provider_proof_pr_create_request_body(args)
+    safe_request = {
+        "title": request_body["title"],
+        "head": request_body["head"],
+        "base": request_body["base"],
+        "draft": request_body["draft"],
+        "maintainer_can_modify": request_body["maintainer_can_modify"],
+        "body_line_count": len(str(request_body["body"]).splitlines()),
+    }
+    base_payload: dict[str, object] = {
+        "artifact": "agent-studio-provider-proof-pr-create",
+        "body_source": "provider-proof-pr-handoff",
+        "boundary": "no_secret_values_printed",
+        "compare_url": compare_url,
+        "post_url": post_url,
+        "request": safe_request,
+    }
+
+    if args.dry_run:
+        return {**base_payload, "status": "dry_run", "exit_code": 0}
+
+    if token is None:
+        return {
+            **base_payload,
+            "status": "manual_required",
+            "issue_code": "github_token_unavailable",
+            "token_env_candidates": list(GITHUB_PR_TOKEN_ENV_CANDIDATES),
+            "handoff_command": _provider_proof_pr_handoff_command(args),
+            "exit_code": 2,
+        }
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "User-Agent": "all-about-llms-agent-studio-pr-create",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    try:
+        list_url = _github_pull_request_list_api_url(args.repo, args.base, args.branch)
+        list_request = urlrequest.Request(
+            list_url,
+            headers=headers,
+            method="GET",
+        )
+        with opener(list_request, timeout=args.timeout_seconds) as response:
+            existing_prs_payload = json.loads(response.read().decode("utf-8") or "[]")
+        if not isinstance(existing_prs_payload, list):
+            return {
+                **base_payload,
+                "status": "github_api_error",
+                "issue_code": "github_api_response_invalid",
+                "message": "GitHub existing PR lookup JSON was not an array",
+                "handoff_command": _provider_proof_pr_handoff_command(args),
+                "exit_code": 1,
+            }
+        if existing_prs_payload:
+            existing_pr = existing_prs_payload[0]
+            if (
+                not isinstance(existing_pr, Mapping)
+                or not isinstance(existing_pr.get("number"), int)
+            ):
+                return {
+                    **base_payload,
+                    "status": "github_api_error",
+                    "issue_code": "github_api_response_invalid",
+                    "message": "GitHub existing PR lookup did not include a PR number",
+                    "handoff_command": _provider_proof_pr_handoff_command(args),
+                    "exit_code": 1,
+                }
+            pull_number = int(existing_pr["number"])
+            update_body = {
+                "title": args.title,
+                "body": request_body["body"],
+                "maintainer_can_modify": True,
+            }
+            request = urlrequest.Request(
+                _github_pull_request_update_api_url(args.repo, pull_number),
+                data=json.dumps(update_body, separators=(",", ":")).encode("utf-8"),
+                headers=headers,
+                method="PATCH",
+            )
+            result_status = "updated"
+        else:
+            request = urlrequest.Request(
+                post_url,
+                data=json.dumps(request_body, separators=(",", ":")).encode("utf-8"),
+                headers=headers,
+                method="POST",
+            )
+            result_status = "created"
+
+        with opener(request, timeout=args.timeout_seconds) as response:
+            response_payload = json.loads(response.read().decode("utf-8") or "{}")
+    except urlerror.HTTPError as exc:
+        message = "GitHub API request failed"
+        try:
+            error_payload = json.loads(exc.read().decode("utf-8") or "{}")
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            error_payload = {}
+        if isinstance(error_payload, Mapping) and isinstance(
+            error_payload.get("message"), str
+        ):
+            message = str(error_payload["message"])
+        if exc.code == 403:
+            return {
+                **base_payload,
+                "status": "manual_required",
+                "issue_code": "github_pr_permission_denied",
+                "http_status": exc.code,
+                "message": message,
+                "workflow_permissions_next_action": (
+                    "Enable repository Settings > Actions > General > "
+                    "Workflow permissions: Read and write permissions and "
+                    "Allow GitHub Actions to create and approve pull requests, "
+                    "or create the PR manually with provider-proof-pr-handoff."
+                ),
+                "handoff_command": _provider_proof_pr_handoff_command(args),
+                "exit_code": 2,
+            }
+        return {
+            **base_payload,
+            "status": "github_api_error",
+            "issue_code": "github_api_request_failed",
+            "http_status": exc.code,
+            "message": message,
+            "handoff_command": _provider_proof_pr_handoff_command(args),
+                "exit_code": 1,
+            }
+    except (urlerror.URLError, TimeoutError, OSError) as exc:
+        return {
+            **base_payload,
+            "status": "github_api_error",
+            "issue_code": "github_api_request_failed",
+            "message": type(exc).__name__,
+            "handoff_command": _provider_proof_pr_handoff_command(args),
+            "exit_code": 1,
+        }
+    except (UnicodeError, json.JSONDecodeError):
+        return {
+            **base_payload,
+            "status": "github_api_error",
+            "issue_code": "github_api_response_invalid",
+            "message": "GitHub API response was not valid JSON",
+            "handoff_command": _provider_proof_pr_handoff_command(args),
+            "exit_code": 1,
+        }
+
+    if not isinstance(response_payload, Mapping):
+        return {
+            **base_payload,
+            "status": "github_api_error",
+            "issue_code": "github_api_response_invalid",
+            "message": "GitHub API response JSON was not an object",
+            "handoff_command": _provider_proof_pr_handoff_command(args),
+            "exit_code": 1,
+        }
+
+    return {
+        "artifact": "agent-studio-provider-proof-pr-create",
+        "boundary": "no_secret_values_printed",
+        "status": result_status,
+        "number": response_payload.get("number"),
+        "url": response_payload.get("html_url"),
+        "state": response_payload.get("state"),
+        "draft": response_payload.get("draft"),
+        "auto_merge_next_action": (
+            "enable repository auto-merge or merge queue after required "
+            "checks and review pass"
+        ),
+        "exit_code": 0,
+    }
+
+
+def _print_provider_proof_pr_create(args: argparse.Namespace) -> None:
+    payload = _provider_proof_pr_create_result(args)
+    exit_code = int(payload.get("exit_code", 0))
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    if exit_code:
+        raise SystemExit(exit_code)
+
+
 def _probability_thresholds(value: str) -> list[float]:
     thresholds = []
     for raw in value.split(","):
@@ -11533,7 +12435,7 @@ async def _run_agent_worker(args: argparse.Namespace) -> None:
                 AgentWorkerRunRequest(
                     run_id=args.run_id,
                     max_tasks=args.max_tasks,
-                    use_gemma=not args.disable_gemma,
+                    use_gemma=_use_gemma_from_args(args),
                     fail_on_provider_error=args.fail_on_provider_error,
                     recover_stale_tasks=not args.disable_stale_task_recovery,
                     stale_task_after_seconds=args.stale_task_after_seconds,
@@ -11568,7 +12470,7 @@ async def _run_agent_cycle(args: argparse.Namespace) -> None:
                     agent_ids=agent_ids,
                     max_tasks_per_agent=args.max_tasks_per_agent,
                     max_rounds=args.max_rounds,
-                    use_gemma=not args.disable_gemma,
+                    use_gemma=_use_gemma_from_args(args),
                     fail_on_provider_error=args.fail_on_provider_error,
                     recover_stale_tasks=not args.disable_stale_task_recovery,
                     stale_task_after_seconds=args.stale_task_after_seconds,
@@ -11640,6 +12542,18 @@ def _worker_scheduler_request_from_args(
         max_profiles=args.max_profiles,
         run_id=UUID(args.run_id) if args.run_id else None,
         execution_mode=args.execution_mode,
+    )
+
+
+def _use_gemma_from_args(args: argparse.Namespace) -> bool:
+    return bool(getattr(args, "enable_gemma", False)) and not bool(
+        getattr(args, "disable_gemma", False)
+    )
+
+
+def _include_gemma_from_args(args: argparse.Namespace) -> bool:
+    return bool(getattr(args, "include_gemma", False)) and not bool(
+        getattr(args, "skip_gemma", False)
     )
 
 
@@ -11727,7 +12641,7 @@ async def _run_autonomous_pass(args: argparse.Namespace) -> None:
                 build_run_replay_ledger=not args.skip_run_replay_ledger,
                 generate_interactive_note=args.generate_note,
                 open_feedback_gate=not args.disable_feedback_gate,
-                use_gemma=not args.disable_gemma,
+                use_gemma=_use_gemma_from_args(args),
                 fail_on_provider_error=args.fail_on_provider_error,
                 include_replay_event_payloads=args.include_replay_event_payloads,
                 notes=args.notes,
@@ -11783,7 +12697,7 @@ async def _build_provider_smoke_ledger(args: argparse.Namespace) -> None:
                 voice=args.voice,
                 search_query=args.search_query,
                 event_limit=args.event_limit,
-                include_gemma=not args.skip_gemma,
+                include_gemma=_include_gemma_from_args(args),
                 include_realtime=not args.skip_realtime,
                 include_web_search=not args.skip_web_search,
                 include_reranker=not args.skip_reranker,
@@ -11815,7 +12729,7 @@ async def _resume_run(args: argparse.Namespace) -> None:
                 run_worker_cycle=not args.skip_worker_cycle,
                 max_tasks_per_agent=args.max_tasks_per_agent,
                 max_worker_rounds=args.max_worker_rounds,
-                use_gemma=not args.disable_gemma,
+                use_gemma=_use_gemma_from_args(args),
                 fail_on_provider_error=args.fail_on_provider_error,
                 notes=args.notes,
             ),
@@ -12334,12 +13248,159 @@ def main() -> None:
     proof_completion_parser.add_argument("--checked-at")
     proof_completion_parser.add_argument("--run-id", required=True)
     proof_completion_parser.add_argument(
+        "--output-dir",
+        type=_project_relative_path,
+        help=(
+            "Provider proof workspace directory used to read current "
+            "operator-input readiness and emit recovery commands."
+        ),
+    )
+    proof_completion_parser.add_argument(
         "--audit-target",
         action="append",
         type=_project_relative_path,
         help=(
             "Override a default vault audit target; repeat for multiple targets."
         ),
+    )
+    proof_pr_handoff_parser = subparsers.add_parser(
+        "provider-proof-pr-handoff",
+        help=(
+            "Print a no-secret manual PR body from the current provider proof "
+            "completion and operator-input gates."
+        ),
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--env-example-path",
+        type=_project_relative_path,
+        default=PROJECT_ROOT / ".env.example",
+    )
+    proof_pr_handoff_parser.add_argument("--checked-at")
+    proof_pr_handoff_parser.add_argument("--run-id", required=True)
+    proof_pr_handoff_parser.add_argument(
+        "--operator-input-path",
+        type=_project_relative_path,
+        help=(
+            "Optional filled no-secret operator input file to inspect for the "
+            "external publication gate."
+        ),
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--output-dir",
+        type=_project_relative_path,
+        help=(
+            "Provider proof workspace directory used for recovery command "
+            "context."
+        ),
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--audit-target",
+        action="append",
+        type=_project_relative_path,
+        help=(
+            "Override a default vault audit target; repeat for multiple targets."
+        ),
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--repo",
+        default="DeconvFFT/Content-creator-optimizer",
+    )
+    proof_pr_handoff_parser.add_argument("--base", default="main")
+    proof_pr_handoff_parser.add_argument(
+        "--branch",
+        default="feature/livekit-voice-proof-capture",
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--ci-url",
+        required=True,
+        type=_github_actions_run_url,
+        help=(
+            "Latest branch-head GitHub Actions URL to include in the manual PR "
+            "handoff."
+        ),
+    )
+    proof_pr_handoff_parser.add_argument(
+        "--head-sha",
+        required=True,
+        type=_git_commit_sha,
+        help="Current feature branch head SHA to include in the manual PR handoff.",
+    )
+    proof_pr_create_parser = subparsers.add_parser(
+        "provider-proof-pr-create",
+        help=(
+            "Create the Agent Studio proof PR through GitHub REST when a local "
+            "token is available, or emit a no-secret manual fallback."
+        ),
+    )
+    proof_pr_create_parser.add_argument(
+        "--env-example-path",
+        type=_project_relative_path,
+        default=PROJECT_ROOT / ".env.example",
+    )
+    proof_pr_create_parser.add_argument("--checked-at")
+    proof_pr_create_parser.add_argument("--run-id", required=True)
+    proof_pr_create_parser.add_argument(
+        "--operator-input-path",
+        type=_project_relative_path,
+        help=(
+            "Optional filled no-secret operator input file to inspect for the "
+            "external publication gate."
+        ),
+    )
+    proof_pr_create_parser.add_argument(
+        "--output-dir",
+        type=_project_relative_path,
+        help=(
+            "Provider proof workspace directory used for recovery command "
+            "context."
+        ),
+    )
+    proof_pr_create_parser.add_argument(
+        "--audit-target",
+        action="append",
+        type=_project_relative_path,
+        help=(
+            "Override a default vault audit target; repeat for multiple targets."
+        ),
+    )
+    proof_pr_create_parser.add_argument(
+        "--repo",
+        default="DeconvFFT/Content-creator-optimizer",
+    )
+    proof_pr_create_parser.add_argument("--base", default="main")
+    proof_pr_create_parser.add_argument(
+        "--branch",
+        default="feature/livekit-voice-proof-capture",
+    )
+    proof_pr_create_parser.add_argument(
+        "--ci-url",
+        required=True,
+        type=_github_actions_run_url,
+        help=(
+            "Latest branch-head GitHub Actions URL to include in the PR body."
+        ),
+    )
+    proof_pr_create_parser.add_argument(
+        "--head-sha",
+        required=True,
+        type=_git_commit_sha,
+        help="Current feature branch head SHA to include in the PR body.",
+    )
+    proof_pr_create_parser.add_argument(
+        "--title",
+        default="Agent Studio LiveKit/OpenRouter proof gates",
+    )
+    proof_pr_create_parser.add_argument(
+        "--ready-for-review",
+        action="store_false",
+        dest="draft",
+        help="Create a ready PR instead of a draft PR.",
+    )
+    proof_pr_create_parser.add_argument("--dry-run", action="store_true")
+    proof_pr_create_parser.add_argument(
+        "--timeout-seconds",
+        type=float,
+        default=15.0,
     )
     proof_closure_template_parser = subparsers.add_parser(
         "provider-proof-closure-review-template",
@@ -12582,6 +13643,7 @@ def main() -> None:
     worker_parser.add_argument("--max-tasks", type=int, default=1)
     worker_parser.add_argument("--watch", action="store_true")
     worker_parser.add_argument("--poll-interval-seconds", type=float, default=5.0)
+    worker_parser.add_argument("--enable-gemma", action="store_true")
     worker_parser.add_argument("--disable-gemma", action="store_true")
     worker_parser.add_argument("--fail-on-provider-error", action="store_true")
     worker_parser.add_argument("--disable-stale-task-recovery", action="store_true")
@@ -12596,6 +13658,7 @@ def main() -> None:
     cycle_parser.add_argument("--max-rounds", type=int, default=1)
     cycle_parser.add_argument("--watch", action="store_true")
     cycle_parser.add_argument("--poll-interval-seconds", type=float, default=5.0)
+    cycle_parser.add_argument("--enable-gemma", action="store_true")
     cycle_parser.add_argument("--disable-gemma", action="store_true")
     cycle_parser.add_argument("--fail-on-provider-error", action="store_true")
     cycle_parser.add_argument("--disable-stale-task-recovery", action="store_true")
@@ -12673,6 +13736,7 @@ def main() -> None:
     pass_parser.add_argument("--generate-note", action="store_true")
     pass_parser.add_argument("--include-replay-event-payloads", action="store_true")
     pass_parser.add_argument("--disable-feedback-gate", action="store_true")
+    pass_parser.add_argument("--enable-gemma", action="store_true")
     pass_parser.add_argument("--disable-gemma", action="store_true")
     pass_parser.add_argument("--fail-on-provider-error", action="store_true")
     pass_parser.add_argument("--notes")
@@ -12690,6 +13754,7 @@ def main() -> None:
     resume_parser.add_argument("--skip-followup-tasks", action="store_true")
     resume_parser.add_argument("--skip-active-profiles", action="store_true")
     resume_parser.add_argument("--skip-worker-cycle", action="store_true")
+    resume_parser.add_argument("--enable-gemma", action="store_true")
     resume_parser.add_argument("--disable-gemma", action="store_true")
     resume_parser.add_argument("--fail-on-provider-error", action="store_true")
     resume_parser.add_argument("--notes")
@@ -12737,6 +13802,7 @@ def main() -> None:
     provider_smoke_parser.add_argument("--voice")
     provider_smoke_parser.add_argument("--search-query")
     provider_smoke_parser.add_argument("--event-limit", type=int, default=250)
+    provider_smoke_parser.add_argument("--include-gemma", action="store_true")
     provider_smoke_parser.add_argument("--skip-gemma", action="store_true")
     provider_smoke_parser.add_argument("--skip-realtime", action="store_true")
     provider_smoke_parser.add_argument("--skip-web-search", action="store_true")
@@ -12905,6 +13971,11 @@ def main() -> None:
         "--concurrent-iterations", type=_positive_int, default=2
     )
     args = parser.parse_args()
+    if args.command in {"provider-proof-pr-handoff", "provider-proof-pr-create"}:
+        try:
+            _validate_provider_proof_pr_handoff_evidence(args)
+        except argparse.ArgumentTypeError as exc:
+            parser.error(str(exc))
 
     if args.command == "migrate":
         asyncio.run(_migrate())
@@ -12936,6 +14007,10 @@ def main() -> None:
         _print_record_provider_proof_record(args)
     elif args.command == "provider-proof-completion-status":
         _print_provider_proof_completion_status(args)
+    elif args.command == "provider-proof-pr-handoff":
+        _print_provider_proof_pr_handoff(args)
+    elif args.command == "provider-proof-pr-create":
+        _print_provider_proof_pr_create(args)
     elif args.command == "provider-proof-closure-review-template":
         _print_provider_proof_closure_review_template(args)
     elif args.command == "validate-provider-proof-closure-review":

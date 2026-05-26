@@ -91,7 +91,7 @@ export function ActivityPanel({
   onAutopilotAutoWakeChange,
   eventStreamStatus = "idle",
   eventStreamDetail,
-  useGemma = true,
+  useGemma = false,
   onUseGemmaChange,
   now
 }: ActivityPanelProps) {
@@ -260,7 +260,7 @@ export function ActivityPanel({
                 disabled={disabled}
                 onChange={(event) => onUseGemmaChange(event.target.checked)}
               />
-              <span>Gemma experts</span>
+              <span>Legacy Gemma/HF opt-in</span>
             </label>
           )}
           <span>

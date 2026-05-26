@@ -1,9 +1,10 @@
 ---
 type: backlog
-updated: 2026-05-23
+updated: 2026-05-24
 sources:
   - synthesis-59e319d8
   - vault-audit-c74873d8
+  - codex-live-voice-proof-accepted
 ---
 
 # Prioritized Backlog
@@ -16,10 +17,10 @@ Requires user secrets and operator action. **Cannot be closed by agents alone.**
 
 | # | Item | Commands / refs |
 |---|------|-----------------|
-| 1 | Capture accepted live voice proof | OpenRouter `deepseek/deepseek-v4-flash`, LiveKit, and Kokoro inputs are configured for the current path per [[../social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json\|current-blocker-matrix.json]]; remaining work is same-run runtime/timing/participant proof capture and accepted record validation |
+| 1 | Capture accepted live voice proof | **Done 2026-05-24** — `provider-backed-live-voice-proof.accepted-record.json` is recorded for OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro with timing ledger `7e932381-4bf4-4206-a490-58d6a4ca7880` |
 | 2 | Configure publication inputs | LinkedIn token file, policy acknowledgement, durable destination, rollback/postcondition artifacts |
-| 3 | Run post-unblock proof capture | UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`; `proof_capture_commands_after_unblock` from matrix |
-| 4 | Record accepted proof records | `validate-provider-proof-record` → `record-provider-proof-record` for both proofs |
+| 3 | Run post-unblock external publication proof capture | UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`; use external-publication `proof_capture_commands_after_unblock` from matrix only after explicit action-time approval |
+| 4 | Record accepted external publication proof | `validate-provider-proof-record` -> `record-provider-proof-record` for `external-publication-proof` |
 | 5 | Closure review | `provider-proof-closure-review-template`; update blocker state when `all_required_proofs_accepted: true` |
 
 ```bash
@@ -33,12 +34,12 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 
 | # | Item | Effort | Status |
 |---|------|--------|--------|
-| 1 | Install Playwright browsers | **S** | Pending — `uv run playwright install` |
-| 2 | CI pipeline | **M** | **Pending** — c75e2d04 stalled; create `.github/workflows/ci.yml` |
-| 3 | Four ship skills | **M** | **Pending** — local-bootstrap, ship-gate, provider-proof-capture, ci-scaffold |
-| 4 | Ruff baseline | **S** | **Pending** — add to `pyproject.toml`, run on `src/` |
-| 5 | Initial git commit | **S** | Pending user approval |
-| 6 | Production auth + disable secret-write in prod | **L** | Not started |
+| 1 | Install Playwright browsers | **S** | Branch-head remote CI passed the Python backend Playwright install step at last live check |
+| 2 | CI pipeline | **M** | **Remote green on feature branch** — last live check passed branch policy, frontend build/lint/typecheck/tests, Python Ruff + stable pytest slice, and both Rust services. PR creation/open PR remains blocked or absent: GitHub connector returned `403`, local `gh` is unavailable, REST PR lookup returned no open PR, and branch-protection/auto-merge setup still needs GitHub-side configuration. Use `provider-proof-pr-handoff` to generate the no-secret manual PR body until connector permissions are upgraded; token-backed `provider-proof-pr-create` now updates an existing open branch PR before creating a new draft. `cloud.md` captures the no-secret GitHub Actions permission, branch-protection, required-check, and auto-merge checklist |
+| 3 | Four ship skills | **M** | **Done** — local-bootstrap, ship-gate, provider-proof-capture, and ci-scaffold skills exist under `skills/agent-studio-*` |
+| 4 | Ruff baseline | **S** | **Done locally** — `[tool.ruff]` exists in `pyproject.toml`; fresh `uv run ruff check src/ tests/` returned `All checks passed!` |
+| 5 | Initial git commit / branch push | **S** | **Done** — `main` is seeded and `feature/livekit-voice-proof-capture` is pushed; PR/merge/release tag remain pending |
+| 6 | Production auth + disable secret-write in prod | **L** | **Backend guard done 2026-05-24** — non-local mutating API requests require a configured `ADMIN_API_TOKEN` bearer token, missing token fails closed, and local secret/config write endpoints still reject production after auth. Broader identity/RBAC remains out of scope for this slice |
 | 7 | Closure review (after proofs) | **M** | Blocked on Phase 0 |
 
 **CI scaffold spec** (from c75e2d04 handoff):
@@ -56,7 +57,7 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 | 2 | Rate limiting | slowapi on LLM/expensive routes |
 | 3 | Live Postgres in CI | `LIVE_POSTGRES=1 uv run pytest tests/test_live_postgres.py` |
 | 4 | Non-credential product hardening | Per [[../social_media_optimiser/01-work-tracking/Agent Studio Kanban]] — next bounded slice (browser single-flight, source-refresh boundaries) |
-| 5 | Refresh stale sprint `## Next` | [[../social_media_optimiser/01-work-tracking/Current Sprint#Next]] contradicts UUID workspace state |
+| 5 | Keep sprint `## Next` fresh | [[../social_media_optimiser/01-work-tracking/Current Sprint#Next]] now points at publication proof, closure review, branch-protection/auto-merge, and demo feedback; refresh again after any proof-state change |
 | 6 | Direct LiveKit Rust media bridge | Sprint backlog item |
 | 7 | Repo cleanup | `.tmp_paper_work/`, `cs336_*_tmp/`, `tcf_canada_training/` |
 
@@ -71,14 +72,14 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 
 ## Top 5 (vault perspective)
 
-1. **Provider-backed live voice proof** — same-run OpenRouter DeepSeek + LiveKit + Kokoro dialogue, participant evidence, smoke, runtime health, and complete timing ledgers
-2. **External publication proof** — LinkedIn credential + channel policy; durable destination evidence
-3. **Execute UUID proof capture chain** — run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` post-unblock commands
+1. **External publication proof** — LinkedIn credential + channel policy; durable destination and rollback/postcondition evidence
+2. **Execute external-publication UUID proof capture chain** — run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e` post-unblock commands after explicit approval
+3. **Closure review** — only after both required proofs are accepted and completion status reports `all_required_proofs_accepted: true`
 4. **Non-credential product hardening** — Kanban next bounded slice
-5. **Complete c75e2d04 deliverables** — CI, skills, ruff, Playwright install (still on disk as gaps)
+5. **Finish branch integration** — manual PR with `provider-proof-pr-handoff` or upgraded GitHub integration permission, branch-protection/auto-merge proof, merge/release decision
 
 ## Do not
 
 - Mark objective complete without accepted proof records
-- Reopen local LiveKit/Kokoro as substitute for Gemma audio proof
+- Reopen Gamma/Gemma/Hugging Face as the active realtime default unless the user explicitly reactivates legacy native-audio research
 - Implement Qdrant/Neo4j without benchmark justification

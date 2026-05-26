@@ -1,4 +1,6 @@
 import asyncio
+import hmac
+import inspect
 import json
 import os
 import time
@@ -12,7 +14,7 @@ from urllib.parse import urlparse
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
 from all_about_llms.a2a_discovery import (
     build_a2a_http_json_interface,
@@ -389,6 +391,56 @@ _LOCAL_PROVIDER_CONFIG_LOCK = Lock()
 _LOCAL_LIVEKIT_DEV_URL = "ws://127.0.0.1:7880"
 _LOCAL_LIVEKIT_DEV_API_KEY = "devkey"
 _LOCAL_LIVEKIT_DEV_API_SECRET = "secret"
+_LOCAL_ENVIRONMENTS = {"local", "dev", "development", "test"}
+_PRODUCTION_ADMIN_AUTH_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+
+def _is_local_environment(settings: Settings) -> bool:
+    return settings.environment.strip().lower() in _LOCAL_ENVIRONMENTS
+
+
+def _request_admin_bearer_token(request: Request) -> str | None:
+    authorization = request.headers.get("authorization", "")
+    scheme, separator, token = authorization.partition(" ")
+    if not separator or scheme.lower() != "bearer":
+        return None
+    stripped_token = token.strip()
+    return stripped_token or None
+
+
+async def _request_settings(request: Request) -> Settings:
+    settings_provider = request.app.dependency_overrides.get(get_settings, get_settings)
+    settings = settings_provider()
+    if inspect.isawaitable(settings):
+        settings = await settings
+    return settings
+
+
+@app.middleware("http")
+async def require_production_admin_auth(request: Request, call_next):
+    settings = await _request_settings(request)
+    if (
+        _is_local_environment(settings)
+        or request.method.upper() not in _PRODUCTION_ADMIN_AUTH_METHODS
+    ):
+        return await call_next(request)
+
+    expected_token = (settings.admin_api_token or "").strip()
+    if not expected_token:
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "Production admin token is not configured."},
+        )
+    request_token = _request_admin_bearer_token(request)
+    if request_token is None or not hmac.compare_digest(
+        request_token.encode("utf-8"),
+        expected_token.encode("utf-8"),
+    ):
+        return JSONResponse(
+            status_code=401,
+            content={"detail": "Production admin authentication required."},
+        )
+    return await call_next(request)
 
 
 async def get_store(settings: Settings = Depends(get_settings)) -> PostgresStore:

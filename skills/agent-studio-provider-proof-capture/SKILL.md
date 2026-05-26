@@ -1,6 +1,6 @@
 ---
 name: agent-studio-provider-proof-capture
-description: "Operator workflow for capturing provider-backed proof without leaking secrets. Use when closing live voice, Gemma/HF, web-search, reranker, or external publication blockers."
+description: "Operator workflow for capturing provider-backed proof without leaking secrets. Use when closing live voice, selected provider, web-search, reranker, or external publication blockers."
 ---
 
 # Agent Studio Provider Proof Capture
@@ -19,7 +19,7 @@ description: "Operator workflow for capturing provider-backed proof without leak
 5. When credentials and infrastructure are ready, rerun with live execution:
    - `POST /api/runs/{run_id}/provider-smoke` with `execute_live_calls=true`, or
    - `uv run all-about-llms-admin build-provider-smoke-ledger --run-id <run-id> --live`
-6. For voice proof, capture same-session evidence: Gemma TTFT, Kokoro first-audio latency, end-to-end first-audio latency, captured microphone artifact hash/path when available.
+6. For voice proof, capture same-session evidence: selected realtime provider/OpenRouter response start or first text delta, Kokoro first-audio latency, end-to-end first-audio latency, captured microphone artifact hash/path when available, and barge-in/cancellation proof.
 7. For publication proof, capture policy/disclosure evidence and external destination readiness without treating credential presence as publish proof.
 8. Persist artifacts under the run timeline and update operator proof status docs; redact secrets from screenshots, logs, and reports.
 

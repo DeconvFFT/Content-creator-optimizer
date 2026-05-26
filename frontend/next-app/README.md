@@ -39,10 +39,10 @@ npm run test:browser-single-flight
 mocks the FastAPI boundary in Chromium, and rapidly double-clicks the creator
 Create voice run, Generate, Run web research, Suggest next step, Publish check,
 Send revision, and Start transcript rehearsal controls. It proves the voice-first starter creates exactly
-one voice-mode `POST /api/runs` payload with Gemma 4 E4B/Kokoro provenance,
+one voice-mode `POST /api/runs` payload with OpenRouter DeepSeek V4 Flash + LiveKit + Kokoro provenance,
 refreshes the same run context, hides the no-run starter, and binds the next
 Generate turn to that run. It then rapidly double-clicks Runtime preflight and
-proves the browser sends one full LiveKit/Gemma/Kokoro preflight readiness
+proves the browser sends one full OpenRouter/LiveKit/Kokoro preflight readiness
 request. It also rapidly double-clicks Check setup and proves the setup fanout
 records one durable voice setup proof after one LiveKit process refresh, one
 voice-agent process refresh, one provider-readiness refresh, one runtime

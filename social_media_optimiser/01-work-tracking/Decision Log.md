@@ -175,6 +175,14 @@ Golden rules:
 
 Research note: [[../02-research/Realtime Voice Architecture - Gemma Kokoro LiveKit Rust Python]]
 
+## 2026-05-24 - OpenRouter LiveKit Kokoro Supersedes Gemma-First Default
+
+Decision: the current production live-dialogue default is OpenRouter `deepseek/deepseek-v4-flash` text reasoning over LiveKit with Kokoro spoken output. Gemma/Gamma/Hugging Face/MLX setup is legacy or future native-audio work unless explicitly re-promoted in a new decision.
+
+Implication: missing Gemma/Gamma/HF/MLX endpoints must not block the current realtime dialogue proof path. The provider-backed live voice proof is accepted for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`; the remaining completion blocker is external publication proof followed by closure review.
+
+Architecture rule: keep LiveKit as the production transport and keep raw microphone PCM out of OpenRouter. Current OpenRouter proof uses bounded text-turn dialogue evidence plus Kokoro audio output evidence; native-audio experimentation must stay separately labeled.
+
 Implementation update: the 2026-05-17 deeper research pass clarified that Gemma 4 E4B should be described as the native audio-understanding and reasoning leg with text output. Kokoro remains the TTS waveform leg. Live voice should avoid cold scale-to-zero endpoints; warm HF/Gemma and Kokoro capacity is required before provider-backed smoke can be considered interactive.
 
 ## 2026-05-17 - Retrieval Uses Multi-Stage Evidence Selection

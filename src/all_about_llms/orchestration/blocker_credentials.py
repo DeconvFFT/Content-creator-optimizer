@@ -10,11 +10,7 @@ BLOCKER_CREDENTIAL_ENV_NAMES = {
         "LIVEKIT_API_SECRET",
     ],
     "external-publication-proof": [
-        "INSTAGRAM_ACCESS_TOKEN",
         "LINKEDIN_ACCESS_TOKEN",
-        "X_ACCESS_TOKEN",
-        "X_API_KEY",
-        "SUBSTACK_API_TOKEN",
     ],
 }
 
@@ -25,11 +21,7 @@ BLOCKER_SECRET_FILE_ENV_NAMES = {
         "LIVEKIT_API_SECRET": "LIVEKIT_API_SECRET_FILE",
     },
     "external-publication-proof": {
-        "INSTAGRAM_ACCESS_TOKEN": "INSTAGRAM_ACCESS_TOKEN_FILE",
         "LINKEDIN_ACCESS_TOKEN": "LINKEDIN_ACCESS_TOKEN_FILE",
-        "X_ACCESS_TOKEN": "X_ACCESS_TOKEN_FILE",
-        "X_API_KEY": "X_API_KEY_FILE",
-        "SUBSTACK_API_TOKEN": "SUBSTACK_API_TOKEN_FILE",
     },
 }
 
@@ -41,10 +33,7 @@ _BLOCKER_GROUPS = {
         ("LIVEKIT_API_SECRET",),
     ],
     "external-publication-proof": [
-        ("INSTAGRAM_ACCESS_TOKEN",),
         ("LINKEDIN_ACCESS_TOKEN",),
-        ("X_ACCESS_TOKEN", "X_API_KEY"),
-        ("SUBSTACK_API_TOKEN",),
     ],
 }
 

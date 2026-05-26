@@ -321,7 +321,7 @@
         <div class="pills">
           <span class="pill">No SQLite</span>
           <span class="pill">Postgres + pgvector</span>
-          <span class="pill">Gemma 4 expert agents</span>
+          <span class="pill">OpenRouter DeepSeek V4 Flash reasoning</span>
           <span class="pill">Provider-pluggable realtime audio</span>
           <span class="pill">Source-backed content</span>
           <span class="pill">No project-management surface in product app</span>
@@ -348,7 +348,7 @@
           <div class="section-head">
             <div>
               <h2>High-Level Design</h2>
-              <p>The system is a live conversational content studio with a separate Obsidian planning workspace. Realtime voice owns natural dialogue. Gemma 4 experts own reasoning and content work. Postgres stores state, evidence, and memories.</p>
+              <p>The system is a live conversational content studio with a separate Obsidian planning workspace. Realtime voice owns natural dialogue through OpenRouter/LiveKit/Kokoro, OpenRouter DeepSeek V4 Flash owns current reasoning and content work, and Postgres stores state, evidence, and memories. Gemma/Gamma/Hugging Face/MLX are legacy or non-default.</p>
             </div>
             <button data-export-section="hld">Export HLD JSON</button>
           </div>
@@ -454,7 +454,7 @@
     "hld": [
       {"id": "user-interface", "name": "Natural Dialogue Surface", "group": "Voice", "purpose": "Voice and text input with interruptions, turn-taking, and spoken responses.", "owns": ["browser speech capture", "provider realtime sessions", "conversation turns"], "not_owns": ["deep content reasoning", "source verification"]},
       {"id": "orchestration", "name": "Durable Agent Orchestration", "group": "Orchestration", "purpose": "LangGraph-style state machines, checkpoints, event streams, feedback gates, and resumable worker profiles.", "owns": ["run state", "A2A task routing", "resume plans"], "not_owns": ["provider-specific voice transport"]},
-      {"id": "expert-agents", "name": "Gemma 4 Expert Layer", "group": "Orchestration", "purpose": "Gemma 4/HF experts for reasoning, writing, critique, visual analysis, long-context synthesis, and planning.", "owns": ["content strategy", "ELI5 writing", "Substack synthesis", "review"], "not_owns": ["speech-to-speech transport"]},
+      {"id": "expert-agents", "name": "OpenRouter Reasoning Layer", "group": "Orchestration", "purpose": "OpenRouter DeepSeek V4 Flash handles current reasoning, writing, critique, visual analysis, long-context synthesis, and planning; Gemma/Gamma/Hugging Face/MLX are legacy or non-default.", "owns": ["content strategy", "ELI5 writing", "Substack synthesis", "review"], "not_owns": ["speech-to-speech transport"]},
       {"id": "durable-store", "name": "Postgres + pgvector", "group": "Storage", "purpose": "Local-first durability for runs, events, checkpoints, sources, claims, artifacts, feedback, memories, and vector retrieval.", "owns": ["state tables", "semantic memory", "source ledger"], "not_owns": ["SQLite fallback"]},
       {"id": "retrieval", "name": "Retrieval Intelligence Layer", "group": "Research", "purpose": "Hybrid search, query rewriting, RRF fusion, cross-encoder reranking, graph traversal, coverage checks, and claim support.", "owns": ["precision and recall", "coverage probes", "FP/FN minimization"], "not_owns": ["unsupported final claims"]},
       {"id": "artifact-loop", "name": "Artifact and Feedback Loop", "group": "Orchestration", "purpose": "Generate drafts, media plans, distribution packages, source ledgers, guardrail audits, and revision history with human approval gates.", "owns": ["provenance", "reviewer decisions", "revision routing"], "not_owns": ["planning workspace UI"]}
@@ -463,7 +463,7 @@
       {"module": "FastAPI app", "files": ["src/all_about_llms/app.py", "src/all_about_llms/main.py"], "contracts": ["REST APIs", "SSE event stream", "cockpit route"], "notes": "The product app exposes voice/text conversation, runs, sources, artifacts, feedback, and ledgers."},
       {"module": "Durable storage", "files": ["infra/postgres/001_foundation.sql", "src/all_about_llms/storage/postgres.py"], "contracts": ["runs", "events", "checkpoints", "sources", "claims", "artifacts", "feedback", "agent_memories"], "notes": "Postgres and pgvector are v1 requirements. No SQLite fallback."},
       {"module": "Orchestration", "files": ["src/all_about_llms/orchestration/content_workflow.py", "src/all_about_llms/orchestration/agent_worker.py", "src/all_about_llms/orchestration/run_resume.py"], "contracts": ["A2A messages", "worker profiles", "autonomous passes", "resume plans"], "notes": "Every long-running action leaves checkpoint and event evidence."},
-      {"module": "Provider boundary", "files": ["src/all_about_llms/providers/interfaces.py", "src/all_about_llms/providers/factory.py"], "contracts": ["Gemma HF", "realtime audio", "web search", "imagegen"], "notes": "Gemma is an expert model family, not the whole system."},
+      {"module": "Provider boundary", "files": ["src/all_about_llms/providers/interfaces.py", "src/all_about_llms/providers/factory.py"], "contracts": ["OpenRouter DeepSeek V4 Flash", "LiveKit", "Kokoro", "web search", "imagegen"], "notes": "OpenRouter is the current reasoning provider; LiveKit handles transport; Kokoro handles speech output; legacy Gemma/Gamma/Hugging Face/MLX routes are non-default."},
       {"module": "Context engineering", "files": ["src/all_about_llms/orchestration/context_engineering.py", "src/all_about_llms/orchestration/source_ledger.py"], "contracts": ["context packets", "source evidence", "claim matrix", "memory search"], "notes": "Resumed agents get source snippets, dates, quality, freshness, and latest web research."},
       {"module": "Obsidian planning workspace", "files": ["social_media_optimiser/00-system-design/agent-studio-hld-lld.html", "social_media_optimiser/01-work-tracking/agent-studio-work-tracker.html"], "contracts": ["design review", "comment export", "work tracking"], "notes": "This is not the product cockpit and does not contain content creation UI."}
     ],

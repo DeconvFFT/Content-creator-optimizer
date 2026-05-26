@@ -24,7 +24,7 @@ def test_system_design_vault_home_links_agent_studio_design_sources():
                 "href",
                 "04-agent-studio-implications/agent-studio-objective-completion-audit.md",
             )
-            expect(page.get_by_role("link", name="Gemma and Realtime Sources")).to_have_attribute(
+            expect(page.get_by_role("link", name="OpenRouter And Legacy Provider Sources")).to_have_attribute(
                 "href",
                 "01-sources/official-open/gemma4-and-realtime-sources.md",
             )
@@ -63,7 +63,7 @@ def test_system_design_vault_home_links_agent_studio_design_sources():
             expect(page.locator("body")).to_contain_text("generated viewer")
             expect(page.get_by_role("link", name="Project OpenRouter LiveKit Voice Boundary Map")).to_have_attribute(
                 "href",
-                "../social_media_optimiser/02-research/gemma-voice-boundary-map.html",
+                "../social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html",
             )
             expect(page.get_by_role("link", name="Project Publication Boundary Map")).to_have_attribute(
                 "href",

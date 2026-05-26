@@ -290,6 +290,9 @@ def test_admin_cli_and_migrations_have_no_sqlite_fallback():
     agent_worker = (
         ROOT / "src/all_about_llms/orchestration/agent_worker.py"
     ).read_text()
+    autonomous_pass = (
+        ROOT / "src/all_about_llms/orchestration/autonomous_pass.py"
+    ).read_text()
     migrations = (ROOT / "src/all_about_llms/storage/migrations.py").read_text()
     checkpointer = (
         ROOT / "src/all_about_llms/orchestration/checkpointing.py"
@@ -338,6 +341,11 @@ def test_admin_cli_and_migrations_have_no_sqlite_fallback():
     assert "skip-foundation-audit" in cli
     assert "skip-run-replay-ledger" in cli
     assert "include-replay-event-payloads" in cli
+    assert "--enable-gemma" in cli
+    assert "use_gemma=_use_gemma_from_args(args)" in cli
+    assert "use_gemma=not args.disable_gemma" not in cli
+    assert "include_gemma=request.use_gemma" in autonomous_pass
+    assert "include_gemma=True" not in autonomous_pass
     assert "AsyncPostgresSaver" in checkpointer
     assert "setup_postgres_checkpointer" in migrations
     assert "sqlite" not in cli.lower()
@@ -1001,8 +1009,10 @@ def test_next_voice_panel_uses_gemma_kokoro_transport_contract():
     assert "livekit/livekit-server:latest" in docker_compose
     assert '"--dev", "--bind", "0.0.0.0"' in docker_compose
     assert "docker compose --profile voice up livekit" in env_example
-    assert "LIVEKIT_API_KEY=devkey" in readme
-    assert "LIVEKIT_API_SECRET=secret" in readme
+    assert "LIVEKIT_API_KEY=<local-livekit-api-key>" in readme
+    assert "LIVEKIT_API_SECRET=<local-livekit-api-secret>" in readme
+    assert "LIVEKIT_API_KEY=devkey" not in readme
+    assert "LIVEKIT_API_SECRET=secret" not in readme
     assert "OPENROUTER_LIVEKIT_URL" in provider
     assert "is not configured for LiveKit production transport" in provider
     assert "GEMMA4_REALTIME_LIVEKIT_URL or GEMMA4_REALTIME_WS_URL is not configured" not in provider
@@ -1176,9 +1186,14 @@ def test_next_voice_panel_uses_gemma_kokoro_transport_contract():
     assert "agentCycleInFlightRef" in page
     assert "runVersionRef" in page
     assert "useGemmaAgentCycle" in page
+    assert "useGemmaAgentCycle: false" in page
+    assert "state.useGemmaAgentCycle ?? false" in page
+    assert "useGemmaAgentCycle: current.useGemmaAgentCycle ?? false" in page
     assert "continueAgents" in page
     assert "Continue specialists" in activity_panel
-    assert "Gemma experts" in activity_panel
+    assert "Legacy Gemma/HF opt-in" in activity_panel
+    assert "Gemma experts" not in activity_panel
+    assert "Gemma workers" not in activity_panel
     assert "Always-on studio" in activity_panel
     assert "buildAutopilotEvidence" in activity_panel
     assert "Specialist pulse" in activity_panel
@@ -1301,7 +1316,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
         vault / "03-review-packets/agent-studio-publication-boundary-map.html"
     ).read_text()
     gemma_voice_boundary = (
-        vault / "02-research/gemma-voice-boundary-map.html"
+        vault / "02-research/openrouter-livekit-voice-boundary-map.html"
     ).read_text()
     tracker = (vault / "01-work-tracking/agent-studio-work-tracker.html").read_text()
     kanban = (vault / "01-work-tracking/Agent Studio Kanban.md").read_text()
@@ -1406,7 +1421,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "Open Agent Studio Publication Boundary Map" in home
     assert "03-review-packets/agent-studio-publication-boundary-map.html" in home
     assert "Open OpenRouter LiveKit Voice Boundary Map" in home
-    assert "02-research/gemma-voice-boundary-map.html" in home
+    assert "02-research/openrouter-livekit-voice-boundary-map.html" in home
     assert "[[00-system-design/HLD - Agent Studio]]" in moc
     assert "[[00-system-design/LLD - Agent Studio]]" in moc
     assert "[[01-work-tracking/Agent Studio Kanban]]" in moc
@@ -1422,7 +1437,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "operator-unblocker-checklist.md" in moc
     assert "Feedback Loop Map HTML: `03-review-packets/agent-studio-feedback-loop-map.html`" in moc
     assert "Publication Boundary HTML: `03-review-packets/agent-studio-publication-boundary-map.html`" in moc
-    assert "OpenRouter LiveKit Voice Boundary HTML: `02-research/gemma-voice-boundary-map.html`" in moc
+    assert "OpenRouter LiveKit Voice Boundary HTML: `02-research/openrouter-livekit-voice-boundary-map.html`" in moc
     assert "System Design Source Map Viewer: `../system_design_vault/output/viewers/system-design-source-map.html`" in moc
     assert "[[../01-work-tracking/Agent Studio Kanban]]" in index
     assert "[[../01-work-tracking/Agent Studio Objective Completion Audit]]" in index
@@ -1532,7 +1547,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "System-design source-map viewer browser proof added" in kanban
     assert "design implications, implication search, visible record counts, no-match states, and clickable source-note paths" in kanban
     assert "OpenRouter LiveKit voice boundary browser proof added" in kanban
-    assert "tests/test_gemma_voice_boundary_browser.py" in kanban
+    assert "tests/test_openrouter_livekit_voice_boundary_browser.py" in kanban
     assert "Publication boundary browser proof added" in kanban
     assert "tests/test_publication_boundary_browser.py" in kanban
     assert "type: objective-completion-audit" in objective_audit
@@ -1601,7 +1616,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "019e3899-5ab3-7171-9d3c-32e7c57bbde7" in objective_audit
     assert "severity, files, and next action" in objective_audit
     assert "OpenRouter LiveKit voice boundary browser proof" in objective_audit
-    assert "gemma-voice-boundary-map.html" in objective_audit
+    assert "openrouter-livekit-voice-boundary-map.html" in objective_audit
     assert "publication boundary browser proof" in objective_audit
     assert "agent-studio-publication-boundary-map.html" in objective_audit
     assert "provider-backed live voice proof" in objective_audit
@@ -1748,7 +1763,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "implementation target" in next_board_handoff
     assert "validation plan" in next_board_handoff
     assert "small product/proof hardening patch" in next_board_handoff
-    assert "credential-gated live proof remains blocked" in next_board_handoff
+    assert "credential-gated publication proof remains blocked" in next_board_handoff
     assert "current review-watch status" in next_board_handoff
     assert "compact proof-plan provenance verification finishes" not in next_board_handoff
     assert "system-design-vault browser index proof" in active_context
@@ -1760,7 +1775,8 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     )
     assert "current live-dialogue path is OpenRouter `deepseek/deepseek-v4-flash`" in uuid_run_log
     assert "no live-voice operator-input blockers" in uuid_run_log
-    assert "completion still needs accepted OpenRouter LiveKit proof-record capture/recheck" in uuid_run_log
+    assert "provider-backed live-voice proof is accepted" in uuid_run_log
+    assert "external publication proof remains open" in uuid_run_log
     assert "LiveKit, and Kokoro readiness" not in uuid_run_log
     assert "blocked_by_missing_accepted_proof" not in uuid_run_log
     assert "System-design Objective Completion Audit routes now render required evidence after unblock" in log
@@ -1795,7 +1811,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "comment export" in system_design_home
     assert "generated viewer" in system_design_home
     assert "Project OpenRouter LiveKit Voice Boundary Map" in system_design_home
-    assert "../social_media_optimiser/02-research/gemma-voice-boundary-map.html" in system_design_home
+    assert "../social_media_optimiser/02-research/openrouter-livekit-voice-boundary-map.html" in system_design_home
     assert "Project Publication Boundary Map" in system_design_home
     assert "../social_media_optimiser/03-review-packets/agent-studio-publication-boundary-map.html" in system_design_home
     assert "Project Feedback Loop Map" in system_design_home
@@ -1868,7 +1884,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "system-design-source-map.html" in active_context
     assert "design implications, implication search, visible record counts, no-match states, and clickable source-note paths" in active_context
     assert "OpenRouter LiveKit voice boundary browser proof" in active_context
-    assert "gemma-voice-boundary-map.html" in active_context
+    assert "openrouter-livekit-voice-boundary-map.html" in active_context
     assert "publication boundary browser proof" in active_context
     assert "agent-studio-publication-boundary-map.html" in active_context
     assert "objective completion audit added" in active_context
@@ -1895,7 +1911,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "Queue and run" in next_app_readme
     assert "bounded worker cycle" in next_app_readme
     assert "Always-on studio and Background runner" in next_app_readme
-    assert "accepted proof-record capture/recheck is still required" in active_context
+    assert "provider-backed live-voice proof record is now accepted" in active_context
     assert "Publication inputs remain blocked on LinkedIn credential" in active_context
     assert "focused review packet to `Leibniz`" in active_context
     assert "Current conversation-turn durable event boundary" in active_context
@@ -2095,16 +2111,16 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "provider-smoke ledger with execute_live_calls=true" in proof_readiness
     assert "realtime_voice_timing_ledger" in proof_readiness
     assert "participant presence" in proof_readiness
-    assert "INSTAGRAM_ACCESS_TOKEN" in proof_readiness
-    assert "INSTAGRAM_ACCESS_TOKEN_FILE" in proof_readiness
+    assert "INSTAGRAM_ACCESS_TOKEN" not in proof_readiness
+    assert "INSTAGRAM_ACCESS_TOKEN_FILE" not in proof_readiness
     assert "LINKEDIN_ACCESS_TOKEN" in proof_readiness
     assert "LINKEDIN_ACCESS_TOKEN_FILE" in proof_readiness
-    assert (
-        "X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY"
-        in proof_readiness
-    )
-    assert "SUBSTACK_API_TOKEN" in proof_readiness
-    assert "SUBSTACK_API_TOKEN_FILE" in proof_readiness
+    assert "X_ACCESS_TOKEN" not in proof_readiness
+    assert "X_ACCESS_TOKEN_FILE" not in proof_readiness
+    assert "X_API_KEY" not in proof_readiness
+    assert "X_API_KEY_FILE" not in proof_readiness
+    assert "SUBSTACK_API_TOKEN" not in proof_readiness
+    assert "SUBSTACK_API_TOKEN_FILE" not in proof_readiness
     assert "channel policy acknowledgement" in proof_readiness
     assert "durable platform ID or URL" in proof_readiness
     assert "rollback, delete, private, or correction path" in proof_readiness
@@ -2141,16 +2157,16 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "publish_channel_policy_review_required" in publication_boundary
     assert "not real API publish proof" in publication_boundary
     assert "credential-scope-and-account-identity" in publication_boundary
-    assert "INSTAGRAM_ACCESS_TOKEN" in publication_boundary
-    assert "INSTAGRAM_ACCESS_TOKEN_FILE" in publication_boundary
+    assert "INSTAGRAM_ACCESS_TOKEN" not in publication_boundary
+    assert "INSTAGRAM_ACCESS_TOKEN_FILE" not in publication_boundary
     assert "LINKEDIN_ACCESS_TOKEN" in publication_boundary
     assert "LINKEDIN_ACCESS_TOKEN_FILE" in publication_boundary
-    assert (
-        "X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY"
-        in publication_boundary
-    )
-    assert "SUBSTACK_API_TOKEN" in publication_boundary
-    assert "SUBSTACK_API_TOKEN_FILE" in publication_boundary
+    assert "X_ACCESS_TOKEN" not in publication_boundary
+    assert "X_ACCESS_TOKEN_FILE" not in publication_boundary
+    assert "X_API_KEY" not in publication_boundary
+    assert "X_API_KEY_FILE" not in publication_boundary
+    assert "SUBSTACK_API_TOKEN" not in publication_boundary
+    assert "SUBSTACK_API_TOKEN_FILE" not in publication_boundary
     assert "channel-policy-review" in publication_boundary
     assert "exact destination set" in publication_boundary
     assert "external-publication-proof" in publication_boundary
@@ -2212,6 +2228,31 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "coverageGranularity" in system_design_source_map_viewer
     assert "provider-backed live voice path is OpenRouter + LiveKit + Kokoro" in system_design_home
     assert "External publication proof remains blocked" in system_design_home
+
+
+def test_current_vault_knowledge_graph_does_not_reopen_accepted_live_voice_gate():
+    project_kg = (
+        ROOT / "system_design_vault/06-project-knowledge-graph/agent-studio-project-kg.md"
+    ).read_text()
+    architecture_map = (
+        ROOT / "system_design_vault/06-project-knowledge-graph/agent-studio-architecture-map.html"
+    ).read_text()
+    objective_audit = (
+        ROOT
+        / "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md"
+    ).read_text()
+    current_surfaces = "\n".join([project_kg, architecture_map, objective_audit])
+
+    assert "Provider-backed live voice | accepted" in project_kg
+    assert "accepted live proof" in project_kg
+    assert "Provider-backed live voice is accepted" in objective_audit
+    assert "needs accepted proof record" not in current_surfaces
+    assert "needs accepted record capture/recheck" not in current_surfaces
+    assert "LiveKit proof pending" not in current_surfaces
+    assert "voice blocked on provider creds" not in current_surfaces
+    assert "live voice is waiting on accepted OpenRouter LiveKit proof-record" not in (
+        objective_audit
+    )
 
 
 def test_system_design_viewer_projection_is_refreshed_from_latest_lld():

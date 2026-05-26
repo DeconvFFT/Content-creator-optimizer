@@ -457,7 +457,7 @@ Current caveats:
 Remaining production work:
 
 - Benchmark/tune the Silero session pool and recurrent stream-state cache for concurrent users, then add the LiveKit bridge.
-- Capture and validate an accepted proof record for the current OpenRouter + LiveKit + Kokoro route using run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`; the current blocker state is `provider_backed_live_voice_preflight_ready_record_capture_needed`.
+- Keep the accepted proof record for the current OpenRouter + LiveKit + Kokoro route tied to run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`; the current blocker state has moved to external publication proof and closure review.
 - Benchmark false interruption / missed interruption rates for the current VAD-driven Python bridge, then replace the deterministic edge with Silero.
 
 LiveKit/OpenRouter config now required for provider-backed voice smoke:
@@ -469,7 +469,7 @@ LiveKit/OpenRouter config now required for provider-backed voice smoke:
 
 ## Current Recommendation
 
-Superseded label: the Gemma-first recommendations below are historical. The active next step is accepted proof-record capture/recheck for OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro, not Hugging Face/Gemma/Gamma/MLX setup.
+Superseded label: the Gemma-first recommendations below are historical. OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro now has accepted provider-backed live voice proof for the current UUID; the active next step is external publication proof and closure review, not Hugging Face/Gemma/Gamma/MLX setup.
 
 Build in this order:
 

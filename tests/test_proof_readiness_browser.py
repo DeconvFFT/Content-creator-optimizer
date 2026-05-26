@@ -132,6 +132,13 @@ def test_agent_studio_proof_readiness_filters_live_voice_and_exports_blockers():
                 "voice_agent_process_start_artifact_id"
                 in voice_packet["proof_record_required_fields"]
             )
+            assert voice_packet["current_gate"]["completion_next_action_commands"][
+                -1
+            ] == (
+                "uv run all-about-llms-admin provider-proof-completion-status "
+                f"--run-id {run_id} --output-dir "
+                f"social_media_optimiser/output/provider-proof/{run_id}"
+            )
             assert "OpenRouter live-dialogue reasoning check" in export_payload[
                 "blockers"
             ][0]["required_evidence"]
@@ -253,16 +260,7 @@ def test_agent_studio_proof_readiness_filters_publication_blocker():
                 "external-publication-proof.template.json"
             )
             expect(page.locator("#blocker-detail")).to_contain_text(
-                "INSTAGRAM_ACCESS_TOKEN"
-            )
-            expect(page.locator("#blocker-detail")).to_contain_text(
                 "LINKEDIN_ACCESS_TOKEN"
-            )
-            expect(page.locator("#blocker-detail")).to_contain_text(
-                "X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY"
-            )
-            expect(page.locator("#blocker-detail")).to_contain_text(
-                "SUBSTACK_API_TOKEN"
             )
             expect(page.locator("#blocker-detail")).to_contain_text(
                 "channel policy acknowledgement"
@@ -274,6 +272,14 @@ def test_agent_studio_proof_readiness_filters_publication_blocker():
                 "rollback, delete, private, or correction path"
             )
             publication_detail = page.locator("#blocker-detail").inner_text()
+            credential_setup_block = publication_detail.split(
+                "Credential setup",
+                1,
+            )[1].split("Operator sequence", 1)[0]
+            assert "LINKEDIN_ACCESS_TOKEN" in credential_setup_block
+            assert "INSTAGRAM_ACCESS_TOKEN" not in credential_setup_block
+            assert "X_ACCESS_TOKEN" not in credential_setup_block
+            assert "SUBSTACK_API_TOKEN" not in credential_setup_block
             assert publication_detail.count("Proof capture commands after unblock") == 2
             expect(page.locator("#blocker-detail")).to_contain_text(
                 "Proof record schema"
@@ -309,10 +315,7 @@ def test_agent_studio_proof_readiness_filters_publication_blocker():
             assert export_payload["blockers"][0]["proof_plan"][
                 "credential_setup_requirements"
             ] == [
-                "configure INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN",
                 "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
-                "configure X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY",
-                "configure SUBSTACK_API_TOKEN_FILE or SUBSTACK_API_TOKEN",
             ]
             assert (
                 "complete closure review, then record blocker-state update only after approved review"
@@ -354,15 +357,22 @@ def test_agent_studio_proof_readiness_filters_publication_blocker():
             assert export_payload["blockers"][0]["proof_plan"][
                 "preflight_capture_commands"
             ][1].startswith("curl -sS -X POST -o ")
+            distribution_capture_command = (
+                "uv run all-about-llms-admin build-distribution-package "
+                f"--run-id {run_id} > social_media_optimiser/output/provider-proof/"
+                f"{run_id}/distribution-package.json"
+            )
+            assert distribution_capture_command in export_payload["blockers"][0][
+                "proof_plan"
+            ]["proof_capture_commands_after_unblock"]
+            assert distribution_capture_command in publication_packet[
+                "proof_capture_commands_after_unblock"
+            ]
             snapshot = export_payload["blockers"][0]["credential_snapshot"]
             assert snapshot["source"] == "non-secret local classifier"
             assert snapshot["secret_values_printed"] is False
             assert snapshot["placeholder_only_inputs"] == [
-                "INSTAGRAM_ACCESS_TOKEN",
                 "LINKEDIN_ACCESS_TOKEN",
-                "X_ACCESS_TOKEN",
-                "X_API_KEY",
-                "SUBSTACK_API_TOKEN",
             ]
         finally:
             browser.close()

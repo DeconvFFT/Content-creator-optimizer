@@ -54,11 +54,14 @@ const LOCAL_LIVEKIT_DEV_ENV_NAMES = [
 
 type VoiceProviderSmokeStepEvidence = {
   step_id: string;
+  provider_id?: string | null;
+  title?: string | null;
   status: string;
   smoke_proof_status?: string | null;
   realtime_session_ids: string[];
   blockers: string[];
   next_actions: string[];
+  details?: Record<string, unknown>;
 };
 
 type VoiceProviderSmokeEvidence = {
@@ -98,6 +101,14 @@ function metadataRecords(record: Record<string, unknown>, key: string): Record<s
   );
 }
 
+function metadataRecord(record: Record<string, unknown>, key: string): Record<string, unknown> {
+  const value = record[key];
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return {};
+  }
+  return value as Record<string, unknown>;
+}
+
 function artifactTime(artifact: ArtifactRecord): number {
   const parsed = Date.parse(artifact.created_at);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -117,6 +128,41 @@ function selectedProvider(
   providerType: string
 ): ProviderReadinessItem | null {
   return readiness.providers.find((provider) => provider.provider_type === providerType && provider.selected) ?? null;
+}
+
+function isOpenRouterRealtimeProvider(provider: ProviderReadinessItem | null) {
+  if (!provider) {
+    return false;
+  }
+  return `${provider.provider_id} ${provider.display_name}`.toLowerCase().includes("openrouter");
+}
+
+function isGemmaRealtimeProvider(provider: ProviderReadinessItem | null) {
+  if (!provider) {
+    return false;
+  }
+  return `${provider.provider_id} ${provider.display_name}`.toLowerCase().includes("gemma");
+}
+
+function isOpenRouterSmokeStep(step: VoiceProviderSmokeStepEvidence | undefined) {
+  if (!step) {
+    return false;
+  }
+  const reasoningModel = step.details?.reasoning_model_id;
+  return (
+    step.provider_id === "openrouter-livekit" ||
+    (step.title ?? "").toLowerCase().includes("openrouter") ||
+    (typeof reasoningModel === "string" && reasoningModel.trim().length > 0)
+  );
+}
+
+function realtimeVoiceStackLabel(
+  provider: ProviderReadinessItem | null,
+  step?: VoiceProviderSmokeStepEvidence
+) {
+  return isOpenRouterRealtimeProvider(provider) || isOpenRouterSmokeStep(step)
+    ? "OpenRouter/Kokoro"
+    : "Gemma/Kokoro";
 }
 
 function providerCheck(
@@ -198,7 +244,11 @@ function runtimeCheck(
   };
 }
 
-function activeSessionCheck(activeRealtimeSessionId: UUID | null): VoiceProviderReleaseGateCheck {
+function activeSessionCheck(
+  activeRealtimeSessionId: UUID | null,
+  realtimeProvider: ProviderReadinessItem | null
+): VoiceProviderReleaseGateCheck {
+  const stackLabel = realtimeVoiceStackLabel(realtimeProvider);
   if (activeRealtimeSessionId) {
     return {
       id: "active-session",
@@ -211,22 +261,25 @@ function activeSessionCheck(activeRealtimeSessionId: UUID | null): VoiceProvider
     id: "active-session",
     label: "Active LiveKit session",
     status: "needs_runtime",
-    detail: "No active provider-backed Gemma/Kokoro LiveKit session is joined.",
-    nextAction: "Join the Gemma/Kokoro voice room before claiming current-session readiness."
+    detail: `No active provider-backed ${stackLabel} LiveKit session is joined.`,
+    nextAction: `Join the ${stackLabel} voice room before claiming current-session readiness.`
   };
 }
 
 function liveSmokeCheck(
   smoke: VoiceProviderSmokeEvidence | null,
-  activeRealtimeSessionId: UUID | null
+  activeRealtimeSessionId: UUID | null,
+  realtimeProvider: ProviderReadinessItem | null
 ): VoiceProviderReleaseGateCheck {
   const streamingStep = smoke?.steps.find(
     (step) => step.step_id === "gemma-kokoro-voice-streaming-smoke"
   );
+  const stackLabel = realtimeVoiceStackLabel(realtimeProvider, streamingStep);
+  const liveSmokeLabel = `Live ${stackLabel} smoke`;
   if (!smoke) {
     return {
       id: "live-smoke",
-      label: "Live Gemma/Kokoro smoke",
+      label: liveSmokeLabel,
       status: "needs_live_smoke",
       detail: "No provider smoke ledger has been built for this run.",
       nextAction: "Join the room, speak once, enable Live smoke, then run Runtime smoke."
@@ -239,7 +292,7 @@ function liveSmokeCheck(
   ) {
     return {
       id: "live-smoke",
-      label: "Live Gemma/Kokoro smoke",
+      label: liveSmokeLabel,
       status: "needs_live_smoke",
       detail: "The latest provider smoke proof is not bound to the active LiveKit session.",
       nextAction: "Speak in the active room and rerun live Runtime smoke."
@@ -253,15 +306,15 @@ function liveSmokeCheck(
   ) {
     return {
       id: "live-smoke",
-      label: "Live Gemma/Kokoro smoke",
+      label: liveSmokeLabel,
       status: "ready",
-      detail: "Provider-backed Gemma/Kokoro voice streaming smoke passed."
+      detail: `Provider-backed ${stackLabel} voice streaming smoke passed.`
     };
   }
   if (!smoke.execute_live_calls) {
     return {
       id: "live-smoke",
-      label: "Live Gemma/Kokoro smoke",
+      label: liveSmokeLabel,
       status: "needs_live_smoke",
       detail: "The latest smoke ledger did not execute live provider calls.",
       nextAction: "Enable Live smoke and rerun Runtime smoke after speaking in the active room."
@@ -270,7 +323,7 @@ function liveSmokeCheck(
   if (smoke.status === "blocked" || smoke.status === "failed" || streamingStep?.status === "blocked") {
     return {
       id: "live-smoke",
-      label: "Live Gemma/Kokoro smoke",
+      label: liveSmokeLabel,
       status: "blocked",
       detail: streamingStep?.blockers[0] ?? smoke.summary,
       nextAction: streamingStep?.next_actions[0] ?? "Resolve the smoke blocker and rerun Runtime smoke."
@@ -278,10 +331,10 @@ function liveSmokeCheck(
   }
   return {
     id: "live-smoke",
-    label: "Live Gemma/Kokoro smoke",
+    label: liveSmokeLabel,
     status: "needs_live_smoke",
     detail: smoke.summary,
-    nextAction: "Rerun live Runtime smoke until Gemma/Kokoro streaming proof passes."
+    nextAction: `Rerun live Runtime smoke until ${stackLabel} streaming proof passes.`
   };
 }
 
@@ -302,11 +355,14 @@ function providerSmokeEvidenceFromArtifact(
     realtime_session_ids: metadataStringList(artifact.content, "realtime_session_ids"),
     steps: metadataRecords(artifact.content, "steps").map((step) => ({
       step_id: metadataString(step, "step_id") ?? "",
+      provider_id: metadataString(step, "provider_id"),
+      title: metadataString(step, "title"),
       status: metadataString(step, "status") ?? "not_run",
       smoke_proof_status: metadataString(step, "smoke_proof_status"),
       realtime_session_ids: metadataStringList(step, "realtime_session_ids"),
       blockers: metadataStringList(step, "blockers"),
-      next_actions: metadataStringList(step, "next_actions")
+      next_actions: metadataStringList(step, "next_actions"),
+      details: metadataRecord(step, "details")
     })),
     summary: metadataString(artifact.content, "summary") ?? artifact.title
   };
@@ -324,11 +380,14 @@ function latestProviderSmokeArtifact(artifacts: ArtifactRecord[]) {
 function providerSmokeStepContent(step: ProviderSmokeStepResult): Record<string, unknown> {
   return {
     step_id: step.step_id,
+    provider_id: step.provider_id,
+    title: step.title,
     status: step.status,
     smoke_proof_status: step.smoke_proof_status ?? null,
     realtime_session_ids: step.realtime_session_ids,
     blockers: step.blockers,
-    next_actions: step.next_actions
+    next_actions: step.next_actions,
+    details: step.details
   };
 }
 
@@ -448,14 +507,16 @@ function providerRecoveryCheck(
 
 function presenceCheck(
   presence: VoiceAgentPresenceResult | null,
-  activeRealtimeSessionId: UUID | null
+  activeRealtimeSessionId: UUID | null,
+  realtimeProvider: ProviderReadinessItem | null
 ): VoiceProviderReleaseGateCheck {
+  const stackLabel = realtimeVoiceStackLabel(realtimeProvider);
   if (!presence) {
     return {
       id: "presence",
       label: "Agent participant",
       status: "needs_runtime",
-      detail: "No Gemma/Kokoro LiveKit participant proof has been checked.",
+      detail: `No ${stackLabel} LiveKit participant proof has been checked.`,
       nextAction: "Join the room and probe agent presence."
     };
   }
@@ -464,7 +525,7 @@ function presenceCheck(
       id: "presence",
       label: "Agent participant",
       status: "needs_runtime",
-      detail: "Gemma/Kokoro participant proof belongs to a different or stale session.",
+      detail: `${stackLabel} participant proof belongs to a different or stale session.`,
       nextAction: "Probe agent presence in the active room."
     };
   }
@@ -577,6 +638,8 @@ export function buildVoiceProviderReleaseGate(input: {
   const gemmaProvider =
     readiness.providers.find((provider) => provider.provider_id === "gemma4-primary") ?? null;
   const realtimeProvider = selectedProvider(readiness, "realtime_audio");
+  const includeGemmaExpertCheck = isGemmaRealtimeProvider(realtimeProvider);
+  const includeResearchProviderChecks = !isOpenRouterRealtimeProvider(realtimeProvider);
   const webSearchProvider = selectedProvider(readiness, "web_search");
   const rerankerProvider = selectedProvider(readiness, "reranker");
   const activeRealtimeSessionId = input.activeRealtimeSessionId ?? null;
@@ -586,44 +649,54 @@ export function buildVoiceProviderReleaseGate(input: {
       latestProviderSmokeArtifact(input.artifacts ?? [])
     );
   const checks = [
-    providerCheck(
-      "gemma-primary",
-      "Gemma expert endpoint",
-      gemmaProvider
-    ),
+    ...(includeGemmaExpertCheck
+      ? [
+          providerCheck(
+            "gemma-primary",
+            "Gemma expert endpoint",
+            gemmaProvider
+          )
+        ]
+      : []),
     providerCheck(
       "realtime-provider",
       "Realtime voice provider",
       realtimeProvider
     ),
-    providerCheck(
-      "web-search",
-      "Web search provider",
-      webSearchProvider
-    ),
-    providerCheck(
-      "reranker",
-      "Reranker provider",
-      rerankerProvider
-    ),
+    ...(includeResearchProviderChecks
+      ? [
+          providerCheck(
+            "web-search",
+            "Web search provider",
+            webSearchProvider
+          ),
+          providerCheck(
+            "reranker",
+            "Reranker provider",
+            rerankerProvider
+          )
+        ]
+      : []),
     runtimeCheck(input.runtimeReadiness),
-    activeSessionCheck(activeRealtimeSessionId),
-    presenceCheck(input.presence, activeRealtimeSessionId),
+    activeSessionCheck(activeRealtimeSessionId, realtimeProvider),
+    presenceCheck(input.presence, activeRealtimeSessionId, realtimeProvider),
     ...(recoveryCheck ? [recoveryCheck] : []),
-    liveSmokeCheck(smokeEvidence, activeRealtimeSessionId)
+    liveSmokeCheck(smokeEvidence, activeRealtimeSessionId, realtimeProvider)
   ];
   const status = gateStatus(checks);
   const firstAction = checks.find((check) => check.status !== "ready")?.nextAction;
   const selectedProviders = [
-    gemmaProvider,
+    ...(includeGemmaExpertCheck ? [gemmaProvider] : []),
     realtimeProvider,
-    webSearchProvider,
-    rerankerProvider
+    ...(includeResearchProviderChecks ? [webSearchProvider, rerankerProvider] : [])
   ].filter((provider): provider is ProviderReadinessItem => Boolean(provider));
   const secretFiles = selectedProviders.flatMap((provider) => provider.secret_files);
   const summary =
     status === "ready"
-      ? "Provider-backed Gemma/Kokoro voice is release-ready for this run."
+      ? `Provider-backed ${realtimeVoiceStackLabel(
+          realtimeProvider,
+          smokeEvidence?.steps.find((step) => step.step_id === "gemma-kokoro-voice-streaming-smoke")
+        )} voice is release-ready for this run.`
       : firstAction ?? readiness.summary;
   return {
     status,

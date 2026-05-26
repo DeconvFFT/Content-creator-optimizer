@@ -29,13 +29,16 @@ Put new Python tests under `tests/`. Frontend tests live under `frontend/next-ap
 Expected local checks before opening a PR:
 
 ```bash
+uv lock --check
 uv run ruff check src/ tests/
-uv run pytest -q
+bash scripts/ci-python-stable-tests.sh
 cd frontend/next-app && npm run build
 cd frontend/next-app && npm run lint
 cd frontend/next-app && npm run typecheck
 cd frontend/next-app && npm run test:race
 ```
+
+`scripts/ci-python-stable-tests.sh` is the required Python CI slice for the current OpenRouter/LiveKit proof branch. It includes the repo workflow guard that checks GitHub Actions Python dependency sync uses `uv sync --locked`, and CI now runs `uv lock --check` before Python dependency sync, so `pyproject.toml` and the committed `uv.lock` cannot drift silently. The full `uv run pytest -q` suite is still useful as a broader migration audit and is expected to pass locally in the current workspace. Local provider-proof output fixture tests are opt-in with `RUN_PROVIDER_PROOF_ARTIFACT_FIXTURE_TESTS=1`; they read ignored files under `social_media_optimiser/output/provider-proof/` and must not become required CI checks.
 
 When touching Rust services, also run:
 
@@ -54,20 +57,54 @@ Do not commit:
 
 Commit:
 
-- source code, tests, lightweight Markdown/docs, CI config, `.env.example`, `.secrets/README.md`, `uv.lock`, package lockfiles, Cargo lockfiles, `AGENTS.md`/`agents.md`, and `CLOUD.md`/`cloud.md` when present
+- source code, tests, lightweight Markdown/docs, CI config, `.env.example`, `uv.lock`, package lockfiles, Cargo lockfiles, `AGENTS.md`/`agents.md`, and `CLOUD.md`/`cloud.md` when present
+
+Track `uv.lock` when Python dependencies change. Do not commit local command logs.
 
 Secrets belong in local environment variables or ignored files under `.secrets/`. Documentation may name required environment variables but must never contain real values.
 
 ## PR And Auto-Merge
 
-Open PRs into `main`. The PR checklist should show the local verification commands that were run. Enable auto-merge only after required CI checks and review pass.
+Open PRs into `main`. The PR checklist should show the local verification commands that were run, plus the current provider proof gate state. For the current Agent Studio branch, the PR must explicitly state the `provider-backed-live-voice-proof` status, the `external-publication-proof` status, and whether any operator-owned LinkedIn inputs remain blocked. Enable auto-merge only after required CI checks and review pass.
+
+`.github/workflows/auto-pr.yml` is the repository-owned fallback for PR creation from `feature/**` and `fix_*` branches. On each matching branch push, it waits for matching branch CI to complete successfully, generates the no-secret `provider-proof-pr-handoff` body with that CI URL and head SHA, then creates or updates a draft PR using the workflow `GITHUB_TOKEN`. Clean GitHub runners synthesize a temporary no-secret operator input file for PR body generation: accepted live-voice fields use dummy local files, publication fields stay blocked with placeholders, and the committed placeholder-only `docs/external-publication-operator-inputs.example.env` remains the key-list reference. If repository Actions settings still deny PR creation, the workflow records an `Auto PR failed` step summary and fails the Auto PR job so PR-creation denial is not reported as green. This path uses only the built-in Actions token and must not introduce custom secret requirements or print provider credential values.
+
+The CI and Auto PR workflows pin Node 24-native GitHub Actions versions (`actions/checkout@v6`, `actions/setup-python@v6`, `actions/setup-node@v6`, `actions/github-script@v8`, and `astral-sh/setup-uv@v8.1.0`) and keep `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` at workflow scope as a compatibility guard before GitHub's June 2026 default switch. Keep both the native pins and the opt-in guard in place when editing the PR/CI path.
+
+First try the token-aware no-secret PR helper. It uses `GITHUB_TOKEN` or `GH_TOKEN` only as an Authorization header for the GitHub REST pull-request call and does not print the token or the generated Markdown body when credentials are unavailable. When an open PR already exists for the same branch and base, the helper updates that PR with the regenerated no-secret proof handoff instead of creating a duplicate:
+
+```bash
+uv run all-about-llms-admin provider-proof-pr-create \
+  --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
+  --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env \
+  --ci-url <latest-branch-head-ci-url> \
+  --head-sha <current-branch-head-sha>
+```
+
+If no local GitHub token is available, or GitHub integration permissions still prevent creating the PR automatically, generate a no-secret manual PR body from the current proof gates:
+
+```bash
+uv run all-about-llms-admin provider-proof-pr-handoff \
+  --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
+  --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env \
+  --ci-url <latest-branch-head-ci-url> \
+  --head-sha <current-branch-head-sha>
+```
+
+Fill the CI URL and head SHA placeholders from the current branch head before pasting the generated PR body. The generated handoff must keep `provider-backed-live-voice-proof`, `external-publication-proof`, `LINKEDIN_ACCESS_TOKEN_FILE`, the OpenRouter/LiveKit/Kokoro route, CI evidence, and the no secret values boundary visible in the manual PR description.
+
+When the handoff is generated from a temporary CI file or any operator-input/output path outside the checkout, the PR body renders portable placeholders such as `<filled-ignored-operator-input-file>` and `<provider-proof-output-dir>` instead of absolute local or runner paths.
+
+For the remaining publication gate, use `docs/external-publication-proof-runbook.md` as the committed no-secret operator handoff and `docs/external-publication-operator-inputs.example.env` as the placeholder-only key list for the ignored operator input file. The generated `operator-unblocker-checklist.md` under `social_media_optimiser/output/provider-proof/` remains the detailed ignored proof packet and must not be committed.
 
 Repository settings still need to enforce:
 
 - `main` branch protection or a GitHub ruleset
 - required status checks: branch policy, Python backend, Next.js frontend, and Rust service jobs
-- required review, preferably through CODEOWNERS
+- required review through `.github/CODEOWNERS`
 - auto-merge enabled in repository settings
+- Actions workflow permissions set to read/write, with `Allow GitHub Actions to create and approve pull requests` enabled so `.github/workflows/auto-pr.yml` can create or update the draft PR
 - conversation resolution and up-to-date branch requirements if desired
 
 GitHub settings cannot be fully represented in repo files, so keep this document and the actual repository ruleset in sync.
+Use `cloud.md` as the no-secret operator checklist for the GitHub-side Actions permission, branch-protection, required-check, and auto-merge settings that must be configured outside this repository.

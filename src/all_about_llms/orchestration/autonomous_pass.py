@@ -716,7 +716,7 @@ class AutonomousStudioPassWorkflow:
                     voice=request.provider_smoke_voice,
                     search_query=request.provider_smoke_search_query,
                     event_limit=1000,
-                    include_gemma=True,
+                    include_gemma=request.use_gemma,
                     include_realtime=True,
                     include_web_search=True,
                     include_reranker=True,

@@ -25,7 +25,7 @@ This Obsidian vault is the planning and tracking source of truth for the Agent S
 - [[wiki/ops/autonomous-obsidian-ingestion-flow]]
 - [[wiki/ops/active-codex-context]]
 - [[02-research/Retrieval Intelligence and Knowledge Graph Research]]
-- HTML: `02-research/gemma-voice-boundary-map.html`
+- HTML: `02-research/openrouter-livekit-voice-boundary-map.html`
 - [[01-work-tracking/Current Sprint]]
 - [[01-work-tracking/Agent Studio Kanban]]
 - [[01-work-tracking/Agent Studio Objective Completion Audit]]
@@ -47,7 +47,7 @@ This Obsidian vault is the planning and tracking source of truth for the Agent S
 - Proof Readiness HTML: `01-work-tracking/agent-studio-proof-readiness.html`
 - Publication Boundary HTML: `03-review-packets/agent-studio-publication-boundary-map.html`
 - Feedback Loop Map HTML: `03-review-packets/agent-studio-feedback-loop-map.html`
-- OpenRouter LiveKit Voice Boundary HTML: `02-research/gemma-voice-boundary-map.html` (legacy filename; visible content and exports describe the current OpenRouter + LiveKit + Kokoro route)
+- OpenRouter LiveKit Voice Boundary HTML: `02-research/openrouter-livekit-voice-boundary-map.html` (visible content and exports describe the current OpenRouter + LiveKit + Kokoro route)
 - Proof-plan handoff: proof readiness plus the OpenRouter LiveKit voice and publication boundary maps carry proof_plan proof-plan packets matching `provider-proof-plan`, including `proof_plan.operator_proof_packet` as the compact provider-proof-plan packet with `current_matrix_packet_command`; the current-matrix `operator_proof_packet` reciprocates with `proof_plan_packet`, `proof_plan_packet_ref`, `proof_plan_packet_command`, and `proof_plan_operator_packet_ref`.
 - Current proof packets: `output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md`, `output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json`, and `output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md`; current-matrix operator packets list `proof_plan` in `source_artifacts`.
 

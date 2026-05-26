@@ -132,7 +132,13 @@ def build_livekit_voice_agent_server(settings: Settings | None = None):
     settings = settings or get_settings()
     try:
         from livekit import rtc
-        from livekit.agents import AgentServer, AutoSubscribe, JobContext, cli
+        from livekit.agents import (
+            AgentServer,
+            AutoSubscribe,
+            JobContext,
+            JobExecutorType,
+            cli,
+        )
     except ImportError as exc:
         raise ProviderConfigurationError(
             "Install the voice extra to run the LiveKit OpenRouter/Kokoro agent: "
@@ -140,13 +146,17 @@ def build_livekit_voice_agent_server(settings: Settings | None = None):
         ) from exc
 
     server = AgentServer(
+        job_executor_type=JobExecutorType.THREAD,
         ws_url=settings.realtime_livekit_url(),
         api_key=settings.livekit_api_key,
         api_secret=settings.livekit_api_secret,
         log_level=settings.livekit_agent_log_level,
     )
 
-    @server.rtc_session(agent_name=settings.livekit_agent_name)
+    @server.rtc_session(
+        agent_name=settings.livekit_agent_name,
+        on_request=_build_livekit_job_request_acceptor(settings),
+    )
     async def gemma_kokoro_voice_agent(ctx: JobContext):
         state = _state_from_job_context(ctx, settings)
         ctx.log_context_fields = {
@@ -194,14 +204,19 @@ def build_livekit_voice_agent_server(settings: Settings | None = None):
         )
 
         @ctx.room.on("data_received")
-        def on_data_received(data: bytes, participant, *_args):
+        def on_data_received(data_or_packet, participant=None, *_args):
+            data, participant_identity, topic = _livekit_data_message_parts(
+                data_or_packet,
+                participant=participant,
+                args=_args,
+            )
             asyncio.create_task(
                 _handle_data_message_serialized(
                     engine=engine,
                     state=state,
                     payload=data,
-                    participant_identity=_livekit_participant_identity(participant),
-                    topic=_livekit_data_message_topic(_args),
+                    participant_identity=participant_identity or "",
+                    topic=topic,
                     event_sink=event_sink,
                     config=config,
                     settings=settings,
@@ -290,6 +305,46 @@ async def run_livekit_voice_agent_server(
 def run_livekit_voice_agent_cli(settings: Settings | None = None) -> None:
     server, cli = build_livekit_voice_agent_server(settings)
     cli.run_app(server)
+
+
+def _build_livekit_job_request_acceptor(settings: Settings):
+    async def accept_livekit_job_request(job_request) -> None:
+        metadata = _livekit_job_metadata(getattr(job_request, "job", None))
+        agent_identity = (
+            _metadata_str(metadata.get("agent_participant_identity"))
+            or _metadata_str(metadata.get("agent_identity"))
+            or settings.livekit_agent_name
+        )
+        participant_metadata = {
+            "agent_name": settings.livekit_agent_name,
+        }
+        room_name = _metadata_str(metadata.get("room_name"))
+        if room_name:
+            participant_metadata["room_name"] = room_name
+        await job_request.accept(
+            identity=agent_identity,
+            name=settings.livekit_agent_name,
+            metadata=json.dumps(participant_metadata, separators=(",", ":")),
+        )
+
+    return accept_livekit_job_request
+
+
+def _livekit_job_metadata(job: object | None) -> dict[str, object]:
+    raw_metadata = getattr(job, "metadata", None)
+    if not raw_metadata:
+        return {}
+    try:
+        parsed = json.loads(str(raw_metadata))
+    except json.JSONDecodeError:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def _metadata_str(value: object) -> str | None:
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
 
 
 def _build_voice_agent_event_sink(*, room: object, settings: Settings):
@@ -734,6 +789,29 @@ def _livekit_data_message_topic(args: tuple[object, ...]) -> str | None:
         if isinstance(topic, str):
             return topic
     return None
+
+
+def _livekit_data_message_parts(
+    data_or_packet: object,
+    *,
+    participant: object | None,
+    args: tuple[object, ...],
+) -> tuple[bytes, str | None, str | None]:
+    raw_data = getattr(data_or_packet, "data", data_or_packet)
+    if isinstance(raw_data, bytes):
+        data = raw_data
+    else:
+        data = bytes(raw_data)
+    packet_participant = participant or getattr(data_or_packet, "participant", None)
+    participant_identity = _livekit_participant_identity(packet_participant)
+    if participant_identity is None:
+        participant_identity = _metadata_str(
+            getattr(data_or_packet, "participant_identity", None)
+        )
+    topic = _metadata_str(getattr(data_or_packet, "topic", None))
+    if topic is None:
+        topic = _livekit_data_message_topic(args)
+    return data, participant_identity, topic
 
 
 def _voice_agent_ready_payload(
@@ -1421,8 +1499,10 @@ def _state_from_job_context(
         "unknown-room",
     )
     return LiveKitVoiceAgentSessionState(
-        run_id=UUID(str(metadata.get("run_id") or uuid4())),
-        realtime_session_id=UUID(str(metadata.get("realtime_session_id") or uuid4())),
+        run_id=_uuid_from_metadata(metadata.get("run_id")) or uuid4(),
+        realtime_session_id=(
+            _uuid_from_metadata(metadata.get("realtime_session_id")) or uuid4()
+        ),
         room_name=str(metadata.get("room_name") or room_name),
         participant_identity=(
             str(metadata["participant_identity"])
@@ -1431,6 +1511,13 @@ def _state_from_job_context(
         ),
         voice=str(metadata.get("voice") or settings.gemma4_realtime_default_voice),
     )
+
+
+def _uuid_from_metadata(value: object) -> UUID | None:
+    try:
+        return UUID(str(value))
+    except (TypeError, ValueError):
+        return None
 
 
 def _build_kokoro_streamer(settings: Settings):

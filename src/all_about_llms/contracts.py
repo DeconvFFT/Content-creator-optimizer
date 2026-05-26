@@ -965,7 +965,7 @@ class ProviderSmokeRunRequest(BaseModel):
     voice: str | None = None
     search_query: str | None = None
     event_limit: int = Field(default=250, ge=1, le=1000)
-    include_gemma: bool = True
+    include_gemma: bool = False
     include_realtime: bool = True
     include_web_search: bool = True
     include_reranker: bool = True
@@ -1483,7 +1483,7 @@ class AutonomousStudioPassRequest(BaseModel):
     generate_interactive_note: bool = False
     create_checkpoint: bool = True
     open_feedback_gate: bool = True
-    use_gemma: bool = True
+    use_gemma: bool = False
     fail_on_provider_error: bool = False
     include_note_event_payloads: bool = False
     include_replay_event_payloads: bool = False
@@ -1684,7 +1684,7 @@ class RunResumeRequest(BaseModel):
     run_worker_cycle: bool = True
     max_tasks_per_agent: int = Field(default=1, ge=1, le=25)
     max_worker_rounds: int = Field(default=1, ge=1, le=25)
-    use_gemma: bool = True
+    use_gemma: bool = False
     fail_on_provider_error: bool = False
 
 
@@ -1864,7 +1864,7 @@ class AgentWorkerRunRequest(BaseModel):
     message_ids: list[UUID] = Field(default_factory=list)
     include_global_memories: bool = True
     memory_limit: int = Field(default=6, ge=1, le=25)
-    use_gemma: bool = True
+    use_gemma: bool = False
     fail_on_provider_error: bool = False
     recover_stale_tasks: bool = True
     stale_task_after_seconds: float = Field(default=3600.0, ge=1.0, le=86400.0)
@@ -1898,7 +1898,7 @@ class AgentWorkerCycleRequest(BaseModel):
     max_rounds: int = Field(default=1, ge=1, le=50)
     include_global_memories: bool = True
     memory_limit: int = Field(default=6, ge=1, le=25)
-    use_gemma: bool = True
+    use_gemma: bool = False
     fail_on_provider_error: bool = False
     recover_stale_tasks: bool = True
     stale_task_after_seconds: float = Field(default=3600.0, ge=1.0, le=86400.0)
@@ -1931,7 +1931,7 @@ class WorkerProfile(BaseModel):
     autonomous_export_memory_summary_to_obsidian: bool = False
     autonomous_memory_summary_agent_id: str | None = None
     autonomous_memory_summary_limit: int = Field(default=8, ge=1, le=50)
-    use_gemma: bool = True
+    use_gemma: bool = False
     fail_on_provider_error: bool = False
     status: WorkerProfileStatus = WorkerProfileStatus.PAUSED
     last_heartbeat_at: datetime | None = None
@@ -1957,7 +1957,7 @@ class WorkerProfileCreate(BaseModel):
     autonomous_export_memory_summary_to_obsidian: bool = False
     autonomous_memory_summary_agent_id: str | None = None
     autonomous_memory_summary_limit: int = Field(default=8, ge=1, le=50)
-    use_gemma: bool = True
+    use_gemma: bool = False
     fail_on_provider_error: bool = False
     status: WorkerProfileStatus = WorkerProfileStatus.PAUSED
 
@@ -1995,7 +1995,7 @@ class AutopilotLaunchRequest(BaseModel):
     autonomous_export_memory_summary_to_obsidian: bool = False
     autonomous_memory_summary_agent_id: str | None = None
     autonomous_memory_summary_limit: int = Field(default=8, ge=1, le=50)
-    use_gemma: bool = True
+    use_gemma: bool = False
     fail_on_provider_error: bool = False
     reuse_existing_profile: bool = True
     run_first_heartbeat: bool = True

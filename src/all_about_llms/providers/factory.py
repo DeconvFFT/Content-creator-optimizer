@@ -49,6 +49,7 @@ def build_realtime_provider(settings: Settings, provider: str | None = None):
                 settings.gemma4_realtime_max_audio_seconds_per_turn
             ),
             rust_vad_model=settings.gemma4_realtime_rust_vad_model,
+            livekit_agent_name=settings.livekit_agent_name,
             rust_vad_backend=settings.rust_voice_edge_vad_backend,
             rust_vad_fallback_allowed=settings.rust_voice_edge_allow_vad_fallback,
             gemma_streaming_enabled=settings.gemma4_realtime_stream_gemma,

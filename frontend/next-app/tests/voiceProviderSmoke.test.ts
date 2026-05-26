@@ -99,6 +99,33 @@ test("voice smoke proof labels session-bound captured audio evidence", () => {
   );
 });
 
+test("voice smoke proof labels OpenRouter captured audio without Gemma copy", () => {
+  const pendingProof = buildVoiceAudioFixtureProof(null);
+  const capturedProof = buildVoiceAudioFixtureProof(
+    step({
+      provider_id: "openrouter-livekit",
+      title: "Measure OpenRouter DeepSeek streaming and Kokoro first-audio smoke",
+      details: {
+        audio_fixture_source: "captured_voice_audio_artifact",
+        audio_artifact_used: true,
+        audio_artifact_relative_path: "voice-audio/run/session-1/turn.pcm",
+        audio_fixture_realtime_session_id: "session-1",
+        reasoning_model_id: "deepseek/deepseek-v4-flash"
+      }
+    })
+  );
+
+  assert.equal(
+    pendingProof.summary,
+    "Run runtime smoke to show whether OpenRouter receives a captured voice artifact or a probe fixture."
+  );
+  assert.equal(
+    capturedProof.summary,
+    "OpenRouter smoke used persisted microphone PCM from the bound LiveKit session."
+  );
+  assert.doesNotMatch(JSON.stringify([pendingProof, capturedProof]), /Gemma/);
+});
+
 test("voice smoke proof labels synthetic fallback when no captured artifact is used", () => {
   const proof = buildVoiceAudioFixtureProof(
     step({
@@ -323,6 +350,50 @@ test("voice streaming proof exposes local Kokoro package transport", () => {
     fallbackProof.evidence[0],
     "Kokoro: Local Kokoro via local package; malformed hosted endpoint ignored"
   );
+});
+
+test("voice streaming proof labels OpenRouter reasoning without Gemma copy", () => {
+  const proof = buildVoiceStreamingProviderProof(
+    step({
+      provider_id: "openrouter-livekit",
+      title: "Measure OpenRouter DeepSeek streaming and Kokoro first-audio smoke",
+      details: {
+        kokoro_provider: "local_kokoro",
+        kokoro_transport: "local_package",
+        reasoning_model_id: "deepseek/deepseek-v4-flash",
+        kokoro_model_id: "hexgrad/Kokoro-82M",
+        reasoning_ttft_ms: 1111.171,
+        kokoro_first_audio_ms: 4946.351,
+        first_audio_end_to_end_ms: 6057.54
+      }
+    })
+  );
+
+  assert.equal(proof.status, "passed");
+  assert.equal(proof.title, "OpenRouter/Kokoro transport");
+  assert.equal(
+    proof.summary,
+    "Live smoke measured OpenRouter DeepSeek streaming into Kokoro speech output."
+  );
+  assert.deepEqual(proof.evidence, [
+    "Kokoro: Local Kokoro via local package",
+    "Reasoning: deepseek/deepseek-v4-flash",
+    "TTS: hexgrad/Kokoro-82M"
+  ]);
+  assert.deepEqual(proof.metrics, [
+    { label: "OpenRouter TTFT", value: "1.1 s" },
+    { label: "Kokoro first audio", value: "4.9 s" },
+    { label: "End-to-end first audio", value: "6.1 s" }
+  ]);
+});
+
+test("voice streaming proof pending state defaults to OpenRouter without Gemma copy", () => {
+  const proof = buildVoiceStreamingProviderProof(null);
+
+  assert.equal(proof.status, "pending");
+  assert.equal(proof.title, "OpenRouter/Kokoro transport");
+  assert.equal(proof.summary, "Run runtime smoke to prove OpenRouter DeepSeek streaming and Kokoro first audio.");
+  assert.doesNotMatch(JSON.stringify(proof), /Gemma/);
 });
 
 test("voice streaming proof keeps blocked and unknown statuses unproven", () => {

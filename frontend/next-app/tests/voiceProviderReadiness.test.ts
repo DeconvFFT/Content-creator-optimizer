@@ -169,6 +169,51 @@ const presenceReady: VoiceAgentPresenceResult = {
   summary: "Fresh Gemma/Kokoro participant proof recorded."
 };
 
+function openRouterReadiness(
+  gemmaOverrides: Partial<ProviderReadinessItem> = {}
+): ProviderReadinessResult {
+  return readiness({
+    default_realtime_provider: "openrouter_livekit",
+    providers: [
+      provider({
+        provider_id: "gemma4-primary",
+        provider_type: "gemma4_hf_endpoint",
+        ...gemmaOverrides
+      }),
+      provider({
+        provider_id: "openrouter-livekit",
+        provider_type: "realtime_audio",
+        selected: true,
+        display_name: "OpenRouter DeepSeek V4 Flash + Kokoro realtime dialogue"
+      }),
+      provider({
+        provider_id: "tavily-search",
+        provider_type: "web_search",
+        selected: true
+      }),
+      provider({
+        provider_id: "deterministic-reranker",
+        provider_type: "reranker",
+        selected: true
+      })
+    ]
+  });
+}
+
+const openRouterRuntimeReady: VoiceRuntimeReadinessResult = {
+  ...runtimeReady,
+  selected_provider: "openrouter_livekit",
+  audio_input_model: "browser microphone",
+  reasoning_model: "deepseek/deepseek-v4-flash",
+  audio_output_model: "hexgrad/Kokoro-82M"
+};
+
+const openRouterPresenceReady: VoiceAgentPresenceResult = {
+  ...presenceReady,
+  evidence: ["Fresh OpenRouter/Kokoro participant proof recorded."],
+  summary: "Fresh OpenRouter/Kokoro participant proof recorded."
+};
+
 const liveSmokePassed: ProviderSmokeRunResult = {
   run_id: "run-1",
   status: "passed",
@@ -203,6 +248,19 @@ const liveSmokePassed: ProviderSmokeRunResult = {
     }
   ],
   summary: "Provider smoke passed."
+};
+
+const openRouterLiveSmokePassed: ProviderSmokeRunResult = {
+  ...liveSmokePassed,
+  provider_readiness: openRouterReadiness(),
+  steps: [
+    {
+      ...liveSmokePassed.steps[0],
+      provider_id: "openrouter-livekit",
+      title: "Measure OpenRouter DeepSeek streaming and Kokoro first-audio smoke",
+      evidence: ["OpenRouter TTFT and Kokoro first-audio measured."]
+    }
+  ]
 };
 
 test("provider release gate blocks missing selected provider configuration", () => {
@@ -1236,6 +1294,106 @@ test("provider release gate becomes ready only after provider-backed live smoke"
   assert.equal(gate.status, "ready");
   assert.match(gate.summary, /release-ready/);
   assert.equal(gate.checks.every((check) => check.status === "ready"), true);
+});
+
+test("provider release gate labels OpenRouter LiveKit smoke without Gemma copy", () => {
+  const missingProofGate = buildVoiceProviderReleaseGate({
+    providerReadiness: openRouterReadiness(),
+    runtimeReadiness: openRouterRuntimeReady,
+    presence: null,
+    smoke: null,
+    activeRealtimeSessionId: null
+  });
+  const missingSession = missingProofGate.checks.find((check) => check.id === "active-session");
+  const missingPresence = missingProofGate.checks.find((check) => check.id === "presence");
+  const missingSmoke = missingProofGate.checks.find((check) => check.id === "live-smoke");
+
+  assert.equal(
+    missingSession?.detail,
+    "No active provider-backed OpenRouter/Kokoro LiveKit session is joined."
+  );
+  assert.equal(missingSession?.nextAction, "Join the OpenRouter/Kokoro voice room before claiming current-session readiness.");
+  assert.equal(
+    missingPresence?.detail,
+    "No OpenRouter/Kokoro LiveKit participant proof has been checked."
+  );
+  assert.equal(missingSmoke?.label, "Live OpenRouter/Kokoro smoke");
+  assert.doesNotMatch(
+    [missingSession?.detail, missingPresence?.detail, missingSmoke?.label, missingSmoke?.nextAction].join("\n"),
+    /Gemma\/Kokoro/
+  );
+
+  const readyGate = buildVoiceProviderReleaseGate({
+    providerReadiness: openRouterReadiness(),
+    runtimeReadiness: openRouterRuntimeReady,
+    presence: openRouterPresenceReady,
+    smoke: openRouterLiveSmokePassed,
+    activeRealtimeSessionId: "session-1"
+  });
+  const readySmoke = readyGate.checks.find((check) => check.id === "live-smoke");
+
+  assert.equal(readyGate.status, "ready");
+  assert.equal(readyGate.summary, "Provider-backed OpenRouter/Kokoro voice is release-ready for this run.");
+  assert.equal(readySmoke?.label, "Live OpenRouter/Kokoro smoke");
+  assert.equal(readySmoke?.detail, "Provider-backed OpenRouter/Kokoro voice streaming smoke passed.");
+});
+
+test("provider release gate does not block OpenRouter on legacy Gemma readiness", () => {
+  const gate = buildVoiceProviderReleaseGate({
+    providerReadiness: openRouterReadiness({
+      status: "missing_config",
+      missing_env: ["HF_TOKEN"],
+      next_actions: ["Configure HF_TOKEN_FILE."]
+    }),
+    runtimeReadiness: openRouterRuntimeReady,
+    presence: openRouterPresenceReady,
+    smoke: openRouterLiveSmokePassed,
+    activeRealtimeSessionId: "session-1"
+  });
+
+  assert.equal(gate.status, "ready");
+  assert.equal(gate.checks.some((check) => check.id === "gemma-primary"), false);
+  assert.equal(gate.checks.some((check) => check.label.includes("Gemma")), false);
+  assert.equal(gate.missingEnv.includes("HF_TOKEN"), false);
+  assert.deepEqual(gate.secretFileGuidance, []);
+});
+
+test("provider release gate does not block OpenRouter on separate web-search readiness", () => {
+  const baseReadiness = openRouterReadiness();
+  const gate = buildVoiceProviderReleaseGate({
+    providerReadiness: {
+      ...baseReadiness,
+      providers: baseReadiness.providers.map((item) =>
+        item.provider_id === "tavily-search"
+          ? {
+              ...item,
+              status: "missing_config",
+              missing_env: ["TAVILY_API_KEY"],
+              next_actions: ["Configure TAVILY_API_KEY_FILE."],
+              secret_files: [
+                {
+                  env_name: "TAVILY_API_KEY",
+                  file_env_name: "TAVILY_API_KEY_FILE",
+                  status: "missing",
+                  configured: false,
+                  path: ".secrets/tavily_api_key",
+                  detail: "TAVILY_API_KEY_FILE points to a missing file."
+                }
+              ]
+            }
+          : item
+      )
+    },
+    runtimeReadiness: openRouterRuntimeReady,
+    presence: openRouterPresenceReady,
+    smoke: openRouterLiveSmokePassed,
+    activeRealtimeSessionId: "session-1"
+  });
+
+  assert.equal(gate.status, "ready");
+  assert.equal(gate.checks.some((check) => check.id === "web-search"), false);
+  assert.equal(gate.missingEnv.includes("TAVILY_API_KEY"), false);
+  assert.deepEqual(gate.secretFileGuidance, []);
 });
 
 test("provider release gate does not accept passive Gemma audio endpoint readiness as runtime preflight", () => {

@@ -33,7 +33,8 @@ OPENROUTER_LIVEKIT_URL=ws://127.0.0.1:7880
 LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key
 LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret
 OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key
-GEMMA4_REALTIME_REASONING_MODEL=deepseek/deepseek-v4-flash
+OPENROUTER_REALTIME_REASONING_MODEL=deepseek/deepseek-v4-flash
+OPENROUTER_REALTIME_AUDIO_INPUT_MODEL=deepseek/deepseek-v4-flash
 ```
 
 ## Step 2 — Start Docker (Postgres + LiveKit)

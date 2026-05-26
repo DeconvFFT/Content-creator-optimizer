@@ -106,6 +106,75 @@ The public Lecture 16 plus Assignment 5 handout make a practical point that is e
 
 **Implementation meaning:** stale-rollout reuse should be versioned as its own budget line, not hidden inside optimizer math. The run record needs fields such as `updates_per_inference_batch`, `rollout_reuse_budget`, `old_policy_snapshot`, `old_logprob_source`, and `clip_fraction` or equivalent drift indicators. Otherwise a wall-clock speedup from reusing old rollouts can be mistaken for a pure algorithm win even when the learner has already drifted far enough that clipping is saturating.
 
+### 10. Verifier provenance is a multi-stage grading cascade, not a single correctness check
+The public `drgrpo_grader.py` surface hardens a subtle point that the principles-only notes miss: Stanford's correctness reward is produced by a **three-stage grading cascade of escalating leniency**, not a single equivalence test. Each stage uses a different normalization and comparison strategy, and the fallback path between them is part of the effective reward function.
+
+The concrete staging exposed by the public grader:
+
+```
+grade_answer_mathd()            # Stage 1: Strict (Dan Hendrycks-style)
+  → normalize via mathd_normalize_answer()
+  → exact string match only
+  → Fast, no parsing dependencies
+
+grade_answer_sympy()            # Stage 2: Symbolic equivalence
+  → normalize via _normalize() (unit stripping, LaTeX→text, mixed numbers)
+  → sympy structural comparison (simplify diff == 0)
+  → Tuple/interval answer splitting with per-element grading
+  → 1-second timeout guard (signal.SIGALRM) against sympy hangs
+  → repeatness() filter: >20% repeated character patterns → auto-fail
+
+is_latex_equal()                # Stage 3: math_verify library (slow path)
+  → Full LaTeX parsing via latex2sympy2_extended + math_verify
+  → Uses LatexExtractionConfig + ExprExtractionConfig
+  → Only activated when fast=False (not used in training loop)
+```
+
+The `grade()` function orchestrates: `grade_answer_mathd() OR grade_answer_sympy()`, and only falls through to `is_latex_equal()` when `fast=False`. During training (the default `fast=True` path), the reward is determined entirely by stages 1 and 2.
+
+**Implementation meaning:** the effective reward function during training is a strict-plus-symbolic hybrid, not a semantic-understanding verifier. Two runs using different normalizer versions (for example `mathd_normalize_answer` vs `_normalize` variant) will see different reward rates for the same model outputs even when the policy, prompt, and optimizer are identical.
+
+### 10a. Answer extraction is prompt-family-dependent, not a single rule
+The public `r1_zero_reward_fn` and `question_only_reward_fn` use fundamentally different extraction strategies:
+
+| Aspect | r1_zero_reward_fn | question_only_reward_fn |
+|---|---|---|
+| Extraction target | `<answer>` tags | `\boxed{}` command |
+| Secondary extraction | `extract_boxed_answer()` from extracted region | `extract_answer()` → `last_boxed_only_string()` |
+| Format failure | No tags → format_reward=0 | No boxed → format_reward=0 |
+| Format-but-wrong | Tags present, answer wrong → format_reward=1.0, answer=0 | Boxed present, answer wrong → format_reward=1.0, answer=0 |
+| Multi-GT support | List of ground truths, OR across elements | Same |
+
+**Implementation meaning:** the "same" reward function name (`r1_zero_reward_fn` vs `question_only_reward_fn`) implies a different extraction pipeline, and format reward semantics differ by extraction strategy. A prompt-family change that swaps the extraction method is a reward-surface change even when the optimizer and grading backend stay fixed.
+
+### 10b. Normalization pipelines are multi-stage and version-sensitive
+The grader exposes two distinct normalization pipelines:
+
+- **`mathd_normalize_answer()`**: Dan Hendrycks lineage. Strips enclosing `\text{}`, applies `_strip_string()` which normalizes fractions (`\frac12` → `\frac{1}{2}`), removes units from known lists (395+ unit texts with plural forms), handles sqrt, matrices, `\left`/`\right`, dollar signs, percentages, commas in large numbers, mixed numbers (e.g. `7 3/4` → `7+3/4`), and decimal-to-fraction mapping (`0.5` → `\frac{1}{2}`).
+
+- **`_normalize()`**: Independent pipeline. Removes `\text{}`, interprets `million/billion/trillion`, strips units (22 physical unit types with plural/es suffixes), removes `\circ`, converts LaTeX via `latex2text`, handles implicit mixed numbers, case-folds to lowercase, converts float-like integers to int form. Also falls back to `_parse_latex()` when `\\` is present.
+
+The two pipelines diverge significantly: `mathd_normalize_answer` handles 395+ unit texts with aggressive pattern matching, while `_normalize` handles 22 concrete units with simpler regex. A string that passes one may fail the other.
+
+The run path is: try `grade_answer_mathd` first (fast string match after mathd normalization). If that fails, try `grade_answer_sympy` (sympy structural equivalence after `_normalize`). Because the normalization pipelines differ, a model output can pass stage 2 with a semantically equivalent symbolic form after failing stage 1 on string mismatch — but crucially, only when both normalizers considered the output gradable.
+
+**Implementation meaning:** `normalizer_version` must be part of the verifier recipe. If a future run switches from mathd to a different normalization strategy (or patches the unit list, fraction handling, or decimal mapping), the effective reward function changes.
+
+### 10c. Edge-case handling is part of the reward contract
+The public grader surface makes several edge-case policies explicit:
+
+- **Repeated/template output detection**: `repeatness()` uses a suffix-array-based algorithm to compute a character-level repetition score. If >20% of character pairs repeat, the answer is automatically rejected regardless of content. This prevents the model from gaming the reward by emitting formulaic patterns.
+
+- **Sympy timeout guard**: A 1-second `signal.SIGALRM` timeout wraps `is_latex_equal()` to prevent sympy hangs on pathological LaTeX input. In practice this means complex or malformed expressions silently score as incorrect rather than blocking the training loop.
+
+- **Tuple/interval answer handling**: `split_tuple()` parses parenthesized/bracketed answers and grades each element independently. Symmetry-breaking: if the ground truth uses different bracket types than the model output, the tuple path is skipped entirely and the elements are compared as a single expression.
+
+- **Integer strictness**: When the ground truth is an integer, sympy simplification is disabled and only strict string match is accepted. This prevents the grader from accepting algebraically equivalent but non-integer forms (e.g. `2/1` or `sqrt(4)` for `2`).
+
+- **Multiple ground truth support**: Both reward functions support a `list` of ground truths, using logical OR across elements. This means one model output can match multiple valid answer forms — the effective reward surface shrinks when acceptable answer lists are pruned.
+
+**Implementation meaning:** each edge-case policy is a fine-grained knob. Two verifier deployments with the same extraction method and normalizer can still produce different reward rates if they differ on repetition threshold, timeout duration, tuple-handling rules, integer-strictness mode, or valid-answer-list width.
+
 ## Why this matters for Agent Studio
 - Length bias is not only a reward-design problem. It can also be injected later when loss aggregation gives longer traces more update mass.
 - Sequence-level clipping and sequence-normalized loss both depend on a correct definition of “response tokens,” so mask/termination bugs can look like optimizer improvements.
@@ -144,6 +213,8 @@ The public Lecture 16 plus Assignment 5 handout make a practical point that is e
 ![[../../02-lectures/stanford/assets/cs336-assignment5-stale-rollout-reuse-contract.svg]]
 
 ![[../../02-lectures/stanford/assets/cs336-assignment5-prompt-parser-stop-bundle.svg]]
+
+![[../../02-lectures/stanford/assets/cs336-assignment5-grading-cascade-contract.svg]]
 
 ## Practical note
 This note uses only official/public Stanford artifacts and official/open corroboration. It improves the current 2026 alignment lane without claiming current Lecture 17 RL-systems source coverage, which remains blocked until Stanford exposes a visible public material link.

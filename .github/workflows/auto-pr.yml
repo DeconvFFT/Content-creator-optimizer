@@ -1,0 +1,190 @@
+name: Auto PR
+
+on:
+  push:
+    branches:
+      - "feature/**"
+      - "fix_*"
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+concurrency:
+  group: auto-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  draft-pr:
+    name: Draft PR after green branch CI
+    if: ${{ github.event_name == 'push' && github.ref_name != 'main' && (startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.ref, 'refs/heads/fix_')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Wait for matching CI success
+        id: ci
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const branch = context.ref.replace("refs/heads/", "");
+            const headSha = context.sha;
+            const delayMs = 10000;
+            const maxAttempts = 60;
+
+            for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+              const { data } = await github.rest.actions.listWorkflowRuns({
+                owner,
+                repo,
+                workflow_id: "ci.yml",
+                branch,
+                event: "push",
+                per_page: 20
+              });
+              const matchingRun = data.workflow_runs.find(
+                (run) => run.head_sha === headSha
+              );
+
+              if (matchingRun) {
+                core.info(
+                  `CI run ${matchingRun.id} is ${matchingRun.status} / ${matchingRun.conclusion ?? "pending"}`
+                );
+                if (matchingRun.status === "completed") {
+                  if (matchingRun.conclusion === "success") {
+                    core.setOutput("ci_url", matchingRun.html_url);
+                    return;
+                  }
+                  core.setFailed(
+                    `Matching branch CI finished with ${matchingRun.conclusion}: ${matchingRun.html_url}`
+                  );
+                  return;
+                }
+              } else {
+                core.info(`No matching CI run found for ${headSha} on ${branch} yet.`);
+              }
+
+              await new Promise((resolve) => setTimeout(resolve, delayMs));
+            }
+
+            core.setFailed(`Timed out waiting for matching CI success for ${headSha}.`);
+
+      - name: Generate no-secret provider proof PR body
+        env:
+          CI_URL: ${{ steps.ci.outputs.ci_url }}
+          HEAD_BRANCH: ${{ github.ref_name }}
+          HEAD_SHA: ${{ github.sha }}
+          PROVIDER_PROOF_RUN_ID: 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
+        run: |
+          set -euo pipefail
+          PR_OPERATOR_INPUT_DIR="$RUNNER_TEMP/provider-proof-pr"
+          PR_OPERATOR_INPUT_PATH="$PR_OPERATOR_INPUT_DIR/operator-inputs.env"
+          mkdir -p "$PR_OPERATOR_INPUT_DIR"
+          test -f "docs/external-publication-operator-inputs.example.env"
+
+          printf '%s\n' "ci-non-secret-openrouter-placeholder" > "$PR_OPERATOR_INPUT_DIR/or_file"
+          printf '%s\n' "ci-non-secret-livekit-key-placeholder" > "$PR_OPERATOR_INPUT_DIR/lk_key_file"
+          printf '%s\n' "ci-non-secret-livekit-voice-placeholder" > "$PR_OPERATOR_INPUT_DIR/lk_voice_file"
+
+          {
+            printf 'OPENROUTER_API_KEY_FILE=%s\n' "$PR_OPERATOR_INPUT_DIR/or_file"
+            printf 'OPENROUTER_LIVEKIT_URL=%s\n' "wss://livekit.agent-studio.local"
+            printf 'LIVEKIT_API_KEY_FILE=%s\n' "$PR_OPERATOR_INPUT_DIR/lk_key_file"
+            printf 'LIVEKIT_API_SECRET_FILE=%s\n' "$PR_OPERATOR_INPUT_DIR/lk_voice_file"
+            printf 'LINKEDIN_ACCESS_TOKEN_FILE=%s\n' "/absolute/path/to/local/linkedin-access-token.txt"
+            printf 'LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=%s\n' "<linkedin-policy-acknowledgement-artifact-id-or-url>"
+            printf 'PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=%s\n' "<durable-linkedin-publication-url-or-id>"
+            printf 'PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=%s\n' "<publication-rollback-or-postcondition-artifact-id-or-url>"
+          } > "$PR_OPERATOR_INPUT_PATH"
+
+          uv run all-about-llms-admin provider-proof-pr-handoff \
+            --run-id "$PROVIDER_PROOF_RUN_ID" \
+            --operator-input-path "$PR_OPERATOR_INPUT_PATH" \
+            --ci-url "$CI_URL" \
+            --head-sha "$HEAD_SHA" \
+            --branch "$HEAD_BRANCH" \
+            --repo "$GITHUB_REPOSITORY" \
+            > "$RUNNER_TEMP/pr-body.md"
+
+      - name: Create or update draft PR
+        uses: actions/github-script@v8
+        env:
+          PR_BODY_PATH: ${{ runner.temp }}/pr-body.md
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require("fs");
+            const { owner, repo } = context.repo;
+            const branch = context.ref.replace("refs/heads/", "");
+            const head = `${owner}:${branch}`;
+            const title = "Agent Studio LiveKit/OpenRouter proof gates";
+            const body = fs.readFileSync(process.env.PR_BODY_PATH, "utf8");
+
+            try {
+              const { data: pulls } = await github.rest.pulls.list({
+                owner,
+                repo,
+                state: "open",
+                base: "main",
+                head
+              });
+
+              if (pulls.length > 0) {
+                const pull = pulls[0];
+                const { data: updated } = await github.rest.pulls.update({
+                  owner,
+                  repo,
+                  pull_number: pull.number,
+                  title,
+                  body,
+                  maintainer_can_modify: true
+                });
+                core.info(`Updated draft PR ${updated.html_url}`);
+                core.setOutput("pr_url", updated.html_url);
+                return;
+              }
+
+              const { data: created } = await github.rest.pulls.create({
+                owner,
+                repo,
+                title,
+                body,
+                base: "main",
+                head,
+                draft: true,
+                maintainer_can_modify: true
+              });
+              core.info(`Created draft PR ${created.html_url}`);
+              core.setOutput("pr_url", created.html_url);
+            } catch (error) {
+              if (error.status === 403) {
+                const message = (
+                  "Auto PR failed: GitHub denied draft PR create/update with 403. " +
+                  "Enable repository Settings > Actions > General > Workflow permissions: " +
+                  "Read and write permissions and Allow GitHub Actions to create and approve pull requests, " +
+                  "or create the PR manually with provider-proof-pr-handoff."
+                );
+                if (process.env.GITHUB_STEP_SUMMARY) {
+                  fs.appendFileSync(
+                    process.env.GITHUB_STEP_SUMMARY,
+                    `### Auto PR failed\n\n${message}\n`
+                  );
+                }
+                core.setFailed(message);
+                return;
+              }
+              throw error;
+            }

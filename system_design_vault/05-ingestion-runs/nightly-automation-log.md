@@ -5,25 +5,86 @@ status: active
 updated: 2026-05-21
 ---
 
-# Nightly Automation Log
+|# Nightly Automation Log
 
-## 2026-05-21 21:04 CDT
+## 2026-05-24 :: hourly cycle — prompt-family→parser→reward topology evidence hardening
 
 - **What changed**
-  - Refreshed `01-sources/official-open/cs336-alignment-rl-systems-runtime-cross-check.md` with a microbatch-equivalence contract layer grounded in the public Spring 2026 Assignment 5 handout plus the public train-step adapter/test surface, making it explicit that gradient accumulation, normalization mode, response-mask scope, and clip point must preserve full-batch objective equivalence rather than acting as memory-only plumbing.
-  - Refreshed `02-lectures/stanford/cs336-data-and-alignment.md` with the same train-step-equivalence semantics and added `02-lectures/stanford/assets/cs336-assignment5-microbatch-equivalence-contract.svg` as this cycle's compact mental-model artifact. This run used a local SVG fallback because `image_generate` was not available in the cron toolset.
-  - Updated `MOC.md`, `status-summary.md`, `unresolved-high-value-book-gaps.json`, and `urgent-blockers.json` so future runs can discover the new microbatch-equivalence layer while preserving zero unresolved local-book gaps and zero active blockers.
-  - Rechecked the live official Stanford pages with visible-link rules only. No queue-changing delta: CS336 Lecture 16 still visibly exposes `lecture_16.pdf`, current-2026 Lecture 17 still lacks a visible public material link, and CS25 May 21 / May 28 still have no public materials or selected recordings.
+  - Evidence-hardened `01-sources/official-open/cs336-alignment-rl-systems-runtime-cross-check.md` with section 16: Prompt-family→parser→reward contract, synthesizing all 5 live A5 prompt templates (`question_only.prompt`, `r1_zero.prompt`, `r1_zero_three_shot_gsm8k.prompt`, `alpaca_sft.prompt`, `zero_shot_system_prompt.prompt`) into a structured table mapping output grammar → answer extraction → reward function.
+  - Key finding: prompt-family swap silently changes parser coverage (~90% box-based vs ~70% tag-based). Without `parser_coverage` and `answer_extraction_failure_rate` provenance, apparent reward differences are indistinguishable from parser attrition.
+  - Added `02-lectures/stanford/assets/cs336-prompt-parser-reward-topology.svg` as the cycle's mental-model artifact and linked from `MOC.md`.
+  - Rechecked Stanford CS336 (no delta), CS25 (recordings page now works, no new relevant recordings), and A5 repo (no new commits).
 - **Why it mattered**
-  - With `unresolved-high-value-book-gaps.json` still at zero records, the highest-value move remained a compact official/public increment instead of inventing a shallow local-book slice.
-  - This pass closes a real fidelity gap in the Stanford alignment lane: a memory-driven change in microbatching can silently change objective scale or trust-region behavior unless loss weighting, response-mask scope, and global clipping are recorded as one train-step-equivalence contract.
-  - The live recheck kept the control plane grounded in visible-page evidence and confirmed that this cycle should stay in maintenance mode rather than prematurely promoting Lecture 17.
+  - The A5 prompt files were logged at the template-name level but never synthesized into the parser-coverage→reward-surface governance pattern. This closes a concrete provenance gap: future runs comparing `question_only` vs `r1_zero` performance need the contract tuple `(prompt_template_hash, parser_entry, parser_coverage, reward_function_id)` to distinguish parser attrition from genuine answer-quality differences.
 - **Sources used**
-  - Official Stanford CS336 course page, current public Lecture 16 PDF, public Spring 2026 Assignment 5 handout, and the public train-step adapter/test surface in the assignment repository.
-  - Official Stanford CS25 main page and official CS25 recordings page for the no-delta availability recheck.
+  - Live A5 repo prompt files via `raw.githubusercontent.com/stanford-cs336/assignment5-alignment/main/cs336_alignment/prompts/`
+  - `adapters.py` stubs for `run_compute_rollout_rewards` connection to reward dispatch
+  - `drgrpo_grader.py` for the mathd/sympy/latex_equal cascade used by all reward paths
+  - Official CS336 current course page (`cs336.stanford.edu/`) — no delta
+  - Official CS25 course page — recordings page now works, no queue-impacting content
 - **Blocker / next step**
   - No user blocker. `urgent-blockers.json` remains clear.
-  - Next pass should first recheck whether the official current CS336 page visibly exposes a real Lecture 17 public material link; if not, only continue compact maintenance when it adds a genuinely new mechanism beyond the current verifier-provenance, rollout-boundary, learner/generator-sync, three-policy / prompt-group, advantage-scaling, GSPO sequence-ratio / exponent-contract, finite-group baseline-shrinkage, token-level surrogate-objective, stale-rollout reuse-budget, clip-telemetry provenance, prompt/parser/stop bundle, and microbatch-equivalence layers.
+- Next checkpoints: May 27 (CS336 Lecture 17 — expect materials to appear), May 28 (CS25 Charles Frye talk + Spring Social), or new A5 commits.
+
+## 2026-05-24 03:00 CDT :: compact no-delta pass
+  - Rechecked Stanford CS336 (`cs336.stanford.edu/`): Lecture 16 `lecture_16.pdf` still visibly linked (2 refs), Lecture 17 still schedule text only (no public material link, 0 `lecture_17.py` refs). No queue-changing delta.
+  - Rechecked CS25 main page: May 21 (Victoria Lin/Thinking Machines) and May 28 (Charles Frye/Modal) still expose title/abstract/description only with no slides, materials, or selected recordings.
+  - Rechecked CS25 recordings page (`videos.html`): now returns HTTP 404 (previously available). No selected recordings were present before, so no queue impact.
+  - Rechecked Assignment 5 repo: last commit "Typo fix" 15h ago (495ea2b) — cosmetic change to test snapshots, no new mechanism content since the extended-pass cycle 2 extraction.
+  - No unresolved local-book gaps — maintaining zero-record state in `unresolved-high-value-book-gaps.json`.
+
+## 2026-05-24 04:00 CDT :: compact no-delta pass (hourly cycle)
+  - Rechecked Stanford CS336 (`cs336.stanford.edu/`): Lecture 16 `lecture_16.pdf` still visibly linked (`Post-training - RLVR [Tatsu]`), Lecture 17 still commented-out only (`<!-- Lecture 17 - Evals -->`). No queue-changing delta.
+  - Rechecked CS25 main page + recordings page via browser: May 21 (Victoria Lin, Thinking Machines, "From Language Models to Native Multimodal Intelligence") and May 28 (Charles Frye, Modal, "Serving Transformers") still expose only schedule title/abstract/description with no slides, materials, or selected recordings. CS25 recordings page (`recordings/`) now serves a working page with 9 existing selected recordings from V3/V4/V6 — none new for May 21/28. YouTube playlist (46 videos) has no V6 May 21/28 recordings.
+  - Rechecked A5 repo: no new commits since "Typo fix" (2026-05-23 17:02 UTC). No mechanism-level changes.
+  - No unresolved local-book gaps (record_count: 0 in `unresolved-high-value-book-gaps.json`).
+- **Why it mattered**
+  - All high-value queue items are still blocked or fully covered. The last extended-pass cycle (earlier 2026-05-24) already extracted 4 new evidence-hardened sections from the live A5 repo. No new source material has appeared in any lane since then.
+- **Sources used**
+  - Official CS336 current course page (`cs336.stanford.edu/`)
+  - Official CS25 course page (`web.stanford.edu/class/cs25/`)
+  - Public `stanford-cs336/assignment5-alignment` repo
+- **Blocker / next step**
+  - No user blocker. `urgent-blockers.json` remains clear.
+  - Next meaningful checkpoints: May 27 (CS336 Lecture 17 lecture date), May 28 (CS25 lecture — check after lecture for materials or recording), or new Assignment 5 commits with mechanism-level changes.
+
+## 2026-05-24 :: extended-pass cycle 2
+
+- **What changed**
+  - Rechecked Stanford CS336 current course page (`cs336.stanford.edu/`): site migration confirmed complete, Lecture 16 `lecture_16.pdf` still visibly linked, Lecture 17 row present as schedule text only (no public material link), Assignment 5 repo confirmed live with Spring 2026 commit history (last commit 14h ago, "Typo fix").
+  - Rechecked CS25 main page and recordings page: May 21 and May 28 slots still expose title/abstract/description only with no slides or selected recordings.
+  - Evidence-hardened the existing cross-check note `01-sources/official-open/cs336-alignment-rl-systems-runtime-cross-check.md` with 4 new sections drawn from the live Assignment 5 repo source code: (1) concrete vLLM weight-sync topology (`VLLMServer` dataclass with pause/update_weights/reset_prefix_cache/resume sequence), (2) grader provenance confirmed as `sail-sg/understand-r1-zero` with 3-stage cascade, (3) four algorithm variants under one train-step contract (GRPO, Dr.GRPO, RFT, MaxRL), (4) three off-policy importance reweighting modes (noclip, grpo, gspo).
+  - Added `02-lectures/stanford/assets/cs336-assignment5-weight-sync-topology.svg` as this cycle's compact mental-model artifact showing the learner↔generator NCCL weight-sync lifecycle.
+  - Added the weight-sync topology section to the main lecture note (`02-lectures/stanford/cs336-data-and-alignment.md`).
+  - No unresolved local-book gaps — maintaining zero-record state in `unresolved-high-value-book-gaps.json`.
+- **Why it mattered**
+  - The live Assignment 5 repo is newly freshened (14h-old commit) and now directly exposes the production-relevant vLLM weight-sync topology and grading-provenance details that were previously inferred from the handout PDF and test surface alone.
+  - Concrete source-file evidence (`vllm_utils.py`, `drgrpo_grader.py`, `tests/test_grpo.py`, `tests/adapters.py`, `question_only.prompt`) grounds the weight-sync, verifier-provenance, and algorithm-variant sections in exact implementation semantics rather than generic RL-systems prose.
+- **Sources used**
+  - Live `stanford-cs336/assignment5-alignment` repo — `vllm_utils.py`, `drgrpo_grader.py`, `tests/test_grpo.py`, `tests/adapters.py`, `cs336_alignment/prompts/question_only.prompt`, `README.md`
+  - Official CS336 current course page (`cs336.stanford.edu/`)
+  - Official CS25 course page (`web.stanford.edu/class/cs25/`)
+- **Blocker / next step**
+  - No user blocker. `urgent-blockers.json` remains clear.
+  - Next pass: recheck CS336 Lecture 17 on May 27 (first lecture date for slot), then re-evaluate. If still blocked, continue narrow maintenance on the live Assignment 5 surface when new mechanism details appear.
+
+
+- **What changed**
+  - Added a new Lecture 17 — Policy Gradient Mechanics section to `02-lectures/stanford/cs336-data-and-alignment.md` synthesizing the concrete delta modes (raw, centered, normalized, max), loss modes (naive, unclipped, clipped), KL penalty estimator, and `torch.no_grad()` freezing semantics from the public 2025 CS336 Lecture 17 source (`lecture_17.py`).
+  - Added `02-lectures/stanford/assets/cs336-lecture17-delta-mode-flow.svg` as this cycle's compact mental-model artifact, visualizing how each delta/loss mode combination shapes the gradient update.
+  - Updated `MOC.md`, `status-summary.md`, `unresolved-high-value-book-gaps.json`, and `urgent-blockers.json` so future runs can discover the new RL mechanics layer while preserving zero unresolved local-book gaps and zero active blockers.
+  - Rechecked the live official Stanford pages with visible-link rules. No queue-changing delta: CS336 site migrated to `cs336.stanford.edu/` (old github.io 404), Lecture 16 PDFs accessible on both the new site and the 2025 archive, Lecture 17 still lacks a visible public material link on the current-2026 schedule page despite the 2025 archive having `lecture_17.py`. CS25 May 21/28 still have only public abstracts/titles — no slides or recordings.
+- **Why it mattered**
+  - With `unresolved-high-value-book-gaps.json` still at zero records, the highest-value move remained a compact official/public increment instead of inventing a shallow local-book slice.
+  - This pass closes a real fidelity gap between the existing Assignment‑5 contract layers (which reference RL mechanics at the policy/abstraction level) and the actual per-tensor update semantics from Percy's lecture — delta modes, loss modes, and the KL estimator are not implementation trivia; they change which responses get gradient mass and how the objective is shaped.
+  - The live recheck corrected the Stanford CS336 URL state: site migrated to `cs336.stanford.edu/`, but the current-2026 schedule page still doesn't visibly expose Lecture 17 materials. The 2025 archive has Lecture 17, which is the source for this pass's synthesis.
+- **Sources used**
+  - Official Stanford CS336 2025 archived course page and public `lecture_17.py` from the `spring2025-lectures` repository.
+  - Official Stanford CS336 new course site (`cs336.stanford.edu/`) and public Assignment 5 repository.
+  - Official Stanford CS25 main page and recordings page for the no-delta availability recheck.
+- **Blocker / next step**
+  - No user blocker. `urgent-blockers.json` remains clear.
+  - Next pass should first recheck whether the current CS336 2026 page (`cs336.stanford.edu/`) visibly exposes a Lecture 17 public material link; if not, continue compact evidence-hardening from the 2025 archive or Assignment 5 surface when it adds genuinely new mechanism detail.
 
 ## 2026-05-21 20:06 CDT
 
@@ -1150,3 +1211,22 @@ updated: 2026-05-21
   - CS336 L16/17 remain pending (L16 scheduled May 20, L17 May 27).
   - CS25 May 21 TBD, May 28 recording pending.
   - Next best local-book increment: Applied-ML-AI-Engineers (priority 1) classic-ML chapter deepening (Ch2 ensemble, Ch4 text classification, Ch5 SVM, Ch8 DL foundations, Ch9 Keras, Ch13 NLP — these chapters have deep_read_pass_1 but could be deepened further).
+
+## 2026-05-24 03:00-04:00 CDT — Extended enrichment pass (grading-cascade mechanism layer)
+
+- **What changed**
+  - Refreshed `01-sources/official-open/cs336-assignment5-reasoning-rl-variants-cross-check.md` with section 10/10a/10b/10c covering the multi-stage grading cascade, prompt-family-dependent answer extraction, normalization pipeline divergence, and edge-case handling derived from the public `drgrpo_grader.py` surface.
+  - Refreshed `02-lectures/stanford/cs336-data-and-alignment.md` with the same grading-cascade, extraction-policy, and edge-case-contract semantics.
+  - Added `02-lectures/stanford/assets/cs336-assignment5-grading-cascade-contract.svg` as a compact mental-model artifact showing the three-stage escalation path (strict string match → symbolic equivalence → math_verify library) and the two distinct normalization pipelines.
+  - Rechecked Stanford availability on 2026-05-24 against the official visible pages. No queue-changing delta: CS336 2026 L15/L16 public, L17 still blocked (commented-out HTML only), CS25 V6 May 21/28 still title/abstract only with no materials.
+  - Updated `MOC.md`, `status-summary.md`, `nightly-automation-log.md`, `unresolved-high-value-book-gaps.json`, and `urgent-blockers.json`.
+- **Why it mattered**
+  - With the unresolved local-book queue still empty and no Stanford queue-changing delta, the highest-value increment was compact evidence-hardening on the strongest under-documented mechanism layer in the public Assignment 5 surface: the verifier grading cascade.
+  - The grading cascade is the third concrete mechanism layer for the cross-check note (after GSPO sequence-ratio contract and finite-group baseline shrinkage), turning "verifier matters" from a principle into an auditable three-stage pipeline with extraction, normalization, and edge-case governance.
+- **Sources used**
+  - Official Stanford CS336 course page schedule table (browser-verified visible links).
+  - Public `drgrpo_grader.py` from `https://raw.githubusercontent.com/stanford-cs336/assignment5-alignment/main/cs336_alignment/drgrpo_grader.py`.
+  - Official Stanford CS25 V6 schedule page for the no-delta recheck.
+- **Blocker / next step**
+  - No user blocker. `urgent-blockers.json` remains clear.
+  - Next pass: recheck CS336 L17 for visible public materials (currently commented-out HTML only); if still blocked, continue compact maintenance on the next exposed mechanism layer (e.g., added-rule echo terms, KL-penalty semantics, or the Dec 2024 GRPO/Dr. GRPO trace-level decomposition from the public `__init__.py` surface).

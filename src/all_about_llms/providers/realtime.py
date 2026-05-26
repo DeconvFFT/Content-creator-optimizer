@@ -27,6 +27,8 @@ def _mint_livekit_join_token(
     agent_identity: str,
     ttl_seconds: int,
     metadata: dict[str, str],
+    agent_name: str | None = None,
+    agent_dispatch_metadata: dict[str, object] | None = None,
 ) -> tuple[str, int]:
     now = int(time.time())
     expires_at = now + ttl_seconds
@@ -50,6 +52,27 @@ def _mint_livekit_join_token(
             separators=(",", ":"),
         ),
     }
+    if agent_name:
+        dispatch_metadata = _string_metadata(
+            agent_dispatch_metadata
+            or {
+                **metadata,
+                "room_name": room_name,
+                "participant_identity": participant_identity,
+                "agent_participant_identity": agent_identity,
+            }
+        )
+        payload["roomConfig"] = {
+            "agents": [
+                {
+                    "agentName": agent_name,
+                    "metadata": json.dumps(
+                        dispatch_metadata,
+                        separators=(",", ":"),
+                    ),
+                }
+            ]
+        }
     header = {"alg": "HS256", "typ": "JWT"}
     signing_input = ".".join(
         [
@@ -73,6 +96,14 @@ def _base64url_json(payload: dict[str, object]) -> str:
 
 def _base64url(payload: bytes) -> str:
     return base64.urlsafe_b64encode(payload).decode("ascii").rstrip("=")
+
+
+def _string_metadata(metadata: dict[str, object]) -> dict[str, str]:
+    return {
+        str(key): str(value)
+        for key, value in metadata.items()
+        if value is not None and str(value) != ""
+    }
 
 
 class OpenAIRealtimeProvider:
@@ -218,6 +249,7 @@ class Gemma4RealtimeVoiceProvider:
         context_prune_after_turns: int,
         max_audio_seconds_per_turn: int,
         rust_vad_model: str,
+        livekit_agent_name: str | None = "openrouter-kokoro-agent",
         rust_vad_backend: str = "deterministic_energy",
         rust_vad_fallback_allowed: bool = True,
         gemma_streaming_enabled: bool = True,
@@ -227,6 +259,7 @@ class Gemma4RealtimeVoiceProvider:
         self._livekit_url = livekit_url
         self._livekit_api_key = livekit_api_key
         self._livekit_api_secret = livekit_api_secret
+        self._livekit_agent_name = livekit_agent_name
         self._livekit_token_ttl_seconds = livekit_token_ttl_seconds
         self._websocket_url = websocket_url
         self._audio_input_model = audio_input_model
@@ -292,12 +325,25 @@ class Gemma4RealtimeVoiceProvider:
         expires_at_unix = None
         token = None
         if self._livekit_api_key and self._livekit_api_secret and self._livekit_url:
+            dispatch_metadata = {
+                "provider": self._provider_name,
+                "run_id": request.run_id,
+                "realtime_session_id": realtime_session_id,
+                "room_name": room_name,
+                "participant_identity": participant_identity,
+                "agent_identity": agent_identity,
+                "agent_participant_identity": agent_identity,
+                "voice": request.voice or "",
+                "audio_input_model": self._audio_input_model,
+                "audio_output_model": self._audio_output_model,
+            }
             token, expires_at_unix = _mint_livekit_join_token(
                 api_key=self._livekit_api_key,
                 api_secret=self._livekit_api_secret,
                 room_name=room_name,
                 participant_identity=participant_identity,
                 agent_identity=agent_identity,
+                agent_name=self._livekit_agent_name,
                 ttl_seconds=self._livekit_token_ttl_seconds,
                 metadata={
                     "provider": self._provider_name,
@@ -306,6 +352,7 @@ class Gemma4RealtimeVoiceProvider:
                     "audio_input_model": self._audio_input_model,
                     "audio_output_model": self._audio_output_model,
                 },
+                agent_dispatch_metadata=dispatch_metadata,
             )
         transport = {
             "framework": "livekit" if production_transport == "livekit" else production_transport,
@@ -323,6 +370,10 @@ class Gemma4RealtimeVoiceProvider:
                 "pipecat_role": "optional_internal_pipeline_layer",
                 "control_binding_token": control_binding_token,
                 "control_binding_required": control_binding_token is not None,
+                "agent_name": self._livekit_agent_name,
+                "agent_dispatch_via_room_config": bool(
+                    self._livekit_agent_name and token is not None
+                ),
             },
         }
 

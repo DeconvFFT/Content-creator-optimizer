@@ -1,4 +1,5 @@
 import asyncio
+import json
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -6,9 +7,13 @@ from all_about_llms.config import Settings
 from all_about_llms.contracts import RealtimeSessionRecord, RunEvent, RunState
 from all_about_llms.orchestration.livekit_voice_timing_capture import (
     HeadlessLiveKitAgentEvent,
+    HeadlessLiveKitCaptureInput,
     HeadlessLiveKitCaptureResult,
     LiveKitVoiceTimingCaptureRequest,
     LiveKitVoiceTimingCaptureWorkflow,
+    _capture_pcm_frame,
+    _queue_agent_text_stream_event,
+    _wait_for_agent_presence,
 )
 from all_about_llms.cli import _livekit_voice_timing_capture_request_from_args
 from all_about_llms.voice_agent.control_binding import (
@@ -111,6 +116,126 @@ def _agent_event(event_type: str, uid: str, **payload):
         sender_identity="openrouter-kokoro-agent",
         topic="agent.voice.event",
     )
+
+
+def test_capture_pcm_frame_writes_raw_pcm_bytes_into_livekit_audio_frame():
+    class FakeAudioSource:
+        def __init__(self):
+            self.frames = []
+
+        async def capture_frame(self, frame):
+            self.frames.append(bytes(frame.data.cast("B")))
+
+    source = FakeAudioSource()
+    payload = b"\x01\x00" * 160
+
+    asyncio.run(
+        _capture_pcm_frame(
+            source,
+            payload,
+            sample_rate=16_000,
+            frame_ms=10,
+        )
+    )
+
+    assert source.frames[0][: len(payload)] == payload
+
+
+def test_headless_capture_reads_livekit_text_stream_agent_events():
+    class FakeStreamInfo:
+        topic = "agent.voice.event"
+
+    class FakeTextReader:
+        info = FakeStreamInfo()
+
+        async def read_all(self):
+            return json.dumps(
+                {
+                    "event_type": "gemma_kokoro_voice_agent_ready",
+                    "voice_agent_event_uid": "uid-ready",
+                    "payload": {
+                        "room_name": "proof-room",
+                    },
+                    "created_at": "2026-05-24T00:00:00+00:00",
+                }
+            )
+
+    async def run():
+        queue = asyncio.Queue()
+        await _queue_agent_text_stream_event(
+            FakeTextReader(),
+            participant_identity="openrouter-kokoro-agent",
+            queue=queue,
+        )
+        return await queue.get()
+
+    event = asyncio.run(run())
+
+    assert event.event_type == "gemma_kokoro_voice_agent_ready"
+    assert event.payload["voice_agent_event_uid"] == "uid-ready"
+    assert event.sender_identity == "openrouter-kokoro-agent"
+    assert event.topic == "agent.voice.event"
+
+
+def test_wait_for_agent_presence_retries_until_agent_event_arrives():
+    queue = asyncio.Queue()
+
+    class FakeLocalParticipant:
+        def __init__(self):
+            self.payloads = []
+
+        async def publish_data(self, data, *, reliable, topic):
+            self.payloads.append(
+                {
+                    "payload": json.loads(data.decode("utf-8")),
+                    "reliable": reliable,
+                    "topic": topic,
+                }
+            )
+            if len(self.payloads) == 2:
+                queue.put_nowait(
+                    _agent_event("gemma_kokoro_voice_agent_ready", "uid-ready")
+                )
+
+    class FakeRoom:
+        def __init__(self):
+            self.local_participant = FakeLocalParticipant()
+
+    capture_input = HeadlessLiveKitCaptureInput(
+        run_id=RUN_ID,
+        realtime_session_id=SESSION_ID,
+        livekit_url="ws://127.0.0.1:7880",
+        livekit_token="token",
+        control_binding_token="binding",
+        room_name="proof-room",
+        participant_identity="creator-proof",
+        agent_identity="openrouter-kokoro-agent",
+        agent_name="openrouter-kokoro-agent",
+        timeout_seconds=1.0,
+        audio_probe_duration_ms=0,
+        post_speech_silence_ms=0,
+        interrupt_on_first_output=True,
+        sample_rate=16_000,
+        frame_ms=10,
+    )
+    room = FakeRoom()
+
+    asyncio.run(
+        _wait_for_agent_presence(
+            room,
+            capture_input,
+            queue,
+            timeout_seconds=0.2,
+            interval_seconds=0.01,
+        )
+    )
+
+    assert len(room.local_participant.payloads) == 2
+    assert all(
+        published["payload"]["type"] == "voice_agent_presence_probe"
+        for published in room.local_participant.payloads
+    )
+    assert queue.get_nowait().event_type == "gemma_kokoro_voice_agent_ready"
 
 
 def test_headless_livekit_capture_persists_data_channel_events_without_backend():

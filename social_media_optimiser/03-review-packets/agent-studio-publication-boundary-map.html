@@ -231,66 +231,60 @@
     const sourcePath = "social_media_optimiser/03-review-packets/agent-studio-publication-boundary-map.html";
     const routes = [
       {
-            "id": "artifact-and-claim-readiness-gates",
-            "title": "Artifact and claim readiness gates",
+            "boundary": "Content can only reach a publish attempt after source, claim, feedback, and guardrail gates pass; this is content readiness, not external destination proof.",
             "category": "content-gates",
-            "status": "local gate proof exists",
-            "route": "claim verification, accepted evidence, guardrails, and publish readiness",
             "evidence": [
                   "accepted retrieval evidence",
                   "unsupported_claims",
                   "blocked_guardrail_audit",
                   "latest_publish_readiness_status"
             ],
-            "boundary": "Content can only reach a publish attempt after source, claim, feedback, and guardrail gates pass; this is content readiness, not external destination proof.",
+            "id": "artifact-and-claim-readiness-gates",
+            "route": "claim verification, accepted evidence, guardrails, and publish readiness",
             "source_notes": [
                   "social_media_optimiser/03-review-packets/Feedback Inbox.md",
                   "social_media_optimiser/03-review-packets/agent-studio-feedback-loop-map.html"
-            ]
+            ],
+            "status": "local gate proof exists",
+            "title": "Artifact and claim readiness gates"
       },
       {
-            "id": "non-live-channel-smoke",
-            "title": "Non-live channel smoke",
+            "boundary": "Non-live smoke proves credential presence and policy-review routing without posting. It is not real API publish proof and cannot satisfy external-publication-proof.",
             "category": "non-live",
-            "status": "proven for local readiness only",
-            "route": "publish readiness check with external posting disabled",
             "evidence": [
                   "publish_channel_checks",
                   "missing_publish_channel_credentials",
                   "publish_channel_policy_review_required",
                   "selected post/reel platform metadata"
             ],
-            "boundary": "Non-live smoke proves credential presence and policy-review routing without posting. It is not real API publish proof and cannot satisfy external-publication-proof.",
+            "id": "non-live-channel-smoke",
+            "route": "publish readiness check with external posting disabled",
             "source_notes": [
                   "frontend/next-app/README.md",
                   "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md"
-            ]
+            ],
+            "status": "proven for local readiness only",
+            "title": "Non-live channel smoke"
       },
       {
-            "id": "credential-scope-and-account-identity",
-            "title": "Credential scope and account identity",
+            "boundary": "Credentials must prove the exact destination account and allowed scope without exposing token values. Missing or unreadable credentials keep publication blocked.",
             "category": "credentials",
-            "status": "blocked until real destination credentials exist",
-            "route": "platform account and credential-scope preflight",
             "evidence": [
-                  "INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN",
                   "LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
-                  "X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY",
-                  "SUBSTACK_API_TOKEN_FILE or SUBSTACK_API_TOKEN",
                   "secret-free diagnostics"
             ],
-            "boundary": "Credentials must prove the exact destination account and allowed scope without exposing token values. Missing or unreadable credentials keep publication blocked.",
+            "id": "credential-scope-and-account-identity",
+            "route": "platform account and credential-scope preflight",
             "source_notes": [
                   "social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html",
                   "system_design_vault/01-sources/official-open/social-publishing-api-governance.md"
-            ]
+            ],
+            "status": "blocked until real destination credentials exist",
+            "title": "Credential scope and account identity"
       },
       {
-            "id": "channel-policy-review",
-            "title": "Channel policy review",
+            "boundary": "A generic approval is not enough. Policy review must bind to the exact destination set, account, artifact, copy, media, schedule, visibility, and disclosure state.",
             "category": "policy",
-            "status": "blocked until exact destination approval",
-            "route": "destination-specific platform policy and disclosure review",
             "evidence": [
                   "channel policy acknowledgement",
                   "exact destination set",
@@ -298,65 +292,43 @@
                   "rate-limit admission",
                   "required disclosure evidence"
             ],
-            "boundary": "A generic approval is not enough. Policy review must bind to the exact destination set, account, artifact, copy, media, schedule, visibility, and disclosure state.",
+            "id": "channel-policy-review",
+            "route": "destination-specific platform policy and disclosure review",
             "source_notes": [
                   "system_design_vault/01-sources/official-open/social-publishing-api-governance.md",
                   "social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html"
-            ]
+            ],
+            "status": "blocked until exact destination approval",
+            "title": "Channel policy review"
       },
       {
-            "id": "external-publication-proof",
-            "title": "External publication proof",
+            "boundary": "external publication proof remains blocked until real destination credentials, exact policy approval, live or approved manual destination evidence, API response proof or manual-completion proof, durable platform ID or URL, postcondition monitoring, and rollback proof exist.",
             "category": "external-proof",
-            "status": "blocked",
-            "route": "controlled live destination publish or approved manual completion proof",
-            "evidence": [
-                  "LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
-                  "LinkedIn policy and account-permission acknowledgement",
-                  "durable external destination URL or platform id",
-                  "rollback or postcondition evidence"
-            ],
             "credential_snapshot": {
                   "absent_inputs": [],
-                  "checked_at": "2026-05-23",
+                  "checked_at": "2026-05-24",
                   "configured_file_inputs": [],
                   "configured_inputs": [],
                   "configured_local_provider_inputs": [],
                   "local_provider_config_loaded": false,
                   "note": "placeholder-only .env.example entries for the requested external publication credentials.",
                   "placeholder_only_inputs": [
-                        "INSTAGRAM_ACCESS_TOKEN",
-                        "LINKEDIN_ACCESS_TOKEN",
-                        "X_ACCESS_TOKEN",
-                        "X_API_KEY",
-                        "SUBSTACK_API_TOKEN"
+                        "LINKEDIN_ACCESS_TOKEN"
                   ],
                   "secret_files_loaded": false,
                   "secret_values_printed": false,
                   "shell_values_loaded": false,
                   "source": "agent-studio-proof-readiness",
-                  "state": "blocked_by_placeholder_only_configuration",
-                  "source_snapshot": "non-secret local classifier"
+                  "source_snapshot": "non-secret local classifier",
+                  "state": "blocked_by_placeholder_only_configuration"
             },
-            "proof_acceptance_gate": {
-                  "label": "External publication acceptance gate",
-                  "requires_runtime_proof": true,
-                  "credential_presence_is_not_proof": true,
-                  "exact_destination_required": true,
-                  "accepted_evidence": [
-                        "human-approved artifact text, media, visibility, audience, disclosure, and schedule",
-                        "platform API response proof or approved manual completion proof",
-                        "durable platform ID or URL",
-                        "postcondition monitoring record",
-                        "rollback, delete, private, or correction path"
-                  ],
-                  "rejected_substitutes": [
-                        "non-live channel smoke",
-                        "generic policy acknowledgement",
-                        "credential existence without destination proof",
-                        "local draft preview or generated artifact only"
-                  ]
-            },
+            "evidence": [
+                  "LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
+                  "LinkedIn policy and account-permission acknowledgement",
+                  "durable external destination URL or platform id",
+                  "rollback or postcondition evidence"
+            ],
+            "id": "external-publication-proof",
             "operator_proof_packet": {
                   "closure_evidence_refs": [
                         "closure-review-template.json",
@@ -373,18 +345,17 @@
                         ],
                         "completion_next_action": "capture_validate_record_and_recheck",
                         "completion_next_action_commands": [
-                              "uv run all-about-llms-admin provider-proof-record-template --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
-                              "uv run all-about-llms-admin validate-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin record-provider-proof-record --proof provider-backed-live-voice-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/provider-backed-live-voice-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
-                              "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
-                              "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
+                              "uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-input-readiness.json",
+                              "uv run all-about-llms-admin blocker-credential-snapshot --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/credential-snapshot.json",
+                              "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json",
+                              "uv run all-about-llms-admin provider-proof-current-blocker-matrix --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json",
+                              "uv run all-about-llms-admin provider-proof-current-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md",
+                              "uv run all-about-llms-admin provider-proof-operator-unblocker-checklist --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md",
+                              "uv run all-about-llms-admin provider-proof-completion-status --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --output-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
                         ],
                         "completion_status": "blocked_by_latest_failed_proof_record",
                         "goal_completion_claimed": false,
                         "latest_failed_proofs": [
-                              "provider-backed-live-voice-proof",
                               "external-publication-proof"
                         ],
                         "missing_accepted_proofs": [],
@@ -425,7 +396,7 @@
                               "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
                               "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"
                         ],
-                        "checked_at": "2026-05-23",
+                        "checked_at": "2026-05-24",
                         "configured_fields": [],
                         "effective_fail_on_blocked_exit_code": 2,
                         "evidence_ref": "operator-input-readiness.json",
@@ -538,7 +509,7 @@
                               "credential-snapshot status runtime_configuration_present_unverified",
                               "proof-plan attempt gate ready_for_preflight_capture",
                               "valid external publication preflight validation",
-                              "destination channel linked to validated linkedin readiness",
+                              "destination channel and durable URL linked to validated linkedin readiness",
                               "durable external destination proof",
                               "policy acknowledgement artifact",
                               "rollback or postcondition artifact",
@@ -560,7 +531,7 @@
                         "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":true}'",
                         "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json",
-                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/distribution-package.json",
                         "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
                         "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
@@ -632,6 +603,25 @@
                         "system_design_vault/04-agent-studio-implications/agent-studio-objective-completion-audit.md"
                   ]
             },
+            "proof_acceptance_gate": {
+                  "accepted_evidence": [
+                        "human-approved artifact text, media, visibility, audience, disclosure, and schedule",
+                        "platform API response proof or approved manual completion proof",
+                        "durable platform ID or URL",
+                        "postcondition monitoring record",
+                        "rollback, delete, private, or correction path"
+                  ],
+                  "credential_presence_is_not_proof": true,
+                  "exact_destination_required": true,
+                  "label": "External publication acceptance gate",
+                  "rejected_substitutes": [
+                        "non-live channel smoke",
+                        "generic policy acknowledgement",
+                        "credential existence without destination proof",
+                        "local draft preview or generated artifact only"
+                  ],
+                  "requires_runtime_proof": true
+            },
             "proof_plan": {
                   "attempt_gate": {
                         "blocked_by": [
@@ -642,10 +632,7 @@
                         "next_action": "configure_credentials",
                         "next_action_commands": [
                               "mkdir -p .secrets && chmod 700 .secrets",
-                              ": \"${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$INSTAGRAM_ACCESS_TOKEN\" > .secrets/instagram_access_token && chmod 600 .secrets/instagram_access_token",
                               ": \"${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > .secrets/linkedin_access_token && chmod 600 .secrets/linkedin_access_token",
-                              "if [ -n \"${X_ACCESS_TOKEN:-}\" ]; then umask 077 && printf '%s\\n' \"$X_ACCESS_TOKEN\" > .secrets/x_access_token && chmod 600 .secrets/x_access_token; else : \"${X_API_KEY:?set X_ACCESS_TOKEN or X_API_KEY first}\" && umask 077 && printf '%s\\n' \"$X_API_KEY\" > .secrets/x_api_key && chmod 600 .secrets/x_api_key; fi",
-                              ": \"${SUBSTACK_API_TOKEN:?set SUBSTACK_API_TOKEN first}\" && umask 077 && printf '%s\\n' \"$SUBSTACK_API_TOKEN\" > .secrets/substack_api_token && chmod 600 .secrets/substack_api_token",
                               "uv run all-about-llms-admin provider-proof-plan --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e"
                         ],
                         "proof_commands_allowed_after": [
@@ -681,16 +668,10 @@
                   "configured_local_provider_inputs": [],
                   "credential_setup_commands": [
                         "mkdir -p .secrets && chmod 700 .secrets",
-                        ": \"${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$INSTAGRAM_ACCESS_TOKEN\" > .secrets/instagram_access_token && chmod 600 .secrets/instagram_access_token",
-                        ": \"${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > .secrets/linkedin_access_token && chmod 600 .secrets/linkedin_access_token",
-                        "if [ -n \"${X_ACCESS_TOKEN:-}\" ]; then umask 077 && printf '%s\\n' \"$X_ACCESS_TOKEN\" > .secrets/x_access_token && chmod 600 .secrets/x_access_token; else : \"${X_API_KEY:?set X_ACCESS_TOKEN or X_API_KEY first}\" && umask 077 && printf '%s\\n' \"$X_API_KEY\" > .secrets/x_api_key && chmod 600 .secrets/x_api_key; fi",
-                        ": \"${SUBSTACK_API_TOKEN:?set SUBSTACK_API_TOKEN first}\" && umask 077 && printf '%s\\n' \"$SUBSTACK_API_TOKEN\" > .secrets/substack_api_token && chmod 600 .secrets/substack_api_token"
+                        ": \"${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}\" && umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > .secrets/linkedin_access_token && chmod 600 .secrets/linkedin_access_token"
                   ],
                   "credential_setup_requirements": [
-                        "configure INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN",
-                        "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
-                        "configure X_ACCESS_TOKEN_FILE or X_ACCESS_TOKEN or X_API_KEY_FILE or X_API_KEY",
-                        "configure SUBSTACK_API_TOKEN_FILE or SUBSTACK_API_TOKEN"
+                        "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN"
                   ],
                   "credential_state": "blocked_by_placeholder_only_configuration",
                   "failure_recording_requirements": [
@@ -747,7 +728,7 @@
                                     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
                                     "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID"
                               ],
-                              "checked_at": "2026-05-23",
+                              "checked_at": "2026-05-24",
                               "configured_fields": [],
                               "effective_fail_on_blocked_exit_code": 2,
                               "evidence_ref": "operator-input-readiness.json",
@@ -851,7 +832,7 @@
                                     "credential-snapshot status runtime_configuration_present_unverified",
                                     "proof-plan attempt gate ready_for_preflight_capture",
                                     "valid external publication preflight validation",
-                                    "destination channel linked to validated linkedin readiness",
+                                    "destination channel and durable URL linked to validated linkedin readiness",
                                     "durable external destination proof",
                                     "policy acknowledgement artifact",
                                     "rollback or postcondition artifact",
@@ -872,7 +853,7 @@
                               "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                               "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":true}'",
                               "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json",
-                              "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                              "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/distribution-package.json",
                               "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                               "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
                               "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
@@ -950,7 +931,7 @@
                   ],
                   "post_capture_validation_checks": [
                         "publish-readiness, distribution package, approved artifact, and destination proof all reference command_run_id",
-                        "destination_channel appears in validated_publish_channels from the accepted preflight validation report",
+                        "destination_channel is linkedin and the preflight validation report's validated_publish_channels is exactly linkedin; durable URL is a LinkedIn destination",
                         "approved artifact snapshot has disclosure, visibility, audience, and schedule",
                         "platform API response or approved manual proof contains durable platform ID or URL",
                         "durable platform ID or URL matches rollback or postcondition monitoring record",
@@ -1038,14 +1019,14 @@
                         "curl -sS -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "curl -sS -X POST -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness -H 'Content-Type: application/json' --data '{\"open_feedback_gate\":false,\"mark_run_completed_if_ready\":false,\"check_publish_channel_readiness\":true,\"acknowledge_publish_channel_policy\":true}'",
                         "uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json",
-                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
+                        "uv run all-about-llms-admin build-distribution-package --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/distribution-package.json",
                         "uv run all-about-llms-admin provider-proof-record-template --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
                         "uv run all-about-llms-admin validate-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json",
                         "uv run all-about-llms-admin record-provider-proof-record --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --record-path <provider-proof-record.json> --preflight-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json --workspace-validation-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
                   ],
                   "proof_linkage_requirements": [
                         "same run_id across publish-readiness, distribution package, approved artifact, and destination proof",
-                        "destination_channel appears in the preflight validation report's validated_publish_channels",
+                        "destination_channel is linkedin and the preflight validation report's validated_publish_channels is exactly linkedin",
                         "durable platform ID or URL matches the approved destination/channel",
                         "rollback or postcondition monitoring record references the same platform ID or URL"
                   ],
@@ -1102,18 +1083,17 @@
                         "social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/workspace-validation.json"
                   ]
             },
-            "boundary": "external publication proof remains blocked until real destination credentials, exact policy approval, live or approved manual destination evidence, API response proof or manual-completion proof, durable platform ID or URL, postcondition monitoring, and rollback proof exist.",
+            "route": "controlled live destination publish or approved manual completion proof",
             "source_notes": [
                   "social_media_optimiser/01-work-tracking/agent-studio-proof-readiness.html",
                   "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md"
-            ]
+            ],
+            "status": "blocked",
+            "title": "External publication proof"
       },
       {
-            "id": "rollback-and-correction-path",
-            "title": "Rollback and correction path",
+            "boundary": "The release gate must know how to delete, hide, make private, unlist, or publish a correction before any external side effect is treated as complete.",
             "category": "rollback",
-            "status": "required before external publish",
-            "route": "postcondition monitoring plus rollback, delete, private, unlist, or correction route",
             "evidence": [
                   "publish_rollback_record",
                   "platform post ID",
@@ -1121,11 +1101,14 @@
                   "approval requirement",
                   "user-visible result"
             ],
-            "boundary": "The release gate must know how to delete, hide, make private, unlist, or publish a correction before any external side effect is treated as complete.",
+            "id": "rollback-and-correction-path",
+            "route": "postcondition monitoring plus rollback, delete, private, unlist, or correction route",
             "source_notes": [
                   "system_design_vault/01-sources/official-open/social-publishing-api-governance.md",
                   "social_media_optimiser/01-work-tracking/Agent Studio Objective Completion Audit.md"
-            ]
+            ],
+            "status": "required before external publish",
+            "title": "Rollback and correction path"
       }
 ];
 

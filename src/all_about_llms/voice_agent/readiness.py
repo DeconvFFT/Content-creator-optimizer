@@ -20,7 +20,6 @@ from all_about_llms.contracts import (
 from all_about_llms.providers.interfaces import ProviderConfigurationError
 from all_about_llms.realtime_safety import redact_realtime_string
 from all_about_llms.voice_agent.adapters import (
-    HuggingFaceGemmaAudioReasoner,
     HuggingFaceKokoroTTSStreamer,
     normalize_backend_event_sink_base_url,
 )
@@ -33,7 +32,6 @@ from all_about_llms.voice_agent.livekit_app import (
 from all_about_llms.voice_agent.edge import FallbackVoiceEdgeClient, describe_vad_runtime
 from all_about_llms.voice_agent.gemma import (
     gemma_audio_endpoint_metadata,
-    gemma_audio_endpoint_url,
 )
 from all_about_llms.voice_agent.reasoning import (
     build_voice_reasoner,

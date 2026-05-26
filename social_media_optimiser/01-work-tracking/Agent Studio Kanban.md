@@ -2,7 +2,7 @@
 type: kanban
 project: agent-studio
 status: active
-updated: 2026-05-23
+updated: 2026-05-24
 boundary: planning-vault-only
 sources:
   - [[Current Sprint]]
@@ -16,9 +16,9 @@ Product app must not render this board. This is an Obsidian planning note for Co
 
 ## Backlog
 
-- [ ] Provider-backed live voice proof-record capture for the current OpenRouter/LiveKit/Kokoro path.
-  Source: [[Current Sprint]].
-  Exit: same-run accepted proof record passes after current preflight evidence; current UUID proof workspace has ready LiveKit transport, LiveKit agent participant construction, FastAPI event sink, OpenRouter live-dialogue reasoning with `deepseek/deepseek-v4-flash`, Kokoro TTS, and Rust voice edge checks already validated.
+- [ ] External publication proof capture for LinkedIn.
+  Source: [[Current Sprint]] and current UUID proof workspace.
+  Exit: accepted `external-publication-proof` record passes after LinkedIn credential, policy acknowledgement, durable destination, rollback/postcondition evidence, validation, and recording.
 
 ## Ready
 
@@ -26,21 +26,21 @@ No review-watch alignment item is waiting. The standing reviewer status is track
 
 ## In Progress
 
-- [ ] Select the next bounded implementation slice.
+- [ ] Select the next bounded non-publication implementation slice.
   Source: active Codex goal and [[../wiki/ops/active-codex-context]].
-  Exit: next slice has a failing-first test, implementation target, validation plan, and `Leibniz` review packet. Current likely non-credential slice is a small product/proof hardening patch; credential-gated live proof remains blocked.
+  Exit: next slice has a failing-first test, implementation target, validation plan, and `Leibniz` review packet. Current likely non-credential slice is a small product/proof hardening patch; credential-gated publication proof remains blocked.
 
 ## Blocked
 
-- [ ] Full realtime provider proof remains blocked on accepted proof-record capture/recheck.
-  Source: [[Current Sprint]] and `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md`.
-  Blocker: the current local dialogue route is OpenRouter text reasoning (`deepseek/deepseek-v4-flash`) with LiveKit transport and Kokoro spoken output. `provider-backed-live-voice-proof.preflight-validation.json` is valid for the required checks `livekit-transport`, `livekit-agent-participant`, `voice-agent-backend-event-sink`, `openrouter-live-dialogue-reasoning`, `kokoro-tts`, and `rust-voice-edge`; the blocker matrix state is `provider_backed_live_voice_preflight_ready_record_capture_needed` with no remaining live-voice operator-input blockers. Accepted product proof still needs refreshed same-run runtime captures, provider smoke/timing evidence, zero failed post-capture validation checks, and passed secret-redaction check. Do not reopen Hugging Face/Gamma/Gemma/MLX as the active realtime path unless a later decision explicitly supersedes OpenRouter; those paths are legacy/native-audio background only.
 - [ ] External publication proof remains blocked on real destination credentials.
   Source: [[Current Sprint]] and `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md`.
   Blocker: LinkedIn credential plus channel policy review remain missing, and accepted proof still requires durable external destination evidence plus rollback or postcondition evidence. Use the matrix `Report-only operator-input retry chain` for normal inspection after operator inputs change, and the `Guarded operator-input retry chain` only when a non-zero blocked exit is wanted. The UUID proof workspace already has approved local fixture artifact, source, claim, guardrail audit, and source ledger evidence.
 
 ## Done
 
+- [x] Provider-backed live voice proof accepted for the current OpenRouter/LiveKit/Kokoro path.
+  Source: [[Current Sprint]] and `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md`.
+  Exit: accepted record references OpenRouter `deepseek/deepseek-v4-flash`, LiveKit, Kokoro, provider-smoke ledger `94857bb9-c5eb-4174-8bc5-6687bd8befbe`, timing ledger `7e932381-4bf4-4206-a490-58d6a4ca7880`, realtime session `ebd43531-86e3-4af1-ade0-15ac8d7184bf`, 7/7 post-capture checks, and passed secret redaction. Do not reopen Hugging Face/Gamma/Gemma/MLX as the active realtime path unless a later decision explicitly supersedes OpenRouter; those paths are legacy/native-audio background only.
 - [x] OpenRouter text-turn live-dialogue readiness contract added.
   Source: [[Current Sprint]], [[../wiki/ops/active-codex-context]], `agent_progress_vault/06-live-voice/openrouter-livekit-live-dialogue.md`, `src/all_about_llms/voice_agent/adapters.py`, `src/all_about_llms/voice_agent/readiness.py`, and `tests/test_api_contracts.py`.
   Exit: `/api/voice-runtime-readiness` now has hermetic coverage proving OpenRouter chat-completions routing can satisfy the live-dialogue reasoning check without a Gemma multimodal endpoint, while HF router/text-primary endpoints remain insufficient for native Gemma audio proof. The runtime emits both OpenRouter and native Gemma checks when both configs are present, provider-proof validation rejects OpenRouter-only readiness as native audio proof, and the Gemma/OpenRouter streaming preflight now constructs auth headers with the keyword-only helper and reaches the streamed HTTP path.
@@ -139,7 +139,7 @@ No review-watch alignment item is waiting. The standing reviewer status is track
   Exit: each packet-local `current_gate` now includes `completion_next_action` plus nested recovery commands ending with one completion-status recheck, so packet-first A2A/review agents do not need a separate top-level lookup.
 - [x] Current-state handoffs render completion recovery commands.
   Source: [[Current Sprint]], [[../wiki/ops/active-codex-context]], UUID `current-blocker-matrix.json`, `current-proof-status.md`, `operator-unblocker-checklist.md`, and `tests/test_provider_proof_plan_cli.py`.
-  Exit: current-state matrix/status/checklist surfaces now expose `completion.next_action` plus top-level completion recovery commands, ending with one completion-status recheck, while accepted OpenRouter LiveKit live voice proof and external publication proof remain blocked.
+  Exit: current-state matrix/status/checklist surfaces now expose `completion.next_action` plus top-level completion recovery commands, ending with one completion-status recheck, while provider-backed live voice is accepted and external publication proof remains blocked.
 - [x] Completion-status top-level recovery commands are populated.
   Source: [[Current Sprint]], [[../wiki/ops/active-codex-context]], UUID `completion-status.json`, and `tests/test_provider_proof_plan_cli.py`.
   Exit: `provider-proof-completion-status` now exposes top-level `next_action_commands` for unresolved proof records, ending with one completion-status recheck, while accepted proofs are not reopened.
@@ -208,7 +208,7 @@ No review-watch alignment item is waiting. The standing reviewer status is track
   Exit: each Markdown `operator_proof_packet` section now includes `proof_capture_commands_after_unblock`, so text-first A2A/review agents can follow the matrix-owned post-unblock capture chain without leaving the packet block.
 - [x] Markdown operator proof packets render proof IDs and matrix parity refs.
   Source: [[Current Sprint]], [[../wiki/ops/active-codex-context]], generated proof workspace `README.md`, `current-proof-status.md`, `operator-unblocker-checklist.md`, and `tests/test_provider_proof_plan_cli.py`.
-  Exit: each Markdown `operator_proof_packet` section includes `proof_id`, `matrix_parity_ref`, and `proof_capture_matrix_ref` for both remaining proofs, matching current-matrix packet identity and capture-chain routing while live proof blockers stay external.
+  Exit: each Markdown `operator_proof_packet` section includes `proof_id`, `matrix_parity_ref`, and `proof_capture_matrix_ref` for both remaining proofs, matching current-matrix packet identity and capture-chain routing while only external publication remains an active proof blocker.
 - [x] Generated proof workspace READMEs render current-matrix packet navigation.
   Source: [[Current Sprint]], [[../wiki/ops/active-codex-context]], generated proof workspace `README.md`, and `tests/test_provider_proof_plan_cli.py`.
   Exit: README `operator_proof_packet` sections include `current_matrix_packet`, `current_matrix_packet_ref`, `current_matrix_packet_command`, and `current_matrix_operator_packet_ref` for both remaining proofs.
@@ -219,7 +219,7 @@ No review-watch alignment item is waiting. The standing reviewer status is track
   Source: [[Current Sprint]], [[../wiki/ops/active-codex-context]], `current-proof-status.md`, `operator-unblocker-checklist.md`, generated proof workspace `README.md`, and `tests/test_provider_proof_plan_cli.py`.
   Exit: Markdown packet sections list `operator-input-readiness.json`, `current-blocker-matrix.json`, `operator-inputs.template.env`, and `proof-plan.json` under `source_artifacts`.
 - [x] Proof-readiness and boundary pages render compact proof-plan packet details.
-  Source: [[Current Sprint]], [[../wiki/ops/active-codex-context]], `agent-studio-proof-readiness.html`, `gemma-voice-boundary-map.html`, `agent-studio-publication-boundary-map.html`, and `tests/test_blocker_proof_packets_browser.py`.
+  Source: [[Current Sprint]], [[../wiki/ops/active-codex-context]], `agent-studio-proof-readiness.html`, `openrouter-livekit-voice-boundary-map.html`, `agent-studio-publication-boundary-map.html`, and `tests/test_blocker_proof_packets_browser.py`.
   Exit: the proof-plan panels visibly render the compact `Proof-plan operator packet`, `current_matrix_packet_ref`, matrix refresh command, and proof-plan source artifacts.
 - [x] System-design viewer renders compact proof-plan provenance in route details.
   Source: [[Current Sprint]], [[../wiki/ops/active-codex-context]], `output/viewers/agent-studio-system-design-viewer.html`, and `tests/test_system_design_viewer_browser.py`.
@@ -238,7 +238,7 @@ No review-watch alignment item is waiting. The standing reviewer status is track
   Exit: `operator_proof_packets` now expose `proof_plan_packet_command` beside `proof_plan_packet_ref`, and generated status/checklist/static/viewer packets mirror it where applicable so packet-first agents can refresh `proof-plan.json` directly.
 - [x] Current-matrix operator packets reciprocate to proof-plan packets.
   Source: [[Current Sprint]], [[../wiki/ops/active-codex-context]], `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json`, `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/proof-plan.json`, and `tests/test_provider_proof_plan_cli.py`.
-  Exit: `operator_proof_packets` now expose `proof_plan_packet`, `proof_plan_packet_ref`, and `proof_plan_operator_packet_ref`; the status packet, checklist, static proof exports, and system-design viewer mirror the reciprocal refs where applicable while live voice and publication proof remain blocked.
+  Exit: `operator_proof_packets` now expose `proof_plan_packet`, `proof_plan_packet_ref`, and `proof_plan_operator_packet_ref`; the status packet, checklist, static proof exports, and system-design viewer mirror the reciprocal refs where applicable while provider-backed live voice is accepted and external publication proof remains blocked.
 - [x] Kanban names the operator-input retry-chain split.
   Source: `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-blocker-matrix.json` and [[../wiki/ops/active-codex-context]].
   Exit: board-level blocker tracking distinguishes the report-only operator-input retry chain from the guarded chain, so future continuation turns do not use a failing readiness command when they only need to refresh `operator-input-readiness.json`, `credential-snapshot.json`, `proof-plan.json`, `current-blocker-matrix.json`, `current-proof-status.md`, and `operator-unblocker-checklist.md`.
@@ -247,9 +247,9 @@ No review-watch alignment item is waiting. The standing reviewer status is track
   Exit: board-level blocker tracking now points to the generated status, matrix, and operator checklist packets so continuation turns can inspect the live proof blockers without scraping the sprint log.
 - [x] UUID provider proof downstream handoff regenerated from refreshed failed-proof state.
   Source: [[Current Sprint]], `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/`, `src/all_about_llms/cli.py`, and `tests/test_provider_proof_plan_cli.py`.
-  Exit: workspace validation is `valid_workspace`; live voice and publication preflight validations remain invalid for their precise external blockers; failed-record validations remain `valid_failed_record`; downstream completion, closure, blocker-state update, current blocker matrix, and operator checklist were regenerated and remain blocked/no-write with `goal_completion_claimed=false`.
+  Exit corrected 2026-05-24: workspace validation is `valid_workspace`; provider-backed live voice is accepted for OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro, while publication remains invalid/blocked for its precise external LinkedIn inputs; downstream completion, closure, blocker-state update, current blocker matrix, and operator checklist remain blocked/no-write with `goal_completion_claimed=false` until external publication proof is accepted.
 - [x] Accepted live voice records require required runtime-check/preflight linkage.
-  Source: [[Current Sprint]], `src/all_about_llms/cli.py`, `01-work-tracking/agent-studio-proof-readiness.html`, `02-research/gemma-voice-boundary-map.html`, and `tests/test_provider_proof_plan_cli.py`.
+  Source: [[Current Sprint]], `src/all_about_llms/cli.py`, `01-work-tracking/agent-studio-proof-readiness.html`, `02-research/openrouter-livekit-voice-boundary-map.html`, and `tests/test_provider_proof_plan_cli.py`.
   Exit: CLI proof verifies accepted `provider-backed-live-voice-proof` records and hand-edited audit notes fail when `validated_runtime_checks` omits a required runtime check or includes non-generated runtime-check names; record validation now carries the canonical required-check sequence from preflight reports, compact audit notes preserve that list, and proof-plan/static voice surfaces require the same linkage.
 - [x] Accepted external publication records require destination/preflight channel linkage.
   Source: [[Current Sprint]], `src/all_about_llms/cli.py`, and `tests/test_provider_proof_plan_cli.py`.
@@ -393,7 +393,7 @@ No review-watch alignment item is waiting. The standing reviewer status is track
   Source: [[Current Sprint]], `system_design_vault/agent-studio-system-design-home.html`, `tests/test_system_design_vault_home_browser.py`, and `tests/test_foundation.py`.
   Exit: browser and foundation proof verify the system-design-vault home tells reviewers that proof readiness plus the voice/publication boundary maps preserve both credential snapshot exports and `proof_plan` proof-plan packets.
 - [x] Proof-plan packets propagate to boundary maps.
-  Source: [[Current Sprint]], `02-research/gemma-voice-boundary-map.html`, `03-review-packets/agent-studio-publication-boundary-map.html`, `01-work-tracking/agent-studio-proof-readiness.html`, and `tests/test_blocker_snapshot_consistency.py`.
+  Source: [[Current Sprint]], `02-research/openrouter-livekit-voice-boundary-map.html`, `03-review-packets/agent-studio-publication-boundary-map.html`, `01-work-tracking/agent-studio-proof-readiness.html`, and `tests/test_blocker_snapshot_consistency.py`.
   Exit: browser proof verifies the OpenRouter LiveKit voice and publication boundary exports carry `proof_plan` packets matching proof readiness, so voice/publication boundary reviewers see the same commands, capture requirements, manual publication steps, and unblocking conditions as the CLI-backed proof-readiness view.
 - [x] Proof-readiness proof plan matches CLI output.
   Source: [[Current Sprint]], `01-work-tracking/agent-studio-proof-readiness.html`, `src/all_about_llms/cli.py`, and `tests/test_blocker_snapshot_consistency.py`.
@@ -405,7 +405,7 @@ No review-watch alignment item is waiting. The standing reviewer status is track
   Source: [[Current Sprint]], `src/all_about_llms/orchestration/blocker_credentials.py`, `src/all_about_llms/cli.py`, `tests/test_blocker_credential_classifier.py`, and `tests/test_blocker_credential_snapshot_cli.py`.
   Exit: tests verify `OPENROUTER_API_KEY_FILE`, `LIVEKIT_API_KEY_FILE`, and `LIVEKIT_API_SECRET_FILE` can satisfy credential presence by non-empty file existence without reading or printing file contents, while configured state remains unverified until runtime proof.
 - [x] Proof-readiness snapshots match CLI classifier output.
-  Source: [[Current Sprint]], `tests/test_blocker_snapshot_consistency.py`, `01-work-tracking/agent-studio-proof-readiness.html`, `02-research/gemma-voice-boundary-map.html`, `03-review-packets/agent-studio-publication-boundary-map.html`, and `src/all_about_llms/cli.py`.
+  Source: [[Current Sprint]], `tests/test_blocker_snapshot_consistency.py`, `01-work-tracking/agent-studio-proof-readiness.html`, `02-research/openrouter-livekit-voice-boundary-map.html`, `03-review-packets/agent-studio-publication-boundary-map.html`, and `src/all_about_llms/cli.py`.
   Exit: browser proof verifies proof-readiness `credential_snapshot` records match `_blocker_credential_snapshot_payload` for current `.env.example` placeholder state, including `configured_inputs`, and boundary-map snapshots still propagate the same fields from proof readiness.
 - [x] CLI blocker credential snapshot refresh added.
   Source: [[Current Sprint]], `src/all_about_llms/cli.py`, and `tests/test_blocker_credential_snapshot_cli.py`.
@@ -414,19 +414,19 @@ No review-watch alignment item is waiting. The standing reviewer status is track
   Source: [[Current Sprint]], `src/all_about_llms/orchestration/blocker_credentials.py`, and `tests/test_blocker_credential_classifier.py`.
   Exit: unit proof verifies the classifier can rebuild live voice and publication blocker snapshots from env-name presence without echoing values, preserves placeholder-only and missing-configuration states, supports `X_ACCESS_TOKEN`/`X_API_KEY` group semantics, and reports runtime configuration as unverified rather than complete.
 - [x] Operator proof packets exported for remaining blockers.
-  Source: [[Current Sprint]], `tests/test_blocker_proof_packets_browser.py`, `01-work-tracking/agent-studio-proof-readiness.html`, `02-research/gemma-voice-boundary-map.html`, and `03-review-packets/agent-studio-publication-boundary-map.html`.
+  Source: [[Current Sprint]], `tests/test_blocker_proof_packets_browser.py`, `01-work-tracking/agent-studio-proof-readiness.html`, `02-research/openrouter-livekit-voice-boundary-map.html`, and `03-review-packets/agent-studio-publication-boundary-map.html`.
   Exit: browser proof verifies proof readiness and both boundary maps render/export `operator_proof_packet`, require concrete runtime captures, preserve the no-secret-printing rule, and point captured proof back into the project audit, active context, and system-design mirror.
 - [x] Blocker acceptance gates exported across proof surfaces.
-  Source: [[Current Sprint]], `tests/test_blocker_acceptance_gates_browser.py`, `01-work-tracking/agent-studio-proof-readiness.html`, `02-research/gemma-voice-boundary-map.html`, and `03-review-packets/agent-studio-publication-boundary-map.html`.
+  Source: [[Current Sprint]], `tests/test_blocker_acceptance_gates_browser.py`, `01-work-tracking/agent-studio-proof-readiness.html`, `02-research/openrouter-livekit-voice-boundary-map.html`, and `03-review-packets/agent-studio-publication-boundary-map.html`.
   Exit: browser proof verifies Live voice and Publication details expose `Acceptance gate`, exported JSON carries `proof_acceptance_gate`, credentials are explicitly not proof, live voice requires same-session runtime evidence, publication requires exact destination evidence, and boundary-map gates match proof readiness.
 - [x] Blocker credential snapshot attribution guarded across exports.
-  Source: [[Current Sprint]], `tests/test_blocker_snapshot_consistency.py`, `01-work-tracking/agent-studio-proof-readiness.html`, `02-research/gemma-voice-boundary-map.html`, and `03-review-packets/agent-studio-publication-boundary-map.html`.
+  Source: [[Current Sprint]], `tests/test_blocker_snapshot_consistency.py`, `01-work-tracking/agent-studio-proof-readiness.html`, `02-research/openrouter-livekit-voice-boundary-map.html`, and `03-review-packets/agent-studio-publication-boundary-map.html`.
   Exit: browser proof compares proof-readiness credential snapshots with the propagated OpenRouter LiveKit voice and publication boundary exports, requiring shared blocker fields to match and requiring each boundary export to preserve `source_snapshot: "non-secret local classifier"` while citing `agent-studio-proof-readiness`.
 - [x] System-design home links blocker boundary maps.
   Source: [[Current Sprint]], `system_design_vault/agent-studio-system-design-home.html`, `tests/test_system_design_vault_home_browser.py`, and `tests/test_foundation.py`.
   Exit: browser proof verifies the system-design-vault home links to the project proof-readiness surface, OpenRouter LiveKit voice boundary map, and publication boundary map, and preserves credential snapshot export copy with `secret_values_printed=false`.
 - [x] Voice/publication boundary maps carry credential snapshot evidence.
-  Source: [[Current Sprint]], `02-research/gemma-voice-boundary-map.html`, `03-review-packets/agent-studio-publication-boundary-map.html`, `tests/test_gemma_voice_boundary_browser.py`, and `tests/test_publication_boundary_browser.py`.
+  Source: [[Current Sprint]], `02-research/openrouter-livekit-voice-boundary-map.html`, `03-review-packets/agent-studio-publication-boundary-map.html`, `tests/test_openrouter_livekit_voice_boundary_browser.py`, and `tests/test_publication_boundary_browser.py`.
   Exit: browser proof filters Proof gate and External proof, verifies each detail pane shows non-secret credential snapshot state, and verifies exported JSON carries `credential_snapshot` with current OpenRouter/LiveKit live-voice input names, publication placeholder input names, canonical LiveKit naming, and `secret_values_printed=false`.
 - [x] Proof-readiness credential snapshot export added.
   Source: [[Current Sprint]], `01-work-tracking/agent-studio-proof-readiness.html`, and `tests/test_proof_readiness_browser.py`.
@@ -591,8 +591,8 @@ No review-watch alignment item is waiting. The standing reviewer status is track
   Source: [[Current Sprint]], [[../03-review-packets/Feedback Inbox]], [[Agent Studio Objective Completion Audit]], and `tests/test_publication_boundary_browser.py`.
   Exit: Chromium opens `03-review-packets/agent-studio-publication-boundary-map.html`, filters to `External proof`, `Non-live smoke`, `Policy review`, and `Rollback`, and proves the exported boundary packet preserves `external-publication-proof`, `non-live-channel-smoke`, `publish_channel_checks`, `missing_publish_channel_credentials`, `publish_channel_policy_review_required`, `durable platform ID or URL`, destination credential names, exact destination policy review, and rollback/correction evidence without treating non-live smoke as real API publish proof.
 - [x] OpenRouter LiveKit voice boundary browser proof added.
-  Source: [[Current Sprint]], [[../02-research/Realtime Voice Architecture - Gemma Kokoro LiveKit Rust Python]], and `tests/test_gemma_voice_boundary_browser.py`.
-  Exit: Chromium opens `02-research/gemma-voice-boundary-map.html`, filters to `Current`, `OpenRouter`, `LiveKit`, `Kokoro TTS`, `Rust edge`, `Proof gate`, and `Legacy`, and proves the exported boundary packet preserves the current OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro path, required OpenRouter/LiveKit input names, and accepted-proof-record blocker while marking Gemma/HF/Gamma/MLX as legacy/non-default.
+  Source: [[Current Sprint]], [[../02-research/Realtime Voice Architecture - Gemma Kokoro LiveKit Rust Python]], and `tests/test_openrouter_livekit_voice_boundary_browser.py`.
+  Exit: Chromium opens `02-research/openrouter-livekit-voice-boundary-map.html`, filters to `Current`, `OpenRouter`, `LiveKit`, `Kokoro TTS`, `Rust edge`, `Proof gate`, and `Legacy`, and proves the exported boundary packet preserves the current OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro path, required OpenRouter/LiveKit input names, and accepted-proof-record evidence while marking Gemma/HF/Gamma/MLX as legacy/non-default.
 - [x] Feedback loop map browser proof added.
   Source: [[Current Sprint]], [[../03-review-packets/Feedback Inbox]], and `tests/test_feedback_loop_map_browser.py`.
   Exit: Chromium opens `03-review-packets/agent-studio-feedback-loop-map.html`, filters to `Guardrails` and `Publish gate`, and proves the exported feedback-loop packet preserves `feedback_resolution_ledger`, accepted/revised/held/rejected outcomes, failed linked task ids, held-until-review policy, `publish_readiness_checked`, unsupported claims, and external-publication blocker copy.

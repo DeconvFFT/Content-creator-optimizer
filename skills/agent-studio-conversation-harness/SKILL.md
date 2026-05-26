@@ -50,7 +50,7 @@ description: "Operate the realtime voice/text conversation layer for the multi-a
 - `feedback_routed` event when standalone feedback becomes specialist work.
 - `planning_feedback_ingested` event when the separate planning surface routes saved suggestions into the durable agent loop.
 - `multimodal_intake_recorded` event and `multimodal_intake_ledger` artifact when user-provided media or document references are routed to specialists.
-- `multimodal_intake_review_recorded` event and `multimodal_review` artifact when a specialist processes an attached asset task; Gemma-backed reviews also emit model policy approval plus `gemma_worker_completed` and `gemma_multimodal_review_completed` events.
+- `multimodal_intake_review_recorded` event and `multimodal_review` artifact when a specialist processes an attached asset task; explicitly selected legacy Gemma reviews also emit model policy approval plus `gemma_worker_completed` and `gemma_multimodal_review_completed` events.
 - `multimodal_review_followups_materialized` event and follow-up `AgentMessage` records when a completed multimodal review can safely hand work to context, manager, planning-note, voice, or media specialists.
 - `feedback_requirements_recorded` event and `feedback_requirements` artifact when the Forward Deployed Engineer turns feedback into acceptance criteria and specialist handoffs.
 - `architecture_review_recorded` event and `architecture_review` artifact when the Principal Software Engineer records engineering risks and next actions.
@@ -64,7 +64,7 @@ description: "Operate the realtime voice/text conversation layer for the multi-a
 - `autonomous_research_sources_refreshed` event when an autonomous studio pass repairs a blocked source-evidence gate through a configured web search provider.
 - `a2a_protocol_audit_recorded` event and `a2a_contract_audit` artifact when A2A cards, skills, and handoffs are audited.
 - `distribution_package_built` or `distribution_package_reused` event and `social_package` artifact when growth/platform/outreach agents package current drafts for channel-specific use.
-- `agent_tool_use_approved` / `agent_tool_use_denied` and `agent_model_use_approved` / `agent_model_use_denied` events before a worker uses external tools or Gemma models.
+- `agent_tool_use_approved` / `agent_tool_use_denied` and `agent_model_use_approved` / `agent_model_use_denied` events before a worker uses external tools, OpenRouter models, or explicitly selected legacy models.
 - `run_resume_started`, `run_resume_blocked`, or `run_resume_completed` when long-running work is restarted or gated.
 - `context_packet_built` with manifest, risk, and recommended-fetch counts when a context packet is prepared for an agent.
 - `context_packet_artifact_created` and `context_packet` artifact when a reusable packet is persisted for a specialist.
@@ -79,6 +79,6 @@ description: "Operate the realtime voice/text conversation layer for the multi-a
 ## Boundaries
 
 - Realtime audio providers own speech transport, turn-taking, interruption, and spoken output.
-- Gemma 4 experts own reasoning, synthesis, critique, writing, and multimodal review when the agent card permits Gemma and the HF provider is configured.
+- OpenRouter DeepSeek V4 Flash owns current reasoning, synthesis, critique, writing, and text review when the agent card permits model-backed work. LiveKit owns realtime transport, Kokoro owns speech output, and Gemma/Gamma/Hugging Face/MLX are legacy or non-default unless explicitly selected with separate proof.
 - The animated planning HTML is separate from the product app.
 - Postgres is required for durable runs; do not introduce SQLite or local JSON substitutes.

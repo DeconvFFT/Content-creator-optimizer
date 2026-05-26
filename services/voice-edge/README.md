@@ -7,7 +7,7 @@ This crate owns the low-latency voice-edge contract for:
 - frame-level voice activity decisions,
 - bounded inbound audio buffers,
 - barge-in detection while the assistant is speaking,
-- cancellation acknowledgements for Gemma generation, Kokoro buffers, and LiveKit audio output.
+- cancellation acknowledgements for selected realtime-provider/OpenRouter response generation, Kokoro buffers, and LiveKit audio output.
 
 The current implementation supports both deterministic local tests and real Silero ONNX inference. The request config accepts explicit VAD backend selection:
 
