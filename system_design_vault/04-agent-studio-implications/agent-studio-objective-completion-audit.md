@@ -1213,8 +1213,8 @@ This failed record is preserved as historical audit evidence from the prior nati
 
 - source: `operator-input-readiness.json`, `credential-snapshot.json`, `proof-plan.json`, `current-blocker-matrix.json`, `current-proof-status.md`, `operator-unblocker-checklist.md`, `completion-status.json`, proof-readiness HTML, OpenRouter LiveKit voice boundary HTML, publication boundary HTML
 - architecture implication: the current proof workspace and browser-facing proof packets now share the 2026-05-26 no-secret operator-input snapshot. Live voice remains accepted; external publication remains the only failed required proof, with strict readiness blocking on policy acknowledgement artifact, durable destination, and rollback/postcondition artifact.
-- verification: strict operator input readiness exited `2` with the expected four publication fields; focused proof-packet browser regressions passed with `5 passed, 2 skipped`; `git diff --check` passed; targeted stale lockfile wording and token-shaped secret scans produced no hits.
-- boundary: this advances handoff freshness and review reliability only. It does not supply the external publication credential or durable platform evidence required for completion.
+- verification: strict operator input readiness exited `2` with the expected three manual-publication fields; focused proof-packet browser regressions passed with `5 passed, 2 skipped`; `git diff --check` passed; targeted stale lockfile wording and token-shaped secret scans produced no hits.
+- boundary: this advances handoff freshness and review reliability only. It does not supply the external manual-publication evidence required for completion.
 
 ## LinkedIn-Only Publication Proof Setup - 2026-05-24
 
