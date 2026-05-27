@@ -44,7 +44,7 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
                 "record-provider-proof-blocker-state-update --run-id"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
-                "blocked_by_placeholder_only_configuration"
+                "runtime_configuration_present_unverified"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
                 "Credential setup"
@@ -76,14 +76,14 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
             expect(page.locator("#publication-detail")).to_contain_text(
                 "external publication proof remains blocked"
             )
-            expect(page.locator("#publication-detail")).to_contain_text(
+            expect(page.locator("#publication-detail")).not_to_contain_text(
                 "LINKEDIN_ACCESS_TOKEN"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
                 "Credential snapshot"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
-                "placeholder-only"
+                "No publication token is required"
             )
             expect(page.locator("#publication-detail")).to_contain_text(
                 "No secret values printed"
@@ -93,7 +93,8 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
                 "Credential setup",
                 1,
             )[1].split("Operator sequence", 1)[0]
-            assert "LINKEDIN_ACCESS_TOKEN" in credential_setup_block
+            assert "provide durable manual publication evidence" in credential_setup_block
+            assert "LINKEDIN_ACCESS_TOKEN" not in credential_setup_block
             assert "INSTAGRAM_ACCESS_TOKEN" not in credential_setup_block
             assert "X_ACCESS_TOKEN" not in credential_setup_block
             assert "SUBSTACK_API_TOKEN" not in credential_setup_block
@@ -139,11 +140,11 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
             )
             assert export_payload["routes"][0]["proof_plan"][
                 "blocking_reasons"
-            ] == ["blocked_by_placeholder_only_configuration"]
+            ] == []
             assert export_payload["routes"][0]["proof_plan"][
                 "credential_setup_requirements"
             ] == [
-                "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
+                "provide durable manual publication evidence",
             ]
             assert (
                 "run preflight_checks and stop if any readiness gate fails"
@@ -248,9 +249,7 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
             assert snapshot["source_snapshot"] == "non-secret local classifier"
             assert snapshot["shell_values_loaded"] is False
             assert snapshot["secret_values_printed"] is False
-            assert snapshot["placeholder_only_inputs"] == [
-                "LINKEDIN_ACCESS_TOKEN",
-            ]
+            assert snapshot["placeholder_only_inputs"] == []
         finally:
             browser.close()
 

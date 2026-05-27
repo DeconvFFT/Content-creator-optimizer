@@ -114,7 +114,7 @@ PROVIDER_PROOF_CREDENTIAL_SETUP_REQUIREMENTS = {
         "configure LIVEKIT_API_SECRET_FILE or LIVEKIT_API_SECRET",
     ],
     "external-publication-proof": [
-        "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
+        "provide durable manual publication evidence",
     ],
 }
 
@@ -174,15 +174,7 @@ PROVIDER_PROOF_CREDENTIAL_SETUP_COMMANDS = {
             'chmod 600 "$LOCAL_PROVIDER_CONFIG_FILE"'
         ),
     ],
-    "external-publication-proof": [
-        "mkdir -p .secrets && chmod 700 .secrets",
-        (
-            ': "${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}" && '
-            "umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > "
-            ".secrets/linkedin_access_token && "
-            "chmod 600 .secrets/linkedin_access_token"
-        ),
-    ],
+    "external-publication-proof": [],
 }
 
 PROVIDER_PROOF_OPERATOR_SEQUENCE = [
@@ -450,7 +442,8 @@ PROVIDER_PROOF_SECRET_VALUE_PATTERN = re.compile(
 )
 PROVIDER_PROOF_TEMPLATE_PLACEHOLDER_PATTERN = re.compile(r"^<[^>\n]+>$")
 PROVIDER_PROOF_OPERATOR_SECRET_PATH_PATTERN = re.compile(
-    r"(hf_secret|linkedin_secret|livekit_secret|sk-[A-Za-z0-9]{20,}|"
+    r"(hf_secret|linkedin_secret|livekit_secret|openrouter_secret|"
+    r"sk-[A-Za-z0-9]{20,}|"
     r"hf_[A-Za-z0-9]{20,}|livekit_[A-Za-z0-9]{20,})",
     re.IGNORECASE,
 )
@@ -2666,10 +2659,6 @@ def _provider_proof_operator_inputs_template() -> str:
             "",
             "# External publication proof blockers.",
             *input_lines(
-                "LINKEDIN_ACCESS_TOKEN_FILE",
-                ".secrets/linkedin_access_token",
-            ),
-            *input_lines(
                 "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
                 "<artifact-id>",
             ),
@@ -2694,7 +2683,6 @@ PROVIDER_PROOF_OPERATOR_INPUT_FIELDS = {
         "LIVEKIT_API_SECRET_FILE",
     ],
     "external-publication-proof": [
-        "LINKEDIN_ACCESS_TOKEN_FILE",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -2704,7 +2692,6 @@ PROVIDER_PROOF_OPERATOR_INPUT_SECRET_FILE_FIELDS = {
     "OPENROUTER_API_KEY_FILE",
     "LIVEKIT_API_KEY_FILE",
     "LIVEKIT_API_SECRET_FILE",
-    "LINKEDIN_ACCESS_TOKEN_FILE",
 }
 PROVIDER_PROOF_OPERATOR_INPUT_URL_FIELDS = {
     "OPENROUTER_LIVEKIT_URL",
@@ -2752,9 +2739,6 @@ PROVIDER_PROOF_OPERATOR_INPUT_FIELD_CONTRACTS = {
     "LIVEKIT_API_SECRET_FILE": (
         "readable local secret file path; file content is never emitted"
     ),
-    "LINKEDIN_ACCESS_TOKEN_FILE": (
-        "readable local secret file path; file content is never emitted"
-    ),
     "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": (
         "durable non-local policy acknowledgement artifact id or URL"
     ),
@@ -2775,7 +2759,6 @@ PROVIDER_PROOF_OPERATOR_INPUT_FIELD_ROLES = {
     "OPENROUTER_LIVEKIT_URL": "transport_endpoint",
     "LIVEKIT_API_KEY_FILE": "transport_credential",
     "LIVEKIT_API_SECRET_FILE": "transport_credential",
-    "LINKEDIN_ACCESS_TOKEN_FILE": "publisher_credential",
     "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": "publication_evidence",
     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL": "publication_destination",
     "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID": "publication_evidence",
@@ -2933,7 +2916,7 @@ def _provider_proof_operator_input_next_action(
             return "supply_livekit_key_and_secret_files"
         return "supply_openrouter_and_livekit_inputs"
     if proof_name == "external-publication-proof":
-        return "supply_linkedin_token_policy_destination_and_rollback_evidence"
+        return "supply_manual_publication_policy_destination_and_rollback_evidence"
     return fallback
 
 
@@ -3806,10 +3789,7 @@ def _provider_proof_workspace_readme(
             },
         },
         "external-publication-proof": {
-            "issue_codes": [
-                "operator_input_secret_file_unavailable",
-                "operator_input_placeholder",
-            ],
+            "issue_codes": ["operator_input_placeholder"],
             "field_groups": {
                 "invalid_fields": [],
                 "missing_fields": [],
@@ -3818,7 +3798,7 @@ def _provider_proof_workspace_readme(
                     "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
                     "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
                 ],
-                "unavailable_secret_file_fields": ["LINKEDIN_ACCESS_TOKEN_FILE"],
+                "unavailable_secret_file_fields": [],
             },
         },
     }
@@ -7639,15 +7619,12 @@ def _provider_proof_publication_blocker(
             if isinstance(check, Mapping) and check.get("platform"):
                 platform = str(check["platform"])
                 break
-    platform_label = platform.upper()
     platform_name = "LinkedIn" if platform == "linkedin" else platform.title()
-    missing_credential = f"{platform_label}_ACCESS_TOKEN or {platform_label}_ACCESS_TOKEN_FILE"
     return {
         "blocker_id": f"{platform}-publication-readiness",
         "status": status,
         "type": "external_platform_input",
         "missing_inputs": [
-            missing_credential,
             f"{platform_name} policy and account-permission acknowledgement",
             "durable external destination URL or platform id",
             "rollback or postcondition evidence",
@@ -8726,7 +8703,7 @@ def _provider_proof_operator_input_template_field_groups(
             "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
             "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
         ],
-        "unavailable_secret_file_fields": ["LINKEDIN_ACCESS_TOKEN_FILE"],
+        "unavailable_secret_file_fields": [],
     }
 
 
@@ -9751,7 +9728,6 @@ def _provider_proof_operator_unblocker_checklist_markdown(
         voice_blocker_status = "ready_for_record_capture"
     if not publication_inputs and not publication_accepted:
         publication_inputs = [
-            "`LINKEDIN_ACCESS_TOKEN or LINKEDIN_ACCESS_TOKEN_FILE`",
             "`LinkedIn policy and account-permission acknowledgement`",
             "`durable external destination URL or platform id`",
             "`rollback or postcondition evidence`",

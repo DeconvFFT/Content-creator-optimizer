@@ -35,7 +35,7 @@ Current realtime direction: OpenRouter `deepseek/deepseek-v4-flash` for live dia
 
 ## What Remains
 
-- Accepted external publication proof is still blocked. Remaining inputs are LinkedIn credential, policy/account acknowledgement, durable external destination URL or platform id, and rollback/postcondition evidence.
+- Accepted external publication proof is still blocked. Remaining inputs are policy/account acknowledgement, durable external destination URL or platform id, and rollback/postcondition evidence.
 - Completion status remains `blocked_by_latest_failed_proof_record` because `external-publication-proof` is still the latest failed required proof. Closure review and blocker-state update are downstream and must not run as completion claims until the external publication proof is accepted too.
 - Retrieval Intelligence and Knowledge Graph Curation are partially implemented and still need broader curation/eval, graph coverage checks, and Obsidian review output for retrieval-quality decisions.
 - The Rust voice path still needs benchmarked concurrent-session tuning and eventual LiveKit-side Rust media bridge work; the current JSONL/HTTP bridge is useful but not the final media service.

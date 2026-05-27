@@ -245,7 +245,7 @@ def test_agent_studio_proof_readiness_filters_publication_blocker():
                 f"provider-proof-closure-review-status --run-id {run_id}"
             )
             expect(page.locator("#blocker-detail")).to_contain_text(
-                "blocked_by_placeholder_only_configuration"
+                "runtime_configuration_present_unverified"
             )
             expect(page.locator("#blocker-detail")).to_contain_text(
                 "Credential setup"
@@ -259,7 +259,7 @@ def test_agent_studio_proof_readiness_filters_publication_blocker():
             expect(page.locator("#blocker-detail")).to_contain_text(
                 "external-publication-proof.template.json"
             )
-            expect(page.locator("#blocker-detail")).to_contain_text(
+            expect(page.locator("#blocker-detail")).not_to_contain_text(
                 "LINKEDIN_ACCESS_TOKEN"
             )
             expect(page.locator("#blocker-detail")).to_contain_text(
@@ -276,7 +276,8 @@ def test_agent_studio_proof_readiness_filters_publication_blocker():
                 "Credential setup",
                 1,
             )[1].split("Operator sequence", 1)[0]
-            assert "LINKEDIN_ACCESS_TOKEN" in credential_setup_block
+            assert "provide durable manual publication evidence" in credential_setup_block
+            assert "LINKEDIN_ACCESS_TOKEN" not in credential_setup_block
             assert "INSTAGRAM_ACCESS_TOKEN" not in credential_setup_block
             assert "X_ACCESS_TOKEN" not in credential_setup_block
             assert "SUBSTACK_API_TOKEN" not in credential_setup_block
@@ -309,13 +310,11 @@ def test_agent_studio_proof_readiness_filters_publication_blocker():
             )
             assert export_payload["blockers"][0]["proof_plan"][
                 "blocking_reasons"
-            ] == [
-                "blocked_by_placeholder_only_configuration",
-            ]
+            ] == []
             assert export_payload["blockers"][0]["proof_plan"][
                 "credential_setup_requirements"
             ] == [
-                "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
+                "provide durable manual publication evidence",
             ]
             assert (
                 "complete closure review, then record blocker-state update only after approved review"
@@ -371,8 +370,6 @@ def test_agent_studio_proof_readiness_filters_publication_blocker():
             snapshot = export_payload["blockers"][0]["credential_snapshot"]
             assert snapshot["source"] == "non-secret local classifier"
             assert snapshot["secret_values_printed"] is False
-            assert snapshot["placeholder_only_inputs"] == [
-                "LINKEDIN_ACCESS_TOKEN",
-            ]
+            assert snapshot["placeholder_only_inputs"] == []
         finally:
             browser.close()

@@ -91,7 +91,7 @@ uv run all-about-llms-admin provider-proof-pr-handoff \
   --head-sha <current-branch-head-sha>
 ```
 
-Fill the CI URL and head SHA placeholders from the current branch head before pasting the generated PR body. The generated handoff must keep `provider-backed-live-voice-proof`, `external-publication-proof`, `LINKEDIN_ACCESS_TOKEN_FILE`, the OpenRouter/LiveKit/Kokoro route, CI evidence, and the no secret values boundary visible in the manual PR description.
+Fill the CI URL and head SHA placeholders from the current branch head before pasting the generated PR body. The generated handoff must keep `provider-backed-live-voice-proof`, `external-publication-proof`, the manual publication evidence inputs, the OpenRouter/LiveKit/Kokoro route, CI evidence, and the no secret values boundary visible in the manual PR description.
 
 When the handoff is generated from a temporary CI file or any operator-input/output path outside the checkout, the PR body renders portable placeholders such as `<filled-ignored-operator-input-file>` and `<provider-proof-output-dir>` instead of absolute local or runner paths.
 
@@ -108,3 +108,5 @@ Repository settings still need to enforce:
 
 GitHub settings cannot be fully represented in repo files, so keep this document and the actual repository ruleset in sync.
 Use `cloud.md` as the no-secret operator checklist for the GitHub-side Actions permission, branch-protection, required-check, and auto-merge settings that must be configured outside this repository.
+
+For branch protection, require the CI workflow jobs named `Branch name policy`, `Python backend`, `Next.js frontend`, `Rust service (services/retrieval-ranker)`, and `Rust service (services/voice-edge)`. Do not require the Auto PR draft-creation job as a merge gate; it is automation around PR creation, not product CI.

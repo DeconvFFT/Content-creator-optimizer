@@ -1,5 +1,4 @@
 import json
-import os
 from argparse import Namespace
 
 from all_about_llms.cli import _blocker_credential_snapshot_payload
@@ -133,34 +132,20 @@ def test_blocker_credential_snapshot_cli_detects_secret_files_without_reading_va
     assert voice["secret_files_loaded"] is True
 
 
-def test_blocker_credential_snapshot_cli_ignores_unreadable_publication_secret_files(
+def test_blocker_credential_snapshot_cli_does_not_require_publication_tokens(
     tmp_path,
 ):
-    secrets_dir = tmp_path / ".secrets"
-    secrets_dir.mkdir()
-    linkedin_file = secrets_dir / "linkedin_access_token"
-    linkedin_file.write_text("linkedin_file_secret_must_not_echo\n", encoding="utf-8")
-    os.chmod(linkedin_file, 0)
-    try:
-        env_example = tmp_path / ".env.example"
-        env_example.write_text(
-            "\n".join(
-                [
-                    "LINKEDIN_ACCESS_TOKEN=",
-                    "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
-                ]
-            )
-        )
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("", encoding="utf-8")
 
-        payload = _blocker_credential_snapshot_payload(
-            Namespace(env_example_path=env_example, checked_at="2026-05-20"),
-            env_values={},
-        )
-    finally:
-        os.chmod(linkedin_file, 0o600)
+    payload = _blocker_credential_snapshot_payload(
+        Namespace(env_example_path=env_example, checked_at="2026-05-20"),
+        env_values={},
+    )
 
     serialized = json.dumps(payload)
-    assert "linkedin_file_secret_must_not_echo" not in serialized
     publication = payload["snapshots"]["external-publication-proof"]
-    assert publication["state"] == "blocked_by_placeholder_only_configuration"
-    assert "LINKEDIN_ACCESS_TOKEN_FILE" not in publication["configured_file_inputs"]
+    assert publication["state"] == "runtime_configuration_present_unverified"
+    assert publication["configured_inputs"] == []
+    assert publication["configured_file_inputs"] == []
+    assert "LINKEDIN_ACCESS_TOKEN_FILE" not in serialized

@@ -200,7 +200,7 @@ def test_agents_handoff_documents_pr_ci_and_proof_boundaries() -> None:
         "MLX",
         "provider-backed-live-voice-proof",
         "external-publication-proof",
-        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "No LinkedIn publication token is required",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -298,7 +298,7 @@ def test_pull_request_template_requires_proof_gate_handoff() -> None:
         "deepseek/deepseek-v4-flash",
         "LiveKit",
         "Kokoro",
-        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "manual publication evidence inputs",
         "No Hugging Face, Gemma4, Gamma4, or MLX",
         "not committed",
         "CODEOWNERS",
@@ -411,7 +411,7 @@ def test_repo_workflow_documents_manual_provider_proof_pr_handoff() -> None:
         "external-publication-operator-inputs.example.env",
         "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
         "Node 24",
-        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "manual publication evidence inputs",
         "uv.lock",
         ".github/CODEOWNERS",
     ]
@@ -444,7 +444,7 @@ def test_cloud_handoff_documents_github_permission_and_proof_gate_setup() -> Non
         "provider-proof-pr-create",
         "provider-backed-live-voice-proof",
         "external-publication-proof",
-        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "manual publication evidence",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "OpenRouter",
         "deepseek/deepseek-v4-flash",
@@ -543,7 +543,7 @@ def test_external_publication_operator_runbook_is_committed_no_secret_handoff() 
     required_terms = [
         "external-publication-proof",
         "provider-backed-live-voice-proof",
-        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "No LinkedIn token is required for manual publication",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -594,7 +594,6 @@ def test_external_publication_operator_input_example_is_committed_no_secret_temp
     example = example_path.read_text(encoding="utf-8")
 
     required_fields = [
-        "LINKEDIN_ACCESS_TOKEN_FILE",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -603,7 +602,6 @@ def test_external_publication_operator_input_example_is_committed_no_secret_temp
         assert f"{field}=" in example
 
     required_placeholders = [
-        "/absolute/path/to/local/linkedin-access-token.txt",
         "<linkedin-policy-acknowledgement-artifact-id-or-url>",
         "<durable-linkedin-publication-url-or-id>",
         "<publication-rollback-or-postcondition-artifact-id-or-url>",
@@ -668,7 +666,6 @@ def test_external_publication_runbook_is_linked_from_current_vault_handoffs() ->
 
         assert "docs/external-publication-proof-runbook.md" in handoff
         assert "operator-unblocker-checklist.md" in handoff
-        assert "LINKEDIN_ACCESS_TOKEN_FILE" in handoff
         assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL" in handoff
 
 
@@ -806,7 +803,6 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
                 "OPENROUTER_LIVEKIT_URL=",
                 "LIVEKIT_API_KEY_FILE=",
                 "LIVEKIT_API_SECRET_FILE=",
-                "LINKEDIN_ACCESS_TOKEN_FILE=",
                 "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=",
                 "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=",
                 "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=",
@@ -847,7 +843,7 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
         "accepted_record_found",
         "external-publication-proof",
         "latest_record_failed",
-        "LINKEDIN_ACCESS_TOKEN_FILE",
+        "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "deepseek/deepseek-v4-flash",
         "LiveKit",
@@ -1040,7 +1036,6 @@ def test_provider_proof_pr_create_cli_dry_run_outputs_no_secret_request(
                 "OPENROUTER_LIVEKIT_URL=",
                 "LIVEKIT_API_KEY_FILE=",
                 "LIVEKIT_API_SECRET_FILE=",
-                "LINKEDIN_ACCESS_TOKEN_FILE=",
                 "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=",
                 "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=",
                 "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=",
@@ -1159,7 +1154,6 @@ def test_provider_proof_pr_create_result_posts_with_token_without_leaking_it(
                 "OPENROUTER_LIVEKIT_URL=",
                 "LIVEKIT_API_KEY_FILE=",
                 "LIVEKIT_API_SECRET_FILE=",
-                "LINKEDIN_ACCESS_TOKEN_FILE=",
                 "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=",
                 "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=",
                 "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=",
@@ -1264,7 +1258,6 @@ def test_provider_proof_pr_create_result_updates_existing_open_pr_without_token_
                 "OPENROUTER_LIVEKIT_URL=",
                 "LIVEKIT_API_KEY_FILE=",
                 "LIVEKIT_API_SECRET_FILE=",
-                "LINKEDIN_ACCESS_TOKEN_FILE=",
                 "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=",
                 "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=",
                 "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=",

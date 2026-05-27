@@ -8,14 +8,14 @@ This is the committed no-secret handoff for closing the remaining Agent Studio p
 - Accepted proof: `provider-backed-live-voice-proof`
 - Active realtime path: OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro
 - Remaining proof: `external-publication-proof`
-- Current status: blocked until the LinkedIn token-file path, policy acknowledgement artifact, durable destination, and rollback or postcondition artifact are supplied and validated.
+- Current status: blocked until the manual publication policy acknowledgement artifact, durable destination, and rollback or postcondition artifact are supplied and validated.
 
 ## Minimal Operator Path
 
 Use this as the short route. The full commands remain below for copy/paste.
 
-1. Copy the four keys from `docs/external-publication-operator-inputs.example.env` into the ignored UUID operator input file.
-2. Replace every placeholder with real local or durable evidence: a readable LinkedIn token file path, policy acknowledgement artifact, durable LinkedIn destination, and rollback or postcondition artifact.
+1. Copy the three keys from `docs/external-publication-operator-inputs.example.env` into the ignored UUID operator input file.
+2. Replace every placeholder with durable evidence: policy acknowledgement artifact, durable LinkedIn destination, and rollback or postcondition artifact. No LinkedIn token is required for manual publication.
 3. Run the strict readiness command. If it reports `blocked_by_operator_inputs`, stop and fix the named fields.
 4. After strict readiness passes, refresh the proof packets, capture the publication preflight evidence, validate the proof record, and record it.
 5. Recheck completion status, then run closure review and blocker-state update. Do not claim completion before those checks pass.
@@ -24,7 +24,6 @@ Use this as the short route. The full commands remain below for copy/paste.
 
 Fill only local file paths or durable artifact IDs in `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env`. Use `docs/external-publication-operator-inputs.example.env` as the committed no-secret key list, then copy only the keys and local replacements into the ignored operator input file.
 
-- `LINKEDIN_ACCESS_TOKEN_FILE`: readable local secret file path. No token value belongs in Markdown, Git, PR text, shell history, or proof notes.
 - `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`: durable non-local policy acknowledgement artifact id or URL. Generic bare values such as `policy-artifact-1` are not sufficient; LinkedIn URNs must include the platform id suffix, not only the prefix.
 - `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`: durable LinkedIn platform id or URL. Local previews, screenshots, and draft-only IDs are not enough.
 - `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`: durable non-local rollback, delete/private/correction, or postcondition monitoring artifact id or URL. Generic bare values such as `rollback-artifact-1` are not sufficient; LinkedIn URNs must include the platform id suffix, not only the prefix.
@@ -80,7 +79,7 @@ uv run all-about-llms-admin provider-proof-operator-unblocker-checklist \
 
 ## Capture And Validate Publication Evidence
 
-Capture product and publish-readiness preflight evidence only after action-time approval for the LinkedIn publication path.
+Capture product and publish-readiness preflight evidence only after action-time approval for the manual LinkedIn publication path.
 
 Command anchor: `uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
 

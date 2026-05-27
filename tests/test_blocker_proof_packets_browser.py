@@ -102,12 +102,9 @@ def _assert_readiness_exit_policy(readiness):
 
 def _assert_common_readiness_diagnostics(readiness):
     assert readiness["state"] == "blocked_by_operator_inputs"
-    assert readiness["checked_at"] == "2026-05-23"
+    assert readiness["checked_at"] == "2026-05-26"
     assert readiness["evidence_ref"] == "operator-input-readiness.json"
-    assert readiness["issue_codes"] == [
-        "operator_input_secret_file_unavailable",
-        "operator_input_placeholder",
-    ]
+    assert readiness["issue_codes"] == ["operator_input_placeholder"]
     report_only_commands = readiness["next_action_commands"]
     assert report_only_commands[0].startswith(
         "uv run all-about-llms-admin provider-proof-operator-input-readiness "
@@ -310,10 +307,10 @@ def _assert_publication_proof_packet(packet):
     readiness = packet["operator_input_readiness"]
     assert readiness["status"] == "blocked_by_operator_inputs"
     assert readiness["next_action"] == (
-        "supply_linkedin_token_policy_destination_and_rollback_evidence"
+        "supply_manual_publication_policy_destination_and_rollback_evidence"
     )
     assert readiness["effective_fail_on_blocked_exit_code"] == 2
-    assert "LINKEDIN_ACCESS_TOKEN_FILE" in readiness["blocked_fields"]
+    assert "LINKEDIN_ACCESS_TOKEN_FILE" not in readiness["blocked_fields"]
     assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL" in readiness["blocked_fields"]
     assert "rollback or postcondition artifact" in readiness[
         "required_evidence_after_unblock"
@@ -327,16 +324,13 @@ def _assert_publication_proof_packet(packet):
             "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
             "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
         ],
-        "unavailable_secret_file_fields": ["LINKEDIN_ACCESS_TOKEN_FILE"],
+        "unavailable_secret_file_fields": [],
     }
     assert readiness["field_ownership"]["PUBLICATION_DURABLE_PLATFORM_ID_OR_URL"] == {
         "proof_id": "external-publication-proof",
         "proof_input_role": "publication_destination",
     }
-    assert readiness["field_ownership"]["LINKEDIN_ACCESS_TOKEN_FILE"] == {
-        "proof_id": "external-publication-proof",
-        "proof_input_role": "publisher_credential",
-    }
+    assert "LINKEDIN_ACCESS_TOKEN_FILE" not in readiness["field_ownership"]
     assert readiness["field_statuses"]["PUBLICATION_DURABLE_PLATFORM_ID_OR_URL"] == {
         "contract": "durable LinkedIn URL or platform id; local substitutes rejected",
         "issue_code": "operator_input_placeholder",
@@ -346,15 +340,7 @@ def _assert_publication_proof_packet(packet):
         "state": "placeholder",
         "value_source": "external_destination",
     }
-    assert readiness["field_statuses"]["LINKEDIN_ACCESS_TOKEN_FILE"] == {
-        "contract": "readable local secret file path; file content is never emitted",
-        "issue_code": "operator_input_secret_file_unavailable",
-        "next_action": "write_readable_secret_file_and_reference_path",
-        "proof_id": "external-publication-proof",
-        "proof_input_role": "publisher_credential",
-        "state": "secret_file_unavailable",
-        "value_source": "secret_file_path",
-    }
+    assert "LINKEDIN_ACCESS_TOKEN_FILE" not in readiness["field_statuses"]
     _assert_readiness_exit_policy(readiness)
     assert "--fail-on-blocked" in readiness["strict_readiness_command"]
     guarded_commands = readiness["guarded_next_action_commands"]
