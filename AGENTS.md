@@ -7,6 +7,7 @@ This repo is the product/code workspace for Agent Studio. The Obsidian vaults ar
 - Use branch prefixes that describe the work: `feature/` for new features, `fix_` plus a timestamp or UUID for bug fixes, and `tests/` for test-only changes.
 - Prefer small PR-style commits with focused verification notes.
 - Do not merge or claim completion until CI is green and the proof gates below are checked.
+- Use the CI workflow jobs as merge gates; do not treat the Auto PR draft-creation helper as product CI.
 - `.github/workflows/auto-pr.yml` should create or update a draft PR after matching branch CI passes on `feature/**` or `fix_*` pushes, using only the workflow `GITHUB_TOKEN`, a temporary no-secret PR input file, and the committed no-secret operator input example as the key-list reference. If repository Actions settings deny PR creation, it should fail the Auto PR job with `Auto PR failed` so the missing repository permission is not reported as a green PR-creation gate.
 - If workflow PR creation or integration PR creation is blocked, try the no-secret `provider-proof-pr-create` helper with `GITHUB_TOKEN` or `GH_TOKEN`; if no token is available, leave the branch pushed and record the exact blocker in the vault handoff.
 
@@ -38,10 +39,10 @@ This repo is the product/code workspace for Agent Studio. The Obsidian vaults ar
 - `provider-backed-live-voice-proof` is the OpenRouter/LiveKit/Kokoro proof gate. Its current accepted state must not be reopened without new evidence.
 - `external-publication-proof` is the remaining publication gate. It must not be faked with local substitutes.
 - The current external publication proof requires these operator-owned inputs:
-  - `LINKEDIN_ACCESS_TOKEN_FILE`
   - `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`
   - `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`
   - `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`
+- No LinkedIn publication token is required for the current manual-publication proof path.
 - Publication artifact inputs must be durable external evidence references, not generic bare local labels.
 - After operator inputs are supplied, refresh readiness, credential snapshot, proof plan, blocker matrix, current status, unblocker checklist, completion status, closure review, and blocker-state update in that order.
 

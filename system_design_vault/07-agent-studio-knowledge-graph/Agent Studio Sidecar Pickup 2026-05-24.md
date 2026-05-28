@@ -92,7 +92,7 @@ Legacy or non-default unless explicitly re-promoted:
 
 ## Remaining Work
 
-- Capture an accepted external publication proof with LinkedIn credential/path, policy acknowledgement, durable external destination, and rollback/postcondition evidence.
+- Capture an accepted external publication proof with policy acknowledgement, durable external destination, and rollback/postcondition evidence.
 - Rerun completion status after external publication proof is accepted.
 - Run closure-review template, validation, recording, closure status, and blocker-state update only after accepted proof completion status allows it.
 - Keep the production admin-auth boundary explicit: non-local mutating API requests require `ADMIN_API_TOKEN` bearer auth, while local/dev/test proof and setup flows stay unauthenticated for operator ergonomics. This is backend API hardening, not an external publication substitute.
@@ -123,11 +123,11 @@ Live voice:
 External publication:
 
 - Local/non-live publication fixture and source/guardrail evidence exist.
-- The proof remains blocked by missing LinkedIn credential/path, policy acknowledgement, durable destination, and rollback/postcondition evidence.
+- The proof remains blocked by missing manual publication policy acknowledgement, durable destination, and rollback/postcondition evidence.
 - Accepted proof record is not available.
 - Committed no-secret operator runbook: `docs/external-publication-proof-runbook.md`; generated detailed packet remains `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-unblocker-checklist.md`.
 - Committed no-secret operator input example: `docs/external-publication-operator-inputs.example.env`; copy keys into the ignored UUID `operator-inputs.template.env` and replace placeholders locally.
-- Required operator inputs remain `LINKEDIN_ACCESS_TOKEN_FILE`, `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
+- Required operator inputs are `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`; no LinkedIn token file is required for the manual-publication proof path.
 
 Closeout:
 

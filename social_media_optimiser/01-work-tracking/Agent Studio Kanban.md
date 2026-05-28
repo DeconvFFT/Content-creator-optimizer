@@ -18,7 +18,7 @@ Product app must not render this board. This is an Obsidian planning note for Co
 
 - [ ] External publication proof capture for LinkedIn.
   Source: [[Current Sprint]] and current UUID proof workspace.
-  Exit: accepted `external-publication-proof` record passes after LinkedIn credential, policy acknowledgement, durable destination, rollback/postcondition evidence, validation, and recording.
+  Exit: accepted `external-publication-proof` record passes after policy acknowledgement, durable destination, rollback/postcondition evidence, validation, and recording.
 
 ## Ready
 
@@ -34,7 +34,7 @@ No review-watch alignment item is waiting. The standing reviewer status is track
 
 - [ ] External publication proof remains blocked on real destination credentials.
   Source: [[Current Sprint]] and `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/current-proof-status.md`.
-  Blocker: LinkedIn credential plus channel policy review remain missing, and accepted proof still requires durable external destination evidence plus rollback or postcondition evidence. Use the matrix `Report-only operator-input retry chain` for normal inspection after operator inputs change, and the `Guarded operator-input retry chain` only when a non-zero blocked exit is wanted. The UUID proof workspace already has approved local fixture artifact, source, claim, guardrail audit, and source ledger evidence.
+  Blocker: manual-publication policy review remains missing, and accepted proof still requires durable external destination evidence plus rollback or postcondition evidence. Use the matrix `Report-only operator-input retry chain` for normal inspection after operator inputs change, and the `Guarded operator-input retry chain` only when a non-zero blocked exit is wanted. The UUID proof workspace already has approved local fixture artifact, source, claim, guardrail audit, and source ledger evidence.
 
 ## Done
 

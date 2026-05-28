@@ -81,7 +81,7 @@ Core boundary: FastAPI is the durable orchestration/control API, not the media s
 | Live provider smoke | `provider-smoke-ledger.live-openrouter.json` passes with `execute_live_calls=true`, selected session `ebd43531-86e3-4af1-ade0-15ac8d7184bf`, OpenRouter first text delta at 1111.171 ms, Kokoro first audio chunk at 4946.351 ms, and first-audio latency at 6057.54 ms | Used in accepted proof record |
 | Live voice accepted record | `provider-backed-live-voice-proof.accepted-record.json` is accepted and recorded; current completion status is still `blocked_by_latest_failed_proof_record` because publication failed later | Do not reopen unless a newer live-voice failure supersedes it |
 | Realtime timing ledger | `realtime-voice-timing-ledger.json` is `ready`; 8/8 stages are measured in artifact `7e932381-4bf4-4206-a490-58d6a4ca7880` | Done for current proof run |
-| External publication inputs | Blocked on LinkedIn credential, policy/account-permission acknowledgement, durable external destination URL/platform ID, and rollback/postcondition evidence | Supply real external destination proof and accepted publication record |
+| External publication inputs | Blocked on policy/account-permission acknowledgement, durable external destination URL/platform ID, and rollback/postcondition evidence | Supply real external destination proof and accepted publication record |
 | Completion status | `completion-status.json` is `blocked_by_latest_failed_proof_record`; accepted proofs include live voice and the latest failed proof is external publication | Rerun completion status after accepted external publication proof |
 | Closure review | Template/status blocked by completion status; blocker-state update blocked by closure review | Reviewer approval, closure review recording, then blocker-state update; no command currently claims objective complete |
 
@@ -99,10 +99,11 @@ Current default realtime dependency set:
 
 Publication dependency set still blocked:
 
-- `LINKEDIN_ACCESS_TOKEN_FILE`.
 - `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`.
 - `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`.
 - `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
+
+The current proof path assumes manual publication; no LinkedIn token file is required for `external-publication-proof`.
 
 Legacy/non-default dependency lane:
 
@@ -147,7 +148,7 @@ Decisions:
 Blockers:
 
 - Live voice is accepted, but external publication is still failed, so completion remains blocked.
-- External publication still lacks real LinkedIn credential/path, policy acknowledgement, durable destination, and rollback/postcondition evidence.
+- External publication still lacks real policy acknowledgement, durable destination, and rollback/postcondition evidence.
 - Closure review and blocker-state update are downstream of accepted proof records and cannot run honestly yet.
 
 Resolved drift:

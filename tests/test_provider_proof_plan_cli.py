@@ -29,7 +29,6 @@ def _no_local_secret_file_env_values() -> dict[str, str | None]:
         "LIVEKIT_API_KEY_FILE": "__missing_livekit_api_key_file__",
         "LIVEKIT_API_SECRET_FILE": "__missing_livekit_api_secret_file__",
         "INSTAGRAM_ACCESS_TOKEN_FILE": "__missing_instagram_access_token_file__",
-        "LINKEDIN_ACCESS_TOKEN_FILE": "__missing_linkedin_access_token_file__",
         "X_ACCESS_TOKEN_FILE": "__missing_x_access_token_file__",
         "X_API_KEY_FILE": "__missing_x_api_key_file__",
         "SUBSTACK_API_TOKEN_FILE": "__missing_substack_api_token_file__",
@@ -585,9 +584,9 @@ def _assert_operator_packet_input_readiness(markdown: str) -> None:
         assert "  - state: `blocked_by_operator_inputs`" in publication_block
         assert (
             "  - next_action: "
-            "`supply_linkedin_token_policy_destination_and_rollback_evidence`"
+            "`supply_manual_publication_policy_destination_and_rollback_evidence`"
         ) in publication_block
-        assert "LINKEDIN_ACCESS_TOKEN_FILE" in publication_block
+        assert "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID" in publication_block
         assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL" in publication_block
 
 
@@ -683,10 +682,6 @@ def _assert_operator_packet_input_contracts(markdown: str) -> None:
     if publication_block is not None:
         assert "\n- operator_input_field_contracts:" in publication_block
         assert (
-            "  - LINKEDIN_ACCESS_TOKEN_FILE: "
-            "`readable local secret file path; file content is never emitted`"
-        ) in publication_block
-        assert (
             "  - PUBLICATION_DURABLE_PLATFORM_ID_OR_URL: "
             "`durable LinkedIn URL or platform id; local substitutes rejected`"
         ) in publication_block
@@ -749,7 +744,7 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
         "configure LIVEKIT_API_SECRET_FILE or LIVEKIT_API_SECRET",
     ]
     expected_publication_credential_setup = [
-        "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN",
+        "provide durable manual publication evidence",
     ]
     expected_operator_sequence = [
         "configure credential_setup_requirements without printing secret values",
@@ -924,15 +919,7 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
             'chmod 600 "$LOCAL_PROVIDER_CONFIG_FILE"'
         ),
     ]
-    expected_publication_credential_setup_commands = [
-        "mkdir -p .secrets && chmod 700 .secrets",
-        (
-            ': "${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}" && '
-            "umask 077 && printf '%s\\n' \"$LINKEDIN_ACCESS_TOKEN\" > "
-            ".secrets/linkedin_access_token && "
-            "chmod 600 .secrets/linkedin_access_token"
-        ),
-    ]
+    expected_publication_credential_setup_commands = []
     recheck_command = (
         "uv run all-about-llms-admin provider-proof-plan --run-id 123e4567-e89b-12d3-a456-426614174000"
     )
@@ -954,13 +941,6 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
             "proof-specific human confirmations are complete",
         ],
         "state_change_allowed": False,
-    }
-    expected_publication_blocked_attempt_gate = {
-        **expected_voice_blocked_attempt_gate,
-        "next_action_commands": [
-            *expected_publication_credential_setup_commands,
-            recheck_command,
-        ],
     }
     expected_voice_preflight_validation_report = (
         "social_media_optimiser/output/provider-proof/123e4567-e89b-12d3-a456-426614174000/"
@@ -1312,7 +1292,8 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
         "social_media_optimiser/output/provider-proof/123e4567-e89b-12d3-a456-426614174000/"
         "external-publication-proof.preflight-validation.json"
     )
-    assert publication["status"] == "blocked_by_credentials"
+    assert publication["status"] == "ready_for_runtime_attempt"
+    assert publication["credential_state"] == "runtime_configuration_present_unverified"
     assert publication["command_run_id"] == "123e4567-e89b-12d3-a456-426614174000"
     assert (
         publication["credential_setup_requirements"]
@@ -1333,7 +1314,13 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
         expected_workspace_validation_capture_commands
     )
     assert publication["workspace_expected_files"] == expected_workspace_files
-    assert publication["attempt_gate"] == expected_publication_blocked_attempt_gate
+    assert publication["attempt_gate"]["state"] == "ready_for_preflight_capture"
+    assert publication["attempt_gate"]["can_run_preflight_capture"] is True
+    assert publication["attempt_gate"]["can_run_proof_commands"] is False
+    assert publication["attempt_gate"]["blocked_by"] == []
+    assert publication["attempt_gate"]["next_action"] == (
+        "initialize_workspace_and_capture_preflight"
+    )
     assert publication["record_proof_in"] == expected_record_targets
     assert publication["template_commands"] == [
         (
@@ -1600,7 +1587,6 @@ def test_provider_proof_plan_exposes_no_secret_credential_setup_commands_when_bl
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "INSTAGRAM_ACCESS_TOKEN_FILE=.secrets/instagram_access_token",
-                "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
                 "X_ACCESS_TOKEN_FILE=.secrets/x_access_token",
                 "X_API_KEY_FILE=.secrets/x_api_key",
                 "SUBSTACK_API_TOKEN_FILE=.secrets/substack_api_token",
@@ -1647,9 +1633,7 @@ def test_provider_proof_plan_exposes_no_secret_credential_setup_commands_when_bl
         publication["credential_setup_commands"]
         == expected_publication_setup_commands
     )
-    assert publication["credential_setup_commands"][0] == (
-        "mkdir -p .secrets && chmod 700 .secrets"
-    )
+    assert publication["credential_setup_commands"] == []
     secret_file_commands = [
         command
         for command in (
@@ -1661,10 +1645,10 @@ def test_provider_proof_plan_exposes_no_secret_credential_setup_commands_when_bl
     assert secret_file_commands
     assert all("chmod 600" in command for command in secret_file_commands)
     assert all("umask 077 &&" in command for command in secret_file_commands)
-    assert publication["attempt_gate"]["next_action_commands"] == [
-        *expected_publication_setup_commands,
-        recheck_command,
-    ]
+    assert publication["attempt_gate"]["state"] == "ready_for_preflight_capture"
+    assert publication["attempt_gate"]["next_action"] == (
+        "initialize_workspace_and_capture_preflight"
+    )
     assert all(
         legacy_key not in " ".join(publication["credential_setup_commands"])
         for legacy_key in (
@@ -1936,7 +1920,6 @@ def test_provider_proof_plan_setup_commands_recheck_as_ready_without_echoing_val
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "LOCAL_PROVIDER_CONFIG_FILE=.secrets/local_provider_config.json",
                 "INSTAGRAM_ACCESS_TOKEN_FILE=.secrets/instagram_access_token",
-                "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
                 "X_API_KEY_FILE=.secrets/x_api_key",
                 "SUBSTACK_API_TOKEN_FILE=.secrets/substack_api_token",
             ]
@@ -1956,7 +1939,6 @@ def test_provider_proof_plan_setup_commands_recheck_as_ready_without_echoing_val
         "LIVEKIT_API_SECRET": "livekit_recheck_secret_must_not_echo",
         "OPENROUTER_LIVEKIT_URL": "wss://livekit.recheck.example",
         "INSTAGRAM_ACCESS_TOKEN": "instagram_recheck_secret_must_not_echo",
-        "LINKEDIN_ACCESS_TOKEN": "linkedin_recheck_secret_must_not_echo",
         "X_API_KEY": "x_api_key_recheck_secret_must_not_echo",
         "SUBSTACK_API_TOKEN": "substack_recheck_secret_must_not_echo",
         "LOCAL_PROVIDER_CONFIG_FILE": ".secrets/local_provider_config.json",
@@ -2004,9 +1986,7 @@ def test_provider_proof_plan_setup_commands_recheck_as_ready_without_echoing_val
     ] == ["OPENROUTER_LIVEKIT_URL"]
     assert rechecked_payload["proofs"]["external-publication-proof"][
         "configured_file_inputs"
-    ] == [
-        "LINKEDIN_ACCESS_TOKEN_FILE",
-    ]
+    ] == []
     output = result.stdout + result.stderr + serialized
     for key, value in setup_values.items():
         if key == "LOCAL_PROVIDER_CONFIG_FILE":
@@ -2024,7 +2004,6 @@ def test_provider_proof_plan_rejects_literal_placeholder_credential_values(
         "livekit_api_key": "<LIVEKIT_API_KEY>",
         "livekit_api_secret": "<LIVEKIT_API_SECRET>",
         "instagram_access_token": "<INSTAGRAM_ACCESS_TOKEN>",
-        "linkedin_access_token": "<LINKEDIN_ACCESS_TOKEN>",
         "x_access_token": "<X_ACCESS_TOKEN>",
         "substack_api_token": "<SUBSTACK_API_TOKEN>",
     }
@@ -2041,8 +2020,6 @@ def test_provider_proof_plan_rejects_literal_placeholder_credential_values(
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
                 "INSTAGRAM_ACCESS_TOKEN=",
                 "INSTAGRAM_ACCESS_TOKEN_FILE=.secrets/instagram_access_token",
-                "LINKEDIN_ACCESS_TOKEN=",
-                "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token",
                 "X_ACCESS_TOKEN=",
                 "X_ACCESS_TOKEN_FILE=.secrets/x_access_token",
                 "SUBSTACK_API_TOKEN=",
@@ -2069,11 +2046,8 @@ def test_provider_proof_plan_rejects_literal_placeholder_credential_values(
     assert voice["configured_file_inputs"] == []
 
     publication = payload["proofs"]["external-publication-proof"]
-    assert publication["status"] == "blocked_by_credentials"
-    assert (
-        publication["credential_state"]
-        == "blocked_by_placeholder_only_configuration"
-    )
+    assert publication["status"] == "ready_for_runtime_attempt"
+    assert publication["credential_state"] == "runtime_configuration_present_unverified"
     assert publication["configured_inputs"] == []
     assert publication["configured_file_inputs"] == []
 
@@ -2821,7 +2795,6 @@ def test_provider_proof_plan_exposes_all_active_attempt_blockers(tmp_path):
     ]
     assert publication["blocking_reasons"] == [
         "run_id_not_concrete",
-        "blocked_by_placeholder_only_configuration",
     ]
 
 
@@ -2922,12 +2895,12 @@ def test_provider_proof_plan_exposes_missing_configuration_blocker_reason(tmp_pa
     assert "OPENROUTER_API_KEY" in payload["credential_snapshot"][
         "snapshots"
     ]["provider-backed-live-voice-proof"]["absent_inputs"]
-    assert publication["status"] == "blocked_by_credentials"
-    assert publication["credential_state"] == "blocked_by_missing_configuration"
-    assert publication["blocking_reasons"] == ["blocked_by_missing_configuration"]
+    assert publication["status"] == "blocked_by_run_id"
+    assert publication["credential_state"] == "runtime_configuration_present_unverified"
+    assert publication["blocking_reasons"] == ["run_id_not_product_uuid"]
     assert payload["credential_snapshot"]["snapshots"][
         "external-publication-proof"
-    ]["absent_inputs"] == ["LINKEDIN_ACCESS_TOKEN"]
+    ]["absent_inputs"] == []
 
 
 def test_provider_proof_plan_does_not_emit_secret_shaped_run_id(tmp_path):
@@ -3443,15 +3416,14 @@ def test_provider_proof_workspace_writes_templates_and_readme(tmp_path):
         assert stale_phrase not in generated_handoff_text
     assert "OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key" in operator_inputs
     assert "OPENROUTER_LIVEKIT_URL=ws://127.0.0.1:7880" in operator_inputs
-    assert "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token" in operator_inputs
     assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=<external-url-or-id>" in operator_inputs
-    assert operator_inputs.count("# contract: ") == 8
-    assert operator_inputs.count("# value_source: ") == 8
-    assert operator_inputs.count("# template_state: ") == 8
-    assert operator_inputs.count("# issue_code: ") == 8
-    assert operator_inputs.count("# next_action: ") == 8
-    assert operator_inputs.count("# proof_id: ") == 8
-    assert operator_inputs.count("# proof_input_role: ") == 8
+    assert operator_inputs.count("# contract: ") == 7
+    assert operator_inputs.count("# value_source: ") == 7
+    assert operator_inputs.count("# template_state: ") == 7
+    assert operator_inputs.count("# issue_code: ") == 7
+    assert operator_inputs.count("# next_action: ") == 7
+    assert operator_inputs.count("# proof_id: ") == 7
+    assert operator_inputs.count("# proof_input_role: ") == 7
     assert (
         "# proof_id: provider-backed-live-voice-proof\n"
         "# proof_input_role: provider_credential"
@@ -3459,10 +3431,6 @@ def test_provider_proof_workspace_writes_templates_and_readme(tmp_path):
     assert (
         "# proof_id: provider-backed-live-voice-proof\n"
         "# proof_input_role: transport_endpoint"
-    ) in operator_inputs
-    assert (
-        "# proof_id: external-publication-proof\n"
-        "# proof_input_role: publisher_credential"
     ) in operator_inputs
     assert (
         "# proof_id: external-publication-proof\n"
@@ -3539,7 +3507,7 @@ def test_provider_proof_workspace_writes_templates_and_readme(tmp_path):
         in operator_route_block
     )
     assert (
-        "    - next_action: `supply_linkedin_token_policy_destination_and_rollback_evidence`"
+        "    - next_action: `supply_manual_publication_policy_destination_and_rollback_evidence`"
         in operator_route_block
     )
     assert operator_route_block.count(
@@ -3697,9 +3665,7 @@ def test_provider_proof_workspace_writes_templates_and_readme(tmp_path):
     assert "configure GEMMA4_MULTIMODAL_ENDPOINT_URL" not in readme
     assert "configure HF_TOKEN_FILE or HF_TOKEN" not in readme
     assert "configure LIVEKIT_API_KEY_FILE or LIVEKIT_API_KEY" in readme
-    assert (
-        "configure LINKEDIN_ACCESS_TOKEN_FILE or LINKEDIN_ACCESS_TOKEN" in readme
-    )
+    assert "provide durable manual publication evidence" in readme
     assert (
         "configure INSTAGRAM_ACCESS_TOKEN_FILE or INSTAGRAM_ACCESS_TOKEN"
         not in readme
@@ -3708,7 +3674,7 @@ def test_provider_proof_workspace_writes_templates_and_readme(tmp_path):
     assert "credential setup commands:" in readme
     assert ': "${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY first}"' in readme
     assert ': "${LIVEKIT_API_SECRET:?set LIVEKIT_API_SECRET first}"' in readme
-    assert ': "${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}"' in readme
+    assert ': "${LINKEDIN_ACCESS_TOKEN:?set LINKEDIN_ACCESS_TOKEN first}"' not in readme
     assert ': "${INSTAGRAM_ACCESS_TOKEN:?set INSTAGRAM_ACCESS_TOKEN first}"' not in readme
     assert "X_API_KEY" not in readme
     assert ".secrets/x_api_key" not in readme
@@ -3940,7 +3906,7 @@ def test_concrete_uuid_provider_proof_workspace_readme_is_current():
         in operator_route_block
     )
     assert (
-        "    - next_action: `supply_linkedin_token_policy_destination_and_rollback_evidence`"
+        "    - next_action: `supply_manual_publication_policy_destination_and_rollback_evidence`"
         in operator_route_block
     )
     assert operator_route_block.count(
@@ -4165,7 +4131,7 @@ def test_concrete_blocker_credential_snapshot_report_is_current():
         "blocked_by_placeholder_only_configuration"
     )
     assert report["snapshots"]["external-publication-proof"]["state"] == (
-        "blocked_by_placeholder_only_configuration"
+        "runtime_configuration_present_unverified"
     )
     assert report["snapshots"]["provider-backed-live-voice-proof"][
         "configured_inputs"
@@ -4204,7 +4170,7 @@ def test_concrete_current_uuid_blocker_credential_snapshot_report_is_current():
         "runtime_configuration_present_unverified"
     )
     assert report["snapshots"]["external-publication-proof"]["state"] == (
-        "blocked_by_placeholder_only_configuration"
+        "runtime_configuration_present_unverified"
     )
     assert report["snapshots"]["provider-backed-live-voice-proof"][
         "configured_inputs"
@@ -4228,20 +4194,19 @@ def test_concrete_current_uuid_operator_input_template_is_present():
     assert "OPENROUTER_LIVEKIT_URL=ws://127.0.0.1:7880" in template
     assert "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key" in template
     assert "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret" in template
-    assert "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_access_token" in template
     assert "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID=<artifact-id>" in template
     assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL=<external-url-or-id>" in template
     assert "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID=<artifact-id>" in template
     assert "# Provider-backed live voice proof blockers." not in template
     assert "# Provider-backed live voice proof default inputs." in template
     assert "# External publication proof blockers." in template
-    assert template.count("# contract: ") == 8
-    assert template.count("# value_source: ") == 8
-    assert template.count("# template_state: ") == 8
-    assert template.count("# issue_code: ") == 8
-    assert template.count("# next_action: ") == 8
-    assert template.count("# proof_id: ") == 8
-    assert template.count("# proof_input_role: ") == 8
+    assert template.count("# contract: ") == 7
+    assert template.count("# value_source: ") == 7
+    assert template.count("# template_state: ") == 7
+    assert template.count("# issue_code: ") == 7
+    assert template.count("# next_action: ") == 7
+    assert template.count("# proof_id: ") == 7
+    assert template.count("# proof_input_role: ") == 7
     assert (
         "# proof_id: provider-backed-live-voice-proof\n"
         "# proof_input_role: provider_credential"
@@ -4253,10 +4218,6 @@ def test_concrete_current_uuid_operator_input_template_is_present():
     assert (
         "# proof_id: provider-backed-live-voice-proof\n"
         "# proof_input_role: transport_credential"
-    ) in template
-    assert (
-        "# proof_id: external-publication-proof\n"
-        "# proof_input_role: publisher_credential"
     ) in template
     assert (
         "# proof_id: external-publication-proof\n"
@@ -4316,9 +4277,8 @@ def test_concrete_current_uuid_operator_input_readiness_is_current():
     }
     assert report["effective_fail_on_blocked_exit_code"] == 2
     assert "operator_input_placeholder" in report["issue_codes"]
-    assert "operator_input_secret_file_unavailable" in report["issue_codes"]
+    assert "operator_input_secret_file_unavailable" not in report["issue_codes"]
     assert report["blocked_fields"] == [
-        "LINKEDIN_ACCESS_TOKEN_FILE",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -4337,16 +4297,13 @@ def test_concrete_current_uuid_operator_input_readiness_is_current():
             "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
         ],
         "invalid_fields": [],
-        "unavailable_secret_file_fields": [
-            "LINKEDIN_ACCESS_TOKEN_FILE",
-        ],
+        "unavailable_secret_file_fields": [],
     }
     assert report["required_fields"] == [
         "OPENROUTER_API_KEY_FILE",
         "OPENROUTER_LIVEKIT_URL",
         "LIVEKIT_API_KEY_FILE",
         "LIVEKIT_API_SECRET_FILE",
-        "LINKEDIN_ACCESS_TOKEN_FILE",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -4383,7 +4340,6 @@ def test_concrete_current_uuid_operator_input_readiness_is_current():
     ] == "publication_destination"
     assert report["proofs"]["provider-backed-live-voice-proof"]["blocked_fields"] == []
     assert report["proofs"]["external-publication-proof"]["blocked_fields"] == [
-        "LINKEDIN_ACCESS_TOKEN_FILE",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -4442,9 +4398,6 @@ def test_concrete_current_uuid_operator_input_readiness_is_current():
         "contract": "ws or wss LiveKit URL for OpenRouter-backed realtime dialogue",
     }
     assert report["proofs"]["external-publication-proof"]["field_contracts"] == {
-        "LINKEDIN_ACCESS_TOKEN_FILE": (
-            "readable local secret file path; file content is never emitted"
-        ),
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID": (
             "durable non-local policy acknowledgement artifact id or URL"
         ),
@@ -4522,7 +4475,6 @@ def test_provider_proof_operator_input_readiness_blocks_placeholder_template(
         "LIVEKIT_API_SECRET_FILE",
     ]
     assert payload["proofs"]["external-publication-proof"]["blocked_fields"] == [
-        "LINKEDIN_ACCESS_TOKEN_FILE",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -4686,7 +4638,6 @@ def test_provider_proof_operator_input_readiness_accepts_filled_no_secret_file(
         "OPENROUTER_LIVEKIT_URL",
         "LIVEKIT_API_KEY_FILE",
         "LIVEKIT_API_SECRET_FILE",
-        "LINKEDIN_ACCESS_TOKEN_FILE",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -4702,7 +4653,6 @@ def test_provider_proof_operator_input_readiness_accepts_filled_no_secret_file(
         "OPENROUTER_LIVEKIT_URL",
         "LIVEKIT_API_KEY_FILE",
         "LIVEKIT_API_SECRET_FILE",
-        "LINKEDIN_ACCESS_TOKEN_FILE",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -4764,7 +4714,6 @@ def test_provider_proof_operator_input_readiness_accepts_filled_no_secret_file(
         "LIVEKIT_API_SECRET_FILE",
     ]
     assert payload["proofs"]["external-publication-proof"]["configured_fields"] == [
-        "LINKEDIN_ACCESS_TOKEN_FILE",
         "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
         "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
         "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
@@ -4803,6 +4752,75 @@ def test_provider_proof_operator_input_readiness_accepts_filled_no_secret_file(
     assert "127.0.0.1" not in serialized
     assert "linkedin.com" not in serialized
     assert str(ROOT) not in serialized
+
+
+def test_provider_proof_operator_input_readiness_allows_manual_publication_without_linkedin_token(
+    tmp_path,
+):
+    env_example = tmp_path / ".env.example"
+    env_example.write_text("", encoding="utf-8")
+    secret_dir = tmp_path / ".secrets"
+    secret_dir.mkdir()
+    (secret_dir / "openrouter_api_key").write_text(
+        "openrouter_secret_token\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "livekit_api_key").write_text(
+        "livekit_key_secret\n",
+        encoding="utf-8",
+    )
+    (secret_dir / "livekit_api_secret").write_text(
+        "livekit_secret_token\n",
+        encoding="utf-8",
+    )
+    input_path = tmp_path / "operator-inputs.manual-publication.env"
+    input_path.write_text(
+        "\n".join(
+            [
+                "OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key",
+                "OPENROUTER_LIVEKIT_URL=ws://127.0.0.1:7880",
+                "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
+                "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
+                "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
+                "linkedin-policy-acknowledgement-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
+                (
+                    "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL="
+                    "https://www.linkedin.com/feed/update/urn:li:activity:123"
+                ),
+                "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID="
+                "linkedin-rollback-postcondition-artifact-"
+                f"{PROVIDER_PROOF_TEST_RUN_UUID}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    payload = provider_cli._provider_proof_operator_input_readiness_payload(
+        Namespace(
+            env_example_path=env_example,
+            checked_at="2026-05-26",
+            run_id=PROVIDER_PROOF_TEST_RUN_UUID,
+            input_path=input_path,
+        )
+    )
+    publication = payload["proofs"]["external-publication-proof"]
+
+    assert payload["status"] == "ready_for_credential_snapshot_refresh"
+    assert "LINKEDIN_ACCESS_TOKEN_FILE" not in payload["required_fields"]
+    assert "LINKEDIN_ACCESS_TOKEN_FILE" not in payload["blocked_fields"]
+    assert publication["required_fields"] == [
+        "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+        "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+        "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
+    ]
+    assert publication["configured_fields"] == [
+        "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID",
+        "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL",
+        "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
+    ]
+    assert publication["blocked_fields"] == []
 
 
 def test_provider_proof_operator_input_readiness_rejects_generic_bare_publication_artifact_ids(
@@ -5510,7 +5528,7 @@ def test_provider_proof_operator_input_readiness_rejects_secret_shaped_file_path
     env_example.write_text("", encoding="utf-8")
     secret_dir = tmp_path / ".secrets"
     secret_dir.mkdir()
-    (secret_dir / "openrouter_api_key").write_text(
+    (secret_dir / "openrouter_secret_path").write_text(
         "openrouter_secret_token\n",
         encoding="utf-8",
     )
@@ -5522,19 +5540,14 @@ def test_provider_proof_operator_input_readiness_rejects_secret_shaped_file_path
         "livekit_secret_token\n",
         encoding="utf-8",
     )
-    (secret_dir / "linkedin_secret_path").write_text(
-        "linkedin_secret_token\n",
-        encoding="utf-8",
-    )
     input_path = tmp_path / "operator-inputs.local.env"
     input_path.write_text(
         "\n".join(
             [
-                "OPENROUTER_API_KEY_FILE=.secrets/openrouter_api_key",
+                "OPENROUTER_API_KEY_FILE=.secrets/openrouter_secret_path",
                 "OPENROUTER_LIVEKIT_URL=wss://livekit.example.com",
                 "LIVEKIT_API_KEY_FILE=.secrets/livekit_api_key",
                 "LIVEKIT_API_SECRET_FILE=.secrets/livekit_api_secret",
-                "LINKEDIN_ACCESS_TOKEN_FILE=.secrets/linkedin_secret_path",
                 "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID="
                 "linkedin-policy-acknowledgement-artifact-"
                 f"{PROVIDER_PROOF_TEST_RUN_UUID}",
@@ -5563,11 +5576,10 @@ def test_provider_proof_operator_input_readiness_rejects_secret_shaped_file_path
 
     assert payload["status"] == "blocked_by_operator_inputs"
     assert "operator_input_secret_path_detected" in payload["issue_codes"]
-    assert "LINKEDIN_ACCESS_TOKEN_FILE" in payload["proofs"][
-        "external-publication-proof"
+    assert "OPENROUTER_API_KEY_FILE" in payload["proofs"][
+        "provider-backed-live-voice-proof"
     ]["invalid_fields"]
-    assert "linkedin_secret_path" not in serialized
-    assert "linkedin_secret_token" not in serialized
+    assert "openrouter_secret_path" not in serialized
     assert "api-inference.huggingface.co" not in serialized
     assert str(ROOT) not in serialized
 
@@ -5645,9 +5657,9 @@ def test_blocker_credential_snapshot_consumes_operator_input_path_without_values
     assert "OPENROUTER_API_KEY_FILE" in payload["snapshots"][
         "provider-backed-live-voice-proof"
     ]["configured_file_inputs"]
-    assert "LINKEDIN_ACCESS_TOKEN_FILE" in payload["snapshots"][
-        "external-publication-proof"
-    ]["configured_file_inputs"]
+    assert payload["snapshots"]["external-publication-proof"][
+        "configured_file_inputs"
+    ] == []
     assert "openrouter_secret_token" not in serialized
     assert "livekit_key_secret" not in serialized
     assert "livekit_secret_token" not in serialized
@@ -6502,18 +6514,15 @@ def test_concrete_current_blocker_matrix_report_is_current():
             "PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID",
         ],
         "invalid_fields": [],
-        "unavailable_secret_file_fields": ["LINKEDIN_ACCESS_TOKEN_FILE"],
+        "unavailable_secret_file_fields": [],
     }
     assert report["operator_input_readiness"]["proofs"][
         "external-publication-proof"
-    ]["issue_codes"] == [
-        "operator_input_secret_file_unavailable",
-        "operator_input_placeholder",
-    ]
+    ]["issue_codes"] == ["operator_input_placeholder"]
     assert report["operator_input_readiness"]["proofs"][
         "external-publication-proof"
     ]["next_action"] == (
-        "supply_linkedin_token_policy_destination_and_rollback_evidence"
+        "supply_manual_publication_policy_destination_and_rollback_evidence"
     )
     assert report["operator_input_readiness"]["proofs"][
         "external-publication-proof"
@@ -6820,7 +6829,7 @@ def test_concrete_current_proof_status_report_is_current():
     assert "`OPENROUTER_LIVEKIT_URL`" in operator_input_block
     assert "`LIVEKIT_API_KEY_FILE`" in operator_input_block
     assert "`LIVEKIT_API_SECRET_FILE`" in operator_input_block
-    assert "`LINKEDIN_ACCESS_TOKEN_FILE`" in operator_input_block
+    assert "`LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`" in operator_input_block
     assert "`HF_TOKEN_FILE`" not in operator_input_block
     assert "`GEMMA4_MULTIMODAL_ENDPOINT_URL`" not in operator_input_block
     assert "readable local secret file path; file content is never emitted" in (
@@ -6849,10 +6858,10 @@ def test_concrete_current_proof_status_report_is_current():
     assert "`OPENROUTER_LIVEKIT_URL`" not in per_proof_readiness_block
     assert "`LIVEKIT_API_KEY_FILE`" not in per_proof_readiness_block
     assert "`LIVEKIT_API_SECRET_FILE`" not in per_proof_readiness_block
-    assert "`LINKEDIN_ACCESS_TOKEN_FILE`" in per_proof_readiness_block
+    assert "`LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`" in per_proof_readiness_block
     assert "`HF_TOKEN_FILE`" not in per_proof_readiness_block
     assert "`GEMMA4_MULTIMODAL_ENDPOINT_URL`" not in per_proof_readiness_block
-    assert "secret_file_unavailable" in per_proof_readiness_block
+    assert "secret_file_unavailable" not in per_proof_readiness_block
     assert "endpoint_url" not in per_proof_readiness_block
     assert "    - OPENROUTER_API_KEY_FILE:" not in per_proof_readiness_block
     assert "      - proof_input_role: `provider_credential`" not in per_proof_readiness_block
@@ -6867,7 +6876,7 @@ def test_concrete_current_proof_status_report_is_current():
     assert "    - unavailable_secret_file_fields:" in per_proof_readiness_block
     assert "    - invalid_fields:" in per_proof_readiness_block
     assert "    - missing_fields:" in per_proof_readiness_block
-    assert "`operator_input_secret_file_unavailable`" in per_proof_readiness_block
+    assert "`operator_input_secret_file_unavailable`" not in per_proof_readiness_block
     assert "`operator_input_placeholder`" in per_proof_readiness_block
     assert (
         "provider-proof-operator-input-readiness "
@@ -6985,7 +6994,7 @@ def test_concrete_current_proof_status_report_is_current():
     assert "GEMMA4_MULTIMODAL_ENDPOINT_URL" not in report
     assert "- blocker: `realtime-voice-timing-ledger-evidence`" not in report
     assert "- blocker: `gemma-audio-reasoning`" not in report
-    assert "LINKEDIN_ACCESS_TOKEN_FILE" in report
+    assert "LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID" in report
     assert "PUBLICATION_DURABLE_PLATFORM_ID_OR_URL" in report
     assert "- blocker: `linkedin-publication-readiness` (`blocked`)" in report
     assert "- blocker: `linkedin-publication-readiness` (`unknown`)" not in report
@@ -7969,7 +7978,7 @@ def test_concrete_operator_unblocker_checklist_is_current():
     assert "input readiness checked_at: `2026-05-24`" in report
     assert "input readiness status: `blocked_by_operator_inputs`" in report
     assert "input readiness `--fail-on-blocked` exit code: `2`" in report
-    assert "operator_input_secret_file_unavailable" in report
+    assert "operator_input_secret_file_unavailable" not in report
     assert "operator_input_placeholder" in report
     assert "input readiness blocked fields:" in report
     current_input_block = report.split("Current operator input readiness:", 1)[
@@ -7982,11 +7991,8 @@ def test_concrete_operator_unblocker_checklist_is_current():
     assert "input readiness field statuses:" in current_input_block
     assert "`HF_TOKEN_FILE`" not in current_input_block
     assert "`GEMMA4_MULTIMODAL_ENDPOINT_URL`" not in current_input_block
-    assert "`LINKEDIN_ACCESS_TOKEN_FILE`" in current_input_block
-    assert "readable local secret file path; file content is never emitted" in (
-        current_input_block
-    )
-    assert "secret_file_unavailable" in current_input_block
+    assert "`LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`" in current_input_block
+    assert "secret_file_unavailable" not in current_input_block
     assert "endpoint_url" in current_input_block
     assert "  - placeholder_fields:" in current_input_block
     assert "  - unavailable_secret_file_fields:" in current_input_block
@@ -8030,7 +8036,7 @@ def test_concrete_operator_unblocker_checklist_is_current():
     ) in report
     assert (
         "external-publication-proof next action: "
-        "`supply_linkedin_token_policy_destination_and_rollback_evidence`"
+        "`supply_manual_publication_policy_destination_and_rollback_evidence`"
     ) in report
     assert "provider-backed-live-voice-proof required evidence after unblock:" not in report
     assert "same-run OpenRouter DeepSeek live dialogue reasoning evidence" not in report

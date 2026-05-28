@@ -1912,7 +1912,7 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "bounded worker cycle" in next_app_readme
     assert "Always-on studio and Background runner" in next_app_readme
     assert "provider-backed live-voice proof record is now accepted" in active_context
-    assert "Publication inputs remain blocked on LinkedIn credential" in active_context
+    assert "Publication inputs remain blocked on manual-publication evidence" in active_context
     assert "focused review packet to `Leibniz`" in active_context
     assert "Current conversation-turn durable event boundary" in active_context
     assert "conversation_turn_recorded" in active_context
@@ -2113,8 +2113,8 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "participant presence" in proof_readiness
     assert "INSTAGRAM_ACCESS_TOKEN" not in proof_readiness
     assert "INSTAGRAM_ACCESS_TOKEN_FILE" not in proof_readiness
-    assert "LINKEDIN_ACCESS_TOKEN" in proof_readiness
-    assert "LINKEDIN_ACCESS_TOKEN_FILE" in proof_readiness
+    assert "LINKEDIN_ACCESS_TOKEN" not in proof_readiness
+    assert "LINKEDIN_ACCESS_TOKEN_FILE" not in proof_readiness
     assert "X_ACCESS_TOKEN" not in proof_readiness
     assert "X_ACCESS_TOKEN_FILE" not in proof_readiness
     assert "X_API_KEY" not in proof_readiness
@@ -2159,8 +2159,8 @@ def test_obsidian_vault_contains_interactive_design_and_tracking_artifacts():
     assert "credential-scope-and-account-identity" in publication_boundary
     assert "INSTAGRAM_ACCESS_TOKEN" not in publication_boundary
     assert "INSTAGRAM_ACCESS_TOKEN_FILE" not in publication_boundary
-    assert "LINKEDIN_ACCESS_TOKEN" in publication_boundary
-    assert "LINKEDIN_ACCESS_TOKEN_FILE" in publication_boundary
+    assert "LINKEDIN_ACCESS_TOKEN" not in publication_boundary
+    assert "LINKEDIN_ACCESS_TOKEN_FILE" not in publication_boundary
     assert "X_ACCESS_TOKEN" not in publication_boundary
     assert "X_ACCESS_TOKEN_FILE" not in publication_boundary
     assert "X_API_KEY" not in publication_boundary

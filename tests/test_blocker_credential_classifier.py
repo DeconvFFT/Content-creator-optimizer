@@ -12,14 +12,9 @@ PLACEHOLDER_ENV_NAMES = {
     "LIVEKIT_API_KEY",
     "LIVEKIT_API_SECRET",
     "INSTAGRAM_ACCESS_TOKEN",
-    "LINKEDIN_ACCESS_TOKEN",
     "X_ACCESS_TOKEN",
     "X_API_KEY",
     "SUBSTACK_API_TOKEN",
-}
-
-PUBLICATION_SECRET_FILE_ENV_NAMES = {
-    "LINKEDIN_ACCESS_TOKEN_FILE",
 }
 
 
@@ -44,12 +39,10 @@ def test_blocker_credential_classifier_reports_placeholder_only_state_without_va
     assert voice["absent_inputs"] == ["LIVEKIT_URL"]
 
     publication = snapshots["external-publication-proof"]
-    assert publication["state"] == "blocked_by_placeholder_only_configuration"
+    assert publication["state"] == "runtime_configuration_present_unverified"
     assert publication["shell_values_loaded"] is False
     assert publication["secret_values_printed"] is False
-    assert publication["placeholder_only_inputs"] == [
-        "LINKEDIN_ACCESS_TOKEN",
-    ]
+    assert publication["placeholder_only_inputs"] == []
     assert publication["absent_inputs"] == []
 
 
@@ -61,7 +54,6 @@ def test_blocker_credential_classifier_never_echoes_configured_secret_values():
         "LIVEKIT_API_SECRET": "lk_secret_that_must_not_echo",
         "LIVEKIT_URL": "wss://legacy_livekit_that_must_not_echo",
         "INSTAGRAM_ACCESS_TOKEN": "ig_secret_that_must_not_echo",
-        "LINKEDIN_ACCESS_TOKEN": "li_secret_that_must_not_echo",
         "X_API_KEY": "x_secret_that_must_not_echo",
         "SUBSTACK_API_TOKEN": "substack_secret_that_must_not_echo",
     }
@@ -90,10 +82,8 @@ def test_blocker_credential_classifier_never_echoes_configured_secret_values():
 
     publication = snapshots["external-publication-proof"]
     assert publication["state"] == "runtime_configuration_present_unverified"
-    assert publication["shell_values_loaded"] is True
-    assert publication["configured_inputs"] == [
-        "LINKEDIN_ACCESS_TOKEN",
-    ]
+    assert publication["shell_values_loaded"] is False
+    assert publication["configured_inputs"] == []
     assert publication["placeholder_only_inputs"] == []
     assert "placeholder-only" not in publication["note"]
     assert publication["secret_values_printed"] is False
@@ -118,8 +108,8 @@ def test_blocker_credential_classifier_reports_missing_required_configuration():
     assert "LIVEKIT_URL" in voice["absent_inputs"]
 
     publication = snapshots["external-publication-proof"]
-    assert publication["state"] == "blocked_by_missing_configuration"
-    assert publication["absent_inputs"] == ["LINKEDIN_ACCESS_TOKEN"]
+    assert publication["state"] == "runtime_configuration_present_unverified"
+    assert publication["absent_inputs"] == []
 
 
 def test_blocker_credential_classifier_accepts_secret_file_presence_without_values():
@@ -156,11 +146,11 @@ def test_blocker_credential_classifier_accepts_secret_file_presence_without_valu
     assert voice["secret_values_printed"] is False
 
 
-def test_blocker_credential_classifier_accepts_publication_secret_files_without_values():
+def test_blocker_credential_classifier_does_not_require_publication_secret_files():
     snapshots = build_blocker_credential_snapshots(
         env_values={},
         placeholder_env_names=PLACEHOLDER_ENV_NAMES
-        | PUBLICATION_SECRET_FILE_ENV_NAMES,
+        | {"LINKEDIN_ACCESS_TOKEN_FILE"},
         configured_file_env_names={
             "LINKEDIN_ACCESS_TOKEN_FILE",
         },
@@ -171,10 +161,8 @@ def test_blocker_credential_classifier_accepts_publication_secret_files_without_
     assert publication["state"] == "runtime_configuration_present_unverified"
     assert publication["shell_values_loaded"] is False
     assert publication["configured_inputs"] == []
-    assert publication["configured_file_inputs"] == [
-        "LINKEDIN_ACCESS_TOKEN_FILE",
-    ]
+    assert publication["configured_file_inputs"] == []
     assert publication["placeholder_only_inputs"] == []
     assert publication["absent_inputs"] == []
-    assert publication["secret_files_loaded"] is True
+    assert publication["secret_files_loaded"] is False
     assert publication["secret_values_printed"] is False

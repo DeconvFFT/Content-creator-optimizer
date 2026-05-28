@@ -304,7 +304,7 @@ def test_system_design_viewer_filter_promotes_visible_objective_audit_detail():
             expect(page.locator("#detail")).to_contain_text(
                 "effective_fail_on_blocked_exit_code=2"
             )
-            expect(page.locator("#detail")).to_contain_text(
+            expect(page.locator("#detail")).not_to_contain_text(
                 "operator_input_secret_file_unavailable"
             )
             expect(page.locator("#detail")).to_contain_text(
@@ -322,7 +322,7 @@ def test_system_design_viewer_filter_promotes_visible_objective_audit_detail():
                 "refresh_credential_snapshot"
             )
             expect(page.locator("#detail")).to_contain_text(
-                "supply_linkedin_token_policy_destination_and_rollback_evidence"
+                "supply_manual_publication_policy_destination_and_rollback_evidence"
             )
             expect(page.locator("#detail")).to_contain_text("placeholder_fields")
             expect(page.locator("#detail")).to_contain_text(
@@ -337,7 +337,7 @@ def test_system_design_viewer_filter_promotes_visible_objective_audit_detail():
             )
             expect(page.locator("#detail")).to_contain_text("endpoint_url")
             expect(page.locator("#detail")).to_contain_text("external_destination")
-            expect(page.locator("#detail")).to_contain_text(
+            expect(page.locator("#detail")).not_to_contain_text(
                 "secret_file_unavailable"
             )
             expect(page.locator("#detail")).to_contain_text("next_action_commands")
@@ -410,7 +410,7 @@ def test_system_design_viewer_filter_promotes_visible_objective_audit_detail():
             )
             expect(page.locator("#detail")).to_contain_text("OPENROUTER_API_KEY_FILE")
             expect(page.locator("#detail")).to_contain_text("OPENROUTER_LIVEKIT_URL")
-            expect(page.locator("#detail")).to_contain_text(
+            expect(page.locator("#detail")).not_to_contain_text(
                 "LINKEDIN_ACCESS_TOKEN_FILE"
             )
             expect(page.locator("#detail")).to_contain_text(

@@ -9,9 +9,7 @@ BLOCKER_CREDENTIAL_ENV_NAMES = {
         "LIVEKIT_API_KEY",
         "LIVEKIT_API_SECRET",
     ],
-    "external-publication-proof": [
-        "LINKEDIN_ACCESS_TOKEN",
-    ],
+    "external-publication-proof": [],
 }
 
 BLOCKER_SECRET_FILE_ENV_NAMES = {
@@ -20,9 +18,7 @@ BLOCKER_SECRET_FILE_ENV_NAMES = {
         "LIVEKIT_API_KEY": "LIVEKIT_API_KEY_FILE",
         "LIVEKIT_API_SECRET": "LIVEKIT_API_SECRET_FILE",
     },
-    "external-publication-proof": {
-        "LINKEDIN_ACCESS_TOKEN": "LINKEDIN_ACCESS_TOKEN_FILE",
-    },
+    "external-publication-proof": {},
 }
 
 _BLOCKER_GROUPS = {
@@ -32,9 +28,7 @@ _BLOCKER_GROUPS = {
         ("LIVEKIT_API_KEY",),
         ("LIVEKIT_API_SECRET",),
     ],
-    "external-publication-proof": [
-        ("LINKEDIN_ACCESS_TOKEN",),
-    ],
+    "external-publication-proof": [],
 }
 
 _NON_REQUIRED_ABSENCE_NOTES = {
@@ -177,8 +171,8 @@ def _note_for_snapshot(
                 "same-session OpenRouter/Kokoro/LiveKit proof is still required."
             )
         return (
-            "Runtime configuration names are present but unverified; exact "
-            "destination publication proof is still required."
+            "No publication token is required for the manual publication path; "
+            "exact durable destination publication proof is still required."
         )
 
     if state == "blocked_by_missing_configuration":
