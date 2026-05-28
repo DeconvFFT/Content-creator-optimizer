@@ -4,7 +4,7 @@ This is the no-secret cloud setup checklist for Agent Studio in `DeconvFFT/Conte
 
 ## Current Branch
 
-- Branch: `feature/livekit-voice-proof-capture`
+- Branch: `fix_20260528-live-postgres-gate`
 - Target: `main`
 - PR body source: `provider-proof-pr-handoff`
 - Token-aware helper: `provider-proof-pr-create`
@@ -18,7 +18,7 @@ This is the no-secret cloud setup checklist for Agent Studio in `DeconvFFT/Conte
 - Fresh local proof/view check on 2026-05-26: existing static proof/readiness browser tests and repo workflow guards passed locally with `47 passed` after rerunning Playwright outside the sandbox. `provider-proof-completion-status` still reports `accepted_proofs=["provider-backed-live-voice-proof"]`, `status=blocked_by_latest_failed_proof_record`, and latest failed proof `external-publication-proof`; strict operator readiness exits `2` on the same three publication inputs below.
 - Fresh pushed-branch check on 2026-05-26: branch head `94f9e9f974150d61ba9a6766265135295bfac621` is pushed to origin. CI run `26433827993` completed `success`; Auto PR run `26433827994` completed `failure` and no open PR exists for the feature branch. `provider-proof-pr-create` with the current CI URL and head SHA returned `manual_required` / `github_token_unavailable`, so the current PR path is the compare URL or a token-backed helper retry.
 - Fresh connector PR attempt on 2026-05-26: GitHub connector draft PR creation for the pushed green branch returned `403 Resource not accessible by integration`. Keep using the compare URL/manual PR path or retry `provider-proof-pr-create` only after `GITHUB_TOKEN`/`GH_TOKEN` or repository integration permissions are available.
-- Fresh follow-up branch check before the latest handoff-note refresh on 2026-05-27: `fix_20260526-ci-merge-gates` head `c0b3532a7a11b8c38dd37293ab4c32900a89ac67` was pushed. CI run `26532417945` completed green for required product checks (`Branch name policy`, `Python backend`, `Next.js frontend`, both Rust service jobs); `Live Postgres (main/manual)` was skipped as expected. Auto PR run `26532417970` failed at draft PR mutation, REST PR lookup returned no open PR, and `provider-proof-pr-create` returned `manual_required` / `github_token_unavailable`. Regenerate exact branch-head evidence after every follow-up commit. Current manual PR path: `https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...fix_20260526-ci-merge-gates?expand=1`.
+- Fresh current branch check on 2026-05-28: `fix_20260528-live-postgres-gate` head `9198cc89236cfc9eabb9772524c9915653248976` is pushed. CI run `26576526918` completed green for branch-push product checks (`Branch name policy`, `Python backend`, `Next.js frontend`, both Rust service jobs); `Live Postgres (PR/main/manual)` was skipped on the branch push and is now configured to run on pull requests before merge. Auto PR run `26576526915` failed at draft PR mutation with GitHub `403`, REST PR lookup returned no open PR, and connector PR creation returned `403 Resource not accessible by integration`. Current manual PR path: `https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...fix_20260528-live-postgres-gate?expand=1`.
 
 ## Required GitHub Settings
 
@@ -46,6 +46,7 @@ The required status checks should cover:
 - `Next.js frontend` build, lint, typecheck, and race tests.
 - `Rust service (services/retrieval-ranker)`.
 - `Rust service (services/voice-edge)`.
+- `Live Postgres (PR/main/manual)`.
 
 Do not make `Auto PR / Draft PR after green branch CI` a required merge check. That job is PR automation only; it may fail when repository settings deny draft PR mutation even when product CI is green.
 

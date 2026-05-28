@@ -12009,7 +12009,11 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
         "- GitHub Actions workflow permissions: `Read and write permissions`.",
         "- Enable `Allow GitHub Actions to create and approve pull requests`.",
         "- Configure `main branch protection` or an equivalent ruleset.",
-        "- Require `required status checks` for branch policy, Python backend, Next.js frontend, and affected Rust services.",
+        (
+            "- Require `required status checks` for branch policy, Python backend, "
+            "Next.js frontend, affected Rust services, and "
+            "`Live Postgres (PR/main/manual)`."
+        ),
         "- Require `CODEOWNERS review` before merge.",
         "- Enable `auto-merge` only after required checks and reviews are enforced.",
         "",
@@ -12020,8 +12024,9 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
         ),
         "- Branch protection and auto-merge should require the GitHub Actions checks.",
         (
-            "- External publication remains blocked until operator-owned LinkedIn "
-            "and durable publication artifacts are supplied and accepted."
+            "- External publication remains blocked until operator-owned "
+            "manual-publication policy, destination, and rollback/postcondition "
+            "evidence artifacts are supplied and accepted."
         ),
         (
             "- Provider proof output, secret snapshots, and operator credential "
@@ -12090,7 +12095,16 @@ def _provider_proof_pr_handoff_command(args: argparse.Namespace) -> str:
         parts.extend(
             ["--output-dir", _provider_proof_cli_arg_path_text(args.output_dir)]
         )
-    parts.extend(["--ci-url", args.ci_url, "--head-sha", args.head_sha])
+    parts.extend(
+        [
+            "--branch",
+            args.branch,
+            "--ci-url",
+            args.ci_url,
+            "--head-sha",
+            args.head_sha,
+        ]
+    )
     return " ".join(shlex.quote(part) for part in parts)
 
 
@@ -13284,7 +13298,8 @@ def main() -> None:
     proof_pr_handoff_parser.add_argument("--base", default="main")
     proof_pr_handoff_parser.add_argument(
         "--branch",
-        default="feature/livekit-voice-proof-capture",
+        required=True,
+        help="Current branch name to use as the PR head.",
     )
     proof_pr_handoff_parser.add_argument(
         "--ci-url",
@@ -13299,7 +13314,7 @@ def main() -> None:
         "--head-sha",
         required=True,
         type=_git_commit_sha,
-        help="Current feature branch head SHA to include in the manual PR handoff.",
+        help="Current branch head SHA to include in the manual PR handoff.",
     )
     proof_pr_create_parser = subparsers.add_parser(
         "provider-proof-pr-create",
@@ -13346,7 +13361,8 @@ def main() -> None:
     proof_pr_create_parser.add_argument("--base", default="main")
     proof_pr_create_parser.add_argument(
         "--branch",
-        default="feature/livekit-voice-proof-capture",
+        required=True,
+        help="Current branch name to use as the PR head.",
     )
     proof_pr_create_parser.add_argument(
         "--ci-url",
@@ -13360,7 +13376,7 @@ def main() -> None:
         "--head-sha",
         required=True,
         type=_git_commit_sha,
-        help="Current feature branch head SHA to include in the PR body.",
+        help="Current branch head SHA to include in the PR body.",
     )
     proof_pr_create_parser.add_argument(
         "--title",
