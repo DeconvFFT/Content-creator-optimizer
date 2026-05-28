@@ -78,7 +78,7 @@ class TestValidateLocalProviderConfigValue:
         with pytest.raises(LocalProviderConfigValidationError):
             validate_local_provider_config_value(
                 LocalProviderConfigEnvName.GEMMA4_MULTIMODAL_ENDPOINT_URL,
-                "******example.com/api",
+                "https://user:pass@example.com/api",
             )
 
     def test_rejects_query_strings(self):
