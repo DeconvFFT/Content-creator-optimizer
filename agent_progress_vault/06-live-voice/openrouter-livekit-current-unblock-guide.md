@@ -1,6 +1,6 @@
 ---
 type: current-unblock-guide
-updated: 2026-05-24
+updated: 2026-05-28
 active_realtime_path: OpenRouter LiveKit Kokoro
 proof_run_id: 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
 ---
@@ -19,7 +19,7 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 ## Current Proof State
 
 - `provider-backed-live-voice-proof`: accepted for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
-- `external-publication-proof`: still blocked by LinkedIn token file, policy acknowledgement artifact, durable LinkedIn URL/platform id, and rollback or postcondition evidence
+- `external-publication-proof`: still blocked by manual-publication policy acknowledgement artifact, durable LinkedIn URL/platform id, and rollback or postcondition evidence; no LinkedIn token file is required for this manual proof path
 - External publication validation now rejects local/draft/bare-placeholder policy acknowledgement and rollback/postcondition artifact references in both accepted proof records and compact audit notes; use durable non-local artifact IDs only.
 - Completion status: not complete until external publication proof validates, records, and passes closure review
 - PR state: feature branch is pushed and CI is green, but PR creation may need either the token-aware `provider-proof-pr-create` helper or the manual `provider-proof-pr-handoff` body until GitHub integration permissions are upgraded
@@ -43,11 +43,11 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 ## Do Next
 
 1. Fill a local no-secret operator input file from `social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env`, using `docs/external-publication-operator-inputs.example.env` as the committed placeholder-only key list.
-2. Keep secret values in files only; do not paste token values into notes, commits, PR bodies, or logs.
+2. Use durable external evidence references for the three required manual-publication fields; do not paste secret values into notes, commits, PR bodies, or logs.
 3. Run strict readiness:
    `uv run all-about-llms-admin provider-proof-operator-input-readiness --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --fail-on-blocked`
 4. After readiness clears, regenerate credential snapshot, proof plan, current blocker matrix, current proof status, and operator checklist from the generated command chain.
-5. Capture and validate the LinkedIn external publication proof only after explicit action-time approval.
+5. Capture and validate the manual external publication proof only after explicit action-time approval.
 6. Record the accepted external publication proof into the configured audit targets, then rerun completion status and closure review.
 
 ## Non-Default Legacy Boundary
