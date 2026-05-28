@@ -1355,3 +1355,10 @@ This failed record is preserved as historical audit evidence from the prior nati
 - repository implication: final remote CI/Auto PR conclusion for `c995e386e7bde9a2580ea22c99d3903b3dbcf8c0` still needs a fresh GitHub check because current Codex network polling could not reach GitHub. A failing Auto PR run caused by repository PR-create permission should be read as an honest out-of-repo settings blocker, not product-code failure.
 - proof recheck implication: 2026-05-26 local proof commands using a workspace-safe `/private/tmp` uv cache still report accepted OpenRouter/LiveKit/Kokoro live voice, `external-publication-proof` as latest failed, and strict operator-input readiness blocked on policy acknowledgement, durable destination, and rollback/postcondition evidence.
 - proof implication: this improves merge-signal integrity only. It does not create the PR, enable Actions PR-create permission, supply external publication evidence, or complete the objective.
+
+## Follow-up PR And Proof Check - 2026-05-27
+
+- source: GitHub Actions check-runs for branch head `c0b3532a7a11b8c38dd37293ab4c32900a89ac67`, GitHub PR REST lookup, `provider-proof-pr-create`, `provider-proof-completion-status`, `provider-proof-operator-input-readiness`, `cloud.md`, and `social_media_optimiser/wiki/ops/active-codex-context.md`
+- repository implication: the current `fix_20260526-ci-merge-gates` head has green required product CI at GitHub Actions run `26532417945`; Auto PR run `26532417970` still fails at repository PR mutation, no open PR exists for the branch, and local token-aware PR creation remains `manual_required` until `GITHUB_TOKEN` or `GH_TOKEN` is available.
+- proof implication: provider-backed live voice remains accepted. External publication remains blocked only by manual-publication policy acknowledgement, durable destination, and rollback/postcondition evidence; no LinkedIn publication token file is part of the current strict proof gate.
+- boundary: this is evidence synchronization only. It does not create the GitHub PR, enable branch protection, provide external publication evidence, or complete the objective.

@@ -2,7 +2,7 @@
 type: sprint
 project: agent-studio
 status: active
-updated: 2026-05-24
+updated: 2026-05-27
 ---
 
 # Current Sprint
@@ -1390,6 +1390,13 @@ Make the Obsidian vault the source of truth for design and tracking, then contin
 - Remote state: commit `c995e386e7bde9a2580ea22c99d3903b3dbcf8c0` was pushed and GitHub runs started, but current Codex network polling could not reach GitHub to verify final run conclusions. A follow-up handoff-sync commit is local only until GitHub connectivity recovers. Treat the remote CI/Auto PR conclusion as needing a fresh check.
 - Fresh proof recheck: 2026-05-25 local proof commands run with `UV_CACHE_DIR=/private/tmp/all-about-llms-uv-cache` still report accepted live voice, `external-publication-proof` as latest failed, and strict operator-input readiness blocked on manual-publication policy acknowledgement, durable destination, and rollback/postcondition evidence. This confirms no runtime/process restart is needed for the current blocker.
 - Boundary: this fixes the CI/CD signal contract only. It does not create the PR, enable repository Actions permissions, supply external publication evidence, or complete the objective.
+
+## 2026-05-27 Follow-up PR And Proof Check
+
+- Done: refreshed the current proof gates from the UUID workspace. `provider-proof-completion-status` still accepts `provider-backed-live-voice-proof`; `external-publication-proof` remains latest failed. Strict operator-input readiness exits `2` only on `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, and `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
+- Done: refreshed branch-head GitHub evidence for `fix_20260526-ci-merge-gates` at `c0b3532a7a11b8c38dd37293ab4c32900a89ac67`. GitHub Actions run `26532417945` is green for `Branch name policy`, `Python backend`, `Next.js frontend`, `Rust service (services/retrieval-ranker)`, and `Rust service (services/voice-edge)`. `Live Postgres (main/manual)` is skipped as expected for this branch.
+- PR state: Auto PR run `26532417970` still fails at repository draft PR mutation; REST PR lookup returns no open PR for the branch; local `provider-proof-pr-create` returns `manual_required` / `github_token_unavailable`. Use `https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...fix_20260526-ci-merge-gates?expand=1` or rerun the helper after `GITHUB_TOKEN`/`GH_TOKEN` with PR write permission is available.
+- Boundary: this advances durable handoff accuracy only. It does not create the PR, mutate GitHub settings, supply manual-publication evidence, or complete the objective.
 
 ## 2026-05-24 CI/CD Node Runtime Hardening
 
