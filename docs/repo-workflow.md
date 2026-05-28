@@ -109,4 +109,4 @@ Repository settings still need to enforce:
 GitHub settings cannot be fully represented in repo files, so keep this document and the actual repository ruleset in sync.
 Use `cloud.md` as the no-secret operator checklist for the GitHub-side Actions permission, branch-protection, required-check, and auto-merge settings that must be configured outside this repository.
 
-For branch protection, require the CI workflow jobs named `Branch name policy`, `Python backend`, `Next.js frontend`, `Rust service (services/retrieval-ranker)`, and `Rust service (services/voice-edge)`. Do not require the Auto PR draft-creation job as a merge gate; it is automation around PR creation, not product CI.
+For branch protection, require the CI workflow jobs named `Branch name policy`, `Python backend`, `Next.js frontend`, `Rust service (services/retrieval-ranker)`, `Rust service (services/voice-edge)`, and `Live Postgres (PR/main/manual)`. Do not require the Auto PR draft-creation job as a merge gate; it is automation around PR creation, not product CI.

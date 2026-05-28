@@ -71,6 +71,17 @@ def test_ci_checks_uv_lock_is_current_before_python_tests() -> None:
         )
 
 
+def test_live_postgres_ci_runs_on_pull_requests_before_merge() -> None:
+    workflow = yaml.safe_load((ROOT / ".github/workflows/ci.yml").read_text())
+    live_postgres = workflow["jobs"]["live-postgres"]
+
+    condition = live_postgres.get("if", "")
+
+    assert "github.event_name == 'pull_request'" in condition
+    assert "github.ref == 'refs/heads/main'" in condition
+    assert "workflow_dispatch" in condition
+
+
 def test_github_actions_workflows_opt_into_node24_action_runtime() -> None:
     workflow_paths = [
         ROOT / ".github/workflows/ci.yml",
