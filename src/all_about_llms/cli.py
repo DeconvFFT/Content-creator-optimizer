@@ -1879,6 +1879,7 @@ def _publication_proof_preflight_request_body(
             "mark_run_completed_if_ready": False,
             "check_publish_channel_readiness": True,
             "acknowledge_publish_channel_policy": acknowledge_publish_channel_policy,
+            "manual_publication_mode": True,
         },
         separators=(",", ":"),
     )
@@ -5757,7 +5758,7 @@ def _provider_proof_publish_readiness_semantic_checks(
                 safe_path,
                 json_path=f"publish_channel_checks.{index}.blocking_issues",
             )
-        if check.credential_status != "configured":
+        if check.credential_status not in {"configured", "manual_not_required"}:
             add_issue(
                 "publish_channel_credentials_not_configured",
                 safe_path,
@@ -10611,7 +10612,7 @@ def _provider_proof_operator_unblocker_checklist_markdown(
                 f"curl -sS -X POST -o {base}/publish-readiness.preflight.json "
                 f"http://127.0.0.1:8000/api/runs/{run_id}/publish-readiness "
                 "-H 'Content-Type: application/json' --data "
-                """'{"open_feedback_gate":false,"mark_run_completed_if_ready":false,"check_publish_channel_readiness":true,"acknowledge_publish_channel_policy":true}'"""
+                """'{"open_feedback_gate":false,"mark_run_completed_if_ready":false,"check_publish_channel_readiness":true,"acknowledge_publish_channel_policy":true,"manual_publication_mode":true}'"""
             ),
             (
                 "uv run all-about-llms-admin "
@@ -12609,6 +12610,10 @@ async def _run_autonomous_pass(args: argparse.Namespace) -> None:
                 refresh_source_ledger=not args.skip_source_ledger,
                 run_guardrail_audit=not args.skip_guardrails,
                 check_publish_readiness=not args.skip_readiness,
+                acknowledge_publish_channel_policy=(
+                    args.acknowledge_publish_channel_policy
+                ),
+                manual_publication_mode=args.manual_publication_mode,
                 build_artifact_index=not args.skip_artifact_index,
                 build_work_plan=not args.skip_work_plan,
                 record_sync_pulse=not args.skip_sync_pulse,
@@ -13702,6 +13707,8 @@ def main() -> None:
     pass_parser.add_argument("--skip-source-ledger", action="store_true")
     pass_parser.add_argument("--skip-guardrails", action="store_true")
     pass_parser.add_argument("--skip-readiness", action="store_true")
+    pass_parser.add_argument("--acknowledge-publish-channel-policy", action="store_true")
+    pass_parser.add_argument("--manual-publication-mode", action="store_true")
     pass_parser.add_argument("--skip-artifact-index", action="store_true")
     pass_parser.add_argument("--skip-work-plan", action="store_true")
     pass_parser.add_argument("--skip-sync-pulse", action="store_true")

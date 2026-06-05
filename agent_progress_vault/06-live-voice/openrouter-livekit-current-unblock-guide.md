@@ -1,6 +1,6 @@
 ---
 type: current-unblock-guide
-updated: 2026-05-28
+updated: 2026-05-31
 active_realtime_path: OpenRouter LiveKit Kokoro
 proof_run_id: 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
 ---
@@ -20,13 +20,14 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 
 - `provider-backed-live-voice-proof`: accepted for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
 - `external-publication-proof`: still blocked by manual-publication policy acknowledgement artifact, durable LinkedIn URL/platform id, and rollback or postcondition evidence; no LinkedIn token file is required for this manual proof path
+- Manual-post content readiness now uses `manual_publication_mode=true`: the package can be checked for supported LinkedIn metadata and policy acknowledgement without an API publication token, then the operator manually posts and supplies durable evidence. Use `run-autonomous-pass --acknowledge-publish-channel-policy --manual-publication-mode` for the content-pipeline pass.
 - External publication validation now rejects local/draft/bare-placeholder policy acknowledgement and rollback/postcondition artifact references in both accepted proof records and compact audit notes; use durable non-local artifact IDs only.
 - Completion status: not complete until external publication proof validates, records, and passes closure review
 - PR state: feature branch is pushed and CI is green, but PR creation may need either the token-aware `provider-proof-pr-create` helper or the manual `provider-proof-pr-handoff` body until GitHub integration permissions are upgraded
 
 ## Current Manual PR Handoff
 
-- Latest live check: the pushed current branch had green GitHub Actions CI for the branch head at check time.
+- Latest live check: pushed branch `fix_20260528-live-postgres-gate` is at `96ac8901ceadff69f45e9c2721ed5edde4d9048d` with green branch-push product CI at `https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/26694610526`; current `main` is `2ee0ec464d54f68bedfa5f39e05b3ea22b2ee8eb`, and a non-destructive merge-tree check found no mechanical merge conflict. `Live Postgres (PR/main/manual)` is still skipped until PR/main/manual.
 - Regenerate exact PR evidence at manual PR creation time; do not treat this vault note as the source of truth for branch head or CI run because follow-up documentation commits can make pinned values stale.
 - Token-aware PR attempt:
   `uv run all-about-llms-admin provider-proof-pr-create --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env --branch <current-branch-name> --ci-url <latest-branch-head-ci-url> --head-sha <current-branch-head-sha>`
@@ -36,7 +37,7 @@ This is the active live-dialogue and proof handoff path for Agent Studio.
 - PR handoff output now redacts operator-input and provider-proof output paths outside the checkout to portable placeholders such as `<filled-ignored-operator-input-file>` and `<provider-proof-output-dir>`, so CI runner temp paths and local absolute paths do not enter PR descriptions.
 - Manual PR compare: <https://github.com/DeconvFFT/Content-creator-optimizer/compare/main...fix_20260528-live-postgres-gate?expand=1>
 - Automated PR creation through the GitHub connector remains blocked by integration permission `403 Resource not accessible by integration`; `provider-proof-pr-create` can create the PR only when a local `GITHUB_TOKEN` or `GH_TOKEN` is available, otherwise use the generated `provider-proof-pr-handoff` body in a manual PR until repository app permissions are upgraded.
-- Latest token-aware helper attempt with a checked green branch head returned `manual_required` / `github_token_unavailable`; local environment has no `GITHUB_TOKEN` or `GH_TOKEN`, so the next non-secret path is manual PR creation or repository Actions permission upgrade. Regenerate exact `--head-sha` and `--ci-url` immediately before opening or updating the PR.
+- Latest token-aware helper attempt with the checked branch head returned `manual_required` / `github_token_unavailable`; local environment has no `GITHUB_TOKEN` or `GH_TOKEN`, so the next non-secret path is manual PR creation or repository Actions permission upgrade. Regenerate exact `--head-sha` and `--ci-url` immediately before opening or updating the PR.
 - Latest REST checks found no open PR for `DeconvFFT:fix_20260528-live-postgres-gate`; connector PR creation still returns `403 Resource not accessible by integration`. Public branch metadata previously reported `main.protected=false`; the branch-protection endpoint requires authenticated repo-admin access.
 - Auto-merge cannot be enabled by this session until a PR exists and repository settings permit the integration to mutate it.
 

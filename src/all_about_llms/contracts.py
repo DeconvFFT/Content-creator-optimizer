@@ -1456,6 +1456,7 @@ class AutonomousStudioPassRequest(BaseModel):
     check_publish_readiness: bool = True
     check_publish_channel_readiness: bool = True
     acknowledge_publish_channel_policy: bool = False
+    manual_publication_mode: bool = False
     build_artifact_index: bool = True
     build_work_plan: bool = True
     record_sync_pulse: bool = True
@@ -1598,6 +1599,7 @@ class PublishReadinessRequest(BaseModel):
     mark_run_completed_if_ready: bool = False
     check_publish_channel_readiness: bool = False
     acknowledge_publish_channel_policy: bool = False
+    manual_publication_mode: bool = False
 
 
 class PublishChannelCheck(BaseModel):
