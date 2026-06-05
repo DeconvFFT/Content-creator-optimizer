@@ -2,7 +2,7 @@
 type: concept
 project: agent-studio
 status: active
-updated: 2026-05-29
+updated: 2026-05-24
 owners:
   - principal-software-engineer
   - backend-platform-engineer
@@ -41,7 +41,6 @@ Agent Studio should be designed as a durable AI product platform, not a pile of 
 - Use feedback loops to improve routing, drafting, review, retrieval, and guardrails.
 - Keep offline evaluation and live operator feedback connected through durable artifacts and labeled relevance fields.
 - For any future RL, preference-tuned, or learned agent route, record the reward functions, reward weights, aggregation mode, normalization mode, loss normalizer, train/eval split seed, cache policy, and checkpoint-to-release provenance before promotion. This is a future training/evaluation governance rule only; it does not reopen the accepted OpenRouter/LiveKit/Kokoro live-voice proof or the current external-publication blocker.
-- Cross-vault source `system_design_vault/01-sources/official-open/silent-failure-surface-inventory.md` plus `system_design_vault/01-sources/official-open/accelerate-trl-silent-failure-interactions.md` hardens that future-route rule: RL/GRPO routes must make rollout, reward, training, data, topology, precision, scheduler, device-placement, and batch-splitting contracts explicit before release.
 
 ### Inference Engineering Patterns
 

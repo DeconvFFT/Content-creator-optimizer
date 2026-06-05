@@ -18575,29 +18575,6 @@ def test_autonomous_pass_includes_publish_channel_checks(
         for check in result.publish_readiness.publish_channel_checks
     } == {"instagram_post": "missing", "linkedin": "missing"}
 
-    if channel_check_override is None:
-        manual_result = asyncio.run(
-            AutonomousStudioPassWorkflow(store, tmp_path).run(
-                store.run.run_id,
-                AutonomousStudioPassRequest(
-                    **request_kwargs,
-                    acknowledge_publish_channel_policy=True,
-                    manual_publication_mode=True,
-                ),
-            )
-        )
-
-        assert manual_result.publish_readiness is not None
-        assert manual_result.publish_readiness.status == PublishReadinessStatus.READY
-        assert manual_result.publish_readiness.blocking_issues == []
-        assert {
-            check.platform: check.credential_status
-            for check in manual_result.publish_readiness.publish_channel_checks
-        } == {
-            "instagram_post": "manual_not_required",
-            "linkedin": "manual_not_required",
-        }
-
 
 def test_autonomous_pass_blocks_downstream_work_on_open_feedback(tmp_path):
     store = FakeStore()
@@ -20743,28 +20720,6 @@ def test_publish_readiness_channel_smoke_distinguishes_credentials_from_policy(
         or "LINKEDIN_ACCESS_TOKEN" in check.credential_envs
         for check in missing_credentials.publish_channel_checks
     )
-
-    manual_publication_ready = asyncio.run(
-        PublishReadinessWorkflow(store).run(
-            store.run.run_id,
-            PublishReadinessRequest(
-                open_feedback_gate=False,
-                check_publish_channel_readiness=True,
-                acknowledge_publish_channel_policy=True,
-                manual_publication_mode=True,
-            ),
-        )
-    )
-    assert manual_publication_ready.status == PublishReadinessStatus.READY
-    assert manual_publication_ready.ready is True
-    assert manual_publication_ready.blocking_issues == []
-    assert {
-        check.platform: check.credential_status
-        for check in manual_publication_ready.publish_channel_checks
-    } == {
-        "instagram_post": "manual_not_required",
-        "linkedin": "manual_not_required",
-    }
 
     invalid_instagram_file = tmp_path / "invalid_instagram_access_token"
     invalid_instagram_file.write_bytes(b"\xff\xfe\xfd")

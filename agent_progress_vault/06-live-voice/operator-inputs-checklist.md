@@ -28,6 +28,7 @@ proof_run_id: 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
 
 ## Still required for objective completion
 
+- [ ] `LINKEDIN_ACCESS_TOKEN_FILE` points to a readable local secret file path
 - [ ] `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID` is a durable non-local policy acknowledgement artifact id
 - [ ] `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL` is a durable LinkedIn URL or platform id
 - [ ] `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID` is a durable rollback or postcondition artifact id
@@ -44,6 +45,6 @@ proof_run_id: 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
 |------|-------|
 | OpenRouter back-and-forth demo in browser | LiveKit + voice agent + **Send text turn** composer |
 | Accepted `provider-backed-live-voice-proof` | Done for run `190ae2f9-...` |
-| Accepted `external-publication-proof` | Manual publication policy acknowledgement, durable destination, rollback/postcondition evidence, and explicit operator approval |
+| Accepted `external-publication-proof` | LinkedIn credential, policy, destination, rollback/postcondition evidence, and explicit operator approval |
 
 See [[local-livekit-setup]] for start commands.

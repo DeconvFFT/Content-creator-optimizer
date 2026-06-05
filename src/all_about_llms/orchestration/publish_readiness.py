@@ -410,12 +410,6 @@ def _publish_channel_checks(
                 "Add an explicit publish-channel credential mapping before "
                 f"publishing to {platform}."
             )
-        elif request.manual_publication_mode:
-            credential_status = "manual_not_required"
-            recommended_next_actions.append(
-                f"Manual publication mode: review the package, post to {platform}, "
-                "then provide durable destination and rollback/postcondition evidence."
-            )
         elif not any(
             _publish_channel_credential_is_configured(
                 env_name,

@@ -65,7 +65,7 @@ Secrets belong in local environment variables or ignored files under `.secrets/`
 
 ## PR And Auto-Merge
 
-Open PRs into `main`. The PR checklist should show the local verification commands that were run, plus the current provider proof gate state. For the current Agent Studio branch, the PR must explicitly state the `provider-backed-live-voice-proof` status, the `external-publication-proof` status, and whether any operator-owned manual-publication evidence inputs remain blocked. Enable auto-merge only after required CI checks and review pass.
+Open PRs into `main`. The PR checklist should show the local verification commands that were run, plus the current provider proof gate state. For the current Agent Studio branch, the PR must explicitly state the `provider-backed-live-voice-proof` status, the `external-publication-proof` status, and whether any operator-owned LinkedIn inputs remain blocked. Enable auto-merge only after required CI checks and review pass.
 
 `.github/workflows/auto-pr.yml` is the repository-owned fallback for PR creation from `feature/**` and `fix_*` branches. On each matching branch push, it waits for matching branch CI to complete successfully, generates the no-secret `provider-proof-pr-handoff` body with that CI URL and head SHA, then creates or updates a draft PR using the workflow `GITHUB_TOKEN`. Clean GitHub runners synthesize a temporary no-secret operator input file for PR body generation: accepted live-voice fields use dummy local files, publication fields stay blocked with placeholders, and the committed placeholder-only `docs/external-publication-operator-inputs.example.env` remains the key-list reference. If repository Actions settings still deny PR creation, the workflow records an `Auto PR failed` step summary and fails the Auto PR job so PR-creation denial is not reported as green. This path uses only the built-in Actions token and must not introduce custom secret requirements or print provider credential values.
 
@@ -77,7 +77,6 @@ First try the token-aware no-secret PR helper. It uses `GITHUB_TOKEN` or `GH_TOK
 uv run all-about-llms-admin provider-proof-pr-create \
   --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
   --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env \
-  --branch <current-branch-name> \
   --ci-url <latest-branch-head-ci-url> \
   --head-sha <current-branch-head-sha>
 ```
@@ -88,12 +87,11 @@ If no local GitHub token is available, or GitHub integration permissions still p
 uv run all-about-llms-admin provider-proof-pr-handoff \
   --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
   --operator-input-path social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/operator-inputs.template.env \
-  --branch <current-branch-name> \
   --ci-url <latest-branch-head-ci-url> \
   --head-sha <current-branch-head-sha>
 ```
 
-Fill the branch name, CI URL, and head SHA placeholders from the current branch head before pasting the generated PR body. The generated handoff must keep `provider-backed-live-voice-proof`, `external-publication-proof`, the manual publication evidence inputs, the OpenRouter/LiveKit/Kokoro route, CI evidence, and the no secret values boundary visible in the manual PR description.
+Fill the CI URL and head SHA placeholders from the current branch head before pasting the generated PR body. The generated handoff must keep `provider-backed-live-voice-proof`, `external-publication-proof`, the manual publication evidence inputs, the OpenRouter/LiveKit/Kokoro route, CI evidence, and the no secret values boundary visible in the manual PR description.
 
 When the handoff is generated from a temporary CI file or any operator-input/output path outside the checkout, the PR body renders portable placeholders such as `<filled-ignored-operator-input-file>` and `<provider-proof-output-dir>` instead of absolute local or runner paths.
 
@@ -102,7 +100,7 @@ For the remaining publication gate, use `docs/external-publication-proof-runbook
 Repository settings still need to enforce:
 
 - `main` branch protection or a GitHub ruleset
-- required status checks: branch policy, Python backend, Next.js frontend, Rust service jobs, and `Live Postgres (PR/main/manual)`
+- required status checks: branch policy, Python backend, Next.js frontend, and Rust service jobs
 - required review through `.github/CODEOWNERS`
 - auto-merge enabled in repository settings
 - Actions workflow permissions set to read/write, with `Allow GitHub Actions to create and approve pull requests` enabled so `.github/workflows/auto-pr.yml` can create or update the draft PR
@@ -111,4 +109,4 @@ Repository settings still need to enforce:
 GitHub settings cannot be fully represented in repo files, so keep this document and the actual repository ruleset in sync.
 Use `cloud.md` as the no-secret operator checklist for the GitHub-side Actions permission, branch-protection, required-check, and auto-merge settings that must be configured outside this repository.
 
-For branch protection, require the CI workflow jobs named `Branch name policy`, `Python backend`, `Next.js frontend`, `Rust service (services/retrieval-ranker)`, `Rust service (services/voice-edge)`, and `Live Postgres (PR/main/manual)`. Do not require the Auto PR draft-creation job as a merge gate; it is automation around PR creation, not product CI.
+For branch protection, require the CI workflow jobs named `Branch name policy`, `Python backend`, `Next.js frontend`, `Rust service (services/retrieval-ranker)`, and `Rust service (services/voice-edge)`. Do not require the Auto PR draft-creation job as a merge gate; it is automation around PR creation, not product CI.

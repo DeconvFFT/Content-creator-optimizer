@@ -48,7 +48,7 @@ The earlier Cursor setup failure was `WritableIterable is closed` in a subagent 
 
 Codex verified Docker LiveKit/Postgres and FastAPI health without disturbing Cursor processes, then started the app-supervised OpenRouter/Kokoro voice-agent process (`pid=29685`) through the backend supervisor. `runtime-health-ledger.json` is now `ready` with 10/10 checks ready, and the refreshed `provider-smoke-ledger.live-openrouter.json` passes with ledger artifact `94857bb9-c5eb-4174-8bc5-6687bd8befbe`, selected realtime session `ebd43531-86e3-4af1-ade0-15ac8d7184bf`, OpenRouter first text delta `1111.171 ms`, Kokoro first audio chunk `4946.351 ms`, and first-audio latency `6057.54 ms`.
 
-Superseded on 2026-05-24: this was the intermediate state before the accepted live-voice capture below. Superseded again on 2026-05-28: the current manual-publication proof path no longer requires a LinkedIn token file; publication remains blocked only on durable manual-publication policy, destination, and rollback/postcondition evidence.
+Superseded on 2026-05-24: this was the intermediate state before the accepted live-voice capture below. Publication remains blocked on LinkedIn credential/destination proof.
 
 ## Proof workspace refresh (verified 2026-05-23 17:06 CDT)
 
@@ -56,8 +56,8 @@ Superseded on 2026-05-24: this was the intermediate state before the accepted li
 |----------|--------|------|
 | `voice-runtime-readiness.preflight.json` | ready | OpenRouter live dialogue, LiveKit, Kokoro, Rust edge, and participant construction are ready |
 | `provider-backed-live-voice-proof.preflight-validation.json` | valid | OpenRouter DeepSeek live dialogue, LiveKit, Kokoro, Rust edge, and participant checks validate for the current path |
-| `current-blocker-matrix.json` | live voice accepted; publication still blocked | Live voice has no remaining operator-input blocker; external publication is now blocked by manual-publication evidence only |
-| `external-publication-proof.preflight-validation.json` | invalid | Manual-publication policy/destination/rollback evidence remains missing |
+| `current-blocker-matrix.json` | live voice accepted; publication still blocked | Live voice has no remaining operator-input blocker; external publication is still blocked by LinkedIn credential/evidence |
+| `external-publication-proof.preflight-validation.json` | invalid | LinkedIn credential and policy/destination/rollback evidence remain missing |
 
 Superseded on 2026-05-24: the live-voice accepted record now carries same-run OpenRouter DeepSeek dialogue evidence, LiveKit/session evidence, provider-smoke and timing ledgers, zero failed post-capture validation checks, and passed secret-redaction checks.
 
@@ -84,7 +84,7 @@ Codex captured and recorded the accepted provider-backed live-voice proof for ru
 
 ## Remaining objective blocker (verified 2026-05-24 UTC)
 
-External publication remains blocked by operator inputs and must not be faked or performed without action-time approval. As of the 2026-05-28 manual-publication path, the required inputs are a durable policy acknowledgement artifact id, a durable LinkedIn destination URL or platform id, and a durable rollback/postcondition artifact id; no LinkedIn token file is required for this path.
+External publication remains blocked by operator inputs and must not be faked or performed without action-time approval. Required inputs are a readable local LinkedIn token file path, a durable policy acknowledgement artifact id, a durable LinkedIn destination URL or platform id, and a durable rollback/postcondition artifact id. `publish-readiness.preflight.json` is still `blocked` with `missing_publish_channel_credentials`.
 
 ## Backend runtime caveat (verified 2026-05-23 CDT / 2026-05-24 UTC)
 

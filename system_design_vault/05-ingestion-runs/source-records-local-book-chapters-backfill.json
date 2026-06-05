@@ -2978,7 +2978,7 @@
         "start_line": 1,
         "end_line": 1245
       },
-      "status": "canon_ready",
+      "status": "deep_read_pass_1",
       "note_path": "system_design_vault/02-books/applied-ml-ai-engineers/chapters/ch11-face-detection-and-recognition.md",
       "note_exists": true,
       "cross_check_note_path": "system_design_vault/01-sources/official-open/applied-ml-face-detection-recognition-cross-check.md",
@@ -3213,8 +3213,8 @@
     "record_count": 132,
     "parent_book_count": 22,
     "note_exists_count": 132,
-    "canon_ready_count": 132,
-    "deep_read_pass_1_count": 0,
+    "canon_ready_count": 131,
+    "deep_read_pass_1_count": 1,
     "pending_direct_read_count": 0,
     "records_by_parent": {
       "local_books.ai_engineering": 10,

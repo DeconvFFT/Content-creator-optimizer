@@ -338,8 +338,7 @@ def test_agent_studio_proof_readiness_filters_publication_blocker():
                     "'{\"open_feedback_gate\":false,"
                     "\"mark_run_completed_if_ready\":false,"
                     "\"check_publish_channel_readiness\":true,"
-                    "\"acknowledge_publish_channel_policy\":false,"
-                    "\"manual_publication_mode\":true}'"
+                    "\"acknowledge_publish_channel_policy\":false}'"
                 )
             ]
             assert export_payload["blockers"][0]["proof_plan"][

@@ -1,8 +1,8 @@
 {
   "manifest_type": "targeted_local_book_chapter_extraction",
   "project": "agent-studio-system-design",
-  "status": "canon_ready",
-  "updated": "2026-05-27",
+  "status": "deep_read_pass_1",
+  "updated": "2026-05-19",
   "source_id": "local_books.applied_ml_and_ai_for_engineers.chapter_11_face_detection_and_recognition",
   "parent_source_id": "local_books.applied_ml_and_ai_for_engineers",
   "source_path": "/Users/saumyamehta/DS interview prep/books/Applied-Machine-Learning-and-AI-for-Engineers.pdf",

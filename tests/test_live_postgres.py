@@ -1217,8 +1217,7 @@ async def test_live_postgres_autonomous_studio_pass(tmp_path):
         assert pass_result.checkpoint is not None
         assert pass_result.checkpoint.checkpoint_kind == "autonomous_studio_pass_start"
         assert pass_result.runtime_health is not None
-        assert pass_result.runtime_health.status.value != "blocked"
-        assert pass_result.runtime_health.blocked_count == 0
+        assert pass_result.runtime_health.status.value == "ready"
         assert pass_result.runtime_health.ledger_artifact_id is not None
         assert pass_result.research_freshness is not None
         assert pass_result.research_freshness.status.value == "needs_refresh"

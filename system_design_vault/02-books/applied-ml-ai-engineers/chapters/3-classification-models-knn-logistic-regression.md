@@ -1,6 +1,6 @@
 ---
 type: chapter-note
-status: canon_ready
+status: deep_read_pass_1
 source_id: local_books.applied_ml_ai_engineers
 chapter: "3"
 chapter_title: "Classification Models"

@@ -1879,7 +1879,6 @@ def _publication_proof_preflight_request_body(
             "mark_run_completed_if_ready": False,
             "check_publish_channel_readiness": True,
             "acknowledge_publish_channel_policy": acknowledge_publish_channel_policy,
-            "manual_publication_mode": True,
         },
         separators=(",", ":"),
     )
@@ -5758,7 +5757,7 @@ def _provider_proof_publish_readiness_semantic_checks(
                 safe_path,
                 json_path=f"publish_channel_checks.{index}.blocking_issues",
             )
-        if check.credential_status not in {"configured", "manual_not_required"}:
+        if check.credential_status != "configured":
             add_issue(
                 "publish_channel_credentials_not_configured",
                 safe_path,
@@ -10612,7 +10611,7 @@ def _provider_proof_operator_unblocker_checklist_markdown(
                 f"curl -sS -X POST -o {base}/publish-readiness.preflight.json "
                 f"http://127.0.0.1:8000/api/runs/{run_id}/publish-readiness "
                 "-H 'Content-Type: application/json' --data "
-                """'{"open_feedback_gate":false,"mark_run_completed_if_ready":false,"check_publish_channel_readiness":true,"acknowledge_publish_channel_policy":true,"manual_publication_mode":true}'"""
+                """'{"open_feedback_gate":false,"mark_run_completed_if_ready":false,"check_publish_channel_readiness":true,"acknowledge_publish_channel_policy":true}'"""
             ),
             (
                 "uv run all-about-llms-admin "
@@ -12010,11 +12009,7 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
         "- GitHub Actions workflow permissions: `Read and write permissions`.",
         "- Enable `Allow GitHub Actions to create and approve pull requests`.",
         "- Configure `main branch protection` or an equivalent ruleset.",
-        (
-            "- Require `required status checks` for branch policy, Python backend, "
-            "Next.js frontend, affected Rust services, and "
-            "`Live Postgres (PR/main/manual)`."
-        ),
+        "- Require `required status checks` for branch policy, Python backend, Next.js frontend, and affected Rust services.",
         "- Require `CODEOWNERS review` before merge.",
         "- Enable `auto-merge` only after required checks and reviews are enforced.",
         "",
@@ -12025,9 +12020,8 @@ def _provider_proof_pr_handoff_lines(args: argparse.Namespace) -> list[str]:
         ),
         "- Branch protection and auto-merge should require the GitHub Actions checks.",
         (
-            "- External publication remains blocked until operator-owned "
-            "manual-publication policy, destination, and rollback/postcondition "
-            "evidence artifacts are supplied and accepted."
+            "- External publication remains blocked until operator-owned LinkedIn "
+            "and durable publication artifacts are supplied and accepted."
         ),
         (
             "- Provider proof output, secret snapshots, and operator credential "
@@ -12096,16 +12090,7 @@ def _provider_proof_pr_handoff_command(args: argparse.Namespace) -> str:
         parts.extend(
             ["--output-dir", _provider_proof_cli_arg_path_text(args.output_dir)]
         )
-    parts.extend(
-        [
-            "--branch",
-            args.branch,
-            "--ci-url",
-            args.ci_url,
-            "--head-sha",
-            args.head_sha,
-        ]
-    )
+    parts.extend(["--ci-url", args.ci_url, "--head-sha", args.head_sha])
     return " ".join(shlex.quote(part) for part in parts)
 
 
@@ -12610,10 +12595,6 @@ async def _run_autonomous_pass(args: argparse.Namespace) -> None:
                 refresh_source_ledger=not args.skip_source_ledger,
                 run_guardrail_audit=not args.skip_guardrails,
                 check_publish_readiness=not args.skip_readiness,
-                acknowledge_publish_channel_policy=(
-                    args.acknowledge_publish_channel_policy
-                ),
-                manual_publication_mode=args.manual_publication_mode,
                 build_artifact_index=not args.skip_artifact_index,
                 build_work_plan=not args.skip_work_plan,
                 record_sync_pulse=not args.skip_sync_pulse,
@@ -13303,8 +13284,7 @@ def main() -> None:
     proof_pr_handoff_parser.add_argument("--base", default="main")
     proof_pr_handoff_parser.add_argument(
         "--branch",
-        required=True,
-        help="Current branch name to use as the PR head.",
+        default="feature/livekit-voice-proof-capture",
     )
     proof_pr_handoff_parser.add_argument(
         "--ci-url",
@@ -13319,7 +13299,7 @@ def main() -> None:
         "--head-sha",
         required=True,
         type=_git_commit_sha,
-        help="Current branch head SHA to include in the manual PR handoff.",
+        help="Current feature branch head SHA to include in the manual PR handoff.",
     )
     proof_pr_create_parser = subparsers.add_parser(
         "provider-proof-pr-create",
@@ -13366,8 +13346,7 @@ def main() -> None:
     proof_pr_create_parser.add_argument("--base", default="main")
     proof_pr_create_parser.add_argument(
         "--branch",
-        required=True,
-        help="Current branch name to use as the PR head.",
+        default="feature/livekit-voice-proof-capture",
     )
     proof_pr_create_parser.add_argument(
         "--ci-url",
@@ -13381,7 +13360,7 @@ def main() -> None:
         "--head-sha",
         required=True,
         type=_git_commit_sha,
-        help="Current branch head SHA to include in the PR body.",
+        help="Current feature branch head SHA to include in the PR body.",
     )
     proof_pr_create_parser.add_argument(
         "--title",
@@ -13707,8 +13686,6 @@ def main() -> None:
     pass_parser.add_argument("--skip-source-ledger", action="store_true")
     pass_parser.add_argument("--skip-guardrails", action="store_true")
     pass_parser.add_argument("--skip-readiness", action="store_true")
-    pass_parser.add_argument("--acknowledge-publish-channel-policy", action="store_true")
-    pass_parser.add_argument("--manual-publication-mode", action="store_true")
     pass_parser.add_argument("--skip-artifact-index", action="store_true")
     pass_parser.add_argument("--skip-work-plan", action="store_true")
     pass_parser.add_argument("--skip-sync-pulse", action="store_true")

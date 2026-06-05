@@ -10,176 +10,102 @@ Switch to EXCALIDRAW VIEW in the MORE OPTIONS menu of this document.
 
 ## Text Elements
 Creator
-voice or text goal ^TO4moFoc
+voice or text goal ^creator
 
 Next.js creator studio
-not a planning dashboard ^app-text
+not a planning dashboard ^app
 
 FastAPI control plane
-events, proof APIs, context ^api-text
+events, proof APIs, context ^api
 
 Postgres + pgvector
-canonical product state ^db-text
+canonical product state ^db
 
 LiveKit
-room, media, data channel ^WA1aCbFc
+room, media, data channel ^livekit
 
 Python voice participant
-turn orchestration ^fsAXqbDb
+turn orchestration ^voice
 
 OpenRouter
-deepseek/deepseek-v4-flash ^or-text
+deepseek/deepseek-v4-flash ^openrouter
 
 Kokoro
-spoken output ^7EmUtctm
+spoken output ^kokoro
 
 Rust voice-edge
-VAD, barge-in, cancel ^JssuxRt1
+VAD, barge-in, cancel ^rust
 
 Provider proof workspace
-no-secret packets ^5yVqorJc
+no-secret packets ^proof
 
 Accepted live proof
-timing ledger 8/8 measured ^Alkt8fJP
+timing ledger 8/8 measured ^liveblock
 
 Blocked publication
-LinkedIn, policy, destination, rollback ^5A0ChTEp
+LinkedIn, policy, destination, rollback ^pubblock
 
 Obsidian vaults
-planning + system design memory ^AwBMdZeE
+planning + system design memory ^vaults
 
 Legacy lanes
-Gemma, Gamma, HF, MLX non-default ^GzbbEJo3
+Gemma, Gamma, HF, MLX non-default ^legacy
 
 %%
 ## Drawing
-```compressed-json
-N4KAkARALgngDgUwgLgAQQQDwMYEMA2AlgCYBOuA7hADTgQBuCpAzoQPYB2KqATLZMzYBXUtiRoIACyhQ4zZAHoFAc0JRJQgEYA6bGwC2CgF7N6hbEcK4OCtptbErHALRY8RMpWdx8Q1TdIEfARcZgRmBShcZR5tHgBmbQBWGjoghH0EDihmbgBtcDBQMBKIEm4IbEDcKDZSZ002TFSSyFhECsDsKI5lYJbS5rRnAHYANgAGflKYbmcARgAOKcLI
-
-ChJ1biWV1qkEQmVpbmXpyGs+8VQd0uYoUjYAawQAYTZ8OoqAYnmEH5+ByCaXDYB7Ke5CDjEV7vUhfBAjABmSQRCIBEARhHw+AAyrB+hJBB40bd7k8AOobSTcPirCAkx4IXEwfHoQnlU4QcGHDjhXJoeYcthwYFqWb8ibXSBg4RwACSxD5qDyAF0OQjyJl5dwOEIsRzwZCecxFcVdu1LvFVgBfDlhBDEakAFnmEwFtMYLHYXDQNN2HtYnAAcpwxNx
-
-4s75iNFjwxm7doRmAARdJQe3cBEEMIcxoQ4gAUWCmWyioKrSKq1K5oqqcwUABpXKEgAKgB5R36NgAMTY2AgFZtFdNZvglwguFI9yopwbDokuHmfbLVtWqtpQjgxBqaf5IxGAE49yN4hMRkkxjxfaUiBwHtrdfgOe8QdvUBn8FnadghLcDImarhuCHSBgmUYEYCbLAoDJcg4G4O4hAQa0OUISEsAqXAJjRSRQgg2sABkUNvNA3zCQoBxKIcylndBW
-
-3bLsezRKsJBrOsOSGVBRiSeZtEdcY9ySPcL0WLizw5MUOPmc9kg5dZiE2fkpP4+I9yWR0khGCZ4nmHgkg5SR9kOOs0DUjlzhZSU6TuBloQ+CRvl+By0SBEFpVzGzYWY8gOGYYVAmyNEMSxJkWTpN52VpelyUpalbSsp5gtHNkHX1YRuV5LZBWFbBRS2CUOVcuUFXyVddnVXBNWonU9VpA1iCNRUqofCKEBfHhnQmS9IH9L0ww5bqgxDS4XQlR1Ro
-
-6uMGyTFMXxIhBs2ESECwyLIcmKjl103VNqMjfdD2PU8RnmCbgMIu9qt2J8nmo2aORYipnmqWpSAAHQ4eg2HMBBUDqVAWNQZQ2AIALOCgbFCCMIbFjVEHO3KzFxOO6BIIAQSIZRvXQMRsiYNEPSgcwCFRg4MYgfQSGIfoOT0bJcBQpgtQkKoQiehomjROoDhQghcKM9AHuZupXvez7vtIX7IP+wH8DRa8EAACQMo5+TiXTaVwIRagAJXCcHLnguba
-
-RQ4g0LnBc9JwyCCJvdNMwN3ZyAoHmKkXMByPLeNqLHOA4FZ5pbpHToEG6MykDYuYkjy2lxIWPcLNk+TeGPPTFd54bTN6czYtJF43ls9B7L+UPaWc0Favcr4UQRR0EDGALMRxPFErC5KIrihAKTkqkfSzhkEoqJK0S5SR6oy2khRFWBcosgr5RLErSjKiqzqa+2Frq9K0CA6AA7QS1WjdgQWuotqXXiPqmADDHOoYC+vWDDhQx9CYI/GRYjpGZCpu
-
-CLabffO3ShzItQsK0SyDgrG0He6A7rTkgI2dAuBvbODuv2acQEIEdDnBONgU5wFUXQguFBYCyzoNHOOSc9ZYGe1wDwF2JQD7uzLNvDB8CsE4OIXgucKR+wrnWhuLc21dwHiPCeM8F5HynTQI1R8PYrq/w/LsL8P59B/iiIBCsEAQJgR5tBBBcFSAISQobVC7Exw0PNswHmVsiKvltmRaYlE4Fex9tA2kTEoGQTROxZwjpFh7mSPEHgglFiOjGGMf
-
-cYw9xiTmJJbiOkZLRSfn4iYYwkjCQifEeIAl4inmTgcJWqBHSxFVrsEO3ALKRRzjCL4hd/jZmBKXNe5dPLWB8uOFadcgqN37s3YkbcO4J2vhUvuBIekpT8MPDeqBEbj2ypPcU09wSFTnmqDUCAGaoCkTVNeI9JH3ltEfJ0LpHTn09JwXq7pb4DQfhaDSSQeDzFjpEw2X8EA/2IrbeauYlpFlWmgFUvDNovh2kI/a6l5hn1pNeaxmyLoyJmh81xHi
-
-JCBkgtoAAVswVATMag/VuEIRwbBXocDYFAVAuBUA+GsBwFCyhUCbmYJIRo44W6lRBmDCGWwP60gRDDOG+AEa3RRmjEmWNUywhOfjdwRN0YVDJsQCmRcFEg1pjyUg6ynG+3ZqQTmHBuZIvQCi2s6LMXYqeqgPFBKiUkrJRS/AVKaV0tCIywGpAWVXjpgrPJqcVamQ1mwbWrAOVoH1shYx6F4hYQtvhCRNi/76koE7CQLs3YOKoXAQgmr/bMM5EHHo
-
-FxPFzHuRZaODy44JMThZfSXqp7p3zWgcpbcmn5xqYqgB9TXKQibRAT4CJ4gIgmCiDpDdmRNyJD3KKncYqt2zsM1koytnjJ2VMzKE8EaR12DPIqfz56QEXmsyqeyF2GkmVvNxe86H7Nau1YppR+pXxOZfe+j8pltWSVxcMTz4wvLebG+RAC17fJAfkIhjC3FI1rBQjh8D01II8YQssaCmGkNYZBxx1DaGu1QbgsDZDsGoaoRG+DrREM4ZQzAqDY5H
-
-QYfoSRyBY4yO4LQy6ajPC1x8J/cCvaIjzzXyhcvaRz5roIoUd+Woyj/xqMYZo7A4FII6NgsG/RiF96huNiY3AVHzGWJjbNOxhRU3oRgy44c2bjODGiYsRY2hMlJDUh+7SLo9zHKjtEw62hFg5NpPHLuUzFhjG0IdCYscInRkKUsKGtIq2GW4GMRInmSkZ0uA27OXaC6OTqS5MuucPJQK8q0vyrFuX11naFMd06GT9J84MtuJWB5jLSsaUeuwZk5X
-
-mflRZs81rctWesmFpRapLr64fK9LoxgPp6rvcbVzn2FLCbxI8EKv3Jm/vCuNxcAPAOLF13YG1+Gct2sIg68wb0nWtrs86V44VCbW2afVEBYa3GRgABVlFikG9x8C2usAgV6CBGDFmoBS+4bAESoGe7KZg1BXrUzM7utlutOXQ2yLDMm/KmuViFcTCooqcYSoJvgaVJM5UKrRDDlV9M00ZsaH7Me2r/B6ogxIB7UBwdveyB9r7PJfv/ZyIDuAwPQf
-
-g8h2z2HGiPUpy2D6tWfqA0I8UwhVTJt4EpC05bHTwn+sJru8m+xhtPbEE0Jm1xdGuh5sprSdiJwXPDFLfEydPoeCVol21tWiWynjsqXnbtLanLtqy1UuyNcETYCREO2r87dgVMq1OyPNWukjLK6vRdkzplZVa1M9dpRN3LO6+Vfd/Gj3r0a5vdRZ7DGR4OT6dqXK/SXPvRc05HAn2XFfSIjSiMEzLdeatv9gINvLS238kDJnRyw5nBUA3sGINEYo
-
-thujuG2GMLQ4RpcrGdvsaBYIrjp4ePiLOxsw9sLBNyP/pARRYmVEARL1JhAoEZPaJgnogxKmjFqfQrXVX0b9+6YvfpvXE/DdRcwNRdLcklbNklws9wxgfFRookbdYwpddhvNqRXR3MVIPMeMTxNJtJclotjIila1M5ysnhUsfcMsGk3Jstqw8tfJ2k1Rit4851E8bg+ly1qsZ1GDStwok8GtFRU9V0a1aRs9tsF4esD0LtIABtJkhs6RK9eB2oIt
-
-a9G9zklDH1Both4hoxjtDojxP4u8f0bp1svlNtfklQd0IBdsOMt9DswUxtIUY0ZDLoe9T9wNeYIAns2BbgwRwhUAABqClZQRgboQWB+awTgfHIHNgYgIQboc1KIVMYGbIdlIaGvBeXlVHAVRFWsQnbHFaXHBvSVQmYVWVcmc3JVGmOmNVfXQ3anLVHVBnNwjwrwwITFfwuAQI3NEIvAYlaldwSI6I2I24LcGWcXatZWOJaXLWHWINX6JTRXdTEYS
-
-NCxNXb/DXSQrXRndAHXP/D2CoIgRgB4NQI3EfQOYON3MOYYCOYtFAu3AZF0XA/JWOQgpLD3Ugw8eYbAMxYuP3RpKgwPREZEVEegzpEdbpZggQVg+3XgD3cPcEzkVKCZYvZdMeNPOZDPBZGUTrbdFZPPXrQ/frbZE9UvSBc9TDZqEbILKbevVQu+dQ/kJIcMO5ObDvb9Zwz5IBAfUw0sYjOfUzDxcjRxMkZGeYXAZ4TQTsXsGfBhE4zBchAUqhLhJ
-
-cLDdhUjOUxjKhWubhVocwywzfA7UFXfew/fRwq7E/KmUTX8CTa/C6W/LROTR/eXZTX/eMMNOcRYJY7TVYv+PTWfXYiQIUkUsUiUxiOjEAuYEJPxCJfcbJV0SMJYeLGYMMRIbSE7CAZA/kR0PxZSVJEYR0DqcMbJVMqLfJWLALVM0petV4v45td4z433TLX4gPXLFpWg/yYE4dEKOrYg9uNgmEzgrsngxEvgldWZNdDE9cLEswnEpec7FeAk3MQbf
-
-E4bY+CMCyO9FQ29OvZvTlMJM8CYPM1Mzvaaa7XvCAQBfMEwnPdfQFARfUtvSSPfaFJcjRU095G7DHTYiAAiRgAAaTUFemB30EB0yEcFwEB02lwGh2wg4B5GliR1BjlymVSLh2Rz5UyNu2yOKMZjyPFQKPxxyIkGJzKNKDJ0qPVX2IQEOKgGONKA5np3wETXQG/IQD/KgAArYAMGAvtCsHAv/CxWgtgpGJ5E9TwKmUQNKHVimMDT1jmNfyVzHD3A9
-
-JWOsUMPtg2LcO2N9PHwkGFjEBopIVOLN1bUgC8SLTgN4DLShISCdzGNQCeNdzrSuCrKbO91rK+N2BLg7ShGrO7Urmrg/yKxBM7IjxYOzmj27m7NhO4PnN4PR0gBazRLTiEI6y3SnNzxnIPwkPhIXKJNAxJPLxuDkJPiOipJj03Mb23LQFjD8wyWCUPNZJPJcPPMA0HyVGH0rFDP5PVIqARGYGRgAA0ABHTQRMTQajZUvK7NBffDdCKjKU2jKahjd
-
-hNDTUpU9qgy2UvDeU9CRY+a3k5DNU5aqhd0valU+fJapfKhRS06yag6ra7q02TCLUkoHUjfW8kFbjMRI0p8rKpwxq80pRS/STG0u/WTWseTJ/J0skl0t/OcZGJSr/FS2xZ06UijXqga4a0akMvkiDC4iSfibQFJCJUaHgXM2OBIZzXYcSR0OLVM9Miy7iLSTQyzWzPcZYXiB43mQpaSByog2PFLHy74Ny+sigztHyu4FstpNswKjs0daKiEsK3sy
-
-K/skKyQhEpdfg0cwQjdFKq80Q3E8QuctWnKpEmQu0Fco6a+dcybBvNQ65bgUaA8Y8cFRbSafQtkowjkn5PWyAXU967fMFZCsXY058v6s0rIxomAdQTgVAXSr6XySVQgYUbIV6KAEQDgUWbAfSEkGoHqeC5IxHbldI+GOK1wgizGHC3GJgQognLC9AIi4yyoZVMiz2OO/SiAOirmBiu7J7KOyQGOuOilccRO5Oti7IdOzO7OiW/GM5PfeWZ3MSiYk
-
-pGXaYmShXOS9TAAIQRqgCsXDrUsdm1x9NRscTqHbrA1N1KTxvsqpvDluKqwjk5uOAsgrKcu7LeMOjrPIK8tS3hCREHXbKirdQVoqyVv5t7hVrhKHg1pHPTySp1sxNSv+XSvz1nLGWPSRNPXypfwrxG3BVKoippOmyGmUnGFsx8Xqvdv+s9ovM5NAQQ32urC6qOoqDPuQTWoYbOsWsOsup2pY21IBT2x3DvJ3y+ougcNDtfN/RcPP0tNUWtKvFtPv
-
-3tN0UdIKtgVdPgWeB3r3rfNIhRoMwkDYeYY6pxsK12HYhdBGG0FdEmFjmUmPFCUpsTPpPvupGO20CgKjAeXuU0LCWvmLK5pfrd0rPfsFoeU/vcrbQbMoJcolu8lbPMYXgYNBIT3lsskVqsr7NSaYPSegZT1gcSszylF1pEN3TEILyTwwYamfPNsOXmGca6jrzKqaYqrpNQEWAyUyTZrCT0OPP3v/WMLobKYsLev2w+tEd4wkd+qkdUo/LcJbEQA4
-
-E1mEDFVemNgQDkBageAUA2a2coucHoEdGcARDtQZUSIQpmIfKLtQoyNLpYnLsqErrxylTrtJlKMbtItVXVTPtqMFDpy7sYogEWayBWY1iYHWZan2Z2b2btAeEOeOdOadSEvntstiXLJXukshvmPQkTB0fV3fPWMPs/M0pPs9geEeDqDYHPpN1zSvot24BvpcfRLcf5Ct12ECe4A0mePdzCZcs+B4E0EWFwHiEbs8v9y90+CDxDxVxlqAd6UyYGWy
-
-eCqgfVoKZRIEJdwQYnKQfML3TxKyqkMweJOYVJIPlkLwdTOtuhNttpPtuMgjlGlERZKoYGb7yGe9uA04duqYdxoevQBGDzH0AAFUoBuh9Bxr1qkN0ILq/T4ETrV8BG2MbzxmA7DTxGQ6Znj89GZGLTxN5HUAt5pMwaoIHTZjn8UaNHYb4E8x8WvT9HoayWKhA2Q2w2oAI2s1R8TGTKtg2oAsxhlhMlLM/NDpLNzKjo6by0joJgeJYsgkLwYxREiy
-
-F68yeXQnwGSDBbBXhXRWRaf7xaaCpaknd0UmVX0mo8wHQqIGcmuDgHsrYr+RCmxz2tEGfb0QKm0HC9Fysq6mq8jo7CiGMZXbWm7bn1wwjtoxP03b+mc32TaHPXsTk2hGkKRH1JHdHzKnLts3pHBVPyfzKX7hXofIGQM7Vm4ANYLmC6FJ4KUcS7H2I7HmcdcKlCa7HmG7Sdm7vnyWCPqW/nad6ju68OeOiO4ASPvoNZyPj3g7UXRL0XfUpLEKQ0N7
-
-0JOw62kbCXOR1LnZj7DH0B9FbgaXs1L7ziGW0AmXIBxJHdJ2rL7jIsF72WJKQm36N3Pcctu1kR4hiBsBNNviYmxb+Xe1+0AG5XIHz3ISlXlab2ByYqhzS6Ern3krX2Rn9XDb0Gi8TQTWLR1GLWLbIwCGbXAPKreBOmQkabnQ+mVtqGPL+8EO2rvWZT3E/WWGJAAApY0IQTATWKAAhDhnkrhu6xfONhS/hl6wRqw1D9N91TNo2l87DuZs/PNoGhR4
-
-CJRktiGtRnBhsTRscAAcTU5Px0//1a/a86+6+xq7aa/M35HBUJuWH3MmDfls0CSDss6XtKHpskliDndjijHiAiQaeSSfuMmCccuS2skFo8685848p+Nia93ifyzoJC6i9VoydAayci7PbvfyaRM1rgeKYgGEMQ9Kg/cypm6NZqZ/aKojEUPKsvhaZvjaftamR8WHePE0gq+7yq8Ga9qA2J9KD9tTZsMm9Ox+pm7Dtg4joqE1lE1jo+j0vtGUB+w4
-
-AADVkZExAcgRSAlfnAUJAduixA4KbnLmhoAO0jbm6PkSMKWc3mmOq7SBWO3n2OqZOOKdOhRN27O7dVBO3CZfbg5fPpXBiAlfXo1eNfUAtede9esVrBDeUWRL8k5PJj/VV7sXlO5w5Z9vJeD6gXSXdOIB+cOKERDPRxjP808bnALxriHdLKBlV27PbLzOxwnOwfN3+Wa5dwJQ92JW3Oe0UR/Kw9Qu72L2MeXP5X6tYv6PmtUSEvtWllkvSeZCKfgb
-
-TGsvNvlz6moOQOJsCu6e7WwPYxY4InOeDC1izyau+e6u+ufXmJu3tL0AkgYAVfBq6gWvJTeutKGv6MeGhv5wnqP/pSq/GNj/3v5jgjokberkAM2qDdQB84GhDdS/7TVtqpsFfPvDXwC8xmwjCZqIimbTcBMsibPiRUW5WlC26iYtg/lUblsoa5rI2PJVwCygs+0jQ7kN0f7P9X+vYTtr6yk6mV9y1mKAk5kPADtkk0Bcym1FpqssLKVmaMr4iUix
-
-gAktPSAJy3wI80EsoPZypKw74aRMI39HvtQUloFZB+KPOEiPwi5j8h+g8NVrjyfba0s8pTfnuUwNqYdja1TJwTl0OTodbWZyG2oV3aYNNDw/EC8Pg2eSutCB7rXnq1WQbXlkOnGGwiMHuQYdP2R+AgThyl4SAns9wMwMbDFiF8QcqACgHUAeCtIxAVqZwGECZikosoTwVaPnUQp5djetHNHFP3maMdnmeFV5ljkIofMOOFRLjhUByHF8+OzWAFt7
-
-yBbpC2AmQpgJEVyH5DSAhQrKMr2JSlCg4gQCofUleS5A56Cfb1G9zOCYtFOslGGnQJa6MD5umnYlhpWYGgCKKmgS6CX0Mr0sLG4cJONbgsq18qs9fDlgvX4hrtnOV7NvpK2wCCRqEAEHQY2UlaVxkQsrUqKezlrD9wuVWZVrCIsHJ4rBGrLWlq1sFJd7B77RwYkPnIuDlu0bXeNl1/byEHM+XK2luV8FqQHkKZYDmUAaputz+HrS/tyU/5QDGux7
-
-UAajAeBQBFgCIFrk9ggHX9EBsbWAeAOepgBXqKbLAWmzEZTcxe+Aj2iJkBokCi2q3CgQpioHZdaB6mH8icORqNt8+PIvkQKKFGcDb+l3HtpcUjCeMBIe4Y8M6APD3It+EAV7tY2s53EkgnjB5H5gmCdM2aNNBMooJXYg8+afw1zl8EBE8BgR3fMEW5wR6JNDBWPBVuj1MERjx+C6B9lb1ooz8bBJTLEWlRJ64iyeaXb9jN1JEnx5R2/LwagHpF3o
-
-iujuAHmV13An9lRPPeDqyOlHRDrCoKOIbgMVGQpZmZ/O6BIGRjYAxAcALaKgAopTCEQqdQgGTF6AzjFekwxYAoEWCoBMgoQEQGmBqFXMzeKFKAA0PQrNDberQljvhSd5dCXePQt3hIGuG3DBhtFYYQ0QqDjjJx042cf0IXFLjaUwQYPmuI3FbiQgzAXcXe1lhbDJcOwscHsJmJKdDh6mPCAaI04Oxc+lwyhH0K0A3CZEdwiQGX2IrWiOIDJavnWI
-
-+Hvc2CDnEMY33LIt91BvfaMbGNBFw9e+EI0PIA3MEe5wqu/EBvFE4lZjJ+OY+KnmIxEFidWb7FLq4OX6Eiy86/NwX+wSAUiqSRXSSMpB8QugghS2GDikOq4siIhUbYAnf0wkSAkgyMCYM8EkBNg8wsEBARyO/73Vmu8CbSCNylFjc9S2AkXsHUHFJD2xC3VUQW3VGg1NRkNHUdt1wAABZFCQ2xTRHcH+ZkiyVZNggWjORBaYYJmSsyFI1JOkFJCp
-
-H3Avcww6kFQRRJs7+ZgkUYYSOCiWDdNGmewWypMB+Gt9IxdkRiTGLjEsS9BCTI9smKRFcTL2vExkPxMHIwM0R+PccvP2xGSS8Rzg9Lq4MrHOg2o+XesVSOZ7TsmxIkIOkeUq5Mjmql5EZoL1lGxDqxXk1wRLx0nzMKgm9P6hSi0BEA8AM9DgK9CsT2hZQHAPnGFBkzgVwg+MXVPdKhwcAPs+AEuJR1qGHj0QxdRoUJLLrnjsYzHcqo7w6H10bxn4
-
-V3lUSwmaAcJIIT3q+J94XSrp5HG4QTHumPTCIz016RSnekwBPptwLmL9NQAAygZmwhekn2XoKd4JBwrbtWzHCBgopLhNCUfQMaxSGA6sfADkDwl6c6WJnR4WgColuiCpbwp0DZVErCQGp9Er4NuxFZitYe/nDQWMGDzsTkeKY3qaPwzGDSYuw06fpqxZaJdxJC/EsUv0JLGsb+dYkkdTxTJKTPBTedpmEkkg8ZXRm0rnttIv76TIBG1FKcgPQDIw
-
-KAm9cKcQAABaCAWtrZNDn2SYBxkpyagLoToDfamAlDh5KOl8Ypps3ZIacNkb5sr8pAm/EFJUZaj9YoUzmbgBbA8yMJFGSOdHLjkJzzuXA1KRnm9E+IJQZ4cYDGCUiIxxIf3Agl5ina+IbGykSzNAVzJ2NNCQPVAPVN5ovE+WkrdWbu2YnayExh7AwRxKMFhdFWCIzHj1IEnmzcxls+BpiJtkTTF+z5aSaWPJIW0Ywi05Sb4PUj+i2agSekf7NP4a
-
-cdpwzbEftNzkB04h9IguU/J8nc82gd2FsPYBIBOBY6wsnIK9EpQwUHU/hZgDAFuAZA6UOsdGK9EyAdhSAswfcabxo5oV7mmOGVNhRhn294ZtCxGfKkIlN07xqMnSiguYBYyBOQLeBQ4CQX0AuFaCu1BguXFYKcFqYfQPgtYDowQJJCshUaRk6J9xKuw1mWvRcK6j0I5oyLFGl3oEtTyfMkls3McQ7cjA6MvMC1zYARpkprhbucpFIkLBMkEgngFP
-
-MCSpJskeZCmoWSXnkSzgdE9eb3z8yLAEAUBNqTvI6mI9pa0IoKmfJc7cT2C17Q2efPVYWz0RVsufpOUiH60Mq9sk2pTwrGuzSa7snwStMPDJJhEmk6DltNCHMjwhXJbseNzzkDiTpw4jTqOKYqrcZx32ZgK9B24ZB9AYFVADt3KiDLAccsTsIDnCl4R+qGyTgM4GNgZhdQUnHlEkRBmUK7mTQ2BZhQRkaIEACIKTnjCvG7LagSU5GewoNYzcveb4
-
-iQHhC6WiLwgfSgZUMpGX6AxlqACZVMpmVzKXAiylBfHyZmqLYJ6itPohPQgABFHmfGnOHacBZv/M2Mbm4YOSruxE3MuZScV+IDw4KGMHZkEhLBQZ9NAdkvJnYSh9yu4VSLGBEQeY8ywY5vmoMCXVIHItSXzqLW8pxM95SPGJbLTBJHy0xJ8swYfOx6WDhyI0opmNKyV6t75hrB2Rlydk8AXZV6JsW/I9kqSowvEXxCEhdbaTThgC2rtkuzkyjQFs
-
-QqpaL1aVzcz+onFCFyQrBsiSgkoO1RWB3RgBbVYAIleAhJUjRyVwSSlaeGpUiJHVWcjRKECgCvA3lagLaB4StWzSogDvTekbBpQr9IAHYY2Kw1ICaA1A9YDACYXVSmpfmbMacOiEICYB7Qka/yEPmIQzsrix0O1ckAlDzAA1ckrIMQDjWQgE1hI5NaODqDpquRWazkuqgQQ+xnxyTYtcQFLW8wXVlautTAknWugG1lbSyMPWRisJ9IuAVLrSCbVL
-
-rJwK6qhLGzKBhTNYUK2kB2EYDhSSAY65gBSHUAtVeYP+I0YLPQy2KkBpnDiDivRXgpMVro+mj4mJUqyGVdkMgiyv3bsr9BnK5JrEp5Vwjj5DPIZKbONrZi8eYql9rfKLE5LUGUC/ETNJkmQJ5VckuaY7kpHKFvBe/Yhg7XuRxDYs6kNsTArqWdiIhjS9yWAoaYJD0NwENpaeUtXBzWgE66dY6unAurv17quda5MhTBrQ1ZMGQCWo+hlqWNC62NfG
-
-t6CJrSYURTtWmozUFr0gPyftYgiHUnsR1Y6r1mWBnXVqwARmoTeaybUtrHACm9tcptTXdrM1GmlaFpqpz5r1EGIPTVJvHXura1roadT5vrVlhlQJImNSzmXUhA11uwDdWFtXXADkVVbOgdiEPW7Bj1CAU9aOs80Xq1Akga9QdzhWwCbFiKgbt3NfkvCMVnjT9eWgE2fDbKYYteS51IJMrNZfnNlfDw5XRKwN3KtJpBr5XQa48gq5EfBusGiTCedg
-
-lDQ4NyUPyZVimtxDhvnV4aOeHsjcjWM9krT5sZK+bFRsDl6SGlbk/2satTKQKTS5qjThxutVlhuNgmwLXxvARVbDNQm8wmcxDUGBxNEazzdGuHqWa21Fc5LbZqMaqae1jm7IM5v0q6bJNUa8tYZv81+aq1ZmjkBZvk3KBFNHauzWpvUSA6oA6qSfDpsLUebwdV/VoEZuh11rYdrcRddFoi2lAotW68LbFsG57r65TYJLaUBS1pbz1l67LSYVy13r
-
-f+0POyU+qlkcQnMnjPiAeFF1i7XR0cYJBIO4hhZ/RtmQ6Hcg6gjQEACwGqUoLsoKC6V4Y/qR/Q+JRNAQWslrbvJA3taT24GrramInTpj+pmYoaaksvnpLr5Yk8aWNpxETbpV+S6bdhoVUrlHcNU61ktKZ7PpjsSQO5EeASAbTGRtS3VV2N21C8+x1zDNt5Kw7FyLVGWgzSUAu0VreNNq8BAsB4hFphIvEY7PhuV2q6YEbNe7Y+FE3Pbw1YO6TWbR
-
-C2fbrN325nb9vQBdrUdjCdHcDux3ub69XmitVDu80w7At2XeHa2pb1bxkdf2+zepuzWt15eKuvvUWoH0Z6a1VaonbOrH24aQtm67BNutcFU6D9NO6AWiC0Vzhg2TOpNeMNS1nqMt7OnLTmxMUKlO5Z+ivtmQCzHY1IZDJYKkhHlzApdE8qEozR/1RgdCDTP7keGXaN9Ndr9Rqbrq/qAbdBzSTqfvINlxKIxCSxERBoG2CSENs/G+S7v1Vu60NeSg
-
-ka3tDmzbG2G/KvFZ2VWlLg9IWOdh+k23R6g5O2pDk0sY01TDtkjY7exvT0Q7M97qnjVdtz3EJ89jJXcB5jjI00wkzi8BJXp32jcRNtwMTXXvS147G9H2hHUjvb0d1/tDmhfYZkHWubGE/erQ9JonU8QzwmZChppBUh7RlZI+mmhHC4iZkHuHUMYCTsi2Qhm9iOmzSmtn1d7ItJhh8YQAOJHEV9uO6w95p8QRJF2p8DSBgS341qEjgkFJMkf9Hkrf
-
-DLBMndTpi2Fzj9FAQ/e/vT7wIVe1+pTSevv1WrMtV6znc/ry1pyxwAVUUT/wgCmUgDt9Kqt6IlAVaoSbq6raJVq28t6t4TYWtvKN2RKkxB85JfEr6lo8+J/WifhfOElXyCeRPV3ZNJk2PysGzCag+a3m2gyA9785nr6vDDngHRbBs6WENo2cGoh3B41UHT4NZtU9J2oQ/judWiHLtSbc7eAmGN3aVDwmi6DXrDUSarDvMHQ3Jsn2BHKDSm4Ix3qM
-
-Pz6+1nsCilRRB04619whjfVOpH3E6QT5m/w3oaCMqa59aO8I+gDboxGcT3xkzcPqH2j7tSwWgoyfqKMyaSjZRlhJ0Yv3wIyQ1RlnXUeLCP6mjTAloxRlwCLFH1u69iCVt6MFJYgcQiUMsBUh2NXQ4wCQakiXlWYh2NNTQgEgeQCQowv6iY/ywiZ67wlMx1A1EpWUwjcDRs63csYGmrGUlqItJaNKQ3EHJVdsybZ7qw2HGfdToR3EHTOMqrfBPTUJ
-
-B5l8S3GdVHBt9iApiEJ7Ndbx8XmxpcKnb6GXG349nvEMAniE2pvPbqdST6nOmLo404sCr1qGntEJ17dodqZN7STCJmfciYpPd6qTDAJfVicsP6bcTDJ1JFxGgNWdLMcQ0PX5udA+IcV+4CMKTVGikkpR4+kk3Cf0NInDDbZsI2idTXdnV9UJ9fQyYySRgVIjuPFc6LqFD6Dz+4bSEFhdF4qRgeRiEmydKOn7OTkIffU+Y5Mpzz9YU/qoKdv2s6H9
-
-WWp/eKe52wD3SMpzo3Ke9F+C/ueZE8CkjzI1TxIUBGxqeH1Os8EgZ4QYwnFSTuYI4FG50YySgJLzAknjQ05pDCS7gaab8U0xGNSybymtrKrtImK6nzHMD/U7A6fIdNumRVHpxDdbO9PTkyDfpigwcZbxBm6D/ohg8RpW1MHumeKzMrGbP4x66Nceg6QntdGpmlR1GzM+vqz3An/j2Zgs1ZmEjJI5LFNASIeJKAkWHRRaKA5Rc0IBaWTBl4COCZe1
-
-0mYTUAAIyufJOhHKdHZmk+YehGxHB9kO6AlxH3ITtHMf3G495syQ+J+IlmeK6ZaCz3mMAS5qzfCen0GHO9AOjsxSwpb3BtzwVvczOx0jhgdI4WTQoeHGAng/N889SOpJiQdQxBqVoYg7zfPcmZCXJ585+ZxZzgAAmr+dqNQmGjHOzklzpim/9FK4FuLV0fDJJI4heZSzLHH3LhXELWwSSDY1JXbWdr9Ij7hkhQuvplrI0LiEvO0iOgeITmDSPuFf
-
-SxZNTq88Y7RYh69ooeVppi21rtPm7cm3Wq3fypNmum7d7ph3Z6f4sSrBLlyssblQa5HHL0vuykotqI3LaiuWhSMJB1/lR67jNG69QmZzlJn7yGl6ZmmYEMZmvjtqvSwTpz35mywLtQ60td8QnXjN51y67xBPCCQ8yd1nwyCYe2uXNDvZmTW1c8tNmsrq5nK8Yc3M6UuztJ3c32Zna8Q7LAY/cJ0z8ydQN9MYAJPckmBNi5Bd5ok3DvStfbhbPl3K
-
-+Lb04e8pbfNmwwDzCQDt+Ijyf0bFj83CQbLWkfckFiCzYrWre+8nUftfPe3yjYKucLHKGt36Rrop8a80ZAutG/+b+nk7Na8QOjSLgkLSJMHBRBYYrCpiduVvF3Z2sLPmGdoFkg72GzwkYCOAEy+FWYdrld/E6oO13Onf6FFrvtMfesm7PrnW765bp7LGybdsG+9vgaG0ZKiDYNlBhDa/ZQ2ORMN5+cGds6AcltjPUDpcD7muhnailgBfGb2m43ex
-
-+N5jUdo+OCH6julnM/pdUNU3WgzgfOy6ELtOZi7p4DqBXortV2drjll6oGse0aHITfNjy15bJMo7jbmmxfYH3NtvaZbta88B1CjCh7i9/7InaA9JrCR5dR0SSKlYn0ZXvLP9sW3/b6EC4irdJmw4ruWChJQkB4EJHY3HOXmHRXTfubVWCSe3HznV58t1Y/P86OZdAkEbouWKI0mRQp0O4BbFO3rJr4ohFR0bjuFoejzLE+AFgyQpJbMEcI08pC1P
-
-WMc72doOurtiCRgKaO0KiyHoW0126tT1/li1NYcw9mtzdtA6BrN1t3b2HdjiwKoWNmz7dGxx3VsdG0kHdj5BzDQiZm3iX5C9yRGGGcYMkMjTLtQ8CvdPLKXHjGAw1XjYOjxDvqZq3eyTf3u4nybDqvM4ZbLCFTFH4u5ClZe0BqPwwGjhy6Hs0hVmwT6h2ve/aAf83Gzy57+yEd/tOb0TkRhABjPhaAO8dNhyYP6IyQ0iwH3+4zTO2Uhqn4LviOId
-
-6qSBIP9bU+9RC2bXO+XIAPez2P0OwfS36TpVw8H5nKUploC2SHYTWue4bP282UoMTractzavbhRinfM99sXPadX5+uWNU/z6L62LhLh2zp4fh3gL/DqO85Jmt07TKo0Law/dJX0jR5BNTMs7XUgHg5Bx2aXZmTiDjAlgap5+AJE13q79wl1iF7tGhe0T6VZpgEUCNalN2D2Ld7qVxcWNd3nTtuux0DYccg3MlurcG5c+yoiXMu1ILx21HuQEb6ex
-
-kc48+hfjgoNIJkYIdqqUtr3gFG91DuAu3v8H4nHIHS0k8PsU3UnIh4hH4PhfVUkXoetmjAlGB+JwXroSF1AUqnjOub1esp7WfcsNndDNT5s9lZROUmTbBfbCU+MCvDqcH3miqW1FSTQEWbGSbR5Ds9dqQ/Mo0DSH673ATPm1Qt6Z3a/XN+XHXSztp3EaH25lbkmhQJN7IWzZOGTKb5+Gm68aRhJHND9q37ZfPEAOrPVph/FvUwcC2HnpdTqeVecA
-
-XGjHzvh7rnhUFahHfz6kKDMs7BJbDiLiJBFcmBB0PuLoXJ/VbaiWZS0hSJeQJGSDqTNIQWDxUEhos66t2QrDWW9eJemPTdhar65Y8dN/Xu7AN6lzxeBt8X6XEkqVeTym0BmxLuG6nr4yktI3fB/o+K/cgUvCualmNsJzjcieb3onLSwuadNOHyvvjyTkzZTbSetBp247kJHclZ7TuVbYAOd7ZjfiLuErykVxSU6vA82Kn9Zn9tU5Qe1PWzcz3tRg
-
-4kAJvXXoOlZzYbiENMfGfmaAqTSUh+bYHqSE8C7TQ77lKzut9dZM8yvRuRb9r9s466EXLLuFibkKwTuSApINbi1slc/CBMyeWxZZ08AEKcwJBObpzmg7JtC03Pij1z9kzut5NhS722Edh08/rcvO/zwpnIGHZ+QTXwAJUJxLiGGLWloA+kTIHsWrTTAGAhABAFHMN2pZK4lcAYJUBEAFZZQUi3EALXNONbwvX4CcE5qkWb1gv27204l8i8peMgnY
-
-e0xbr89JeovMX+EWVQi/JegdJXjgie/K/FeMgYLQbYUFq85f9AizTY9cGa+Vfcv4M8SDek68Y6pF3YNZTMQ8FECKvA3jIDzEebBADlWX8b9F4yBufi3Bn9Df14W/6A8wRn98yZ+RVrepFb5psCbjXhze6v+gTsKshWYsg+sdIKoG8HwA/m0AeU9zKeD+79yeMSwPz8wFu9YhBrVVPt5VJSP2Hk7zjCAEYA4oRsFGQs3wElh4i8QuIjlt2Ht/q+3u
-
-9Ox3vz2CBIBUcLK6P7VMQFxCbNuAfXjH8QHCnKbNvuAG4e2JG0kAm0lETem8E9ja8gQAACjI2A42fvAPLlcGSAABKNENrGUC6hxwnQZQCz+srs+k4FaQHJWr5/H1+vsXhkIs3ukFK/Pe6bWKhG1RTO/DFPgCaCpIpEAa57MyALqm8+OlBQGsWWHr6TXjgngpAQMHnit+kwbfTAcn5T+oi1yUaHdTQGilzTMBsQuqOAKT+Niu/dfhAscN0CadNgOK
-
-0sSH2BjCDBAI/s9T8Hm0O/MId7vk99gYGxDpBE/GMU4Y9vHH4xGAUft4MvDl+OBmAOvnONjFrDhSsgQgAZmeQR3pD9lTALIM+jStV+3UDIgIyH5fAITYEzANLadv98DqaUff93+zPP6YBs/Cf+6UH9HBfNFw5EPd+EEAjLgrQQAA
+```json
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {"id":"creator-box","type":"rectangle","x":-760,"y":-180,"width":180,"height":80,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"#e7f5ff","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24101,"version":1,"versionNonce":24101,"isDeleted":false,"boundElements":[{"type":"text","id":"creator-text"},{"type":"arrow","id":"a1"}],"updated":1,"link":null,"locked":false},
+    {"id":"creator-text","type":"text","x":-738,"y":-162,"width":136,"height":50,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24102,"version":1,"versionNonce":24102,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Creator\nvoice or text goal","fontSize":18,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"creator-box","originalText":"Creator\nvoice or text goal","lineHeight":1.25},
+    {"id":"app-box","type":"rectangle","x":-500,"y":-190,"width":230,"height":100,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"#fff4e6","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24103,"version":1,"versionNonce":24103,"isDeleted":false,"boundElements":[{"type":"text","id":"app-text"},{"type":"arrow","id":"a1"},{"type":"arrow","id":"a2"},{"type":"arrow","id":"a5"}],"updated":1,"link":null,"locked":false},
+    {"id":"app-text","type":"text","x":-476,"y":-164,"width":182,"height":50,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24104,"version":1,"versionNonce":24104,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Next.js creator studio\nnot a planning dashboard","fontSize":17,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"app-box","originalText":"Next.js creator studio\nnot a planning dashboard","lineHeight":1.25},
+    {"id":"api-box","type":"rectangle","x":-210,"y":-190,"width":230,"height":100,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"#f3f0ff","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24105,"version":1,"versionNonce":24105,"isDeleted":false,"boundElements":[{"type":"text","id":"api-text"},{"type":"arrow","id":"a2"},{"type":"arrow","id":"a3"},{"type":"arrow","id":"a4"},{"type":"arrow","id":"a10"}],"updated":1,"link":null,"locked":false},
+    {"id":"api-text","type":"text","x":-184,"y":-164,"width":178,"height":50,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24106,"version":1,"versionNonce":24106,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"FastAPI control plane\nevents, proof APIs, context","fontSize":17,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"api-box","originalText":"FastAPI control plane\nevents, proof APIs, context","lineHeight":1.25},
+    {"id":"db-box","type":"rectangle","x":80,"y":-190,"width":220,"height":100,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"#e6fcf5","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24107,"version":1,"versionNonce":24107,"isDeleted":false,"boundElements":[{"type":"text","id":"db-text"},{"type":"arrow","id":"a3"}],"updated":1,"link":null,"locked":false},
+    {"id":"db-text","type":"text","x":108,"y":-164,"width":164,"height":50,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24108,"version":1,"versionNonce":24108,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Postgres + pgvector\ncanonical product state","fontSize":17,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"db-box","originalText":"Postgres + pgvector\ncanonical product state","lineHeight":1.25},
+    {"id":"livekit-box","type":"rectangle","x":-500,"y":20,"width":210,"height":90,"angle":0,"strokeColor":"#1971c2","backgroundColor":"#e7f5ff","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24109,"version":1,"versionNonce":24109,"isDeleted":false,"boundElements":[{"type":"text","id":"livekit-text"},{"type":"arrow","id":"a5"},{"type":"arrow","id":"a6"}],"updated":1,"link":null,"locked":false},
+    {"id":"livekit-text","type":"text","x":-474,"y":40,"width":158,"height":50,"angle":0,"strokeColor":"#1971c2","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24110,"version":1,"versionNonce":24110,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"LiveKit\nroom, media, data channel","fontSize":17,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"livekit-box","originalText":"LiveKit\nroom, media, data channel","lineHeight":1.25},
+    {"id":"voice-box","type":"rectangle","x":-210,"y":20,"width":230,"height":90,"angle":0,"strokeColor":"#1971c2","backgroundColor":"#fff4e6","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24111,"version":1,"versionNonce":24111,"isDeleted":false,"boundElements":[{"type":"text","id":"voice-text"},{"type":"arrow","id":"a4"},{"type":"arrow","id":"a6"},{"type":"arrow","id":"a7"},{"type":"arrow","id":"a8"},{"type":"arrow","id":"a9"},{"type":"arrow","id":"a10"}],"updated":1,"link":null,"locked":false},
+    {"id":"voice-text","type":"text","x":-184,"y":40,"width":178,"height":50,"angle":0,"strokeColor":"#1971c2","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24112,"version":1,"versionNonce":24112,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Python voice participant\nturn orchestration","fontSize":17,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"voice-box","originalText":"Python voice participant\nturn orchestration","lineHeight":1.25},
+    {"id":"or-box","type":"rectangle","x":90,"y":-5,"width":250,"height":80,"angle":0,"strokeColor":"#1971c2","backgroundColor":"#e7f5ff","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24113,"version":1,"versionNonce":24113,"isDeleted":false,"boundElements":[{"type":"text","id":"or-text"},{"type":"arrow","id":"a7"}],"updated":1,"link":null,"locked":false},
+    {"id":"or-text","type":"text","x":120,"y":15,"width":190,"height":40,"angle":0,"strokeColor":"#1971c2","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24114,"version":1,"versionNonce":24114,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"OpenRouter\ndeepseek/deepseek-v4-flash","fontSize":16,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"or-box","originalText":"OpenRouter\ndeepseek/deepseek-v4-flash","lineHeight":1.25},
+    {"id":"kokoro-box","type":"rectangle","x":90,"y":100,"width":180,"height":70,"angle":0,"strokeColor":"#2b8a3e","backgroundColor":"#e6fcf5","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24115,"version":1,"versionNonce":24115,"isDeleted":false,"boundElements":[{"type":"text","id":"kokoro-text"},{"type":"arrow","id":"a8"}],"updated":1,"link":null,"locked":false},
+    {"id":"kokoro-text","type":"text","x":125,"y":112,"width":110,"height":40,"angle":0,"strokeColor":"#2b8a3e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24116,"version":1,"versionNonce":24116,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Kokoro\nspoken output","fontSize":16,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"kokoro-box","originalText":"Kokoro\nspoken output","lineHeight":1.25},
+    {"id":"rust-box","type":"rectangle","x":90,"y":205,"width":210,"height":80,"angle":0,"strokeColor":"#5f3dc4","backgroundColor":"#f3f0ff","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24117,"version":1,"versionNonce":24117,"isDeleted":false,"boundElements":[{"type":"text","id":"rust-text"},{"type":"arrow","id":"a9"}],"updated":1,"link":null,"locked":false},
+    {"id":"rust-text","type":"text","x":120,"y":225,"width":150,"height":40,"angle":0,"strokeColor":"#5f3dc4","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24118,"version":1,"versionNonce":24118,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Rust voice-edge\nVAD, barge-in, cancel","fontSize":16,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"rust-box","originalText":"Rust voice-edge\nVAD, barge-in, cancel","lineHeight":1.25},
+    {"id":"proof-box","type":"rectangle","x":-220,"y":220,"width":240,"height":90,"angle":0,"strokeColor":"#e67700","backgroundColor":"#fff4e6","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24119,"version":1,"versionNonce":24119,"isDeleted":false,"boundElements":[{"type":"text","id":"proof-text"},{"type":"arrow","id":"a10"},{"type":"arrow","id":"a11"},{"type":"arrow","id":"a12"},{"type":"arrow","id":"a13"}],"updated":1,"link":null,"locked":false},
+    {"id":"proof-text","type":"text","x":-190,"y":240,"width":180,"height":50,"angle":0,"strokeColor":"#e67700","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24120,"version":1,"versionNonce":24120,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Provider proof workspace\nno-secret packets","fontSize":17,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"proof-box","originalText":"Provider proof workspace\nno-secret packets","lineHeight":1.25},
+    {"id":"liveblock-box","type":"rectangle","x":-530,"y":200,"width":240,"height":95,"angle":0,"strokeColor":"#c92a2a","backgroundColor":"#fff5f5","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24121,"version":1,"versionNonce":24121,"isDeleted":false,"boundElements":[{"type":"text","id":"liveblock-text"},{"type":"arrow","id":"a11"}],"updated":1,"link":null,"locked":false},
+    {"id":"liveblock-text","type":"text","x":-503,"y":220,"width":186,"height":50,"angle":0,"strokeColor":"#c92a2a","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24122,"version":1,"versionNonce":24122,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Accepted live proof\ntiming ledger 8/8 measured","fontSize":16,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"liveblock-box","originalText":"Accepted live proof\ntiming ledger 8/8 measured","lineHeight":1.25},
+    {"id":"pubblock-box","type":"rectangle","x":-530,"y":340,"width":280,"height":95,"angle":0,"strokeColor":"#c92a2a","backgroundColor":"#fff5f5","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24123,"version":1,"versionNonce":24123,"isDeleted":false,"boundElements":[{"type":"text","id":"pubblock-text"},{"type":"arrow","id":"a12"}],"updated":1,"link":null,"locked":false},
+    {"id":"pubblock-text","type":"text","x":-508,"y":360,"width":236,"height":50,"angle":0,"strokeColor":"#c92a2a","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24124,"version":1,"versionNonce":24124,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Blocked publication\nLinkedIn, policy, destination, rollback","fontSize":16,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"pubblock-box","originalText":"Blocked publication\nLinkedIn, policy, destination, rollback","lineHeight":1.25},
+    {"id":"vaults-box","type":"rectangle","x":80,"y":350,"width":240,"height":85,"angle":0,"strokeColor":"#2b8a3e","backgroundColor":"#e6fcf5","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":24125,"version":1,"versionNonce":24125,"isDeleted":false,"boundElements":[{"type":"text","id":"vaults-text"},{"type":"arrow","id":"a13"}],"updated":1,"link":null,"locked":false},
+    {"id":"vaults-text","type":"text","x":110,"y":368,"width":180,"height":50,"angle":0,"strokeColor":"#2b8a3e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24126,"version":1,"versionNonce":24126,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Obsidian vaults\nplanning + system design memory","fontSize":16,"fontFamily":1,"textAlign":"center","verticalAlign":"middle","containerId":"vaults-box","originalText":"Obsidian vaults\nplanning + system design memory","lineHeight":1.25},
+    {"id":"legacy-text","type":"text","x":390,"y":-135,"width":260,"height":50,"angle":0,"strokeColor":"#868e96","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":24127,"version":1,"versionNonce":24127,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Legacy lanes\nGemma, Gamma, HF, MLX non-default","fontSize":16,"fontFamily":1,"textAlign":"left","verticalAlign":"top","containerId":null,"originalText":"Legacy lanes\nGemma, Gamma, HF, MLX non-default","lineHeight":1.25},
+    {"id":"a1","type":"arrow","x":-580,"y":-140,"width":80,"height":0,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24201,"version":1,"versionNonce":24201,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[80,0]],"lastCommittedPoint":null,"startBinding":{"elementId":"creator-box","focus":0,"gap":0},"endBinding":{"elementId":"app-box","focus":0,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a2","type":"arrow","x":-270,"y":-140,"width":60,"height":0,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24202,"version":1,"versionNonce":24202,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[60,0]],"lastCommittedPoint":null,"startBinding":{"elementId":"app-box","focus":0,"gap":0},"endBinding":{"elementId":"api-box","focus":0,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a3","type":"arrow","x":20,"y":-140,"width":60,"height":0,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24203,"version":1,"versionNonce":24203,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[60,0]],"lastCommittedPoint":null,"startBinding":{"elementId":"api-box","focus":0,"gap":0},"endBinding":{"elementId":"db-box","focus":0,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a4","type":"arrow","x":-95,"y":-90,"width":0,"height":110,"angle":0,"strokeColor":"#1971c2","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24204,"version":1,"versionNonce":24204,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[0,110]],"lastCommittedPoint":null,"startBinding":{"elementId":"api-box","focus":0,"gap":0},"endBinding":{"elementId":"voice-box","focus":0,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a5","type":"arrow","x":-395,"y":-90,"width":0,"height":110,"angle":0,"strokeColor":"#1971c2","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24205,"version":1,"versionNonce":24205,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[0,110]],"lastCommittedPoint":null,"startBinding":{"elementId":"app-box","focus":0,"gap":0},"endBinding":{"elementId":"livekit-box","focus":0,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a6","type":"arrow","x":-290,"y":65,"width":80,"height":0,"angle":0,"strokeColor":"#1971c2","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24206,"version":1,"versionNonce":24206,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[80,0]],"lastCommittedPoint":null,"startBinding":{"elementId":"livekit-box","focus":0,"gap":0},"endBinding":{"elementId":"voice-box","focus":0,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a7","type":"arrow","x":20,"y":50,"width":70,"height":-15,"angle":0,"strokeColor":"#1971c2","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24207,"version":1,"versionNonce":24207,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[70,-15]],"lastCommittedPoint":null,"startBinding":{"elementId":"voice-box","focus":0,"gap":0},"endBinding":{"elementId":"or-box","focus":0,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a8","type":"arrow","x":20,"y":80,"width":70,"height":55,"angle":0,"strokeColor":"#2b8a3e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24208,"version":1,"versionNonce":24208,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[70,55]],"lastCommittedPoint":null,"startBinding":{"elementId":"voice-box","focus":0,"gap":0},"endBinding":{"elementId":"kokoro-box","focus":0,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a9","type":"arrow","x":-30,"y":110,"width":120,"height":135,"angle":0,"strokeColor":"#5f3dc4","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24209,"version":1,"versionNonce":24209,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[120,135]],"lastCommittedPoint":null,"startBinding":{"elementId":"voice-box","focus":0.3,"gap":0},"endBinding":{"elementId":"rust-box","focus":-0.3,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a10","type":"arrow","x":-95,"y":110,"width":0,"height":110,"angle":0,"strokeColor":"#e67700","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24210,"version":1,"versionNonce":24210,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[0,110]],"lastCommittedPoint":null,"startBinding":{"elementId":"voice-box","focus":0,"gap":0},"endBinding":{"elementId":"proof-box","focus":0,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a11","type":"arrow","x":-290,"y":247,"width":70,"height":0,"angle":0,"strokeColor":"#c92a2a","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24211,"version":1,"versionNonce":24211,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[70,0]],"lastCommittedPoint":null,"startBinding":{"elementId":"liveblock-box","focus":0,"gap":0},"endBinding":{"elementId":"proof-box","focus":0,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a12","type":"arrow","x":-250,"y":387,"width":130,"height":-77,"angle":0,"strokeColor":"#c92a2a","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24212,"version":1,"versionNonce":24212,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[130,-77]],"lastCommittedPoint":null,"startBinding":{"elementId":"pubblock-box","focus":0,"gap":0},"endBinding":{"elementId":"proof-box","focus":0.2,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"},
+    {"id":"a13","type":"arrow","x":20,"y":285,"width":100,"height":65,"angle":0,"strokeColor":"#2b8a3e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":24213,"version":1,"versionNonce":24213,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"points":[[0,0],[100,65]],"lastCommittedPoint":null,"startBinding":{"elementId":"proof-box","focus":0.2,"gap":0},"endBinding":{"elementId":"vaults-box","focus":-0.2,"gap":0},"startArrowhead":null,"endArrowhead":"arrow"}
+  ],
+  "appState": {
+    "theme": "light",
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  },
+  "files": {}
+}
 ```
 %%

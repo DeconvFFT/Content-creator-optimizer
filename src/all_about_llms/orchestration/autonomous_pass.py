@@ -623,7 +623,6 @@ class AutonomousStudioPassWorkflow:
                     acknowledge_publish_channel_policy=(
                         request.acknowledge_publish_channel_policy
                     ),
-                    manual_publication_mode=request.manual_publication_mode,
                 ),
             )
 

@@ -10,27 +10,15 @@ This is the committed no-secret handoff for closing the remaining Agent Studio p
 - Remaining proof: `external-publication-proof`
 - Current status: blocked until the manual publication policy acknowledgement artifact, durable destination, and rollback or postcondition artifact are supplied and validated.
 
-## Manual Post Contract
-
-The content system produces a review-ready distribution package. The operator reviews that package, manually posts the approved content to LinkedIn, and then supplies durable evidence of that manual action. Agents do not publish to LinkedIn for this proof path, and no LinkedIn publication token is required.
-
-The three operator inputs are trace evidence of the operator-owned manual post:
-
-- `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`: durable reference to the operator's LinkedIn policy review.
-- `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`: URL or durable platform ID of the operator's manual LinkedIn post.
-- `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`: durable proof that the operator can delete/edit the post or that postcondition monitoring is in place.
-
 ## Minimal Operator Path
 
 Use this as the short route. The full commands remain below for copy/paste.
 
-1. Build and review the distribution package for the UUID run.
-2. Manually post the approved content to LinkedIn.
-3. Copy the three keys from `docs/external-publication-operator-inputs.example.env` into the ignored UUID operator input file.
-4. Replace every placeholder with durable evidence: your policy review artifact, your manual LinkedIn destination, and your rollback or postcondition artifact. No LinkedIn token is required for manual publication.
-5. Run the strict readiness command. If it reports `blocked_by_operator_inputs`, stop and fix the named fields.
-6. After strict readiness passes, refresh the proof packets, capture the publication preflight evidence, validate the proof record, and record it.
-7. Recheck completion status, then run closure review and blocker-state update. Do not claim completion before those checks pass.
+1. Copy the three keys from `docs/external-publication-operator-inputs.example.env` into the ignored UUID operator input file.
+2. Replace every placeholder with durable evidence: policy acknowledgement artifact, durable LinkedIn destination, and rollback or postcondition artifact. No LinkedIn token is required for manual publication.
+3. Run the strict readiness command. If it reports `blocked_by_operator_inputs`, stop and fix the named fields.
+4. After strict readiness passes, refresh the proof packets, capture the publication preflight evidence, validate the proof record, and record it.
+5. Recheck completion status, then run closure review and blocker-state update. Do not claim completion before those checks pass.
 
 ## Required Operator Inputs
 
@@ -96,15 +84,6 @@ Capture product and publish-readiness preflight evidence only after action-time 
 Command anchor: `uv run all-about-llms-admin validate-provider-proof-preflight-artifacts --proof external-publication-proof --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`
 
 ```bash
-uv run all-about-llms-admin run-autonomous-pass \
-  --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
-  --acknowledge-publish-channel-policy \
-  --manual-publication-mode
-
-uv run all-about-llms-admin build-distribution-package \
-  --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
-  > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/distribution-package.json
-
 curl -sS \
   -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/product-run.preflight.json \
   http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e
@@ -113,13 +92,17 @@ curl -sS -X POST \
   -o social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness.preflight.json \
   http://127.0.0.1:8000/api/runs/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/publish-readiness \
   -H 'Content-Type: application/json' \
-  --data '{"open_feedback_gate":false,"mark_run_completed_if_ready":false,"check_publish_channel_readiness":true,"acknowledge_publish_channel_policy":true,"manual_publication_mode":true}'
+  --data '{"open_feedback_gate":false,"mark_run_completed_if_ready":false,"check_publish_channel_readiness":true,"acknowledge_publish_channel_policy":true}'
 
 uv run all-about-llms-admin validate-provider-proof-preflight-artifacts \
   --proof external-publication-proof \
   --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
   --preflight-dir social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
   > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/external-publication-proof.preflight-validation.json
+
+uv run all-about-llms-admin build-distribution-package \
+  --run-id 190ae2f9-a74b-4a23-b39c-aaf2d636bd8e \
+  > social_media_optimiser/output/provider-proof/190ae2f9-a74b-4a23-b39c-aaf2d636bd8e/distribution-package.json
 ```
 
 The accepted `external-publication-proof` record must include durable destination-channel linkage, policy acknowledgement, rollback or postcondition evidence, zero failed post-capture validation checks, and a passed secret-redaction check.

@@ -4,7 +4,7 @@ project: agent-studio-system-design
 status: canon_ready
 source_title: "Stanford CS336 Language Modeling from Scratch"
 source_status: official_public
-updated: 2026-05-24
+updated: 2026-05-21
 scope:
   - "2026 Lecture 13 - Data I"
   - "2026 Lecture 14 - Data II"
@@ -16,7 +16,6 @@ scope:
   - "2025 Lecture 17 - Alignment RL systems/mechanics"
   - "2026 Lecture 15 - Mid/post-training SFT/RLHF/DPO"
   - "2026 current course schedule and Assignment 5 availability check through May 21, 2026"
-  - "2026 Lecture 17 - Multimodal models"
 sources:
   - https://cs336.stanford.edu/
   - https://cs336.stanford.edu/lectures/?trace=lecture_13
@@ -25,8 +24,6 @@ sources:
   - https://raw.githubusercontent.com/stanford-cs336/lectures/main/lecture_14.py
   - https://raw.githubusercontent.com/stanford-cs336/lectures/main/lecture_15.pdf
   - https://github.com/stanford-cs336/lectures/blob/main/lecture_16.pdf
-  - https://github.com/stanford-cs336/lectures/blob/main/lecture_17.py
-  - https://github.com/stanford-cs336/lectures/blob/main/var/traces/lecture_17.json
   - https://cs336.stanford.edu/spring2025/index.html
   - https://www.youtube.com/playlist?list=PLoROMvodv4rOY23Y0BoGoBGgQ1zmU_MT_
   - https://github.com/stanford-cs336/assignment5-alignment
@@ -340,7 +337,6 @@ High-value operational details from the public artifact:
 - Loss aggregation policy matters. Sequence-normalized and constant-normalized views are treated as real experimental choices rather than implementation trivia.
 - Train-step equivalence across microbatches matters too. The public Assignment 5 train-step surface makes a large-batch / small-memory trade explicit: split the learner step across microbatches, but preserve the same effective objective by weighting losses correctly under the chosen normalization mode before one accumulated optimizer step.
 - Rollout termination is part of the optimization contract. Stop strings, stop-text retention, max-token ceilings, finish reasons, and response masks define which tokens count as the response before sequence-level clipping or loss normalization is even applied.
-- **The vLLM `include_stop_str_in_output` default (`False`) is a silent reward-collapse risk for `r1_zero`-style prompts.** If `</answer>` is configured as a stop string without also setting `include_stop_str_in_output=True`, the `r1_zero_reward_fn` never finds `</answer>` in its input and returns zero reward for every rollout. The training loop appears to run normally — rollouts generate, gradients flow — but the reward signal is deterministically zero. This default-mismatch failure is indistinguishable from a model that genuinely cannot learn, so the run record must explicitly capture `include_stop_str_in_output` alongside `stop_strings` rather than relying on library defaults.[[../../02-lectures/stanford/assets/cs336-stop-string-answer-extraction-coupling.svg]]
 - Verifier provenance belongs in the same contract. The public grader extracts a final answer, normalizes it with Minerva-lineage rules, and then runs semantic or symbolic equivalence checks, so `answer_reward` is truth-after-parser-plus-normalizer-plus-verifier rather than raw exact-match over model text.
 - The public grader exposes a multi-stage grading cascade with escalating leniency: `grade_answer_mathd()` (strict Dan Hendrycks-style string match) → `grade_answer_sympy()` (sympy structural equivalence with 1s timeout and repetition filter) → `is_latex_equal()` (math_verify library, slow path only). During training only the first two stages are active, so two runs using different normalization rule sets (395+ unit texts vs 22-unit regex, fraction fixing vs LaTeX→text fallback) can see different reward rates for identical model outputs.
 - Answer extraction is prompt-family-dependent. `r1_zero_reward_fn` parses `<answer>` tags and extracts boxed answers from within; `question_only_reward_fn` searches for `\boxed{}` directly. A prompt-family swap that changes the extraction method is therefore a reward-surface change even when the optimizer and grading backend stay fixed.
@@ -398,18 +394,17 @@ Use `[[../../01-sources/official-open/cs336-assignment5-reasoning-rl-variants-cr
 
 ![[assets/cs336-assignment5-grading-cascade-contract.svg]]
 
-## 2026 Alignment Availability Check - 2026-05-24
+## 2026 Alignment Availability Check - 2026-05-20
 
 The current CS336 Spring 2026 page now lists Assignment 5 as "Alignment and Reasoning RL." The assignment description says students apply supervised finetuning and reinforcement learning to train language models to reason when solving math problems, with an optional safety-alignment part involving DPO.
 
-The 2026 schedule lists:
+The 2026 schedule now lists:
 
 - May 18: Mid/post-training (SFT/RLHF)
 - May 20: Alignment - RL algorithms
-- May 27: Alignment - RL systems (materials still not publicly visible)
-- June 1: Guest lecture: Daniel Selsam
+- May 27: Alignment - RL systems
 
-As of the latest 2026-05-24 live recheck, the official schedule still links a public 2026 Lecture 15 PDF for mid/post-training and a visible public `lecture_16.pdf` link for `Post-training - RLVR [Tatsu]`. Both materials have been read and integrated above. Lecture 17's materials link remains commented out in the page source — no visible public material exists. The public `assignment5-alignment` repository is now aligned to Spring 2026 (confirmed live, latest commit `495ea2b` "Typo fix" 2026-05-23).
+As of the latest 2026-05-20 late-evening check, the official schedule still links a public 2026 Lecture 15 PDF for mid/post-training and a visible public `lecture_16.pdf` link for `Post-training - RLVR [Tatsu]`. Both materials have now been read and integrated above. A same-day recheck corrected the temporary queue assumption that Lecture 17 had become visibly public: the live official course page currently shows no visible public Lecture 17 material link, so RL systems remains unpublished in current-2026 course materials. The public `assignment5-alignment` repository still points to the Spring 2025 assignment handout and optional safety/RLHF supplement, with a Spring 2025 archive release.
 
 Agent Studio implication:
 
@@ -503,55 +498,6 @@ The sorting-task experiments (3-number sort with full-information inclusion+orde
 
 ![[./assets/cs336-lecture17-delta-mode-flow.svg]]
 
-### Modal deployment topology (Assignment 5)
-
-The public `cs336_alignment/modal_utils.py` (added 2026-05-21) reveals the actual deployment environment Stanford students build against for online RL training. Five governance-relevant properties:
-
-- **GPU budget**: B200:2 per container × max 4 containers = 8 GPU ceiling. Container scheduling is Modal-managed; concurrent jobs may queue.
-- **Hard timeout**: 3600s per job. The RL unit of compute is a wall-clock-constrained trial, not "one run." Experiments that don't converge within 1 hour produce no result.
-- **Batch scheduling**: `submit_commands()` → `run_command.map()` with per-result exception check. Single seed failure (OOM, NaN loss) kills the full batch via `SystemExit(1)`.
-- **Auxiliary context shipped**: `AGENTS.md` and `CLAUDE.md` included in the Modal image — the deployment anticipates agent-assisted development on the remote cluster.
-- **W&B integration**: named Modal secret, shared project `cs336-a5-rlvr-{SUNET_ID}`. Experiment tracking identity is part of the infra contract, not optional.
-
-**Implementation meaning**: record `gpu_type`, `gpu_count_per_container`, `max_containers`, `container_timeout_s`, `parallel_batch_size`, `failure_isolation`, and `observability_backend` in the RL runtime record. Without these fields, "trained on 4 seeds for 1 hour" is indistinguishable between 4 parallel containers (8 GPU, 1h total) and 4 sequential runs (2 GPU, 4h total).
-
-![[./assets/cs336-modal-deployment-topology.svg]]
-
-### Checkpoint-to-release-gate provenance (Assignment 5)
-
-The public Assignment 5 runtime exposes a structural gap: the training system has no built-in checkpoint saver, and the adapter contract does not preserve the three-policy snapshot that release gates depend on. See [[../../01-sources/official-open/cs336-alignment-rl-systems-runtime-cross-check.md#Checkpoint-to-release-gate-provenance]] for the full analysis.
-
-Key implementation meaning for Agent Studio:
-
-- A "checkpoint" is not a release candidate until four components exist: learner weights, frozen reference model, old-policy log-probs SHA, and optimizer state with last-val-loss.
-- Config provenance must survive training → release: baseline/advantage/loss-normalization modes, clip range, group size, and sampling parameters. Without them, two checkpoints with the same eval score have different effective policies.
-- Grader/reward provenance must be separate from scalar histories: grader SHA, parser path, parser coverage, and answer-normalization ruleset. A checkpoint's reward curve is uninterpretable without knowing which normalization rules produced it.
-- Eval provenance must be independent of training metrics: separate dataset hash, grader version, batch size, seed, and timeout. Training reward/loss conflates policy improvement with dataset exposure effects.
-- Release provenance (reward curve slope, val-loss divergence, rollback recommendation) is a post-hoc annotation layer, not a training artifact — add it at promotion time.
-
-![[./assets/cs336-checkpoint-to-release-provenance.svg]]
-
-### Adapter dispatch contract — training-step orchestration topology (Assignment 5)
-
-The public `tests/adapters.py` interface defines a six-stage pipeline inside `run_grpo_train_step()` that binds tokenization, logprob extraction, reward dispatch, group normalization, policy-gradient loss, and loss aggregation into a single microbatched forward-backward loop. Rollouts arrive as `list[str]` — the function owns the text↔tensor boundary.
-
-**4 on-policy variant configurations** (differing only in advantage computation):
-- GRPO (`baseline=mean`, `normalizer=std`) — canonical group-std advantage
-- Dr. GRPO (`baseline=mean`, `normalizer=none`) — raw-scale advantage
-- RFT (`baseline=none`, `normalizer=none`) — no group-relative correction
-- MaxRL (`baseline=mean`, `normalizer=mean`) — mean-reward normalization
-
-**3 off-policy modes** (`noclip`, `grpo`, `gspo`) with `old_log_probs` plus `cliprange=0.1`. GSPO additionally requires `response_mask`, making it the only variant where a mask-construction bug changes the effective objective.
-
-**System-design implications for Agent Studio:**
-- The text↔tensor boundary isolates reward from the autograd graph — a model-based verifier would break the adapter contract
-- Microbatch decomposition is variant-independent — throughput should be comparable across variants for the same `gradient_accumulation_steps`
-- No per-microbatch observability — step-level aggregates mask outlier microbatches (extreme rewards, clip spikes, NaN gradients)
-
-See [[../../01-sources/official-open/cs336-assignment5-reasoning-rl-variants-cross-check.md#12-adapter-dispatch-contract--training-step-orchestration-topology]] for the full analysis with variant matrix and structural implications.
-
-![[../../01-sources/official-open/assets/cs336-adapter-dispatch-contract.svg]]
-
 ## Remaining Work
 
 - Refresh current 2026 CS336 Lecture 17 after Stanford visibly republishes the current RL systems material on the official course page.
@@ -568,22 +514,3 @@ The current CS336 2026 alignment refresh is public-material driven, not video-dr
 |---|---|---|---|
 | Stanford CS336 Language Modeling from Scratch public playlist | https://www.youtube.com/playlist?list=PLoROMvodv4rOY23Y0BoGoBGgQ1zmU_MT_ | data, filtering/deduplication, SFT/RLHF/RLVR alignment archive context | playlist candidate; individual videos not watched in full |
 | CS336 Spring 2026 Lecture 16/17 videos | Official page currently exposes a public Lecture 16 PDF but no public video source and no visible Lecture 17 material link in current vault evidence | RL algorithms and RL systems | Lecture 16 direct-read from PDF; Lecture 17 remains blocked in current evidence; no watched-video claim |
-
-### Official A5 Spring2026 Handout Config Contract added
-
-The public `cs336_spring2026_assignment5_alignment.pdf` (2405 lines) is a complete rewrite from the Spring 2025 supplement: it pivots from SFT+DPO (safety alignment on Llama 3.1 8B) to GRPO+variants (reasoning RL on OLMo-2-0425-1B with GSM8K only). The handout provides the first handout-level documented specification for the stop-token, reward-function, and model-topology contract.
-
-Key additions to the system-design knowledge base:
-- **Official `include_stop_str_in_output=True`** — establishes the fix for the previously-inferred silent zero-reward collapse as a documented production requirement
-- **Dual-device NCCL weight-sync topology** (HF Trainer GPU 0 → vLLM Server GPU 1: pause→update→reset_cache→resume) grounds the weight-sync provenance field in concrete architecture
-- **Formal `drgrpo_grader.py` dispatch** with `r1_zero_reward_fn` (tag-based) and `question_only_reward_fn` (box-based), both returning `{reward, format_reward, answer_reward}` with binary answer-only target
-- **Systematic evaluation framework**: 4 seeds per variant, pass@k, clip fraction, per-token entropy, validation every 10 batches on ≥1024 held-out examples
-- **Minimum viable config-contract tuple**: `rollout_termination_contract`, `reward_contract`, and `topology_contract` must be recorded as a block — without them, two runs differing only in `include_stop_str_in_output` appear identically configured while one produces zero reward
-
-See `01-sources/official-open/cs336-assignment5-reasoning-rl-variants-cross-check.md` Section 13 for the full specification. SVG artifact: `01-sources/official-open/assets/cs336-a5-handout-config-contract.svg`
-
-### CS336 Lecture 17 — Multimodal Models (added 2026-05-27)
-
-Lecture 17 is now fetchable via the official `stanford-cs336/lectures` repository: `lecture_17.py` (13.9KB) and `var/traces/lecture_17.json` (192KB) were confirmed present on 2026-05-27T19:26 CDT. The topic is **multimodal models** (not RL systems — the schedule row is labeled "Alignment - multimodality [Percy]").
-
-The lecture covers five architectural approaches: CLIP (contrastive image-text), SigLIP (sigmoid loss), LLaVA/LLaVA OneVision (VLM template), Qwen-VL family (dynamic resolution, MRoPE, DeepStack), and Chameleon (discrete-token unified model). See [[../../01-sources/official-open/cs336-lecture17-multimodal-models-cross-check]] for the full cross-check note with architecture tables and operational implications.

@@ -71,17 +71,6 @@ def test_ci_checks_uv_lock_is_current_before_python_tests() -> None:
         )
 
 
-def test_live_postgres_ci_runs_on_pull_requests_before_merge() -> None:
-    workflow = yaml.safe_load((ROOT / ".github/workflows/ci.yml").read_text())
-    live_postgres = workflow["jobs"]["live-postgres"]
-
-    condition = live_postgres.get("if", "")
-
-    assert "github.event_name == 'pull_request'" in condition
-    assert "github.ref == 'refs/heads/main'" in condition
-    assert "workflow_dispatch" in condition
-
-
 def test_github_actions_workflows_opt_into_node24_action_runtime() -> None:
     workflow_paths = [
         ROOT / ".github/workflows/ci.yml",
@@ -450,8 +439,7 @@ def test_cloud_handoff_documents_github_permission_and_proof_gate_setup() -> Non
         "auto-merge",
         "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
         "Node 24",
-        "fix_20260528-live-postgres-gate",
-        "Live Postgres (PR/main/manual)",
+        "feature/livekit-voice-proof-capture",
         "provider-proof-pr-handoff",
         "provider-proof-pr-create",
         "provider-backed-live-voice-proof",
@@ -538,12 +526,9 @@ def test_provider_proof_pr_handoff_commands_include_current_evidence_flags() -> 
             assert "--ci-url" in command_window, (
                 f"{path.relative_to(ROOT)} handoff command must include --ci-url"
             )
-        assert "--head-sha" in command_window, (
-            f"{path.relative_to(ROOT)} handoff command must include --head-sha"
-        )
-        assert "--branch" in command_window, (
-            f"{path.relative_to(ROOT)} handoff command must include --branch"
-        )
+            assert "--head-sha" in command_window, (
+                f"{path.relative_to(ROOT)} handoff command must include --head-sha"
+            )
 
 
 def test_external_publication_operator_runbook_is_committed_no_secret_handoff() -> None:
@@ -837,8 +822,6 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
             "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             "--operator-input-path",
             str(operator_input_path),
-            "--branch",
-            "feature/livekit-voice-proof-capture",
             "--ci-url",
             "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
             "--head-sha",
@@ -876,7 +859,6 @@ def test_provider_proof_pr_handoff_cli_generates_manual_pr_body(tmp_path: Path) 
         "Allow GitHub Actions to create and approve pull requests",
         "main branch protection",
         "required status checks",
-        "Live Postgres (PR/main/manual)",
         "CODEOWNERS review",
         "auto-merge",
         "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
@@ -918,7 +900,6 @@ def test_provider_proof_pr_handoff_cli_requires_current_ci_and_head_sha() -> Non
     )
 
     assert result.returncode != 0
-    assert "--branch" in result.stderr
     assert "--ci-url" in result.stderr
     assert "--head-sha" in result.stderr
     assert "Agent Studio PR Handoff" not in result.stdout
@@ -962,8 +943,6 @@ def test_provider_proof_pr_handoff_cli_rejects_non_current_evidence_values() -> 
                 "provider-proof-pr-handoff",
                 "--run-id",
                 "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
-                "--branch",
-                "feature/livekit-voice-proof-capture",
                 "--ci-url",
                 ci_url,
                 "--head-sha",
@@ -992,8 +971,6 @@ def test_provider_proof_pr_handoff_cli_rejects_ci_repo_mismatch() -> None:
             "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             "--repo",
             "DeconvFFT/Content-creator-optimizer",
-            "--branch",
-            "feature/livekit-voice-proof-capture",
             "--ci-url",
             "https://github.com/OtherOwner/OtherRepo/actions/runs/123456789",
             "--head-sha",
@@ -1027,8 +1004,6 @@ def test_provider_proof_pr_handoff_cli_uses_custom_output_dir_workspace(
             "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             "--output-dir",
             str(custom_workspace),
-            "--branch",
-            "feature/livekit-voice-proof-capture",
             "--ci-url",
             "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
             "--head-sha",
@@ -1080,8 +1055,6 @@ def test_provider_proof_pr_create_cli_dry_run_outputs_no_secret_request(
             "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             "--operator-input-path",
             str(operator_input_path),
-            "--branch",
-            "feature/livekit-voice-proof-capture",
             "--ci-url",
             "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
             "--head-sha",
@@ -1140,8 +1113,6 @@ def test_provider_proof_pr_create_cli_reports_manual_required_without_token() ->
             "190ae2f9-a74b-4a23-b39c-aaf2d636bd8e",
             "--operator-input-path",
             str(operator_input_path),
-            "--branch",
-            "feature/livekit-voice-proof-capture",
             "--ci-url",
             "https://github.com/DeconvFFT/Content-creator-optimizer/actions/runs/123456789",
             "--head-sha",

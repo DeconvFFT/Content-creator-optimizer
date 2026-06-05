@@ -199,7 +199,7 @@ def _publish_readiness_preflight_payload(
                 "policy_status": policy_status,
                 "blocking_issues": (
                     []
-                    if credential_status in {"configured", "manual_not_required"}
+                    if credential_status == "configured"
                     else ["missing_publish_channel_credentials"]
                 ),
                 "recommended_next_actions": [],
@@ -1362,8 +1362,7 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
             "'{\"open_feedback_gate\":false,"
             "\"mark_run_completed_if_ready\":false,"
             "\"check_publish_channel_readiness\":true,"
-            "\"acknowledge_publish_channel_policy\":false,"
-            "\"manual_publication_mode\":true}'"
+            "\"acknowledge_publish_channel_policy\":false}'"
         )
     ]
     assert publication["preflight_output_files"] == [
@@ -1393,8 +1392,7 @@ def test_provider_proof_plan_blocks_runtime_until_credentials_are_configured(
             "'{\"open_feedback_gate\":false,"
             "\"mark_run_completed_if_ready\":false,"
             "\"check_publish_channel_readiness\":true,"
-            "\"acknowledge_publish_channel_policy\":false,"
-            "\"manual_publication_mode\":true}'"
+            "\"acknowledge_publish_channel_policy\":false}'"
         )
     ]
     assert publication["preflight_artifact_id_fields"] == [
@@ -8871,42 +8869,6 @@ def test_provider_proof_preflight_artifacts_validation_accepts_publication_polic
         )
     }
     assert payload["validated_product_run_id"] == PROVIDER_PROOF_TEST_RUN_UUID
-
-
-def test_provider_proof_preflight_artifacts_validation_accepts_manual_publication_ready_payload(
-    tmp_path,
-):
-    env_example = tmp_path / ".env.example"
-    env_example.write_text("")
-    preflight_dir = tmp_path / "proof workspace"
-    preflight_dir.mkdir()
-    _write_product_run_preflight(preflight_dir)
-    (preflight_dir / "publish-readiness.preflight.json").write_text(
-        json.dumps(
-            _publish_readiness_preflight_payload(
-                status="ready",
-                ready=True,
-                blocking_issues=[],
-                credential_status="manual_not_required",
-                policy_status="acknowledged",
-            )
-        ),
-        encoding="utf-8",
-    )
-
-    payload = provider_cli._provider_proof_preflight_artifacts_validation_payload(
-        Namespace(
-            env_example_path=env_example,
-            checked_at="2026-06-04",
-            run_id="123e4567-e89b-12d3-a456-426614174000",
-            proof="external-publication-proof",
-            preflight_dir=preflight_dir,
-        )
-    )
-
-    assert payload["status"] == "valid_preflight_artifacts"
-    assert payload["issue_codes"] == []
-    assert payload["validated_publish_channels"] == ["linkedin"]
 
 
 def test_provider_proof_preflight_artifacts_validation_rejects_duplicate_publish_channel_checks(

@@ -177,7 +177,6 @@ def test_publication_boundary_filters_external_proof_and_exports_blocker():
             )
             assert "/publish-readiness" in preflight_commands[1]
             assert '"acknowledge_publish_channel_policy":false' in preflight_commands[1]
-            assert '"manual_publication_mode":true' in preflight_commands[1]
             preflight_output_files = export_payload["routes"][0]["proof_plan"][
                 "preflight_output_files"
             ]
