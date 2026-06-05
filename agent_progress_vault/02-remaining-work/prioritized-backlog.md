@@ -1,6 +1,6 @@
 ---
 type: backlog
-updated: 2026-05-24
+updated: 2026-05-28
 sources:
   - synthesis-59e319d8
   - vault-audit-c74873d8
@@ -13,12 +13,12 @@ Synced from final synthesis Phase 0–3 plan + vault audit top 5.
 
 ## Phase 0 — Objective blockers (operator, Effort L)
 
-Requires user secrets and operator action. **Cannot be closed by agents alone.**
+Requires operator-owned durable publication evidence and action-time approval. **Cannot be closed by agents alone.**
 
 | # | Item | Commands / refs |
 |---|------|-----------------|
 | 1 | Capture accepted live voice proof | **Done 2026-05-24** — `provider-backed-live-voice-proof.accepted-record.json` is recorded for OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro with timing ledger `7e932381-4bf4-4206-a490-58d6a4ca7880` |
-| 2 | Configure publication inputs | LinkedIn token file, policy acknowledgement, durable destination, rollback/postcondition artifacts |
+| 2 | Configure publication inputs | Manual-publication policy acknowledgement artifact, durable destination URL/platform id, and rollback/postcondition artifact; no LinkedIn token file is required for the current path |
 | 3 | Run post-unblock external publication proof capture | UUID `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`; use external-publication `proof_capture_commands_after_unblock` from matrix only after explicit action-time approval |
 | 4 | Record accepted external publication proof | `validate-provider-proof-record` -> `record-provider-proof-record` for `external-publication-proof` |
 | 5 | Closure review | `provider-proof-closure-review-template`; update blocker state when `all_required_proofs_accepted: true` |
@@ -35,10 +35,10 @@ No user secrets required for items 1–5; item 6 requires Phase 0 proofs.
 | # | Item | Effort | Status |
 |---|------|--------|--------|
 | 1 | Install Playwright browsers | **S** | Branch-head remote CI passed the Python backend Playwright install step at last live check |
-| 2 | CI pipeline | **M** | **Remote green on feature branch** — last live check passed branch policy, frontend build/lint/typecheck/tests, Python Ruff + stable pytest slice, and both Rust services. PR creation/open PR remains blocked or absent: GitHub connector returned `403`, local `gh` is unavailable, REST PR lookup returned no open PR, and branch-protection/auto-merge setup still needs GitHub-side configuration. Use `provider-proof-pr-handoff` to generate the no-secret manual PR body until connector permissions are upgraded; token-backed `provider-proof-pr-create` now updates an existing open branch PR before creating a new draft. `cloud.md` captures the no-secret GitHub Actions permission, branch-protection, required-check, and auto-merge checklist |
+| 2 | CI pipeline | **M** | **Remote branch-push product checks green on `fix_20260528-live-postgres-gate` at latest live check** — last live check passed branch policy, frontend, Python backend, and both Rust services. `Live Postgres (PR/main/manual)` is configured for PR/main/manual and must pass on the PR before approval or merge. PR creation/open PR remains blocked or absent: Auto PR failed with GitHub `403`, GitHub connector returned `403`, local `gh` is unavailable, REST PR lookup returned no open PR, and branch-protection/auto-merge setup still needs GitHub-side configuration. Use `provider-proof-pr-handoff` to generate the no-secret manual PR body until connector permissions are upgraded; token-backed `provider-proof-pr-create` updates an existing open branch PR before creating a new draft. `cloud.md` captures the no-secret GitHub Actions permission, branch-protection, required-check, and auto-merge checklist |
 | 3 | Four ship skills | **M** | **Done** — local-bootstrap, ship-gate, provider-proof-capture, and ci-scaffold skills exist under `skills/agent-studio-*` |
 | 4 | Ruff baseline | **S** | **Done locally** — `[tool.ruff]` exists in `pyproject.toml`; fresh `uv run ruff check src/ tests/` returned `All checks passed!` |
-| 5 | Initial git commit / branch push | **S** | **Done** — `main` is seeded and `feature/livekit-voice-proof-capture` is pushed; PR/merge/release tag remain pending |
+| 5 | Initial git commit / branch push | **S** | **Done** — `main` is seeded and current branch `fix_20260528-live-postgres-gate` is pushed; PR/merge/release tag remain pending |
 | 6 | Production auth + disable secret-write in prod | **L** | **Backend guard done 2026-05-24** — non-local mutating API requests require a configured `ADMIN_API_TOKEN` bearer token, missing token fails closed, and local secret/config write endpoints still reject production after auth. Broader identity/RBAC remains out of scope for this slice |
 | 7 | Closure review (after proofs) | **M** | Blocked on Phase 0 |
 

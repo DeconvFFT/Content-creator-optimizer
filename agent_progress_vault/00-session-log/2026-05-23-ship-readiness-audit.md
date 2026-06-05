@@ -104,7 +104,7 @@ See [[../01-implementation-matrix/feature-implementation-status]] and [[../04-cr
 | Production ship | **NO-GO** — score **4/10** |
 | Local demo (provider-free) | **CONDITIONAL GO** — score **7/10** |
 
-Current superseding update: live dialogue is no longer blocked on Gemma/HF/Gamma/MLX setup. The active path is OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro, and `provider-backed-live-voice-proof` is now accepted for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`. External publication remains blocked on LinkedIn credentials, policy acknowledgement, durable destination, and rollback/postcondition evidence. Do not treat this historical audit as the current proof-state source of truth; use `active-codex-context.md`, the UUID current proof packets, and the objective completion audits.
+Current superseding update: live dialogue is no longer blocked on Gemma/HF/Gamma/MLX setup. The active path is OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro, and `provider-backed-live-voice-proof` is now accepted for run `190ae2f9-a74b-4a23-b39c-aaf2d636bd8e`. External publication now follows the manual-publication path and remains blocked only on durable policy acknowledgement, destination, and rollback/postcondition evidence; no LinkedIn token file is required. Do not treat this historical audit as the current proof-state source of truth; use `active-codex-context.md`, the UUID current proof packets, and the objective completion audits.
 
 ## Evidence paths
 
