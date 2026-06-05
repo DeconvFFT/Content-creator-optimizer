@@ -1,0 +1,86 @@
+[
+  {
+    "check": "CS336 course page",
+    "finding": "L16 visible: lecture_16.pdf found 2x outside comments",
+    "delta_yesno": "YES",
+    "evidence": "2 uncommented references to lecture_16.pdf"
+  },
+  {
+    "check": "CS336 course page",
+    "finding": "L17 visible via trace viewer: 1 reference(s)",
+    "delta_yesno": "YES",
+    "evidence": "trace=lecture_17"
+  },
+  {
+    "check": "CS336 course page",
+    "finding": "L18 (Selsam, Mon June 1) visible on page",
+    "delta_yesno": "YES",
+    "evidence": "Selsam/June 1 text found"
+  },
+  {
+    "check": "CS336 course page",
+    "finding": "L19 (Dan Fu, Wed June 3) visible on page",
+    "delta_yesno": "YES",
+    "evidence": "Dan Fu/June 3 text found"
+  },
+  {
+    "check": "CS336 course page",
+    "finding": "spring2026-lectures stale comments found (1 match(es))",
+    "delta_yesno": "YES",
+    "evidence": "<!-- <td> <a href=\"https://github.com/stanford-cs336/spring2026-lectures/blob/main/nonexecutable/Lecture%207%20-%20Parallelism%20basics.pdf\">lecture 7.pdf</a></td> -->"
+  },
+  {
+    "check": "Lectures repo tree",
+    "finding": "Total traces in var/traces/: 11",
+    "delta_yesno": "YES",
+    "evidence": "File count: 11"
+  },
+  {
+    "check": "Lectures repo tree",
+    "finding": "No L18 traces found",
+    "delta_yesno": "NO",
+    "evidence": ""
+  },
+  {
+    "check": "Lectures repo tree",
+    "finding": "No L19 traces found",
+    "delta_yesno": "NO",
+    "evidence": ""
+  },
+  {
+    "check": "Lectures repo tree",
+    "finding": ".py files in repo: 14",
+    "delta_yesno": "YES",
+    "evidence": "facts.py; gpu_util.py; lecture_01.py; lecture_02.py; lecture_06.py; lecture_07.py; lecture_10.py; lecture_12.py; lecture_13.py; lecture_14.py"
+  },
+  {
+    "check": "CS25 recordings page",
+    "finding": "Total iframe embeds on page: 5",
+    "delta_yesno": "YES",
+    "evidence": "5 iframe tags found"
+  },
+  {
+    "check": "CS25 recordings page",
+    "finding": "Known YouTube IDs NOT confirmed via oEmbed: 5",
+    "delta_yesno": "delta (missing)",
+    "evidence": "mnA2VKQmTl8 (HTTP 404); R2xP259f3dA (HTTP 404); WX7L8G5_5cE (HTTP 404); N6lIbyh6e20 (HTTP 404); KZYIA4cz2Gc (HTTP 404)"
+  },
+  {
+    "check": "CS25 May 21 (Victoria Lin / Thinking Machines)",
+    "finding": "No May 21 (Victoria Lin / Thinking Machines) match on recordings page",
+    "delta_yesno": "NO",
+    "evidence": "Query patterns: ['Victoria Lin', 'Thinking Machines', 'May 21']"
+  },
+  {
+    "check": "CS25 May 28 (Charles Frye / Modal / Serving Transformers)",
+    "finding": "May 28 speaker/talk found on recordings page",
+    "delta_yesno": "YES",
+    "evidence": "Modal: 19 match(es)"
+  },
+  {
+    "check": "A5 repo commit SHA",
+    "finding": "SHA matches cd5f183 (current: cd5f183cf217cd82843e521d4d226e76544de51c)",
+    "delta_yesno": "NO (unchanged)",
+    "evidence": "SHA: cd5f183cf217cd82843e521d4d226e76544de51c"
+  }
+]

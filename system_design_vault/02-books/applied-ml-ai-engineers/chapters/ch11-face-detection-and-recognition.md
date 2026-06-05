@@ -1,6 +1,6 @@
 ---
 type: book-chapter-note
-status: deep_read_pass_1
+status: canon_ready
 source_id: local_books.applied_ml_and_ai_for_engineers.chapter_11_face_detection_and_recognition
 chapter: "11 - Face Detection and Recognition"
 extraction_method: pdftotext_direct_read

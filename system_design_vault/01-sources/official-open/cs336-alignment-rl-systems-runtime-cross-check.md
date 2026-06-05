@@ -207,7 +207,166 @@ The test suite validates three off-policy importance reweighting methods at `cli
 
 The `old_log_probs` for off-policy tests are constructed as `torch.linspace(-1.5, 0.5)` — non-trivial drift that makes clipping behavior testable. The `response_mask` is required for GSPO, confirming the sequence-level contract depends on correct response-boundary isolation.
 
-## Mental model artifact
+### 17. The Modal deployment topology defines the real runtime budget
+
+The live `cs336_alignment/modal_utils.py` (added 2026-05-21 in commit `115f8ff`) makes the deployment infrastructure explicit — this is not generic speculation but the actual provisioned environment Stanford students build against:
+
+```
+GPU:             B200:2          # 2× B200 GPUs per container
+MAX_CONTAINERS:  4               # max 4 parallel job instances  
+RUN_TIMEOUT:     3600s (1 hour)  # per-job wall-clock limit
+Base image:      nvidia/cuda:12.9.1-devel-ubuntu22.04 + Python 3.12 (uv)
+Local dirs:      cs336_alignment/  data/  experiments/  scripts/
+Local files:     pyproject.toml  uv.lock  AGENTS.md  CLAUDE.md
+Observability:   W&B via Modal.Secret.from_name()
+```
+
+The topology has five governance-relevant properties:
+
+**a) GPU budget is finite and shared.** Two B200 GPUs × 4 max containers = 8 GPU maximum parallelism. A run with large `rollout_batch_size` and many seeds (e.g. `seeds=0,1,2,3` as in the docstring example) spawns up to 4 parallel containers, each processing one seed's `scripts/grpo.py` independently. Container scheduling is Modal's responsibility — concurrent jobs may queue waiting for GPU availability.
+
+**b) The 1-hour timeout is a hard braking constraint.** `RUN_TIMEOUT_SECONDS = 60 * 60` means any RL trial that exceeds 1 hour gets preempted. For a training loop where each step involves vLLM rollout generation → NCCL weight transfer → GRPO update → logging, the timeout forces the student to make algorithmic choices (group size, rollout count, microbatch steps, GPUs) that fit within 3600 seconds. In production, this translates to: **the RL pipeline's unit of compute is not "one training run" but "one wall-clock-constrained trial."** Experiments that don't converge within the budget produce no results.
+
+**c) The `submit_commands` pattern is a parallel batch scheduler with failure isolation.** Commands are submitted via `run_command.map()` (Modal's parallel map), and each result is checked for exceptions. Failed commands are counted and cause `SystemExit(1)`. This means a single seed failure (e.g. OOM, timeout, NaN loss) kills the entire multi-seed batch run. **Implementation meaning:** runs with multiple seeds or hyperparameter sweeps should record per-seed exit status independently and preserve partial results rather than treating a batch as atomic.
+
+**d) The Modal image includes `AGENTS.md` and `CLAUDE.md`.** These files provide AI-assisted development context for the assignment — a sign that the deployment environment anticipates agent-driven or AI-assisted development workflows on the remote cluster. For a production RL pipeline, this means the deployment artifact should record what auxiliary context (agent instructions, runbooks, observability dashboards) is shipped alongside the training code.
+
+**e) W&B integration is production-level.** The `wandb_secret` is a named Modal secret, meaning weigths-and-biases logging is not an optional add-on but part of the provisioned image. All parallel containers share the same W&B project (`cs336-a5-rlvr-{SUNET_ID}`). In production, this means experiment tracking identity, run-name collision prevention, and secret rotation are part of the RL infrastructure contract.
+
+```mermaid
+flowchart LR
+    subgraph Modal_Cloud
+        subgraph Container_0[Container 0: seed=0]
+            C0[grpo.py]\n-- B200:2\n-- 3600s timeout\n-- W&B log
+        end
+        subgraph Container_1[Container 1: seed=1]
+            C1[grpo.py]\n-- B200:2\n-- 3600s timeout\n-- W&B log
+        end
+        subgraph Container_2[Container 2: seed=2]
+            C2[grpo.py]\n-- B200:2\n-- 3600s timeout\n-- W&B log
+        end
+        subgraph Container_3[Container 3: seed=3]
+            C3[grpo.py]\n-- B200:2\n-- 3600s timeout\n-- W&B log
+        end
+    end
+    S[submit_commands] -->|run_command.map| Container_0
+    S -->|run_command.map| Container_1
+    S -->|run_command.map| Container_2
+    S -->|run_command.map| Container_3
+    Container_0 -->|W&B log| WB[W&B project:\ncs336-a5-rlvr-{SUNET_ID}]
+    Container_1 -->|W&B log| WB
+    Container_2 -->|W&B log| WB
+    Container_3 -->|W&B log| WB
+    C0 -.->|failure → SystemExit(1)| F[Batch abort on\nsingle failure]
+```
+
+**Implementation meaning:** add `deployment_topology` fields to the RL runtime record:
+- `gpu_type`, `gpu_count_per_container`, `max_containers`, `container_timeout_s`
+- `parallel_batch_size`: number of concurrent job instances
+- `failure_isolation`: whether single-instance failure aborts the full batch
+- `observability_backend`: `wandb` / `mlflow` / `none` + project name
+- `deployment_aux_context`: whether agent instructions or runbooks are shipped with the training artifact
+- `container_scheduling`: managed vs dedicated (Modal manages scheduling; a dedicated cluster has different contention patterns)
+
+Without these fields, a run report that says "we trained for 1 hour on 4 seeds with GRPO" is indistinguishable from "we trained for 4 non-overlapping hours on 4 sequential seeds with GRPO" — and the batch-parallel version has different GPU contention, timeout risk, and failure semantics than the sequential version.
+
+## Stop-string / answer-extraction coupling — silent reward-collapse surface
+
+The public Assignment 5 codebase makes one more production-relevant detail explicit: **the vLLM `include_stop_str_in_output` default (`False`) is incompatible with the `r1_zero_reward_fn`'s answer-extraction path when `</answer>` is used as a stop string.**
+
+### The concrete failure mode
+
+The vLLM completion API (`vllm_utils.py`, line 204-206) defers to the client:
+
+```python
+payload["include_stop_str_in_output"] = sampling_params.get("include_stop_str_in_output", False)
+```
+
+Default is `False`. When `r1_zero` prompt templates use `</answer>` as a stop string with this default, the vLLM response ends *before* `</answer>`. But `r1_zero_reward_fn` (line 1009) checks:
+
+```python
+if " response <answer>" in response and "</answer>" in response:
+```
+
+If `</answer>` is excluded from output, this check fails and the function returns `format_reward=0.0, answer_reward=0.0, reward=0.0` for every rollout (line 1041-1045). **The model gets zero gradient signal from any correctly-generated-but-trimmed rollout.**
+
+### Prompt-family coupling
+
+| Prompt family | Stop string | `include_stop_str_in_output` requirement | Parser dependency |
+|---|---|---|---|
+| `r1_zero`, `r1_zero_three_shot` | `</answer>` | Must be `True` — default `False` causes zero reward | `r1_zero_reward_fn` checks for `</answer>` presence, then extracts `<answer>...</answer>` content and optionally `\boxed{}` from within |
+| `question_only` | None (natural stop) | Irrelevant — no stop string | `question_only_reward_fn` calls `extract_answer()` which searches for `\boxed{}`, bold text, and other LaTeX patterns |
+
+### Why this matters for governance
+
+- **A silent default mismatch is indistinguishable from policy failure.** If a run reports flat zero reward, the operator cannot tell whether the model failed to learn or `include_stop_str_in_output` was just set wrong.
+- **Prompt-family swaps inherit their predecessor's stop config.** If the training loop is templated and a prior run used `question_only` (no stop string), the next run switching to `r1_zero` must add `stop=["</answer>"]` **and** `include_stop_str_in_output=True`. Forgetting either silently kills the RL signal.
+- **The `question_only` family has its own fragile path.** `extract_answer` (line 985-987) first tries `\boxed{}` extraction, falls through to bold/LaTeX patterns, and returns `None` if nothing matches — also a zero-reward outcome. The difference is that `question_only` is parsing-ambiguous (multiple fallback strategies may extract something) whereas `r1_zero` with wrong stop config is deterministically dead.
+
+**Provenance recommendation:** Add a `rollout_termination_contract` to the run manifest with:
+- `stop_strings` (list, empty if none)
+- `include_stop_str_in_output` (bool, required field — never omit the default)
+- `response_mask_scope` (which tokens count as the "response" for loss computation)
+- `parser_entry_check` (the exact condition the reward function checks to decide "formatted or unformatted")
+- `parser_fallthrough_behavior` (what happens when the parser entry check fails — zero reward vs partial credit vs fallback parser)
+
+Recording `include_stop_str_in_output` as an explicit field rather than relying on a silent default is the minimum governance step. A run that reports `stop_strings=["</answer>"], include_stop_str_in_output=True` can be distinguished from one that silently defaults to `False`.
+![[../../02-lectures/stanford/assets/cs336-stop-string-answer-extraction-coupling.svg]]
+
+## Checkpoint-to-release-gate provenance
+
+The public Assignment 5 surface reveals a structural gap between what a training checkpoint saves and what a deployable release candidate needs. A5 has no built-in checkpoint saver — `checkpoint.py` is only a model/tokenizer loader, and students write their own save logic. The adapter contract captures hyperparameters (group_size, baseline mode, advantage normalizer, clip range, loss normalization) but does not preserve the three-policy snapshot (learner, frozen reference, old rollout policy) that RL release gates depend on.
+
+### What A5 records (per run)
+
+| Category | Fields |
+|---|---|
+| **Training hyperparameters** | `grad_accum_steps`, `max_grad_norm`, `group_size`, `baseline`, `advantage_normalizer`, `importance_reweighting_method`, `loss_normalization`, `normalization_constant`, `cliprange` |
+| **Sampling config** | `temperature`, `seed`, `max_tokens`, `stop` strings |
+| **Reward signals** | `reward`, `format_reward`, `answer_reward` via `drgrpo_grader` (sail-sg/understand-r1-zero) |
+| **Prompt templates** | 5 tracked families, each with distinct extraction/stop contracts |
+| **Infra** | B200:2 × up to 4 containers, 3600s timeout, W&B project, Modal batch scheduling |
+
+### What's missing for release-gate readiness
+
+| Gap | Why it matters |
+|---|---|
+| **No reference/KL policy snapshot** | Release evaluators need to verify KL drift between the new checkpoint and the original model, not just between consecutive checkpoints |
+| **No old_policy snapshot** | Off-policy importance correction becomes unverifiable when the old rollout distribution is discarded |
+| **No optimizer state** | Mid-training evaluation cannot distinguish "can't improve further" from "lost optimizer momentum" |
+| **No eval harness at save time** | Checkpoint reward/loss curves are training metrics, not eval metrics — they conflate policy improvement with dataset/exposure effects |
+| **No prompt hash / prompt_family_id** | A checkpoint at step N rewards are bundled across all prompt families; without family-level provenance, a reward jump may be a prompt-mix artifact, not policy improvement |
+| **No grader version / parser coverage** | Two runs using different grader normalization rule sets see different reward surfaces even with the same model weights |
+| **No sync_epoch / rollout generation timestamp** | Without the learner-generation clock, a checkpoint could be evaluated with rollouts up to 3 sync cycles stale |
+
+### Proposed governance fields for the checkpoint record
+
+A release-gate-ready checkpoint record should bundle:
+
+**Snapshot cartel** (4 components, not 1):
+- `learner_weights_path`, `reference_model_path`, `old_policy_logprobs_sha`
+- `optimizer_state_path` with last-val-loss, `optimizer_momentum_snapshot`
+
+**Config provenance** (must survive checkpoint → release transition):
+- `baseline_mode`, `advantage_normalizer_fn`, `loss_normalization_mode`, `normalization_constant`
+- `cliprange_value`, `group_size`, `grad_accum_steps`
+- `stop_strings`, `max_tokens`, `temperature`, `seed`
+
+**Reward/grader provenance** (not just scalar histories):
+- `reward_fn_id`, `grader_sha`, `parser_path`, `parser_coverage_pct`
+- `answer_normalization_ruleset` (e.g., sympy / math_verify / string-match)
+
+**Eval provenance** (separate from training metrics):
+- `dataset_hash`, `dataset_version`, `eval_grader_version`
+- `eval_batch_size`, `eval_seed`, `eval_timeout_s`
+- `held_out_score`, `failure_slice_scores` (by difficulty, length, prompt family)
+
+**Release provenance** (added at promotion, not training time):
+- `reward_curve_slope_last_N_steps` — is the policy still improving?
+- `val_loss_divergence_since_checkpoint` — overfitting or reward-hacking signal?
+- `rollback_recommendation` — which prior checkpoint to roll back to
+
+**Implementation meaning:** A "checkpoint" is not a release candidate until all four snapshot components exist, grader provenance is verifiable, and the eval record is independent from training metrics. The Assignment 5 runtime surface makes this gap explicit by being a training-only system — nothing in the adapter contract or `checkpoint.py` bridge to deployable release gate metadata.
 ![[../../02-lectures/stanford/assets/cs336-lecture16-rollout-runtime-contract.svg]]
 
 ## Practical note

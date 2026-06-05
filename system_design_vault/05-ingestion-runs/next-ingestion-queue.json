@@ -26,8 +26,8 @@
         "https://www.youtube.com/watch?v=46f2QTDB08Q",
         "https://www.youtube.com/watch?v=JdGFdViaOJk"
       ],
-      "last_checked_at": "2026-05-21",
-      "last_check_result": "partially_open: official CS336 course schedule visibly exposes `lecture_16.pdf` for Lecture 16, while Lecture 17 still has no visible public material link; the only Lecture 17 candidate in page source is commented out and does not satisfy the visible-link rule.",
+      "last_checked_at": "2026-05-26",
+      "last_check_result": "no_delta: L16 visible (lecture_16.pdf HTTP 200), L17 still commented-out HTML (spring2026-lectures repo still 404, schedule row shows Alignment-RL [Percy] for Wed May 27), L18 (Daniel Selsam, Mon June 1) and L19 (Dan Fu, Wed June 3) schedule rows visible without materials yet.",
       "next_check_after": "after_official_cs336_page_changes_or_next_high_value_official_source_pass"
     },
     {
@@ -48,8 +48,8 @@
         "https://web.stanford.edu/class/cs25/",
         "https://web.stanford.edu/class/cs25/recordings/"
       ],
-      "last_checked_at": "2026-05-21",
-      "last_check_result": "still_future_pending: official CS25 page still lists May 21 as 'From Language Models to Native Multimodal Intelligence' for Victoria Lin (Thinking Machines) with a public abstract, but there are still no public materials on the row and the recordings page does not expose this slot as a selected public recording.",
+      "last_checked_at": "2026-05-26",
+      "last_check_result": "still_future_pending_recording: official CS25 page still lists May 21 'From Language Models to Native Multimodal Intelligence' (Victoria Lin, Thinking Machines) on schedule; recordings page still has 5 V3/V4/V6 embeds only — no new recording for May 21 yet. Normal 1-2 week turnaround.",
       "next_check_after": "2026-05-21 or after official CS25 page/recordings page changes"
     },
     {
@@ -70,8 +70,8 @@
         "https://web.stanford.edu/class/cs25/",
         "https://web.stanford.edu/class/cs25/recordings/"
       ],
-      "last_checked_at": "2026-05-21",
-      "last_check_result": "still_future_pending_recording: official CS25 schedule still lists May 28 Serving Transformers: Lessons from the Trenches of Production Inference, speaker Charles Frye (Modal), with public description but no selected public recording on the recordings page.",
+      "last_checked_at": "2026-05-26",
+      "last_check_result": "still_future_pending_recording: official CS25 schedule still lists May 28 'Serving Transformers' (Charles Frye, Modal) with public description but no recording on recordings page (5 V3/V4/V6 embeds unchanged). May 28 talk still upcoming (2 days from now).",
       "next_check_after": "2026-05-28 plus expected one-to-two-week recording delay, or after official CS25 page/recordings page changes"
     },
     {
