@@ -32,7 +32,7 @@ These rules follow the agents.md format used by 60k+ projects (codex, hermes-age
 
 ### 4. Environment constraints awareness
 - Local Mac (arm64), no GPU for inference — use OpenRouter for all model calls
-- Do NOT kill/restart shared processes (Docker, LiveKit, backend server, Cursor) without explicit operator approval
+- Do not restart or kill shared processes (Docker, LiveKit, backend server, Cursor) without explicit operator approval
 - Cron jobs run in isolated sessions with NO conversation history — their prompts must be fully self-contained
 - Subagents (delegate_task) get a fresh terminal session and NO memory — pass ALL context in the goal/context fields
 - The model is deepseek/deepseek-v4-flash via OpenRouter — reasoning_effort=xhigh, temperature<=0.2
@@ -92,14 +92,14 @@ all-about-llms/
 
 ## Files That Must Stay Out
 
-- Do NOT commit secrets, `.env` values, provider tokens, raw private provider responses, private audio, screenshots, PDFs, generated media, proof workspaces, local caches, or large artifacts.
+- Do not commit secrets, `.env` values, provider tokens, raw private provider responses, private audio, screenshots, PDFs, generated media, proof workspaces, local caches, or large artifacts.
 - Use `.secrets/...` only in local operator inputs; never print or commit secret contents.
 
 ## Current Realtime Stack
 
 - Active realtime dialogue: OpenRouter `deepseek/deepseek-v4-flash` + LiveKit + Kokoro.
 - Do NOT use Hugging Face, Gemma4, Gamma4, or MLX as realtime defaults.
-- Do NOT restart Cursor, backend, LiveKit, Docker, or shared local processes without explicit approval.
+- Do not restart Cursor, backend, LiveKit, Docker, or shared local processes without explicit approval.
 
 ## Vault Coordination
 
@@ -111,6 +111,7 @@ all-about-llms/
 
 - `provider-backed-live-voice-proof`: OpenRouter/LiveKit/Kokoro proof gate — accepted state must not be reopened without new evidence.
 - `external-publication-proof`: Remaining publication gate — must not be faked locally.
+- No LinkedIn publication token is required for the manual-publication proof path.
 - Requires operator inputs: `LINKEDIN_POLICY_ACKNOWLEDGEMENT_ARTIFACT_ID`, `PUBLICATION_DURABLE_PLATFORM_ID_OR_URL`, `PUBLICATION_ROLLBACK_OR_POSTCONDITION_ARTIFACT_ID`.
 - After inputs supplied: refresh readiness → credential snapshot → proof plan → blocker matrix → status → unblocker checklist → completion → closure review → blocker-state update.
 
